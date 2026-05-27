@@ -1,4 +1,6 @@
 import uuid
+import json
+from pathlib import Path
 from typing import Dict, Any
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
@@ -19,6 +21,19 @@ app.add_middleware(
 )
 
 JOBS: Dict[str, Dict[str, Any]] = {}
+REPORTS_DIR = Path("reports/jobs")
+
+
+def save_job_results(job_id: str) -> None:
+    job = JOBS[job_id]
+    job_dir = REPORTS_DIR / job_id
+    job_dir.mkdir(parents=True, exist_ok=True)
+
+    with open(job_dir / "config.json", "w", encoding="utf-8") as f:
+        json.dump(job["config"], f, indent=2, ensure_ascii=False)
+
+    with open(job_dir / "metrics.json", "w", encoding="utf-8") as f:
+        json.dump(job["metrics"], f, indent=2, ensure_ascii=False)
 
 
 @app.get("/")
@@ -61,7 +76,10 @@ def get_results(job_id: str):
     if job_id not in JOBS:
         return {"error": "job not found"}
 
-    return JOBS[job_id]
+    result = JOBS[job_id].copy()
+    result["report_dir"] = str(REPORTS_DIR / job_id)
+
+    return result
 
 
 @app.websocket("/ws/{job_id}")
@@ -82,6 +100,7 @@ async def websocket_run(websocket: WebSocket, job_id: str):
             await websocket.send_json(metric)
 
         JOBS[job_id]["status"] = "finished"
+        save_job_results(job_id)
         await websocket.send_json({"event": "finished"})
 
     except WebSocketDisconnect:
