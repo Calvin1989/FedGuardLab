@@ -1,0 +1,27 @@
+experiment:
+  name: "label_flip_demo"
+  seed: 42
+  rounds: 20
+
+federated:
+  num_clients: 10
+  malicious_clients: 2
+  aggregation: "fedavg"
+
+dataset:
+  name: "mnist"
+  partition: "dirichlet"
+  alpha: 0.5
+
+attack:
+  type: "label_flipping"
+  source_label: 1
+  target_label: 7
+
+defense:
+  type: "none"
+
+metrics:
+  - accuracy
+  - attack_success_rate
+  - loss
