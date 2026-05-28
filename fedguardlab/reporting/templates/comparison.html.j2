@@ -1,0 +1,123 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>FedGuardLab Comparison Report - {{ comparison_id }}</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+      background: #f8fafc;
+      color: #0f172a;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      background: white;
+      padding: 32px;
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+    }
+
+    h1, h2 {
+      margin-top: 0;
+    }
+
+    .muted {
+      color: #64748b;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 16px;
+    }
+
+    th, td {
+      border-bottom: 1px solid #e2e8f0;
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f1f5f9;
+    }
+
+    a {
+      color: #2563eb;
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .highlight {
+      font-weight: 700;
+    }
+
+    .note {
+      margin-top: 24px;
+      padding: 16px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      color: #475569;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <p class="muted">FedGuardLab Comparison Report</p>
+    <h1>{{ title }}</h1>
+
+    <p><strong>Comparison ID:</strong> {{ comparison_id }}</p>
+    <p><strong>Number of Experiments:</strong> {{ experiments | length }}</p>
+
+    <h2>Final Metrics</h2>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Experiment</th>
+          <th>Aggregation</th>
+          <th>Defense</th>
+          <th>Attack</th>
+          <th>Final Accuracy</th>
+          <th>Final Loss</th>
+          <th>Final ASR</th>
+          <th>Job ID</th>
+          <th>Report</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in experiments %}
+        <tr>
+          <td>{{ item.experiment_name }}</td>
+          <td>{{ item.aggregation }}</td>
+          <td>{{ item.defense }}</td>
+          <td>{{ item.attack }}</td>
+          <td>{{ item.final_accuracy }}</td>
+          <td>{{ item.final_loss }}</td>
+          <td class="highlight">{{ item.final_asr }}</td>
+          <td>{{ item.job_id }}</td>
+          <td>
+            <a href="../../jobs/{{ item.job_id }}/report.html" target="_blank">
+              Open
+            </a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <div class="note">
+      Lower ASR usually indicates stronger resistance to the configured target attack.
+      Current results are intended for lightweight demonstration, not formal benchmarking.
+    </div>
+  </div>
+</body>
+</html>

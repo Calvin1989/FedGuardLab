@@ -31,3 +31,6 @@ Thumbs.db
 
 # Datasets
 data/
+
+# Comparison reports
+reports/comparisons/
