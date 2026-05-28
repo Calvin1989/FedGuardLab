@@ -1,15 +1,20 @@
 import uuid
 import json
 from pathlib import Path
-from typing import Dict, Any
+from typing import Dict, Any, List
 
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 
 from fedguardlab.config.loader import load_config
 from fedguardlab.core.trainer import run_experiment
 from fedguardlab.reporting.generator import generate_html_report
+from fedguardlab.reporting.comparison import (
+    COMPARISONS_DIR,
+    generate_comparison_report,
+)
 
 
 app = FastAPI(title="FedGuardLab API")
@@ -24,6 +29,11 @@ app.add_middleware(
 
 JOBS: Dict[str, Dict[str, Any]] = {}
 REPORTS_DIR = Path("reports/jobs")
+
+
+class ComparisonRequest(BaseModel):
+    job_ids: List[str]
+    title: str = "FedGuardLab Experiment Comparison"
 
 
 def save_job_results(job_id: str) -> None:
@@ -94,6 +104,36 @@ def get_report(job_id: str):
 
     if not report_path.exists():
         return {"error": "report not found"}
+
+    return FileResponse(report_path)
+
+
+@app.post("/comparisons")
+def create_comparison(request: ComparisonRequest):
+    try:
+        output_path = generate_comparison_report(
+            job_ids=request.job_ids,
+            title=request.title,
+        )
+
+        comparison_id = output_path.parent.name
+
+        return {
+            "comparison_id": comparison_id,
+            "comparison_path": str(output_path),
+            "comparison_url": f"http://127.0.0.1:8000/comparisons/{comparison_id}",
+        }
+
+    except Exception as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@app.get("/comparisons/{comparison_id}")
+def get_comparison_report(comparison_id: str):
+    report_path = COMPARISONS_DIR / comparison_id / "comparison.html"
+
+    if not report_path.exists():
+        return {"error": "comparison report not found"}
 
     return FileResponse(report_path)
 

@@ -32,6 +32,12 @@ const errorMessage = ref("");
 const reportUrl = ref("");
 const selectedConfig = ref("configs/mnist_fedavg_demo.yaml");
 
+const recentJobs = ref([]);
+const selectedJobIds = ref([]);
+const comparisonStatus = ref("idle");
+const comparisonError = ref("");
+const comparisonUrl = ref("");
+
 const experimentOptions = [
   {
     label: "Real MNIST FedAvg Demo",
@@ -116,6 +122,63 @@ const chartOptions = {
   },
 };
 
+function getSelectedExperimentLabel() {
+  const option = experimentOptions.find(
+    (item) => item.value === selectedConfig.value
+  );
+
+  return option ? option.label : selectedConfig.value;
+}
+
+
+function toggleJobSelection(jobId) {
+  if (selectedJobIds.value.includes(jobId)) {
+    selectedJobIds.value = selectedJobIds.value.filter((id) => id !== jobId);
+    return;
+  }
+
+  selectedJobIds.value = [...selectedJobIds.value, jobId];
+}
+
+
+async function createComparisonReport() {
+  comparisonError.value = "";
+  comparisonUrl.value = "";
+
+  if (selectedJobIds.value.length < 2) {
+    comparisonError.value = "Please select at least two finished experiments.";
+    return;
+  }
+
+  comparisonStatus.value = "creating";
+
+  try {
+    const response = await fetch(`${API_BASE}/comparisons`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        job_ids: selectedJobIds.value,
+        title: "Label Flipping Defense Comparison",
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.detail || "Failed to create comparison report");
+    }
+
+    comparisonUrl.value = data.comparison_url;
+    comparisonStatus.value = "finished";
+  } catch (error) {
+    comparisonError.value = error.message;
+    comparisonStatus.value = "error";
+  }
+}
+
+
 async function startExperiment() {
   errorMessage.value = "";
   metrics.value = [];
@@ -159,6 +222,25 @@ async function startExperiment() {
       if (message.event === "finished") {
         status.value = "finished";
         reportUrl.value = `${API_BASE}/reports/${jobId.value}`;
+
+        const finalMetric = metrics.value[metrics.value.length - 1] || {};
+
+        recentJobs.value = [
+          {
+            job_id: jobId.value,
+            label: getSelectedExperimentLabel(),
+            config_path: selectedConfig.value,
+            aggregation: finalMetric.aggregation || "unknown",
+            defense: finalMetric.defense || "unknown",
+            attack: finalMetric.attack || "unknown",
+            final_accuracy: finalMetric.accuracy ?? 0,
+            final_loss: finalMetric.loss ?? 0,
+            final_asr: finalMetric.attack_success_rate ?? 0,
+            report_url: `${API_BASE}/reports/${jobId.value}`,
+          },
+          ...recentJobs.value,
+        ];
+
         socket.close();
         return;
       }
@@ -285,6 +367,88 @@ async function startExperiment() {
 
       <div v-else class="empty-state">
         Click the button to start an experiment.
+      </div>
+    </section>
+
+    <section class="comparison-card">
+      <div class="section-header">
+        <div>
+          <h2>Experiment Comparison</h2>
+          <p>
+            Select at least two finished experiments and generate a comparison report.
+          </p>
+        </div>
+
+        <button
+          class="run-button"
+          :disabled="selectedJobIds.length < 2 || comparisonStatus === 'creating'"
+          @click="createComparisonReport"
+        >
+          {{
+            comparisonStatus === "creating"
+              ? "Generating..."
+              : "Generate Comparison Report"
+          }}
+        </button>
+      </div>
+
+      <div v-if="recentJobs.length === 0" class="empty-state small">
+        Finished experiments will appear here.
+      </div>
+
+      <table v-else class="jobs-table">
+        <thead>
+          <tr>
+            <th>Select</th>
+            <th>Experiment</th>
+            <th>Aggregation</th>
+            <th>Defense</th>
+            <th>Attack</th>
+            <th>Accuracy</th>
+            <th>Loss</th>
+            <th>ASR</th>
+            <th>Report</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr v-for="job in recentJobs" :key="job.job_id">
+            <td>
+              <input
+                type="checkbox"
+                :checked="selectedJobIds.includes(job.job_id)"
+                @change="toggleJobSelection(job.job_id)"
+              />
+            </td>
+            <td>
+              <div class="job-label">{{ job.label }}</div>
+              <div class="job-id">{{ job.job_id }}</div>
+            </td>
+            <td>{{ job.aggregation }}</td>
+            <td>{{ job.defense }}</td>
+            <td>{{ job.attack }}</td>
+            <td>{{ job.final_accuracy }}</td>
+            <td>{{ job.final_loss }}</td>
+            <td>{{ job.final_asr }}</td>
+            <td>
+              <a class="report-link" :href="job.report_url" target="_blank">
+                Open
+              </a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div v-if="comparisonError" class="error comparison-message">
+        <strong>Error:</strong>
+        <span>{{ comparisonError }}</span>
+      </div>
+
+      <div v-if="comparisonUrl" class="comparison-message">
+        <strong>Comparison:</strong>
+        <a class="report-link" :href="comparisonUrl" target="_blank">
+          Open Comparison Report
+        </a>
       </div>
     </section>
   </main>
@@ -437,5 +601,71 @@ h1 {
   margin: 0 0 8px;
   color: #64748b;
   font-size: 14px;
+}
+
+.comparison-card {
+  margin-top: 24px;
+  padding: 24px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.section-header h2 {
+  margin: 0 0 8px;
+}
+
+.section-header p {
+  margin: 0;
+  color: #64748b;
+}
+
+.jobs-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 16px;
+  font-size: 14px;
+}
+
+.jobs-table th,
+.jobs-table td {
+  padding: 10px;
+  border-bottom: 1px solid #e2e8f0;
+  text-align: left;
+  vertical-align: top;
+}
+
+.jobs-table th {
+  background: #f8fafc;
+  color: #334155;
+}
+
+.job-label {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.job-id {
+  margin-top: 4px;
+  color: #64748b;
+  font-size: 12px;
+  word-break: break-all;
+}
+
+.comparison-message {
+  margin-top: 16px;
+}
+
+.small {
+  height: 120px;
 }
 </style>
