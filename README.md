@@ -4,23 +4,26 @@ FedGuardLab 是一个面向联邦学习安全实验的交互式实验平台。
 
 项目目标不是做一个“大而全”的联邦学习 benchmark，而是提供一个轻量、可视化、可复现的实验环境，帮助学生、研究者和开发者更直观地理解联邦学习中的攻击、防御和实验流程。
 
-当前版本是平台 MVP，主要完成了前后端联动、WebSocket 实时指标推送、实验结果保存和 HTML 报告生成。真实联邦学习训练将在下一阶段接入。
+当前版本已经完成平台 MVP，并接入了真实的 MNIST + FedAvg 联邦学习训练流程。用户可以在前端选择 simulated demo 或 real MNIST FedAvg demo，运行实验、查看实时指标，并生成可复现的 HTML 报告。
 
-> 注意：当前 MVP 使用的是 simulated trainer，用于验证 Dashboard、报告生成和实验调度流程。后续会逐步替换为真实的 MNIST + FedAvg 联邦学习训练流程。
+> 注意：项目同时保留 simulated trainer 和 real MNIST FedAvg trainer。simulated trainer 用于快速演示 Dashboard 与报告流程；real MNIST FedAvg trainer 用于验证真实联邦学习训练闭环。
 
 ---
 
 ## 项目特性
 
-* Vue + Vite 前端 Dashboard
-* FastAPI 后端服务
-* WebSocket 实时推送实验指标
-* YAML 实验配置文件
-* Pydantic 配置校验
-* 模拟联邦学习训练器
-* 自动保存实验配置和指标
-* 自动生成 HTML 实验报告
-* 前端页面可直接打开实验报告
+- Vue + Vite 前端 Dashboard
+- FastAPI 后端服务
+- WebSocket 实时推送实验指标
+- YAML 实验配置文件
+- Pydantic 配置校验
+- 支持 simulated trainer 快速演示
+- 支持真实 MNIST + FedAvg 联邦学习训练
+- 支持前端选择不同实验配置
+- 自动保存实验配置和指标
+- 自动生成 HTML 实验报告
+- 前端页面可直接打开实验报告
+- 实验报告展示训练模式、客户端数量、数据集、划分方式、攻击与防御信息
 
 ---
 
@@ -29,11 +32,13 @@ FedGuardLab 是一个面向联邦学习安全实验的交互式实验平台。
 ```text
 Vue Dashboard
     ↓
-FastAPI /run
+Experiment Selector
+    ↓
+FastAPI /run?config_path=...
     ↓
 WebSocket /ws/{job_id}
     ↓
-Simulated FL Trainer
+Simulated Trainer 或 Real MNIST FedAvg Trainer
     ↓
 config.json + metrics.json
     ↓
@@ -49,12 +54,17 @@ FedGuardLab/
 ├── api/
 │   └── main.py
 ├── configs/
-│   └── label_flip_demo.yaml
+│   ├── label_flip_demo.yaml
+│   └── mnist_fedavg_demo.yaml
 ├── fedguardlab/
 │   ├── config/
 │   │   ├── loader.py
 │   │   └── schema.py
 │   ├── core/
+│   │   ├── aggregation.py
+│   │   ├── data.py
+│   │   ├── mnist_fedavg.py
+│   │   ├── models.py
 │   │   └── trainer.py
 │   └── reporting/
 │       ├── generator.py
@@ -94,6 +104,7 @@ conda activate fedguardlab
 
 ```bash
 python -m pip install fastapi "uvicorn[standard]" pydantic pyyaml jinja2 numpy pandas
+python -m pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
 ```
 
 ---
@@ -143,13 +154,49 @@ http://localhost:3000
 
 如果 3000 端口被占用，Vite 会自动切换到 3001、3002 等端口。
 
-打开页面后，点击：
+打开页面后，可以选择实验配置并点击：
 
 ```text
-Run Label Flipping Demo
+Run Experiment
 ```
 
-即可启动一次模拟实验。
+---
+
+## 当前支持的实验
+
+### 1. Simulated Label Flipping Demo
+
+配置文件：
+
+```text
+configs/label_flip_demo.yaml
+```
+
+用途：
+
+- 快速验证 Dashboard；
+- 快速验证 WebSocket；
+- 快速生成实验报告；
+- 模拟 label flipping 攻击下的指标变化。
+
+---
+
+### 2. Real MNIST FedAvg Demo
+
+配置文件：
+
+```text
+configs/mnist_fedavg_demo.yaml
+```
+
+用途：
+
+- 使用 PyTorch 加载 MNIST；
+- 将训练集 IID 划分到多个客户端；
+- 每个客户端进行本地训练；
+- 使用 FedAvg 聚合客户端模型；
+- 在测试集上评估全局模型；
+- 将真实训练结果推送到前端并生成报告。
 
 ---
 
@@ -166,9 +213,9 @@ reports/jobs/<job_id>/
 
 其中：
 
-* `config.json` 保存本次实验配置；
-* `metrics.json` 保存每一轮实验指标；
-* `report.html` 是自动生成的 HTML 实验报告。
+- `config.json` 保存本次实验配置；
+- `metrics.json` 保存每一轮实验指标；
+- `report.html` 是自动生成的 HTML 实验报告。
 
 前端页面会在实验完成后显示 `Open HTML Report` 链接，可以直接在浏览器中打开报告。
 
@@ -176,13 +223,7 @@ reports/jobs/<job_id>/
 
 ## 示例配置
 
-当前默认实验配置位于：
-
-```text
-configs/label_flip_demo.yaml
-```
-
-内容示例：
+### Simulated Label Flipping Demo
 
 ```yaml
 experiment:
@@ -214,19 +255,65 @@ metrics:
   - loss
 ```
 
+### Real MNIST FedAvg Demo
+
+```yaml
+experiment:
+  name: "mnist_fedavg_demo"
+  seed: 42
+  rounds: 3
+
+training:
+  mode: "real"
+  local_epochs: 1
+  batch_size: 64
+  learning_rate: 0.01
+  max_train_samples: 5000
+  max_test_samples: 1000
+
+federated:
+  num_clients: 5
+  malicious_clients: 0
+  aggregation: "fedavg"
+
+dataset:
+  name: "mnist"
+  partition: "iid"
+  alpha: null
+
+attack:
+  type: "none"
+  source_label: null
+  target_label: null
+
+defense:
+  type: "none"
+
+metrics:
+  - accuracy
+  - loss
+```
+
 ---
 
 ## 当前实验指标
 
-当前模拟训练器会实时生成以下指标：
+当前系统会实时生成并展示以下指标：
 
-* `round`：当前通信轮次；
-* `accuracy`：模拟全局模型准确率；
-* `loss`：模拟训练损失；
-* `attack_success_rate`：模拟攻击成功率；
-* `aggregation`：聚合方法；
-* `attack`：攻击类型；
-* `defense`：防御方法。
+- `round`：当前通信轮次；
+- `accuracy`：全局模型准确率；
+- `loss`：测试集损失；
+- `attack_success_rate`：攻击成功率；
+- `trainer`：训练器类型；
+- `mode`：训练模式；
+- `dataset`：数据集名称；
+- `partition`：数据划分方式；
+- `num_clients`：客户端数量；
+- `malicious_clients`：恶意客户端数量；
+- `aggregation`：聚合方法；
+- `attack`：攻击类型；
+- `defense`：防御方法；
+- `device`：训练设备。
 
 这些指标会通过 WebSocket 实时推送到前端，并同时用于生成实验报告。
 
@@ -236,42 +323,43 @@ metrics:
 
 ### Stage 1：平台 MVP
 
-* [x] FastAPI 后端
-* [x] Vue Dashboard
-* [x] WebSocket 实时指标推送
-* [x] YAML 配置加载
-* [x] Pydantic 配置校验
-* [x] 实验结果自动保存
-* [x] HTML 报告生成
-* [x] 前端打开报告
+- [x] FastAPI 后端
+- [x] Vue Dashboard
+- [x] WebSocket 实时指标推送
+- [x] YAML 配置加载
+- [x] Pydantic 配置校验
+- [x] 实验结果自动保存
+- [x] HTML 报告生成
+- [x] 前端打开报告
+- [x] 前端选择实验配置
 
 ### Stage 2：真实联邦学习训练
 
-* [ ] 添加 PyTorch MNIST 模型
-* [ ] 实现 FedAvg
-* [ ] 实现 IID 数据划分
-* [ ] 实现 Dirichlet Non-IID 数据划分
-* [ ] 用真实 FL trainer 替换 simulated trainer
-* [ ] 在 Dashboard 中展示真实训练指标
+- [x] 添加 PyTorch MNIST 模型
+- [x] 实现 FedAvg
+- [x] 实现 IID 数据划分
+- [x] 接入真实 MNIST FedAvg trainer
+- [x] 在 Dashboard 中展示真实训练指标
+- [ ] 实现 Dirichlet Non-IID 数据划分
 
 ### Stage 3：联邦学习安全实验
 
-* [ ] 实现 label flipping 攻击
-* [ ] 实现 backdoor 攻击
-* [ ] 实现 model poisoning 攻击
-* [ ] 实现 median 聚合防御
-* [ ] 实现 trimmed mean 聚合防御
-* [ ] 实现 Krum 聚合防御
-* [ ] 添加 attack success rate 评估逻辑
+- [ ] 实现 label flipping 攻击
+- [ ] 实现 backdoor 攻击
+- [ ] 实现 model poisoning 攻击
+- [ ] 实现 median 聚合防御
+- [ ] 实现 trimmed mean 聚合防御
+- [ ] 实现 Krum 聚合防御
+- [ ] 添加 attack success rate 评估逻辑
 
 ### Stage 4：研究可用性增强
 
-* [ ] 支持多实验对比
-* [ ] 支持指标导出为 CSV
-* [ ] 支持生成 Markdown 报告
-* [ ] 支持 Docker 启动
-* [ ] 添加 GitHub Actions smoke test
-* [ ] 添加更多预设实验场景
+- [ ] 支持多实验对比
+- [ ] 支持指标导出为 CSV
+- [ ] 支持生成 Markdown 报告
+- [ ] 支持 Docker 启动
+- [ ] 添加 GitHub Actions smoke test
+- [ ] 添加更多预设实验场景
 
 ---
 
@@ -295,12 +383,16 @@ FedGuardLab 的定位是：
 
 ## 当前状态
 
-当前项目已经完成平台 MVP：
+当前项目已经完成：
 
 ```text
+浏览器选择实验
+  ↓
 浏览器启动实验
   ↓
 后端创建任务
+  ↓
+真实或模拟 trainer 运行
   ↓
 WebSocket 实时推送指标
   ↓
@@ -313,7 +405,7 @@ WebSocket 实时推送指标
 浏览器打开报告
 ```
 
-下一阶段将开始接入真实的 MNIST + FedAvg 联邦学习训练流程。
+下一阶段将开始实现 Dirichlet Non-IID 数据划分和真实 label flipping 攻击。
 
 ---
 
@@ -321,30 +413,30 @@ WebSocket 实时推送指标
 
 ### 后端
 
-* Python
-* FastAPI
-* Uvicorn
-* WebSocket
-* Pydantic
-* PyYAML
-* Jinja2
-* NumPy
-* Pandas
+- Python
+- FastAPI
+- Uvicorn
+- WebSocket
+- Pydantic
+- PyYAML
+- Jinja2
+- NumPy
+- Pandas
+- PyTorch
+- torchvision
 
 ### 前端
 
-* Vue
-* Vite
-* Chart.js
-* vue-chartjs
+- Vue
+- Vite
+- Chart.js
+- vue-chartjs
 
 ### 后续计划引入
 
-* PyTorch
-* torchvision
-* Flower，可选
-* Docker
-* GitHub Actions
+- Docker
+- GitHub Actions
+- Flower，可选
 
 ---
 
