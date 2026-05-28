@@ -531,7 +531,7 @@ WebSocket 实时推送指标
 
 ## 当前版本
 
-`v0.5.0`
+`v0.6.0`
 
 已完成：
 
@@ -550,7 +550,11 @@ WebSocket 实时推送指标
 - GitHub Actions 使用 CPU PyTorch 依赖；
 - 单实验指标导出为 CSV；
 - 单实验报告导出为 Markdown；
-- 对比实验导出为 CSV。
+- 对比实验导出为 CSV；
+- Ruff 代码质量检查；
+- requirements-dev.txt 开发依赖；
+- GitHub Actions 运行 Ruff + quick test；
+- pyproject.toml 项目工具配置。
 
 ---
 
