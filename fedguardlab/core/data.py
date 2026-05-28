@@ -111,7 +111,9 @@ def dirichlet_partition(
             rng.shuffle(class_indices)
 
             proportions = rng.dirichlet(np.repeat(alpha, num_clients))
-            split_points = (np.cumsum(proportions)[:-1] * len(class_indices)).astype(int)
+            split_points = (
+                np.cumsum(proportions)[:-1] * len(class_indices)
+            ).astype(int)
             class_splits = np.split(class_indices, split_points)
 
             for client_id, split in enumerate(class_splits):

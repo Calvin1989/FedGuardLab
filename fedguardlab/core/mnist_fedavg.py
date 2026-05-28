@@ -116,7 +116,8 @@ async def run_mnist_fedavg_experiment(
         "krum",
     }:
         raise ValueError(
-            "real MNIST trainer currently supports FedAvg, Median, Trimmed Mean, and Krum"
+            "real MNIST trainer currently supports FedAvg, Median, "
+            "Trimmed Mean, and Krum"
         )
 
     set_seed(config.experiment.seed)
@@ -140,7 +141,9 @@ async def run_mnist_fedavg_experiment(
 
     if config.attack.type == "label_flipping":
         if config.attack.source_label is None or config.attack.target_label is None:
-            raise ValueError("source_label and target_label are required for label_flipping")
+            raise ValueError(
+                "source_label and target_label are required for label_flipping"
+            )
 
         client_datasets = apply_label_flipping_to_clients(
             client_datasets=client_datasets,
