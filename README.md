@@ -200,6 +200,27 @@ configs/mnist_fedavg_demo.yaml
 
 ---
 
+### 3. Real MNIST FedAvg Label Flip Demo
+
+配置文件：
+
+```text
+configs/mnist_fedavg_label_flip_demo.yaml
+```
+
+用途：
+
+- 使用真实 MNIST 数据集；
+- 使用 IID 数据划分；
+- 设置 5 个客户端；
+- 设置前 2 个客户端为恶意客户端；
+- 在恶意客户端本地训练数据中执行 1 → 7 label flipping；
+- 使用 FedAvg 聚合全局模型；
+- 计算全局 accuracy、loss 和 attack success rate；
+- 在 HTML 报告中展示客户端标签分布和 ASR。
+
+---
+
 ## 实验输出
 
 每次实验完成后，系统会自动生成一个以 `job_id` 命名的目录：
@@ -344,13 +365,13 @@ metrics:
 
 ### Stage 3：联邦学习安全实验
 
-- [ ] 实现 label flipping 攻击
+- [x] 实现真实 label flipping 攻击
+- [x] 添加 attack success rate 评估逻辑
 - [ ] 实现 backdoor 攻击
 - [ ] 实现 model poisoning 攻击
 - [ ] 实现 median 聚合防御
 - [ ] 实现 trimmed mean 聚合防御
 - [ ] 实现 Krum 聚合防御
-- [ ] 添加 attack success rate 评估逻辑
 
 ### Stage 4：研究可用性增强
 
@@ -405,7 +426,7 @@ WebSocket 实时推送指标
 浏览器打开报告
 ```
 
-下一阶段将开始实现 Dirichlet Non-IID 数据划分和真实 label flipping 攻击。
+当前已经支持 IID、Dirichlet Non-IID、真实 label flipping 攻击和 ASR 评估。下一阶段将开始实现鲁棒聚合防御，例如 median、trimmed mean 和 Krum。
 
 ---
 
