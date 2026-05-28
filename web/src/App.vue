@@ -30,6 +30,21 @@ const status = ref("idle");
 const metrics = ref([]);
 const errorMessage = ref("");
 const reportUrl = ref("");
+const selectedConfig = ref("configs/mnist_fedavg_demo.yaml");
+
+const experimentOptions = [
+  {
+    label: "Real MNIST FedAvg Demo",
+    value: "configs/mnist_fedavg_demo.yaml",
+    description: "真实 MNIST + 5 个客户端 + FedAvg 聚合",
+  },
+  {
+    label: "Simulated Label Flipping Demo",
+    value: "configs/label_flip_demo.yaml",
+    description: "模拟 label flipping 攻击，用于快速演示 Dashboard",
+  },
+];
+
 let socket = null;
 
 const latestMetric = computed(() => {
@@ -94,9 +109,12 @@ async function startExperiment() {
   }
 
   try {
-    const response = await fetch(`${API_BASE}/run`, {
-      method: "POST",
-    });
+    const response = await fetch(
+      `${API_BASE}/run?config_path=${encodeURIComponent(selectedConfig.value)}`,
+      {
+        method: "POST",
+      }
+    );
 
     if (!response.ok) {
       throw new Error(`Failed to create run: ${response.status}`);
@@ -155,13 +173,41 @@ async function startExperiment() {
         through WebSocket in real time.
       </p>
 
-      <button
-        class="run-button"
-        :disabled="status === 'creating' || status === 'running'"
-        @click="startExperiment"
-      >
-        {{ status === "running" ? "Running..." : "Run Label Flipping Demo" }}
-      </button>
+      <div class="control-panel">
+        <label class="field-label" for="experiment-select">
+          Experiment
+        </label>
+
+        <select
+          id="experiment-select"
+          v-model="selectedConfig"
+          class="experiment-select"
+          :disabled="status === 'creating' || status === 'running'"
+        >
+          <option
+            v-for="option in experimentOptions"
+            :key="option.value"
+            :value="option.value"
+          >
+            {{ option.label }}
+          </option>
+        </select>
+
+        <p class="option-description">
+          {{
+            experimentOptions.find((option) => option.value === selectedConfig)
+              ?.description
+          }}
+        </p>
+
+        <button
+          class="run-button"
+          :disabled="status === 'creating' || status === 'running'"
+          @click="startExperiment"
+        >
+          {{ status === "running" ? "Running..." : "Run Experiment" }}
+        </button>
+      </div>
     </section>
 
     <section class="status-card">
@@ -345,5 +391,31 @@ h1 {
 
 .report-link:hover {
   text-decoration: underline;
+}
+
+.control-panel {
+  display: grid;
+  gap: 10px;
+  max-width: 420px;
+}
+
+.field-label {
+  font-weight: 700;
+  color: #334155;
+}
+
+.experiment-select {
+  padding: 10px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  background: white;
+  color: #0f172a;
+  font-size: 14px;
+}
+
+.option-description {
+  margin: 0 0 8px;
+  color: #64748b;
+  font-size: 14px;
 }
 </style>
