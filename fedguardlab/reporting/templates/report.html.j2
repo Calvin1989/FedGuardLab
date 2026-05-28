@@ -155,6 +155,29 @@
       </tbody>
     </table>
 
+    {% if final_metric.client_label_summary is defined %}
+    <h2>Client Label Distribution</h2>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Client ID</th>
+          <th>Samples</th>
+          <th>Label Counts</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for client in final_metric.client_label_summary %}
+        <tr>
+          <td>{{ client.client_id }}</td>
+          <td>{{ client.num_samples }}</td>
+          <td>{{ client.label_counts }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% endif %}
+
     <h2>Experiment Configuration</h2>
     <pre>{{ config_json }}</pre>
 

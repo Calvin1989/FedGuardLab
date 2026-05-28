@@ -9,7 +9,12 @@ from torch.optim import SGD
 
 from fedguardlab.config.schema import FedGuardConfig
 from fedguardlab.core.aggregation import fedavg
-from fedguardlab.core.data import create_dataloaders, iid_partition, load_mnist_datasets
+from fedguardlab.core.data import (
+    create_dataloaders,
+    load_mnist_datasets,
+    partition_dataset,
+    summarize_client_labels,
+)
 from fedguardlab.core.models import SimpleCNN
 
 
@@ -81,9 +86,6 @@ async def run_mnist_fedavg_experiment(
     if config.federated.aggregation.lower() != "fedavg":
         raise ValueError("real MNIST trainer currently supports only FedAvg")
 
-    if config.dataset.partition.lower() != "iid":
-        raise ValueError("real MNIST trainer currently supports only IID partition")
-
     set_seed(config.experiment.seed)
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -93,11 +95,15 @@ async def run_mnist_fedavg_experiment(
         max_test_samples=config.training.max_test_samples,
     )
 
-    client_datasets = iid_partition(
+    client_datasets = partition_dataset(
         dataset=train_dataset,
         num_clients=config.federated.num_clients,
+        partition=config.dataset.partition,
+        alpha=config.dataset.alpha,
         seed=config.experiment.seed,
     )
+
+    client_label_summary = summarize_client_labels(client_datasets)
 
     client_loaders, test_loader = create_dataloaders(
         client_datasets=client_datasets,
@@ -148,4 +154,5 @@ async def run_mnist_fedavg_experiment(
             "num_clients": config.federated.num_clients,
             "malicious_clients": config.federated.malicious_clients,
             "device": str(device),
+            "client_label_summary": client_label_summary,
         }

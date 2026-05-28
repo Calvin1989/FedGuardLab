@@ -1,7 +1,8 @@
 ﻿import random
+from collections import defaultdict
 from typing import List, Optional, Tuple
 
-import torch
+import numpy as np
 from torch.utils.data import DataLoader, Dataset, Subset
 from torchvision import datasets, transforms
 
@@ -41,6 +42,22 @@ def load_mnist_datasets(
     return train_dataset, test_dataset
 
 
+def get_targets(dataset: Dataset) -> np.ndarray:
+    if isinstance(dataset, Subset):
+        base_targets = get_targets(dataset.dataset)
+        return base_targets[np.array(dataset.indices)]
+
+    if hasattr(dataset, "targets"):
+        targets = dataset.targets
+
+        if hasattr(targets, "numpy"):
+            return targets.numpy()
+
+        return np.array(targets)
+
+    raise ValueError("Dataset does not expose targets")
+
+
 def iid_partition(
     dataset: Dataset,
     num_clients: int,
@@ -64,6 +81,92 @@ def iid_partition(
         client_subsets.append(Subset(dataset, client_indices))
 
     return client_subsets
+
+
+def dirichlet_partition(
+    dataset: Dataset,
+    num_clients: int,
+    alpha: float,
+    seed: int = 42,
+    min_size: int = 10,
+) -> List[Subset]:
+    if alpha <= 0:
+        raise ValueError("alpha must be positive for Dirichlet partition")
+
+    rng = np.random.default_rng(seed)
+    targets = get_targets(dataset)
+    num_classes = int(targets.max()) + 1
+
+    while True:
+        client_indices = [[] for _ in range(num_clients)]
+
+        for class_id in range(num_classes):
+            class_indices = np.where(targets == class_id)[0]
+            rng.shuffle(class_indices)
+
+            proportions = rng.dirichlet(np.repeat(alpha, num_clients))
+            split_points = (np.cumsum(proportions)[:-1] * len(class_indices)).astype(int)
+            class_splits = np.split(class_indices, split_points)
+
+            for client_id, split in enumerate(class_splits):
+                client_indices[client_id].extend(split.tolist())
+
+        sizes = [len(indices) for indices in client_indices]
+
+        if min(sizes) >= min_size:
+            break
+
+    for indices in client_indices:
+        rng.shuffle(indices)
+
+    return [Subset(dataset, indices) for indices in client_indices]
+
+
+def partition_dataset(
+    dataset: Dataset,
+    num_clients: int,
+    partition: str,
+    alpha: Optional[float] = None,
+    seed: int = 42,
+) -> List[Subset]:
+    partition = partition.lower()
+
+    if partition == "iid":
+        return iid_partition(dataset, num_clients, seed)
+
+    if partition == "dirichlet":
+        if alpha is None:
+            raise ValueError("alpha is required for Dirichlet partition")
+
+        return dirichlet_partition(
+            dataset=dataset,
+            num_clients=num_clients,
+            alpha=alpha,
+            seed=seed,
+        )
+
+    raise ValueError(f"Unsupported partition type: {partition}")
+
+
+def summarize_client_labels(client_datasets: List[Dataset]) -> List[dict]:
+    summaries = []
+
+    for client_id, dataset in enumerate(client_datasets):
+        targets = get_targets(dataset)
+        label_counts = defaultdict(int)
+
+        for label in targets:
+            label_counts[int(label)] += 1
+
+        summaries.append(
+            {
+                "client_id": client_id,
+                "num_samples": len(dataset),
+                "label_counts": dict(sorted(label_counts.items())),
+            }
+        )
+
+    return summaries
 
 
 def create_dataloaders(
