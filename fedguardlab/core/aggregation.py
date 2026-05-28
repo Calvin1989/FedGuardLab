@@ -1,4 +1,4 @@
-from collections import OrderedDict
+﻿from collections import OrderedDict
 from typing import Dict, List
 
 import torch
@@ -72,11 +72,60 @@ def trimmed_mean(
     return trimmed_state
 
 
+def flatten_state(state: StateDict) -> torch.Tensor:
+    return torch.cat([tensor.detach().float().reshape(-1) for tensor in state.values()])
+
+
+def krum(
+    client_states: List[StateDict],
+    num_malicious: int,
+) -> StateDict:
+    if len(client_states) == 0:
+        raise ValueError("client_states cannot be empty")
+
+    num_clients = len(client_states)
+
+    if num_malicious < 0:
+        raise ValueError("num_malicious cannot be negative")
+
+    if num_clients <= 2 * num_malicious + 2:
+        raise ValueError(
+            "Krum requires num_clients > 2 * num_malicious + 2"
+        )
+
+    flattened_states = [flatten_state(state) for state in client_states]
+
+    scores = []
+
+    for i in range(num_clients):
+        distances = []
+
+        for j in range(num_clients):
+            if i == j:
+                continue
+
+            distance = torch.sum((flattened_states[i] - flattened_states[j]) ** 2)
+            distances.append(distance)
+
+        distances = sorted(distances)
+        neighbor_count = num_clients - num_malicious - 2
+        score = sum(distances[:neighbor_count])
+        scores.append(score)
+
+    selected_index = int(torch.argmin(torch.stack(scores)).item())
+
+    return OrderedDict(
+        (key, value.clone())
+        for key, value in client_states[selected_index].items()
+    )
+
+
 def aggregate(
     client_states: List[StateDict],
     client_sizes: List[int],
     method: str,
     trim_ratio: float = 0.2,
+    num_malicious: int = 0,
 ) -> StateDict:
     method = method.lower()
 
@@ -88,5 +137,8 @@ def aggregate(
 
     if method == "trimmed_mean":
         return trimmed_mean(client_states, trim_ratio=trim_ratio)
+
+    if method == "krum":
+        return krum(client_states, num_malicious=num_malicious)
 
     raise ValueError(f"Unsupported aggregation method: {method}")

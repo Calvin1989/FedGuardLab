@@ -38,6 +38,7 @@ class AttackConfig(BaseModel):
 class DefenseConfig(BaseModel):
     type: str = "none"
     trim_ratio: float = 0.2
+    krum_malicious_clients: int | None = None
 
 
 class FedGuardConfig(BaseModel):

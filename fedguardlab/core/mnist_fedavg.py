@@ -113,9 +113,10 @@ async def run_mnist_fedavg_experiment(
         "fedavg",
         "median",
         "trimmed_mean",
+        "krum",
     }:
         raise ValueError(
-            "real MNIST trainer currently supports FedAvg, Median, and Trimmed Mean"
+            "real MNIST trainer currently supports FedAvg, Median, Trimmed Mean, and Krum"
         )
 
     set_seed(config.experiment.seed)
@@ -179,11 +180,18 @@ async def run_mnist_fedavg_experiment(
             client_states.append(client_state)
             client_sizes.append(len(client_loader.dataset))
 
+        krum_malicious_clients = (
+            config.defense.krum_malicious_clients
+            if config.defense.krum_malicious_clients is not None
+            else config.federated.malicious_clients
+        )
+
         aggregated_state = aggregate(
             client_states=client_states,
             client_sizes=client_sizes,
             method=config.federated.aggregation,
             trim_ratio=config.defense.trim_ratio,
+            num_malicious=krum_malicious_clients,
         )
         global_model.load_state_dict(aggregated_state)
 
