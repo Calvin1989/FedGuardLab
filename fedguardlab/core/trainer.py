@@ -40,6 +40,12 @@ async def run_fake_experiment(
             "attack": config.attack.type,
             "defense": config.defense.type,
             "trainer": "simulated",
+            "mode": config.training.mode,
+            "dataset": config.dataset.name,
+            "partition": config.dataset.partition,
+            "num_clients": config.federated.num_clients,
+            "malicious_clients": config.federated.malicious_clients,
+            "device": "n/a",
         }
 
 

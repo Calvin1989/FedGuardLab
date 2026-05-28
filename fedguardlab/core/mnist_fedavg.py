@@ -142,5 +142,10 @@ async def run_mnist_fedavg_experiment(
             "attack": config.attack.type,
             "defense": config.defense.type,
             "trainer": "mnist_fedavg",
+            "mode": config.training.mode,
+            "dataset": config.dataset.name,
+            "partition": config.dataset.partition,
+            "num_clients": config.federated.num_clients,
+            "malicious_clients": config.federated.malicious_clients,
             "device": str(device),
         }

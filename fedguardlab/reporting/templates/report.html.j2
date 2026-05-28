@@ -108,6 +108,53 @@
       </div>
     </div>
 
+    <h2>Experiment Overview</h2>
+
+    <table>
+      <tbody>
+        <tr>
+          <th>Trainer</th>
+          <td>{{ final_metric.trainer }}</td>
+        </tr>
+        <tr>
+          <th>Mode</th>
+          <td>{{ final_metric.mode }}</td>
+        </tr>
+        <tr>
+          <th>Dataset</th>
+          <td>{{ final_metric.dataset }}</td>
+        </tr>
+        <tr>
+          <th>Partition</th>
+          <td>{{ final_metric.partition }}</td>
+        </tr>
+        <tr>
+          <th>Clients</th>
+          <td>{{ final_metric.num_clients }}</td>
+        </tr>
+        <tr>
+          <th>Malicious Clients</th>
+          <td>{{ final_metric.malicious_clients }}</td>
+        </tr>
+        <tr>
+          <th>Aggregation</th>
+          <td>{{ final_metric.aggregation }}</td>
+        </tr>
+        <tr>
+          <th>Attack</th>
+          <td>{{ final_metric.attack }}</td>
+        </tr>
+        <tr>
+          <th>Defense</th>
+          <td>{{ final_metric.defense }}</td>
+        </tr>
+        <tr>
+          <th>Device</th>
+          <td>{{ final_metric.device }}</td>
+        </tr>
+      </tbody>
+    </table>
+
     <h2>Experiment Configuration</h2>
     <pre>{{ config_json }}</pre>
 

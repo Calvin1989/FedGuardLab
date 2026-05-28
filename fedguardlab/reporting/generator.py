@@ -23,6 +23,16 @@ def generate_html_report(
             "accuracy": 0,
             "loss": 0,
             "attack_success_rate": 0,
+            "trainer": "unknown",
+            "mode": "unknown",
+            "dataset": "unknown",
+            "partition": "unknown",
+            "num_clients": 0,
+            "malicious_clients": 0,
+            "aggregation": "unknown",
+            "attack": "unknown",
+            "defense": "unknown",
+            "device": "unknown",
         }
 
     env = Environment(
