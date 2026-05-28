@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { Line } from "vue-chartjs";
 import {
   Chart as ChartJS,
@@ -34,6 +34,7 @@ const selectedConfig = ref("configs/mnist_fedavg_demo.yaml");
 
 const recentJobs = ref([]);
 const selectedJobIds = ref([]);
+const RECENT_JOBS_STORAGE_KEY = "fedguardlab_recent_jobs";
 const comparisonStatus = ref("idle");
 const comparisonError = ref("");
 const comparisonUrl = ref("");
@@ -127,6 +128,11 @@ const chartOptions = {
   },
 };
 
+onMounted(() => {
+  loadRecentJobs();
+});
+
+
 function getSelectedExperimentLabel() {
   const option = experimentOptions.find(
     (item) => item.value === selectedConfig.value
@@ -181,6 +187,43 @@ async function createComparisonReport() {
     comparisonError.value = error.message;
     comparisonStatus.value = "error";
   }
+}
+
+
+function loadRecentJobs() {
+  const rawValue = window.localStorage.getItem(RECENT_JOBS_STORAGE_KEY);
+
+  if (!rawValue) {
+    return;
+  }
+
+  try {
+    const parsedJobs = JSON.parse(rawValue);
+
+    if (Array.isArray(parsedJobs)) {
+      recentJobs.value = parsedJobs;
+    }
+  } catch (error) {
+    console.warn("Failed to load recent jobs from localStorage:", error);
+    window.localStorage.removeItem(RECENT_JOBS_STORAGE_KEY);
+  }
+}
+
+
+function saveRecentJobs() {
+  window.localStorage.setItem(
+    RECENT_JOBS_STORAGE_KEY,
+    JSON.stringify(recentJobs.value.slice(0, 20))
+  );
+}
+
+
+function clearRecentJobs() {
+  recentJobs.value = [];
+  selectedJobIds.value = [];
+  comparisonUrl.value = "";
+  comparisonError.value = "";
+  window.localStorage.removeItem(RECENT_JOBS_STORAGE_KEY);
 }
 
 
@@ -244,7 +287,9 @@ async function startExperiment() {
             report_url: `${API_BASE}/reports/${jobId.value}`,
           },
           ...recentJobs.value,
-        ];
+        ].slice(0, 20);
+
+        saveRecentJobs();
 
         socket.close();
         return;
@@ -384,17 +429,27 @@ async function startExperiment() {
           </p>
         </div>
 
-        <button
-          class="run-button"
-          :disabled="selectedJobIds.length < 2 || comparisonStatus === 'creating'"
-          @click="createComparisonReport"
-        >
-          {{
-            comparisonStatus === "creating"
-              ? "Generating..."
-              : "Generate Comparison Report"
-          }}
-        </button>
+        <div class="section-actions">
+          <button
+            class="secondary-button"
+            :disabled="recentJobs.length === 0"
+            @click="clearRecentJobs"
+          >
+            Clear History
+          </button>
+
+          <button
+            class="run-button"
+            :disabled="selectedJobIds.length < 2 || comparisonStatus === 'creating'"
+            @click="createComparisonReport"
+          >
+            {{
+              comparisonStatus === "creating"
+                ? "Generating..."
+                : "Generate Comparison Report"
+            }}
+          </button>
+        </div>
       </div>
 
       <div v-if="recentJobs.length === 0" class="empty-state small">
@@ -672,5 +727,26 @@ h1 {
 
 .small {
   height: 120px;
+}
+
+.section-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.secondary-button {
+  border: 1px solid #cbd5e1;
+  background: white;
+  color: #334155;
+  padding: 10px 16px;
+  border-radius: 999px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.secondary-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
 }
 </style>
