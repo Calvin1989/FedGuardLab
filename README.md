@@ -514,6 +514,36 @@ WebSocket 实时推送指标
 
 ---
 
+## 清理运行产物
+
+实验报告和对比报告默认生成在 `reports/jobs/` 和 `reports/comparisons/`。这些目录已经被 `.gitignore` 忽略，不会提交到 GitHub。
+
+清理实验报告：
+
+```bash
+python cleanup_reports.py --jobs
+```
+
+清理对比报告：
+
+```bash
+python cleanup_reports.py --comparisons
+```
+
+清理全部报告：
+
+```bash
+python cleanup_reports.py --all
+```
+
+跳过确认并清理全部报告：
+
+```bash
+python cleanup_reports.py --all --yes
+```
+
+---
+
 ## License
 
 MIT
