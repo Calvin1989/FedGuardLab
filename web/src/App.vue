@@ -29,6 +29,7 @@ const jobId = ref("");
 const status = ref("idle");
 const metrics = ref([]);
 const errorMessage = ref("");
+const reportUrl = ref("");
 let socket = null;
 
 const latestMetric = computed(() => {
@@ -84,6 +85,7 @@ async function startExperiment() {
   errorMessage.value = "";
   metrics.value = [];
   jobId.value = "";
+  reportUrl.value = "";
   status.value = "creating";
 
   if (socket) {
@@ -118,6 +120,7 @@ async function startExperiment() {
 
       if (message.event === "finished") {
         status.value = "finished";
+        reportUrl.value = `${API_BASE}/reports/${jobId.value}`;
         socket.close();
         return;
       }
@@ -175,6 +178,13 @@ async function startExperiment() {
       <div v-if="errorMessage" class="error">
         <strong>Error:</strong>
         <span>{{ errorMessage }}</span>
+      </div>
+
+      <div v-if="reportUrl">
+        <strong>Report:</strong>
+        <a class="report-link" :href="reportUrl" target="_blank">
+          Open HTML Report
+        </a>
       </div>
     </section>
 
@@ -324,5 +334,16 @@ h1 {
   display: grid;
   place-items: center;
   color: #64748b;
+}
+
+.report-link {
+  margin-left: 8px;
+  color: #2563eb;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.report-link:hover {
+  text-decoration: underline;
 }
 </style>

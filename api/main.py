@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Dict, Any
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 
 from fedguardlab.config.loader import load_config
@@ -85,6 +86,16 @@ def get_results(job_id: str):
     result["report_path"] = str(REPORTS_DIR / job_id / "report.html")
 
     return result
+
+
+@app.get("/reports/{job_id}")
+def get_report(job_id: str):
+    report_path = REPORTS_DIR / job_id / "report.html"
+
+    if not report_path.exists():
+        return {"error": "report not found"}
+
+    return FileResponse(report_path)
 
 
 @app.websocket("/ws/{job_id}")
