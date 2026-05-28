@@ -497,6 +497,21 @@ WebSocket 实时推送指标
 - GitHub Actions
 - Flower，可选
 
+## 当前版本
+
+`v0.1.0`
+
+已完成：
+
+- 交互式实验 Dashboard；
+- 真实 MNIST + FedAvg；
+- IID / Dirichlet Non-IID；
+- Label Flipping 攻击；
+- ASR 评估；
+- Median / Trimmed Mean 防御；
+- 单实验报告；
+- 多实验对比报告。
+
 ---
 
 ## License
