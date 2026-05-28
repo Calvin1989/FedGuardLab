@@ -221,6 +221,44 @@ configs/mnist_fedavg_label_flip_demo.yaml
 
 ---
 
+### 4. Real MNIST Label Flip + Median Defense
+
+配置文件：
+
+```text
+configs/mnist_median_label_flip_demo.yaml
+```
+
+用途：
+
+- 使用真实 MNIST 数据集；
+- 设置 5 个客户端；
+- 设置前 2 个客户端为恶意客户端；
+- 在恶意客户端中执行 1 → 7 label flipping；
+- 使用 Median 聚合替代 FedAvg；
+- 对比鲁棒聚合对 ASR 的抑制效果。
+
+---
+
+### 5. Real MNIST Label Flip + Trimmed Mean Defense
+
+配置文件：
+
+```text
+configs/mnist_trimmed_mean_label_flip_demo.yaml
+```
+
+用途：
+
+- 使用真实 MNIST 数据集；
+- 设置 5 个客户端；
+- 设置前 2 个客户端为恶意客户端；
+- 在恶意客户端中执行 1 → 7 label flipping；
+- 使用 Trimmed Mean 聚合防御；
+- 通过 ASR、accuracy 和 loss 观察防御效果。
+
+---
+
 ## 实验输出
 
 每次实验完成后，系统会自动生成一个以 `job_id` 命名的目录：
@@ -367,10 +405,10 @@ metrics:
 
 - [x] 实现真实 label flipping 攻击
 - [x] 添加 attack success rate 评估逻辑
+- [x] 实现 median 聚合防御
+- [x] 实现 trimmed mean 聚合防御
 - [ ] 实现 backdoor 攻击
 - [ ] 实现 model poisoning 攻击
-- [ ] 实现 median 聚合防御
-- [ ] 实现 trimmed mean 聚合防御
 - [ ] 实现 Krum 聚合防御
 
 ### Stage 4：研究可用性增强
@@ -426,7 +464,7 @@ WebSocket 实时推送指标
 浏览器打开报告
 ```
 
-当前已经支持 IID、Dirichlet Non-IID、真实 label flipping 攻击和 ASR 评估。下一阶段将开始实现鲁棒聚合防御，例如 median、trimmed mean 和 Krum。
+当前已经支持 IID、Dirichlet Non-IID、真实 label flipping 攻击、ASR 评估、Median 防御和 Trimmed Mean 防御。下一阶段将继续实现 Krum、防御对比报告和多实验对比视图。
 
 ---
 
