@@ -103,8 +103,15 @@ conda activate fedguardlab
 
 ### 3. 安装后端依赖
 
+默认安装方式：
+
 ```bash
-python -m pip install fastapi "uvicorn[standard]" pydantic pyyaml jinja2 numpy pandas
+python -m pip install -r requirements.txt
+```
+
+如果希望强制安装 CPU 版 PyTorch，可以使用：
+
+```bash
 python -m pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
 ```
 
