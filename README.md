@@ -103,17 +103,11 @@ conda activate fedguardlab
 
 ### 3. 安装后端依赖
 
-默认安装方式：
-
 ```bash
-python -m pip install -r requirements.txt
+python -m pip install -r requirements-cpu.txt
 ```
 
-如果希望强制安装 CPU 版 PyTorch，可以使用：
-
-```bash
-python -m pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
-```
+其中 `requirements-cpu.txt` 会安装 CPU 版 PyTorch，适合普通本地开发和 CI 环境。
 
 ---
 
