@@ -288,7 +288,9 @@ configs/mnist_krum_label_flip_demo.yaml
 reports/jobs/<job_id>/
 ├── config.json
 ├── metrics.json
-└── report.html
+├── metrics.csv
+├── report.html
+└── report.md
 ```
 
 其中：
@@ -298,6 +300,15 @@ reports/jobs/<job_id>/
 - `report.html` 是自动生成的 HTML 实验报告。
 
 前端页面会在实验完成后显示 `Open HTML Report` 链接，可以直接在浏览器中打开报告。
+
+多实验对比报告会生成在：
+
+```text
+reports/comparisons/<comparison_id>/
+├── comparison.html
+├── comparison.json
+└── comparison.csv
+```
 
 ---
 
@@ -435,8 +446,8 @@ metrics:
 ### Stage 4：研究可用性增强
 
 - [ ] 支持多实验对比
-- [ ] 支持指标导出为 CSV
-- [ ] 支持生成 Markdown 报告
+- [x] 支持指标导出为 CSV
+- [x] 支持生成 Markdown 报告
 - [ ] 支持 Docker 启动
 - [ ] 添加 GitHub Actions smoke test
 - [ ] 添加更多预设实验场景

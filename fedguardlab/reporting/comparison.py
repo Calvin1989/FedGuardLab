@@ -1,4 +1,5 @@
-﻿import json
+﻿import csv
+import json
 import uuid
 from pathlib import Path
 from typing import Any, Dict, List
@@ -9,6 +10,38 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 TEMPLATE_DIR = Path(__file__).parent / "templates"
 JOBS_DIR = Path("reports/jobs")
 COMPARISONS_DIR = Path("reports/comparisons")
+
+
+def generate_comparison_csv(
+    experiments: List[Dict[str, Any]],
+    output_dir: Path,
+) -> Path:
+    output_path = output_dir / "comparison.csv"
+
+    fieldnames = [
+        "experiment_name",
+        "aggregation",
+        "defense",
+        "attack",
+        "final_accuracy",
+        "final_loss",
+        "final_asr",
+        "job_id",
+    ]
+
+    with output_path.open("w", newline="", encoding="utf-8") as file:
+        writer = csv.DictWriter(file, fieldnames=fieldnames)
+        writer.writeheader()
+
+        for experiment in experiments:
+            writer.writerow(
+                {
+                    key: experiment.get(key, "")
+                    for key in fieldnames
+                }
+            )
+
+    return output_path
 
 
 def load_job_summary(job_id: str) -> Dict[str, Any]:
@@ -85,5 +118,7 @@ def generate_comparison_report(
         ),
         encoding="utf-8",
     )
+
+    generate_comparison_csv(experiments, output_dir)
 
     return output_path
