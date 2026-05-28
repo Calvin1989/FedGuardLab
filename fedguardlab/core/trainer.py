@@ -1,8 +1,9 @@
-import asyncio
+﻿import asyncio
 import random
 from typing import AsyncGenerator, Dict, Any
 
 from fedguardlab.config.schema import FedGuardConfig
+from fedguardlab.core.mnist_fedavg import run_mnist_fedavg_experiment
 
 
 async def run_fake_experiment(
@@ -38,4 +39,17 @@ async def run_fake_experiment(
             "aggregation": config.federated.aggregation,
             "attack": config.attack.type,
             "defense": config.defense.type,
+            "trainer": "simulated",
         }
+
+
+async def run_experiment(
+    config: FedGuardConfig,
+) -> AsyncGenerator[Dict[str, Any], None]:
+    if config.training.mode == "real":
+        async for metric in run_mnist_fedavg_experiment(config):
+            yield metric
+        return
+
+    async for metric in run_fake_experiment(config):
+        yield metric

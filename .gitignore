@@ -28,3 +28,6 @@ Thumbs.db
 
 # Local AI tool config
 .claude/
+
+# Datasets
+data/

@@ -8,7 +8,7 @@ from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 
 from fedguardlab.config.loader import load_config
-from fedguardlab.core.trainer import run_fake_experiment
+from fedguardlab.core.trainer import run_experiment
 from fedguardlab.reporting.generator import generate_html_report
 
 
@@ -47,7 +47,7 @@ def root():
 
 
 @app.post("/run")
-def create_run(config_path: str = "configs/label_flip_demo.yaml"):
+def create_run(config_path: str = "configs/mnist_fedavg_demo.yaml"):
     job_id = str(uuid.uuid4())
     config = load_config(config_path)
 
@@ -111,7 +111,7 @@ async def websocket_run(websocket: WebSocket, job_id: str):
         JOBS[job_id]["status"] = "running"
         config = load_config(JOBS[job_id]["config_path"])
 
-        async for metric in run_fake_experiment(config):
+        async for metric in run_experiment(config):
             JOBS[job_id]["metrics"].append(metric)
             await websocket.send_json(metric)
 

@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+﻿from pydantic import BaseModel, Field
 from typing import List, Optional
 
 
@@ -6,6 +6,15 @@ class ExperimentConfig(BaseModel):
     name: str
     seed: int = 42
     rounds: int = 20
+
+
+class TrainingConfig(BaseModel):
+    mode: str = "simulated"
+    local_epochs: int = 1
+    batch_size: int = 64
+    learning_rate: float = 0.01
+    max_train_samples: Optional[int] = None
+    max_test_samples: Optional[int] = None
 
 
 class FederatedConfig(BaseModel):
@@ -32,6 +41,7 @@ class DefenseConfig(BaseModel):
 
 class FedGuardConfig(BaseModel):
     experiment: ExperimentConfig
+    training: TrainingConfig = Field(default_factory=TrainingConfig)
     federated: FederatedConfig
     dataset: DatasetConfig
     attack: AttackConfig
