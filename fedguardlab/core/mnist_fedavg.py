@@ -8,7 +8,7 @@ from torch import nn
 from torch.optim import SGD
 
 from fedguardlab.config.schema import FedGuardConfig
-from fedguardlab.core.aggregation import fedavg
+from fedguardlab.core.aggregation import aggregate
 from fedguardlab.core.data import (
     create_dataloaders,
     load_mnist_datasets,
@@ -109,8 +109,8 @@ def evaluate(
 async def run_mnist_fedavg_experiment(
     config: FedGuardConfig,
 ) -> AsyncGenerator[Dict[str, Any], None]:
-    if config.federated.aggregation.lower() != "fedavg":
-        raise ValueError("real MNIST trainer currently supports only FedAvg")
+    if config.federated.aggregation.lower() not in {"fedavg", "median"}:
+        raise ValueError("real MNIST trainer currently supports FedAvg and Median")
 
     set_seed(config.experiment.seed)
 
@@ -173,8 +173,12 @@ async def run_mnist_fedavg_experiment(
             client_states.append(client_state)
             client_sizes.append(len(client_loader.dataset))
 
-        averaged_state = fedavg(client_states, client_sizes)
-        global_model.load_state_dict(averaged_state)
+        aggregated_state = aggregate(
+            client_states=client_states,
+            client_sizes=client_sizes,
+            method=config.federated.aggregation,
+        )
+        global_model.load_state_dict(aggregated_state)
 
         eval_result = evaluate(
             model=global_model,

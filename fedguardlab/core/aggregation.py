@@ -25,3 +25,32 @@ def fedavg(client_states: List[StateDict], client_sizes: List[int]) -> StateDict
         )
 
     return averaged_state
+
+
+def median(client_states: List[StateDict]) -> StateDict:
+    if len(client_states) == 0:
+        raise ValueError("client_states cannot be empty")
+
+    median_state = OrderedDict()
+
+    for key in client_states[0].keys():
+        stacked = torch.stack([state[key] for state in client_states], dim=0)
+        median_state[key] = torch.median(stacked, dim=0).values
+
+    return median_state
+
+
+def aggregate(
+    client_states: List[StateDict],
+    client_sizes: List[int],
+    method: str,
+) -> StateDict:
+    method = method.lower()
+
+    if method == "fedavg":
+        return fedavg(client_states, client_sizes)
+
+    if method == "median":
+        return median(client_states)
+
+    raise ValueError(f"Unsupported aggregation method: {method}")
