@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>FedGuardLab Report - {{ job_id }}</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+      background: #f8fafc;
+      color: #0f172a;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: white;
+      padding: 32px;
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+    }
+
+    h1, h2 {
+      margin-top: 0;
+    }
+
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin: 24px 0;
+    }
+
+    .card {
+      padding: 16px;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      background: #f8fafc;
+    }
+
+    .card span {
+      display: block;
+      color: #64748b;
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+
+    .card strong {
+      font-size: 24px;
+    }
+
+    pre {
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 16px;
+      border-radius: 12px;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 16px;
+    }
+
+    th, td {
+      border-bottom: 1px solid #e2e8f0;
+      padding: 10px;
+      text-align: left;
+    }
+
+    th {
+      background: #f1f5f9;
+    }
+
+    .muted {
+      color: #64748b;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <p class="muted">FedGuardLab Experiment Report</p>
+    <h1>{{ experiment_name }}</h1>
+
+    <p><strong>Job ID:</strong> {{ job_id }}</p>
+    <p><strong>Status:</strong> {{ status }}</p>
+
+    <div class="summary">
+      <div class="card">
+        <span>Final Round</span>
+        <strong>{{ final_metric.round }}</strong>
+      </div>
+
+      <div class="card">
+        <span>Final Accuracy</span>
+        <strong>{{ final_metric.accuracy }}</strong>
+      </div>
+
+      <div class="card">
+        <span>Final Loss</span>
+        <strong>{{ final_metric.loss }}</strong>
+      </div>
+
+      <div class="card">
+        <span>Final ASR</span>
+        <strong>{{ final_metric.attack_success_rate }}</strong>
+      </div>
+    </div>
+
+    <h2>Experiment Configuration</h2>
+    <pre>{{ config_json }}</pre>
+
+    <h2>Metrics</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Round</th>
+          <th>Accuracy</th>
+          <th>Loss</th>
+          <th>Attack Success Rate</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in metrics %}
+        <tr>
+          <td>{{ item.round }}</td>
+          <td>{{ item.accuracy }}</td>
+          <td>{{ item.loss }}</td>
+          <td>{{ item.attack_success_rate }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</body>
+</html>

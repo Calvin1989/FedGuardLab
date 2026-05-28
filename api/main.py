@@ -8,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from fedguardlab.config.loader import load_config
 from fedguardlab.core.trainer import run_fake_experiment
+from fedguardlab.reporting.generator import generate_html_report
 
 
 app = FastAPI(title="FedGuardLab API")
@@ -34,6 +35,9 @@ def save_job_results(job_id: str) -> None:
 
     with open(job_dir / "metrics.json", "w", encoding="utf-8") as f:
         json.dump(job["metrics"], f, indent=2, ensure_ascii=False)
+
+    report_path = generate_html_report(job_id, job, job_dir)
+    job["report_path"] = str(report_path)
 
 
 @app.get("/")
@@ -78,6 +82,7 @@ def get_results(job_id: str):
 
     result = JOBS[job_id].copy()
     result["report_dir"] = str(REPORTS_DIR / job_id)
+    result["report_path"] = str(REPORTS_DIR / job_id / "report.html")
 
     return result
 
