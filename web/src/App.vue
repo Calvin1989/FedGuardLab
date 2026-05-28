@@ -54,6 +54,11 @@ const experimentOptions = [
     description: "真实 MNIST + label flipping + Median 鲁棒聚合防御",
   },
   {
+    label: "Real MNIST Label Flip + Trimmed Mean Defense",
+    value: "configs/mnist_trimmed_mean_label_flip_demo.yaml",
+    description: "真实 MNIST + label flipping + Trimmed Mean 鲁棒聚合防御",
+  },
+  {
     label: "Simulated Label Flipping Demo",
     value: "configs/label_flip_demo.yaml",
     description: "模拟 label flipping 攻击，用于快速演示 Dashboard",

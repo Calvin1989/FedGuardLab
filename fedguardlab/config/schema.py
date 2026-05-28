@@ -37,6 +37,7 @@ class AttackConfig(BaseModel):
 
 class DefenseConfig(BaseModel):
     type: str = "none"
+    trim_ratio: float = 0.2
 
 
 class FedGuardConfig(BaseModel):

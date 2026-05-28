@@ -109,8 +109,14 @@ def evaluate(
 async def run_mnist_fedavg_experiment(
     config: FedGuardConfig,
 ) -> AsyncGenerator[Dict[str, Any], None]:
-    if config.federated.aggregation.lower() not in {"fedavg", "median"}:
-        raise ValueError("real MNIST trainer currently supports FedAvg and Median")
+    if config.federated.aggregation.lower() not in {
+        "fedavg",
+        "median",
+        "trimmed_mean",
+    }:
+        raise ValueError(
+            "real MNIST trainer currently supports FedAvg, Median, and Trimmed Mean"
+        )
 
     set_seed(config.experiment.seed)
 
@@ -177,6 +183,7 @@ async def run_mnist_fedavg_experiment(
             client_states=client_states,
             client_sizes=client_sizes,
             method=config.federated.aggregation,
+            trim_ratio=config.defense.trim_ratio,
         )
         global_model.load_state_dict(aggregated_state)
 
