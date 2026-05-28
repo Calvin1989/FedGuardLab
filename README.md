@@ -520,7 +520,7 @@ WebSocket 实时推送指标
 
 ## 当前版本
 
-`v0.2.0`
+`v0.4.0`
 
 已完成：
 
@@ -533,7 +533,10 @@ WebSocket 实时推送指标
 - 单实验报告；
 - 多实验对比报告；
 - Web UI 生成对比报告；
-- 本地运行产物清理脚本。
+- 本地运行产物清理脚本；
+- Docker Compose 开发环境；
+- CPU 版 PyTorch Docker 依赖；
+- GitHub Actions 使用 CPU PyTorch 依赖。
 
 ---
 
