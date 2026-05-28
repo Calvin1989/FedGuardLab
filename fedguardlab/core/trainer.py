@@ -1,6 +1,6 @@
 ﻿import asyncio
 import random
-from typing import AsyncGenerator, Dict, Any
+from typing import Any, AsyncGenerator, Dict
 
 from fedguardlab.config.schema import FedGuardConfig
 from fedguardlab.core.mnist_fedavg import run_mnist_fedavg_experiment

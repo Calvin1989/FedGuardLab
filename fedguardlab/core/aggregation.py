@@ -3,7 +3,6 @@ from typing import Dict, List
 
 import torch
 
-
 StateDict = Dict[str, torch.Tensor]
 
 

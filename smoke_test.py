@@ -1,14 +1,12 @@
 ﻿import asyncio
 import json
-import shutil
 import uuid
 from pathlib import Path
 
 from fedguardlab.config.loader import load_config
 from fedguardlab.core.trainer import run_experiment
-from fedguardlab.reporting.generator import generate_html_report
 from fedguardlab.reporting.comparison import generate_comparison_report
-
+from fedguardlab.reporting.generator import generate_html_report
 
 TEST_OUTPUT_DIR = Path("reports/jobs")
 TEST_COMPARISON_DIR = Path("reports/comparisons")

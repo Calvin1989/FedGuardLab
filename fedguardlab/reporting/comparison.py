@@ -6,7 +6,6 @@ from typing import Any, Dict, List
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
-
 TEMPLATE_DIR = Path(__file__).parent / "templates"
 JOBS_DIR = Path("reports/jobs")
 COMPARISONS_DIR = Path("reports/comparisons")

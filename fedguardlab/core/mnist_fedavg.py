@@ -1,6 +1,6 @@
 import copy
 import random
-from typing import AsyncGenerator, Dict, Any, List
+from typing import Any, AsyncGenerator, Dict, List
 
 import numpy as np
 import torch
@@ -9,13 +9,13 @@ from torch.optim import SGD
 
 from fedguardlab.config.schema import FedGuardConfig
 from fedguardlab.core.aggregation import aggregate
+from fedguardlab.core.attacks.label_flipping import apply_label_flipping_to_clients
 from fedguardlab.core.data import (
     create_dataloaders,
     load_mnist_datasets,
     partition_dataset,
     summarize_client_labels,
 )
-from fedguardlab.core.attacks.label_flipping import apply_label_flipping_to_clients
 from fedguardlab.core.models import SimpleCNN
 
 

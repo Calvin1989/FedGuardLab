@@ -1,10 +1,10 @@
 ﻿import asyncio
+
 import torch
 
 from fedguardlab.config.loader import load_config
 from fedguardlab.core.aggregation import aggregate
 from fedguardlab.core.trainer import run_fake_experiment
-
 
 CONFIGS_TO_LOAD = [
     "configs/label_flip_demo.yaml",

@@ -5,7 +5,6 @@ from typing import Any, Dict, List
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
-
 TEMPLATE_DIR = Path(__file__).parent / "templates"
 
 
@@ -51,7 +50,7 @@ def generate_markdown_report(
     output_path = output_dir / "report.md"
 
     lines = [
-        f"# FedGuardLab Experiment Report",
+        "# FedGuardLab Experiment Report",
         "",
         f"**Experiment:** {config['experiment']['name']}",
         "",

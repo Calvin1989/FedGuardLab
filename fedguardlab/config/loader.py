@@ -1,5 +1,6 @@
-import yaml
 from pathlib import Path
+
+import yaml
 
 from fedguardlab.config.schema import FedGuardConfig
 

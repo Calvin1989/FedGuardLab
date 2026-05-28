@@ -1,21 +1,20 @@
-import uuid
 import json
+import uuid
 from pathlib import Path
-from typing import Dict, Any, List
+from typing import Any, Dict, List
 
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException
-from fastapi.responses import FileResponse
+from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
 from fedguardlab.config.loader import load_config
 from fedguardlab.core.trainer import run_experiment
-from fedguardlab.reporting.generator import generate_html_report
 from fedguardlab.reporting.comparison import (
     COMPARISONS_DIR,
     generate_comparison_report,
 )
-
+from fedguardlab.reporting.generator import generate_html_report
 
 app = FastAPI(title="FedGuardLab API")
 

@@ -554,6 +554,40 @@ WebSocket 实时推送指标
 
 ---
 
+## 开发检查
+
+安装开发依赖：
+
+```bash
+python -m pip install -r requirements-dev.txt
+```
+
+运行 Ruff：
+
+```bash
+ruff check .
+```
+
+自动修复可修复问题：
+
+```bash
+ruff check . --fix
+```
+
+运行快速测试：
+
+```bash
+python quick_test.py
+```
+
+运行完整 smoke test：
+
+```bash
+python smoke_test.py
+```
+
+---
+
 ## 清理运行产物
 
 实验报告和对比报告默认生成在 `reports/jobs/` 和 `reports/comparisons/`。这些目录已经被 `.gitignore` 忽略，不会提交到 GitHub。

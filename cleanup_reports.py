@@ -2,7 +2,6 @@
 import shutil
 from pathlib import Path
 
-
 REPORTS_DIR = Path("reports")
 JOBS_DIR = REPORTS_DIR / "jobs"
 COMPARISONS_DIR = REPORTS_DIR / "comparisons"
