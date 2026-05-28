@@ -1,4 +1,4 @@
-﻿import copy
+import copy
 import random
 from typing import AsyncGenerator, Dict, Any, List
 
@@ -54,6 +54,9 @@ def evaluate(
     model: nn.Module,
     test_loader,
     device: torch.device,
+    attack_type: str = "none",
+    source_label: int | None = None,
+    target_label: int | None = None,
 ) -> Dict[str, float]:
     model.eval()
     criterion = nn.CrossEntropyLoss(reduction="sum")
@@ -61,6 +64,9 @@ def evaluate(
     total_loss = 0.0
     correct = 0
     total = 0
+
+    attack_source_total = 0
+    attack_target_predictions = 0
 
     with torch.no_grad():
         for images, labels in test_loader:
@@ -75,10 +81,29 @@ def evaluate(
             correct += (predictions == labels).sum().item()
             total += labels.size(0)
 
-    return {
+            if (
+                attack_type == "label_flipping"
+                and source_label is not None
+                and target_label is not None
+            ):
+                source_mask = labels == source_label
+                attack_source_total += source_mask.sum().item()
+                attack_target_predictions += (
+                    predictions[source_mask] == target_label
+                ).sum().item()
+
+    result = {
         "loss": total_loss / total,
         "accuracy": correct / total,
+        "attack_success_rate": 0.0,
     }
+
+    if attack_source_total > 0:
+        result["attack_success_rate"] = (
+            attack_target_predictions / attack_source_total
+        )
+
+    return result
 
 
 async def run_mnist_fedavg_experiment(
@@ -151,13 +176,20 @@ async def run_mnist_fedavg_experiment(
         averaged_state = fedavg(client_states, client_sizes)
         global_model.load_state_dict(averaged_state)
 
-        eval_result = evaluate(global_model, test_loader, device)
+        eval_result = evaluate(
+            model=global_model,
+            test_loader=test_loader,
+            device=device,
+            attack_type=config.attack.type,
+            source_label=config.attack.source_label,
+            target_label=config.attack.target_label,
+        )
 
         yield {
             "round": current_round,
             "accuracy": round(eval_result["accuracy"], 4),
             "loss": round(eval_result["loss"], 4),
-            "attack_success_rate": 0.0,
+            "attack_success_rate": round(eval_result["attack_success_rate"], 4),
             "aggregation": config.federated.aggregation,
             "attack": config.attack.type,
             "defense": config.defense.type,
