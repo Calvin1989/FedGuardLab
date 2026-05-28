@@ -416,7 +416,8 @@ async function startExperiment() {
       />
 
       <div v-else class="empty-state">
-        Click the button to start an experiment.
+        Start a new experiment to see live metrics here. Finished experiments are
+        saved in the comparison history below.
       </div>
     </section>
 
