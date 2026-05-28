@@ -1,0 +1,30 @@
+﻿name: Quick Test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  quick-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install backend dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install fastapi "uvicorn[standard]" pydantic pyyaml jinja2 numpy pandas
+          python -m pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+
+      - name: Run quick tests
+        run: |
+          python quick_test.py
