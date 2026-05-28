@@ -44,6 +44,11 @@ const experimentOptions = [
     description: "真实 MNIST + Dirichlet Non-IID 划分 + FedAvg 聚合",
   },
   {
+    label: "Real MNIST FedAvg Label Flip Demo",
+    value: "configs/mnist_fedavg_label_flip_demo.yaml",
+    description: "真实 MNIST + IID 划分 + 2 个恶意客户端执行 1→7 label flipping",
+  },
+  {
     label: "Simulated Label Flipping Demo",
     value: "configs/label_flip_demo.yaml",
     description: "模拟 label flipping 攻击，用于快速演示 Dashboard",

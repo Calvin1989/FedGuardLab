@@ -15,6 +15,7 @@ from fedguardlab.core.data import (
     partition_dataset,
     summarize_client_labels,
 )
+from fedguardlab.core.attacks.label_flipping import apply_label_flipping_to_clients
 from fedguardlab.core.models import SimpleCNN
 
 
@@ -103,6 +104,19 @@ async def run_mnist_fedavg_experiment(
         seed=config.experiment.seed,
     )
 
+    clean_client_label_summary = summarize_client_labels(client_datasets)
+
+    if config.attack.type == "label_flipping":
+        if config.attack.source_label is None or config.attack.target_label is None:
+            raise ValueError("source_label and target_label are required for label_flipping")
+
+        client_datasets = apply_label_flipping_to_clients(
+            client_datasets=client_datasets,
+            malicious_clients=config.federated.malicious_clients,
+            source_label=config.attack.source_label,
+            target_label=config.attack.target_label,
+        )
+
     client_label_summary = summarize_client_labels(client_datasets)
 
     client_loaders, test_loader = create_dataloaders(
@@ -155,4 +169,5 @@ async def run_mnist_fedavg_experiment(
             "malicious_clients": config.federated.malicious_clients,
             "device": str(device),
             "client_label_summary": client_label_summary,
+            "clean_client_label_summary": clean_client_label_summary,
         }

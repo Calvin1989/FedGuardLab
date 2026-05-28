@@ -55,7 +55,13 @@ def get_targets(dataset: Dataset) -> np.ndarray:
 
         return np.array(targets)
 
-    raise ValueError("Dataset does not expose targets")
+    labels = []
+
+    for index in range(len(dataset)):
+        _, label = dataset[index]
+        labels.append(int(label))
+
+    return np.array(labels)
 
 
 def iid_partition(
