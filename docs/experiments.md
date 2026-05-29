@@ -148,6 +148,62 @@ configs/mnist_fedavg_backdoor_demo.yaml
 
 ---
 
+## 8. Real MNIST Backdoor + Median Defense
+
+配置文件：
+
+```text
+configs/mnist_median_backdoor_demo.yaml
+```
+
+用途：
+
+- 使用真实 MNIST 数据集；
+- 设置前 2 个客户端为恶意客户端；
+- 在恶意客户端样本右下角添加 trigger；
+- 将投毒样本标签改为目标标签 `7`；
+- 使用 Median 聚合防御；
+- 观察 Median 对 backdoor ASR 的影响。
+
+---
+
+## 9. Real MNIST Backdoor + Trimmed Mean Defense
+
+配置文件：
+
+```text
+configs/mnist_trimmed_mean_backdoor_demo.yaml
+```
+
+用途：
+
+- 使用真实 MNIST 数据集；
+- 设置前 2 个客户端为恶意客户端；
+- 添加 trigger-based backdoor；
+- 使用 Trimmed Mean 聚合防御；
+- 观察 Trimmed Mean 对 backdoor ASR 的影响。
+
+---
+
+## 10. Real MNIST Backdoor + Krum Defense
+
+配置文件：
+
+```text
+configs/mnist_krum_backdoor_demo.yaml
+```
+
+用途：
+
+- 使用真实 MNIST 数据集；
+- 设置 7 个客户端；
+- 设置前 2 个客户端为恶意客户端；
+- 添加 trigger-based backdoor；
+- 使用 Krum 鲁棒聚合防御；
+- 观察 Krum 对 backdoor ASR 的影响。
+
+---
+
 ## 实验对比
 
 前端 Dashboard 支持勾选多个已完成实验，并生成 comparison report。

@@ -37,6 +37,7 @@ FedGuardLab 的目标是逐步构建一个轻量、可视化、可复现的联�
 - [x] 实现 Trimmed Mean 聚合防御
 - [x] 实现 Krum 聚合防御
 - [x] 实现 backdoor 攻击
+- [x] 添加 backdoor + robust aggregation 对比实验
 - [ ] 实现 model poisoning 攻击
 
 ---
@@ -95,16 +96,20 @@ Ruff、开发依赖和 GitHub Actions 质量检查。
 
 ### v0.9.0
 
-Backdoor attack：
+新增 Backdoor + FedAvg / Median / Trimmed Mean / Krum 对比实验配置。
 
-- 支持 trigger pattern；
-- 支持目标标签攻击；
-- 支持 backdoor ASR 评估。
-
-### v0.9.0
+### v0.10.0
 
 更多实验场景和报告增强：
 
 - 更多 Non-IID 配置；
 - comparison report 图表；
 - 导出实验摘要表。
+
+### v0.11.0
+
+Backdoor attack 增强：
+
+- 支持更多 trigger pattern；
+- 支持更多目标标签攻击；
+- 支持 backdoor ASR 评估优化。

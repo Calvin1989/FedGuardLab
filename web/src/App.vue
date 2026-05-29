@@ -61,6 +61,21 @@ const experimentOptions = [
     description: "真实 MNIST + FedAvg + trigger-based backdoor attack",
   },
   {
+    label: "Real MNIST Backdoor + Median Defense",
+    value: "configs/mnist_median_backdoor_demo.yaml",
+    description: "真实 MNIST + backdoor attack + Median 鲁棒聚合防御",
+  },
+  {
+    label: "Real MNIST Backdoor + Trimmed Mean Defense",
+    value: "configs/mnist_trimmed_mean_backdoor_demo.yaml",
+    description: "真实 MNIST + backdoor attack + Trimmed Mean 鲁棒聚合防御",
+  },
+  {
+    label: "Real MNIST Backdoor + Krum Defense",
+    value: "configs/mnist_krum_backdoor_demo.yaml",
+    description: "真实 MNIST + backdoor attack + Krum 鲁棒聚合防御",
+  },
+  {
     label: "Real MNIST Label Flip + Median Defense",
     value: "configs/mnist_median_label_flip_demo.yaml",
     description: "真实 MNIST + label flipping + Median 鲁棒聚合防御",

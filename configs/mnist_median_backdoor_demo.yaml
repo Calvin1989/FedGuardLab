@@ -1,0 +1,38 @@
+﻿experiment:
+  name: "mnist_median_backdoor_demo"
+  seed: 42
+  rounds: 3
+
+training:
+  mode: "real"
+  local_epochs: 1
+  batch_size: 64
+  learning_rate: 0.01
+  max_train_samples: 5000
+  max_test_samples: 1000
+
+federated:
+  num_clients: 5
+  malicious_clients: 2
+  aggregation: "median"
+
+dataset:
+  name: "mnist"
+  partition: "iid"
+  alpha: null
+
+attack:
+  type: "backdoor"
+  source_label: null
+  target_label: 7
+  poison_fraction: 0.5
+  trigger_size: 4
+  trigger_value: 2.8
+
+defense:
+  type: "median"
+
+metrics:
+  - accuracy
+  - loss
+  - attack_success_rate
