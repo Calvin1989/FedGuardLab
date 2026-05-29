@@ -51,6 +51,7 @@ python quick_test.py
 quick test 会检查：
 
 - 配置文件能否加载；
+- 非法配置是否被正确拒绝；
 - 聚合函数能否运行；
 - simulated trainer 能否运行。
 
@@ -115,6 +116,20 @@ python cleanup_reports.py --all --yes
 
 ---
 
+## 前端 build 检查
+
+验证前端代码能否正常构建：
+
+```bash
+cd web
+npm install
+npm run build
+```
+
+CI 中同样会执行此步骤，防止 Vue 语法错误、依赖问题或 Chart.js 使用问题未被发现。
+
+---
+
 ## Docker 启动
 
 确保已经安装 Docker Desktop。
@@ -150,6 +165,7 @@ docker compose down
 ```bash
 ruff check .
 python quick_test.py
+cd web && npm install && npm run build
 ```
 
 Workflow 文件：

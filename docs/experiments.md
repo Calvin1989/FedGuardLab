@@ -211,7 +211,7 @@ configs/mnist_krum_backdoor_demo.yaml
 也可以使用命令行：
 
 ```bash
-python compare_jobs.py JOB_ID_1 JOB_ID_2 JOB_ID_3 --title "Label Flipping Defense Comparison"
+python compare_jobs.py JOB_ID_1 JOB_ID_2 JOB_ID_3 --title "Robust Aggregation Comparison"
 ```
 
 输出目录：
