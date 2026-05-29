@@ -172,7 +172,7 @@ reports/comparisons/<comparison_id>/
 
 ## 当前版本
 
-`v0.7.0`
+`v0.8.0`
 
 当前版本支持：
 
@@ -187,6 +187,8 @@ reports/comparisons/<comparison_id>/
 - 前端实验历史持久化
 - 刷新页面后保留已完成实验记录
 - 支持清空 Dashboard 历史记录
+- Trigger-based Backdoor Attack
+- Backdoor ASR 评估
 
 ---
 

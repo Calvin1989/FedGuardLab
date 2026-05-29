@@ -85,11 +85,15 @@ Ruff、开发依赖和 GitHub Actions 质量检查。
 
 前端实验历史持久化，刷新页面后保留已完成实验记录，并支持清空历史。
 
+### v0.8.0
+
+新增 MNIST trigger-based backdoor attack，并支持 backdoor ASR 评估。
+
 ---
 
 ## 后续优先级建议
 
-### v0.8.0
+### v0.9.0
 
 Backdoor attack：
 
