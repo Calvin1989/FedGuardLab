@@ -172,7 +172,7 @@ reports/comparisons/<comparison_id>/
 
 ## 当前版本
 
-`v0.6.0`
+`v0.7.0`
 
 当前版本支持：
 
@@ -184,6 +184,9 @@ reports/comparisons/<comparison_id>/
 - 多实验对比报告
 - Docker Compose 启动
 - GitHub Actions + Ruff + quick test
+- 前端实验历史持久化
+- 刷新页面后保留已完成实验记录
+- 支持清空 Dashboard 历史记录
 
 ---
 
