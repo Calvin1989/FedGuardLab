@@ -1,6 +1,7 @@
 ﻿import asyncio
 
 import torch
+from pydantic import ValidationError
 
 from fedguardlab.config.loader import load_config
 from fedguardlab.core.aggregation import aggregate
@@ -89,6 +90,26 @@ async def test_simulated_trainer() -> None:
     assert "attack_success_rate" in metrics[-1]
 
 
+def test_invalid_config_semantics() -> None:
+    config = load_config("configs/mnist_fedavg_demo.yaml")
+    raw = config.model_dump()
+
+    raw["federated"]["aggregation"] = "krum"
+    raw["defense"]["type"] = "krum"
+    raw["federated"]["num_clients"] = 5
+    raw["federated"]["malicious_clients"] = 2
+    raw["defense"]["krum_malicious_clients"] = 2
+
+    try:
+        type(config)(**raw)
+    except ValidationError:
+        return
+    except ValueError:
+        return
+
+    raise AssertionError("invalid Krum config should fail validation")
+
+
 async def main() -> None:
     print("[RUN] config loading")
     test_config_loading()
@@ -101,6 +122,10 @@ async def main() -> None:
     print("[RUN] simulated trainer")
     await test_simulated_trainer()
     print("[OK] simulated trainer")
+
+    print("[RUN] invalid config semantics")
+    test_invalid_config_semantics()
+    print("[OK] invalid config semantics")
 
     print("All quick tests passed.")
 
