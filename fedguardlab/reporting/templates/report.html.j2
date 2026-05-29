@@ -5,112 +5,214 @@
   <title>FedGuardLab Report - {{ job_id }}</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      margin: 40px;
+      margin: 0;
       background: #f8fafc;
       color: #0f172a;
+      font-family:
+        Inter,
+        ui-sans-serif,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
     }
 
     .container {
-      max-width: 1000px;
-      margin: 0 auto;
-      background: white;
-      padding: 32px;
-      border-radius: 16px;
-      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+      max-width: 1120px;
+      margin: 40px auto;
+      padding: 40px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 18px;
+      box-shadow: 0 24px 60px rgba(15, 23, 42, 0.08);
     }
 
-    h1, h2 {
-      margin-top: 0;
+    .report-kicker {
+      color: #64748b;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
     }
 
-    .summary {
+    h1 {
+      margin: 10px 0 18px;
+      font-size: 36px;
+      line-height: 1.1;
+    }
+
+    h2 {
+      margin-top: 32px;
+      margin-bottom: 16px;
+      font-size: 22px;
+    }
+
+    .metric-grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 16px;
       margin: 24px 0;
     }
 
-    .card {
-      padding: 16px;
+    .metric-card {
+      padding: 18px;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      background: #f8fafc;
+    }
+
+    .metric-label {
+      display: block;
+      color: #64748b;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .metric-value {
+      display: block;
+      margin-top: 8px;
+      font-size: 28px;
+      font-weight: 800;
+    }
+
+    .overview-table {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+    }
+
+    .overview-table th,
+    .overview-table td {
+      padding: 12px 14px;
+      border-bottom: 1px solid #e2e8f0;
+      text-align: left;
+    }
+
+    .overview-table th {
+      width: 35%;
+      background: #f1f5f9;
+    }
+
+    .export-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .export-card {
+      padding: 14px;
       border: 1px solid #e2e8f0;
       border-radius: 12px;
       background: #f8fafc;
     }
 
-    .card span {
+    .export-card strong {
       display: block;
-      color: #64748b;
-      font-size: 13px;
-      margin-bottom: 8px;
+      font-size: 14px;
     }
 
-    .card strong {
-      font-size: 24px;
+    .export-card span {
+      display: block;
+      margin-top: 6px;
+      color: #64748b;
+      font-size: 13px;
+    }
+
+    .config-details {
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      background: #f8fafc;
+      overflow: hidden;
+    }
+
+    .config-details summary {
+      cursor: pointer;
+      padding: 16px 18px;
+      font-weight: 800;
     }
 
     pre {
+      margin: 0;
+      padding: 20px;
+      overflow-x: auto;
       background: #0f172a;
       color: #e2e8f0;
-      padding: 16px;
-      border-radius: 12px;
-      overflow-x: auto;
+      font-size: 13px;
+      line-height: 1.55;
     }
 
-    table {
+    .metrics-table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 16px;
+      font-size: 14px;
     }
 
-    th, td {
+    .metrics-table th,
+    .metrics-table td {
+      padding: 10px 12px;
       border-bottom: 1px solid #e2e8f0;
-      padding: 10px;
+      text-align: right;
+    }
+
+    .metrics-table th:first-child,
+    .metrics-table td:first-child {
       text-align: left;
     }
 
-    th {
+    .metrics-table th {
       background: #f1f5f9;
     }
 
-    .muted {
-      color: #64748b;
+    .label-counts {
+      font-family:
+        ui-monospace,
+        SFMono-Regular,
+        Menlo,
+        Monaco,
+        Consolas,
+        "Liberation Mono",
+        monospace;
+      font-size: 12px;
+      color: #334155;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <p class="muted">FedGuardLab Experiment Report</p>
+    <p class="report-kicker">FedGuardLab Experiment Report</p>
     <h1>{{ experiment_name }}</h1>
 
     <p><strong>Job ID:</strong> {{ job_id }}</p>
     <p><strong>Status:</strong> {{ status }}</p>
 
-    <div class="summary">
-      <div class="card">
-        <span>Final Round</span>
-        <strong>{{ final_metric.round }}</strong>
+    <div class="metric-grid">
+      <div class="metric-card">
+        <span class="metric-label">Final Round</span>
+        <strong class="metric-value">{{ final_metric.round }}</strong>
       </div>
 
-      <div class="card">
-        <span>Final Accuracy</span>
-        <strong>{{ final_metric.accuracy }}</strong>
+      <div class="metric-card">
+        <span class="metric-label">Final Accuracy</span>
+        <strong class="metric-value">{{ final_metric.accuracy }}</strong>
       </div>
 
-      <div class="card">
-        <span>Final Loss</span>
-        <strong>{{ final_metric.loss }}</strong>
+      <div class="metric-card">
+        <span class="metric-label">Final Loss</span>
+        <strong class="metric-value">{{ final_metric.loss }}</strong>
       </div>
 
-      <div class="card">
-        <span>Final ASR</span>
-        <strong>{{ final_metric.attack_success_rate }}</strong>
+      <div class="metric-card">
+        <span class="metric-label">Final ASR</span>
+        <strong class="metric-value">{{ final_metric.attack_success_rate }}</strong>
       </div>
     </div>
 
     <h2>Experiment Overview</h2>
 
-    <table>
+    <table class="overview-table">
       <tbody>
         <tr>
           <th>Trainer</th>
@@ -158,7 +260,7 @@
     {% if final_metric.client_label_summary is defined %}
     <h2>Client Label Distribution</h2>
 
-    <table>
+    <table class="metrics-table">
       <thead>
         <tr>
           <th>Client ID</th>
@@ -171,7 +273,7 @@
         <tr>
           <td>{{ client.client_id }}</td>
           <td>{{ client.num_samples }}</td>
-          <td>{{ client.label_counts }}</td>
+          <td class="label-counts">{{ client.label_counts }}</td>
         </tr>
         {% endfor %}
       </tbody>
@@ -180,18 +282,35 @@
 
     <h2>Exported Files</h2>
 
-    <ul>
-      <li><code>config.json</code>: experiment configuration</li>
-      <li><code>metrics.json</code>: raw round-by-round metrics</li>
-      <li><code>metrics.csv</code>: tabular metrics for spreadsheet analysis</li>
-      <li><code>report.md</code>: Markdown experiment summary</li>
-    </ul>
+    <div class="export-grid">
+      <div class="export-card">
+        <strong>config.json</strong>
+        <span>Experiment configuration</span>
+      </div>
 
-    <h2>Experiment Configuration</h2>
-    <pre>{{ config_json }}</pre>
+      <div class="export-card">
+        <strong>metrics.json</strong>
+        <span>Raw round-by-round metrics</span>
+      </div>
+
+      <div class="export-card">
+        <strong>metrics.csv</strong>
+        <span>Spreadsheet-ready metrics</span>
+      </div>
+
+      <div class="export-card">
+        <strong>report.md</strong>
+        <span>Markdown experiment summary</span>
+      </div>
+    </div>
+
+    <details class="config-details">
+      <summary>Experiment Configuration</summary>
+      <pre>{{ config_json }}</pre>
+    </details>
 
     <h2>Metrics</h2>
-    <table>
+    <table class="metrics-table">
       <thead>
         <tr>
           <th>Round</th>

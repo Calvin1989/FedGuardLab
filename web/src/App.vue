@@ -113,17 +113,29 @@ const chartData = computed(() => {
       {
         label: "Accuracy",
         data: metrics.value.map((item) => item.accuracy),
-        tension: 0.3,
+        borderColor: "#2563eb",
+        backgroundColor: "rgba(37, 99, 235, 0.12)",
+        borderWidth: 3,
+        tension: 0.35,
+        pointRadius: 3,
       },
       {
         label: "Loss",
         data: metrics.value.map((item) => item.loss),
-        tension: 0.3,
+        borderColor: "#dc2626",
+        backgroundColor: "rgba(220, 38, 38, 0.12)",
+        borderWidth: 3,
+        tension: 0.35,
+        pointRadius: 3,
       },
       {
         label: "Attack Success Rate",
         data: metrics.value.map((item) => item.attack_success_rate),
-        tension: 0.3,
+        borderColor: "#16a34a",
+        backgroundColor: "rgba(22, 163, 74, 0.12)",
+        borderWidth: 3,
+        tension: 0.35,
+        pointRadius: 3,
       },
     ],
   };
@@ -339,10 +351,10 @@ async function startExperiment() {
   <main class="page">
     <section class="hero">
       <p class="eyebrow">FedGuardLab</p>
-      <h1>Interactive Federated Learning Security Playground</h1>
+      <h1>Interactive FL Security Playground</h1>
       <p class="subtitle">
-        Run a label flipping demo and watch training metrics stream from FastAPI
-        through WebSocket in real time.
+        Run simulated or real federated learning security experiments, stream live
+        metrics, and compare attack-defense outcomes in one dashboard.
       </p>
 
       <div class="control-panel">
