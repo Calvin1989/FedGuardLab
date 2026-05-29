@@ -259,6 +259,21 @@ function clearRecentJobs() {
 }
 
 
+function deleteSelectedJobs() {
+  const selectedIds = new Set(selectedJobIds.value);
+
+  recentJobs.value = recentJobs.value.filter(
+    (job) => !selectedIds.has(job.job_id)
+  );
+
+  selectedJobIds.value = [];
+  comparisonUrl.value = "";
+  comparisonError.value = "";
+
+  saveRecentJobs();
+}
+
+
 async function startExperiment() {
   errorMessage.value = "";
   metrics.value = [];
@@ -463,6 +478,14 @@ async function startExperiment() {
         </div>
 
         <div class="section-actions">
+          <button
+            class="secondary-button"
+            :disabled="selectedJobIds.length === 0"
+            @click="deleteSelectedJobs"
+          >
+            Delete Selected
+          </button>
+
           <button
             class="secondary-button"
             :disabled="recentJobs.length === 0"
