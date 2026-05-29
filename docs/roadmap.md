@@ -90,21 +90,17 @@ Ruff、开发依赖和 GitHub Actions 质量检查。
 
 新增 MNIST trigger-based backdoor attack，并支持 backdoor ASR 评估。
 
----
-
-## 后续优先级建议
-
 ### v0.9.0
 
 新增 Backdoor + FedAvg / Median / Trimmed Mean / Krum 对比实验配置。
 
 ### v0.10.0
 
-更多实验场景和报告增强：
+优化 Dashboard 和实验报告展示效果，并在 README 中加入项目截图。
 
-- 更多 Non-IID 配置；
-- comparison report 图表；
-- 导出实验摘要表。
+---
+
+## 后续优先级建议
 
 ### v0.11.0
 
@@ -113,3 +109,11 @@ Backdoor attack 增强：
 - 支持更多 trigger pattern；
 - 支持更多目标标签攻击；
 - 支持 backdoor ASR 评估优化。
+
+### v1.0.0
+
+稳定首个展示版：
+
+- 固化当前实验能力；
+- 完善 README、docs 和 LICENSE；
+- 确认 Docker、CI、报告导出和 Dashboard 主流程可用。

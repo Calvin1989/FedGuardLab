@@ -188,7 +188,7 @@ reports/comparisons/<comparison_id>/
 
 ## 当前版本
 
-`v0.9.0`
+`v0.10.0`
 
 当前版本支持：
 
@@ -206,7 +206,10 @@ reports/comparisons/<comparison_id>/
 - Trigger-based Backdoor Attack
 - Backdoor ASR 评估
 - Backdoor + FedAvg / Median / Trimmed Mean / Krum 对比实验；
-- Label Flipping 与 Backdoor 两类攻击对比场景。
+- Label Flipping 与 Backdoor 两类攻击对比场景；
+- Dashboard 和实验报告展示优化；
+- README 项目截图展示；
+- Dashboard 支持删除选中的历史实验记录。
 
 ---
 
