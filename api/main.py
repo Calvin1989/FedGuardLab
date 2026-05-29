@@ -153,20 +153,25 @@ def create_run(config_path: str = "configs/mnist_fedavg_demo.yaml"):
 
 @app.get("/status/{job_id}")
 def get_status(job_id: str):
+    validate_job_id(job_id)
+
     if job_id not in JOBS:
-        return {"error": "job not found"}
+        raise HTTPException(status_code=404, detail="job not found")
 
     return {
         "job_id": job_id,
         "status": JOBS[job_id]["status"],
         "metrics_count": len(JOBS[job_id]["metrics"]),
+        "error": JOBS[job_id].get("error"),
     }
 
 
 @app.get("/results/{job_id}")
 def get_results(job_id: str):
+    validate_job_id(job_id)
+
     if job_id not in JOBS:
-        return {"error": "job not found"}
+        raise HTTPException(status_code=404, detail="job not found")
 
     result = JOBS[job_id].copy()
     result["report_dir"] = str(REPORTS_DIR / job_id)
@@ -177,10 +182,12 @@ def get_results(job_id: str):
 
 @app.get("/reports/{job_id}")
 def get_report(job_id: str):
+    validate_job_id(job_id)
+
     report_path = REPORTS_DIR / job_id / "report.html"
 
     if not report_path.exists():
-        return {"error": "report not found"}
+        raise HTTPException(status_code=404, detail="report not found")
 
     return FileResponse(report_path)
 
@@ -207,10 +214,12 @@ def create_comparison(request: ComparisonRequest):
 
 @app.get("/comparisons/{comparison_id}")
 def get_comparison_report(comparison_id: str):
+    validate_job_id(comparison_id)
+
     report_path = COMPARISONS_DIR / comparison_id / "comparison.html"
 
     if not report_path.exists():
-        return {"error": "comparison report not found"}
+        raise HTTPException(status_code=404, detail="comparison report not found")
 
     return FileResponse(report_path)
 
