@@ -36,7 +36,7 @@ FedGuardLab 的目标是逐步构建一个轻量、可视化、可复现的联�
 - [x] 实现 Median 聚合防御
 - [x] 实现 Trimmed Mean 聚合防御
 - [x] 实现 Krum 聚合防御
-- [ ] 实现 backdoor 攻击
+- [x] 实现 backdoor 攻击
 - [ ] 实现 model poisoning 攻击
 
 ---

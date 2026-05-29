@@ -9,6 +9,10 @@ from torch.optim import SGD
 
 from fedguardlab.config.schema import FedGuardConfig
 from fedguardlab.core.aggregation import aggregate
+from fedguardlab.core.attacks.backdoor import (
+    add_trigger_to_batch,
+    apply_backdoor_to_clients,
+)
 from fedguardlab.core.attacks.label_flipping import apply_label_flipping_to_clients
 from fedguardlab.core.data import (
     create_dataloaders,
@@ -106,6 +110,48 @@ def evaluate(
     return result
 
 
+def evaluate_backdoor_asr(
+    model: nn.Module,
+    test_loader,
+    target_label: int,
+    trigger_size: int,
+    trigger_value: float,
+    device: torch.device,
+) -> float:
+    model.eval()
+
+    total = 0
+    successful = 0
+
+    with torch.no_grad():
+        for images, labels in test_loader:
+            images = images.to(device)
+            labels = labels.to(device)
+
+            mask = labels != target_label
+
+            if mask.sum().item() == 0:
+                continue
+
+            images = images[mask]
+            triggered_images = add_trigger_to_batch(
+                images=images,
+                trigger_size=trigger_size,
+                trigger_value=trigger_value,
+            )
+
+            outputs = model(triggered_images)
+            predictions = outputs.argmax(dim=1)
+
+            successful += (predictions == target_label).sum().item()
+            total += labels[mask].numel()
+
+    if total == 0:
+        return 0.0
+
+    return successful / total
+
+
 async def run_mnist_fedavg_experiment(
     config: FedGuardConfig,
 ) -> AsyncGenerator[Dict[str, Any], None]:
@@ -150,6 +196,20 @@ async def run_mnist_fedavg_experiment(
             malicious_clients=config.federated.malicious_clients,
             source_label=config.attack.source_label,
             target_label=config.attack.target_label,
+        )
+
+    elif config.attack.type == "backdoor":
+        if config.attack.target_label is None:
+            raise ValueError("target_label is required for backdoor attack")
+
+        client_datasets = apply_backdoor_to_clients(
+            client_datasets=client_datasets,
+            malicious_clients=config.federated.malicious_clients,
+            target_label=config.attack.target_label,
+            poison_fraction=config.attack.poison_fraction,
+            trigger_size=config.attack.trigger_size,
+            trigger_value=config.attack.trigger_value,
+            seed=config.experiment.seed,
         )
 
     client_label_summary = summarize_client_labels(client_datasets)
@@ -207,11 +267,23 @@ async def run_mnist_fedavg_experiment(
             target_label=config.attack.target_label,
         )
 
+        attack_success_rate = eval_result["attack_success_rate"]
+
+        if config.attack.type == "backdoor" and config.attack.target_label is not None:
+            attack_success_rate = evaluate_backdoor_asr(
+                model=global_model,
+                test_loader=test_loader,
+                target_label=config.attack.target_label,
+                trigger_size=config.attack.trigger_size,
+                trigger_value=config.attack.trigger_value,
+                device=device,
+            )
+
         yield {
             "round": current_round,
             "accuracy": round(eval_result["accuracy"], 4),
             "loss": round(eval_result["loss"], 4),
-            "attack_success_rate": round(eval_result["attack_success_rate"], 4),
+            "attack_success_rate": round(attack_success_rate, 4),
             "aggregation": config.federated.aggregation,
             "attack": config.attack.type,
             "defense": config.defense.type,

@@ -162,6 +162,18 @@ attack:
 ```text
 none
 label_flipping
+backdoor
+```
+
+Backdoor attack 示例：
+
+```yaml
+attack:
+  type: "backdoor"
+  target_label: 7
+  poison_fraction: 0.5
+  trigger_size: 4
+  trigger_value: 2.8
 ```
 
 ---

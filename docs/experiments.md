@@ -128,6 +128,26 @@ num_clients > 2 * num_malicious_clients + 2
 
 ---
 
+## 7. Real MNIST FedAvg Backdoor Demo
+
+配置文件：
+
+```text
+configs/mnist_fedavg_backdoor_demo.yaml
+```
+
+用途：
+
+- 使用真实 MNIST 数据集；
+- 设置 5 个客户端；
+- 设置前 2 个客户端为恶意客户端；
+- 在恶意客户端样本右下角添加 trigger；
+- 将投毒样本标签改为目标标签 7；
+- 使用 FedAvg 聚合全局模型；
+- 通过 backdoor ASR 评估攻击成功率。
+
+---
+
 ## 实验对比
 
 前端 Dashboard 支持勾选多个已完成实验，并生成 comparison report。

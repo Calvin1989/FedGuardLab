@@ -11,6 +11,7 @@ CONFIGS_TO_LOAD = [
     "configs/mnist_fedavg_demo.yaml",
     "configs/mnist_fedavg_dirichlet_demo.yaml",
     "configs/mnist_fedavg_label_flip_demo.yaml",
+    "configs/mnist_fedavg_backdoor_demo.yaml",
     "configs/mnist_median_label_flip_demo.yaml",
     "configs/mnist_trimmed_mean_label_flip_demo.yaml",
     "configs/mnist_krum_label_flip_demo.yaml",

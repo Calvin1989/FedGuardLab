@@ -56,6 +56,11 @@ const experimentOptions = [
     description: "真实 MNIST + IID 划分 + 2 个恶意客户端执行 1→7 label flipping",
   },
   {
+    label: "Real MNIST FedAvg Backdoor Demo",
+    value: "configs/mnist_fedavg_backdoor_demo.yaml",
+    description: "真实 MNIST + FedAvg + trigger-based backdoor attack",
+  },
+  {
     label: "Real MNIST Label Flip + Median Defense",
     value: "configs/mnist_median_label_flip_demo.yaml",
     description: "真实 MNIST + label flipping + Median 鲁棒聚合防御",

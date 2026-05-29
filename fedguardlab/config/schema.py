@@ -34,6 +34,9 @@ class AttackConfig(BaseModel):
     type: str = "none"
     source_label: Optional[int] = None
     target_label: Optional[int] = None
+    poison_fraction: float = 1.0
+    trigger_size: int = 4
+    trigger_value: float = 2.8
 
 
 class DefenseConfig(BaseModel):
