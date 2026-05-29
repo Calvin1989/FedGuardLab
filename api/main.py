@@ -235,6 +235,7 @@ async def websocket_run(websocket: WebSocket, job_id: str):
 
     try:
         JOBS[job_id]["status"] = "running"
+        JOBS[job_id]["error"] = None
         config = load_config(JOBS[job_id]["config_path"])
 
         async for metric in run_experiment(config):
@@ -247,3 +248,15 @@ async def websocket_run(websocket: WebSocket, job_id: str):
 
     except WebSocketDisconnect:
         JOBS[job_id]["status"] = "disconnected"
+
+    except Exception as exc:
+        error_message = str(exc)
+        JOBS[job_id]["status"] = "failed"
+        JOBS[job_id]["error"] = error_message
+        await websocket.send_json(
+            {
+                "event": "failed",
+                "error": error_message,
+            }
+        )
+        await websocket.close()
