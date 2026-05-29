@@ -2,7 +2,6 @@
 
 from pydantic import BaseModel, Field, model_validator
 
-
 TrainingMode = Literal["simulated", "real"]
 AggregationType = Literal["fedavg", "median", "trimmed_mean", "krum"]
 DatasetName = Literal["mnist"]
