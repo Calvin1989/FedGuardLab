@@ -27,6 +27,22 @@ FedGuardLab 是一个面向联邦学习安全实验的交互式实验平台。
 
 ---
 
+## Screenshots
+
+### Dashboard
+
+![Dashboard](docs/screenshots/dashboard.png)
+
+### Experiment Report
+
+![Experiment Report](docs/screenshots/experiment-report.png)
+
+### Comparison Report
+
+![Comparison Report](docs/screenshots/comparison-report.png)
+
+---
+
 ## 快速开始
 
 ### 1. 克隆项目
