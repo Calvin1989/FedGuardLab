@@ -227,3 +227,36 @@ metrics:
 - `attack`
 - `defense`
 - `device`
+
+---
+
+## 配置约束
+
+配置加载时会进行语义校验，以下规则必须满足：
+
+### defense.type 与 aggregation 对应关系
+
+| aggregation | defense.type |
+|---|---|
+| fedavg | none |
+| median | median |
+| trimmed_mean | trimmed_mean |
+| krum | krum |
+
+使用 FedAvg 时 `defense.type` 必须为 `none`；使用 Median / Trimmed Mean / Krum 时，`defense.type` 必须等于 `federated.aggregation`。
+
+### Dirichlet 划分
+
+当 `dataset.partition` 为 `dirichlet` 时，`dataset.alpha` 必须提供且大于 0。
+
+### Krum 约束
+
+使用 Krum 时，客户端数量必须满足：
+
+```text
+num_clients > 2 * krum_malicious_clients + 2
+```
+
+例如 2 个恶意客户端至少需要 7 个客户端。
+
+不满足上述约束的配置会在加载时抛出 `ValueError`。

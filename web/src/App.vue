@@ -30,7 +30,7 @@ const status = ref("idle");
 const metrics = ref([]);
 const errorMessage = ref("");
 const reportUrl = ref("");
-const selectedConfig = ref("configs/mnist_fedavg_demo.yaml");
+const selectedConfig = ref("");
 
 const recentJobs = ref([]);
 const selectedJobIds = ref([]);
@@ -39,63 +39,7 @@ const comparisonStatus = ref("idle");
 const comparisonError = ref("");
 const comparisonUrl = ref("");
 
-const experimentOptions = [
-  {
-    label: "Real MNIST FedAvg Demo",
-    value: "configs/mnist_fedavg_demo.yaml",
-    description: "真实 MNIST + 5 个客户端 + FedAvg 聚合",
-  },
-  {
-    label: "Real MNIST FedAvg Dirichlet Demo",
-    value: "configs/mnist_fedavg_dirichlet_demo.yaml",
-    description: "真实 MNIST + Dirichlet Non-IID 划分 + FedAvg 聚合",
-  },
-  {
-    label: "Real MNIST FedAvg Label Flip Demo",
-    value: "configs/mnist_fedavg_label_flip_demo.yaml",
-    description: "真实 MNIST + IID 划分 + 2 个恶意客户端执行 1→7 label flipping",
-  },
-  {
-    label: "Real MNIST FedAvg Backdoor Demo",
-    value: "configs/mnist_fedavg_backdoor_demo.yaml",
-    description: "真实 MNIST + FedAvg + trigger-based backdoor attack",
-  },
-  {
-    label: "Real MNIST Backdoor + Median Defense",
-    value: "configs/mnist_median_backdoor_demo.yaml",
-    description: "真实 MNIST + backdoor attack + Median 鲁棒聚合防御",
-  },
-  {
-    label: "Real MNIST Backdoor + Trimmed Mean Defense",
-    value: "configs/mnist_trimmed_mean_backdoor_demo.yaml",
-    description: "真实 MNIST + backdoor attack + Trimmed Mean 鲁棒聚合防御",
-  },
-  {
-    label: "Real MNIST Backdoor + Krum Defense",
-    value: "configs/mnist_krum_backdoor_demo.yaml",
-    description: "真实 MNIST + backdoor attack + Krum 鲁棒聚合防御",
-  },
-  {
-    label: "Real MNIST Label Flip + Median Defense",
-    value: "configs/mnist_median_label_flip_demo.yaml",
-    description: "真实 MNIST + label flipping + Median 鲁棒聚合防御",
-  },
-  {
-    label: "Real MNIST Label Flip + Trimmed Mean Defense",
-    value: "configs/mnist_trimmed_mean_label_flip_demo.yaml",
-    description: "真实 MNIST + label flipping + Trimmed Mean 鲁棒聚合防御",
-  },
-  {
-    label: "Real MNIST Label Flip + Krum Defense",
-    value: "configs/mnist_krum_label_flip_demo.yaml",
-    description: "真实 MNIST + label flipping + Krum 鲁棒聚合防御",
-  },
-  {
-    label: "Simulated Label Flipping Demo",
-    value: "configs/label_flip_demo.yaml",
-    description: "模拟 label flipping 攻击，用于快速演示 Dashboard",
-  },
-];
+const experimentOptions = ref([]);
 
 let socket = null;
 
@@ -162,15 +106,45 @@ const chartOptions = {
 
 onMounted(() => {
   loadRecentJobs();
+  loadExperimentOptions();
+});
+
+
+const selectedExperimentDescription = computed(() => {
+  const option = experimentOptions.value.find(
+    (item) => item.value === selectedConfig.value
+  );
+
+  return option?.description || "";
 });
 
 
 function getSelectedExperimentLabel() {
-  const option = experimentOptions.find(
+  const option = experimentOptions.value.find(
     (item) => item.value === selectedConfig.value
   );
 
   return option ? option.label : selectedConfig.value;
+}
+
+
+async function loadExperimentOptions() {
+  try {
+    const response = await fetch(`${API_BASE}/configs`);
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.detail || "Failed to load configs");
+    }
+
+    experimentOptions.value = data.configs.filter((item) => item.valid);
+
+    if (!selectedConfig.value && experimentOptions.value.length > 0) {
+      selectedConfig.value = experimentOptions.value[0].value;
+    }
+  } catch (error) {
+    errorMessage.value = error.message;
+  }
 }
 
 
@@ -203,7 +177,7 @@ async function createComparisonReport() {
       },
       body: JSON.stringify({
         job_ids: selectedJobIds.value,
-        title: "Label Flipping Defense Comparison",
+        title: buildComparisonTitle(),
       }),
     });
 
@@ -247,6 +221,26 @@ function saveRecentJobs() {
     RECENT_JOBS_STORAGE_KEY,
     JSON.stringify(recentJobs.value.slice(0, 20))
   );
+}
+
+
+function buildComparisonTitle() {
+  const selectedJobs = recentJobs.value.filter((job) =>
+    selectedJobIds.value.includes(job.job_id)
+  );
+
+  const attacks = [...new Set(selectedJobs.map((job) => job.attack))];
+  const aggregations = [...new Set(selectedJobs.map((job) => job.aggregation))];
+
+  if (attacks.length === 1 && attacks[0] !== "unknown") {
+    return `${attacks[0]} Aggregation Comparison`;
+  }
+
+  if (aggregations.length > 1) {
+    return "Robust Aggregation Comparison";
+  }
+
+  return "FedGuardLab Experiment Comparison";
 }
 
 
@@ -393,15 +387,16 @@ async function startExperiment() {
         </select>
 
         <p class="option-description">
-          {{
-            experimentOptions.find((option) => option.value === selectedConfig)
-              ?.description
-          }}
+          {{ selectedExperimentDescription }}
         </p>
 
         <button
           class="run-button"
-          :disabled="status === 'creating' || status === 'running'"
+          :disabled="
+            status === 'creating' ||
+            status === 'running' ||
+            experimentOptions.length === 0
+          "
           @click="startExperiment"
         >
           {{ status === "running" ? "Running..." : "Run Experiment" }}

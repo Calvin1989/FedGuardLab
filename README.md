@@ -186,9 +186,27 @@ reports/comparisons/<comparison_id>/
 
 ---
 
+## API 接口
+
+后端提供以下主要接口：
+
+- `POST /run` — 启动实验；
+- `GET /configs` — 列出可用实验配置（前端 Dashboard 自动加载）；
+- `GET /reports/{job_id}` — 下载单实验报告；
+- `POST /comparisons` — 生成多实验对比报告；
+- `GET /comparisons/{comparison_id}` — 下载对比报告。
+
+完整接口文档：
+
+```text
+http://127.0.0.1:8000/docs
+```
+
+---
+
 ## 当前版本
 
-`v0.10.0`
+`v1.0.0`
 
 当前版本支持：
 
@@ -199,17 +217,19 @@ reports/comparisons/<comparison_id>/
 - HTML / CSV / Markdown 报告导出
 - 多实验对比报告
 - Docker Compose 启动
-- GitHub Actions + Ruff + quick test
+- GitHub Actions + Ruff + quick test + 前端 build
 - 前端实验历史持久化
 - 刷新页面后保留已完成实验记录
 - 支持清空 Dashboard 历史记录
 - Trigger-based Backdoor Attack
 - Backdoor ASR 评估
-- Backdoor + FedAvg / Median / Trimmed Mean / Krum 对比实验；
-- Label Flipping 与 Backdoor 两类攻击对比场景；
-- Dashboard 和实验报告展示优化；
-- README 项目截图展示；
-- Dashboard 支持删除选中的历史实验记录。
+- Backdoor + FedAvg / Median / Trimmed Mean / Krum 对比实验
+- Label Flipping 与 Backdoor 两类攻击对比场景
+- Dashboard 和实验报告展示优化
+- README 项目截图展示
+- Dashboard 支持删除选中的历史实验记录
+
+v1.1.0 focus: reliability, config validation, job lifecycle, frontend config discovery
 
 ---
 

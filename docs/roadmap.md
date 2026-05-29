@@ -98,22 +98,32 @@ Ruff、开发依赖和 GitHub Actions 质量检查。
 
 优化 Dashboard 和实验报告展示效果，并在 README 中加入项目截图。
 
----
-
-## 后续优先级建议
-
-### v0.11.0
-
-Backdoor attack 增强：
-
-- 支持更多 trigger pattern；
-- 支持更多目标标签攻击；
-- 支持 backdoor ASR 评估优化。
-
 ### v1.0.0
 
 稳定首个展示版：
 
 - 固化当前实验能力；
 - 完善 README、docs 和 LICENSE；
-- 确认 Docker、CI、报告导出和 Dashboard 主流程可用。
+- 确认 Docker、CI、报告导出和 Dashboard 主流程可用；
+- 前端 build 纳入 CI。
+
+---
+
+## 后续优先级建议
+
+### v1.1.0
+
+reliability, config validation, job lifecycle, frontend config discovery：
+
+- 配置语义校验（Krum、Dirichlet 等约束）；
+- 实验 job 生命周期管理；
+- 前端自动发现可用配置；
+- 更完善的错误提示。
+
+### v1.2.0
+
+Backdoor attack 增强：
+
+- 支持更多 trigger pattern；
+- 支持更多目标标签攻击；
+- 支持 backdoor ASR 评估优化。

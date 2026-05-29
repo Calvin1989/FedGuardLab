@@ -1,4 +1,5 @@
 import json
+import re
 import uuid
 from pathlib import Path
 from typing import Any, Dict, List
@@ -28,6 +29,10 @@ app.add_middleware(
 
 JOBS: Dict[str, Dict[str, Any]] = {}
 REPORTS_DIR = Path("reports/jobs")
+CONFIGS_DIR = Path("configs")
+JOB_ID_PATTERN = re.compile(
+    r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+)
 
 
 class ComparisonRequest(BaseModel):
@@ -50,21 +55,94 @@ def save_job_results(job_id: str) -> None:
     job["report_path"] = str(report_path)
 
 
+def resolve_config_path(config_path: str) -> Path:
+    requested_path = Path(config_path)
+
+    if requested_path.is_absolute():
+        raise HTTPException(status_code=400, detail="config_path must be relative")
+
+    resolved_path = requested_path.resolve()
+    configs_root = CONFIGS_DIR.resolve()
+
+    if configs_root not in resolved_path.parents:
+        raise HTTPException(
+            status_code=400,
+            detail="config_path must point to a file under configs/",
+        )
+
+    if resolved_path.suffix not in {".yaml", ".yml"}:
+        raise HTTPException(status_code=400, detail="config_path must be a YAML file")
+
+    if not resolved_path.exists():
+        raise HTTPException(status_code=404, detail="config file not found")
+
+    return resolved_path
+
+
+def validate_job_id(job_id: str) -> None:
+    if not JOB_ID_PATTERN.fullmatch(job_id):
+        raise HTTPException(status_code=400, detail="invalid job_id")
+
+
 @app.get("/")
 def root():
     return {"message": "FedGuardLab API is running"}
 
 
+@app.get("/configs")
+def list_configs():
+    configs = []
+
+    for config_path in sorted(CONFIGS_DIR.glob("*.yaml")):
+        try:
+            config = load_config(config_path)
+        except Exception as exc:
+            configs.append(
+                {
+                    "label": config_path.stem,
+                    "value": config_path.as_posix(),
+                    "description": f"Invalid config: {exc}",
+                    "valid": False,
+                }
+            )
+            continue
+
+        configs.append(
+            {
+                "label": config.experiment.name,
+                "value": config_path.as_posix(),
+                "description": (
+                    f"{config.training.mode} | "
+                    f"{config.dataset.name}/{config.dataset.partition} | "
+                    f"{config.attack.type} | "
+                    f"{config.federated.aggregation}"
+                ),
+                "valid": True,
+                "experiment": config.experiment.model_dump(),
+                "training": config.training.model_dump(),
+                "federated": config.federated.model_dump(),
+                "dataset": config.dataset.model_dump(),
+                "attack": config.attack.model_dump(),
+                "defense": config.defense.model_dump(),
+            }
+        )
+
+    return {"configs": configs}
+
+
 @app.post("/run")
 def create_run(config_path: str = "configs/mnist_fedavg_demo.yaml"):
+    resolved_config_path = resolve_config_path(config_path)
+
     job_id = str(uuid.uuid4())
-    config = load_config(config_path)
+    config = load_config(resolved_config_path)
 
     JOBS[job_id] = {
         "status": "created",
-        "config_path": config_path,
+        "config_path": str(resolved_config_path),
         "config": config.model_dump(),
         "metrics": [],
+        "error": None,
     }
 
     return {
@@ -75,20 +153,25 @@ def create_run(config_path: str = "configs/mnist_fedavg_demo.yaml"):
 
 @app.get("/status/{job_id}")
 def get_status(job_id: str):
+    validate_job_id(job_id)
+
     if job_id not in JOBS:
-        return {"error": "job not found"}
+        raise HTTPException(status_code=404, detail="job not found")
 
     return {
         "job_id": job_id,
         "status": JOBS[job_id]["status"],
         "metrics_count": len(JOBS[job_id]["metrics"]),
+        "error": JOBS[job_id].get("error"),
     }
 
 
 @app.get("/results/{job_id}")
 def get_results(job_id: str):
+    validate_job_id(job_id)
+
     if job_id not in JOBS:
-        return {"error": "job not found"}
+        raise HTTPException(status_code=404, detail="job not found")
 
     result = JOBS[job_id].copy()
     result["report_dir"] = str(REPORTS_DIR / job_id)
@@ -99,10 +182,12 @@ def get_results(job_id: str):
 
 @app.get("/reports/{job_id}")
 def get_report(job_id: str):
+    validate_job_id(job_id)
+
     report_path = REPORTS_DIR / job_id / "report.html"
 
     if not report_path.exists():
-        return {"error": "report not found"}
+        raise HTTPException(status_code=404, detail="report not found")
 
     return FileResponse(report_path)
 
@@ -129,10 +214,12 @@ def create_comparison(request: ComparisonRequest):
 
 @app.get("/comparisons/{comparison_id}")
 def get_comparison_report(comparison_id: str):
+    validate_job_id(comparison_id)
+
     report_path = COMPARISONS_DIR / comparison_id / "comparison.html"
 
     if not report_path.exists():
-        return {"error": "comparison report not found"}
+        raise HTTPException(status_code=404, detail="comparison report not found")
 
     return FileResponse(report_path)
 
@@ -148,6 +235,7 @@ async def websocket_run(websocket: WebSocket, job_id: str):
 
     try:
         JOBS[job_id]["status"] = "running"
+        JOBS[job_id]["error"] = None
         config = load_config(JOBS[job_id]["config_path"])
 
         async for metric in run_experiment(config):
@@ -160,3 +248,15 @@ async def websocket_run(websocket: WebSocket, job_id: str):
 
     except WebSocketDisconnect:
         JOBS[job_id]["status"] = "disconnected"
+
+    except Exception as exc:
+        error_message = str(exc)
+        JOBS[job_id]["status"] = "failed"
+        JOBS[job_id]["error"] = error_message
+        await websocket.send_json(
+            {
+                "event": "failed",
+                "error": error_message,
+            }
+        )
+        await websocket.close()
