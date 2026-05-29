@@ -172,7 +172,7 @@ reports/comparisons/<comparison_id>/
 
 ## 当前版本
 
-`v0.8.0`
+`v0.9.0`
 
 当前版本支持：
 
@@ -189,6 +189,8 @@ reports/comparisons/<comparison_id>/
 - 支持清空 Dashboard 历史记录
 - Trigger-based Backdoor Attack
 - Backdoor ASR 评估
+- Backdoor + FedAvg / Median / Trimmed Mean / Krum 对比实验；
+- Label Flipping 与 Backdoor 两类攻击对比场景。
 
 ---
 
