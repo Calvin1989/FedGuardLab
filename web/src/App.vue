@@ -177,7 +177,7 @@ async function createComparisonReport() {
       },
       body: JSON.stringify({
         job_ids: selectedJobIds.value,
-        title: "Label Flipping Defense Comparison",
+        title: buildComparisonTitle(),
       }),
     });
 
@@ -221,6 +221,26 @@ function saveRecentJobs() {
     RECENT_JOBS_STORAGE_KEY,
     JSON.stringify(recentJobs.value.slice(0, 20))
   );
+}
+
+
+function buildComparisonTitle() {
+  const selectedJobs = recentJobs.value.filter((job) =>
+    selectedJobIds.value.includes(job.job_id)
+  );
+
+  const attacks = [...new Set(selectedJobs.map((job) => job.attack))];
+  const aggregations = [...new Set(selectedJobs.map((job) => job.aggregation))];
+
+  if (attacks.length === 1 && attacks[0] !== "unknown") {
+    return `${attacks[0]} Aggregation Comparison`;
+  }
+
+  if (aggregations.length > 1) {
+    return "Robust Aggregation Comparison";
+  }
+
+  return "FedGuardLab Experiment Comparison";
 }
 
 
