@@ -189,6 +189,10 @@ def list_jobs():
                 "created_at": job.created_at,
                 "started_at": job.started_at,
                 "finished_at": job.finished_at,
+                "has_report": (
+                    (REPORTS_DIR / job.job_id / "config.json").exists()
+                    and (REPORTS_DIR / job.job_id / "report.html").exists()
+                ),
             }
             for job in JOB_STORE.list()
         ]
