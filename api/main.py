@@ -175,6 +175,26 @@ def get_status(job_id: str):
     }
 
 
+@app.get("/jobs")
+def list_jobs():
+    return {
+        "jobs": [
+            {
+                "job_id": job.job_id,
+                "status": job.status,
+                "config_path": job.config_path,
+                "experiment_name": job.config.get("experiment", {}).get("name"),
+                "metrics_count": len(job.metrics),
+                "error": job.error,
+                "created_at": job.created_at,
+                "started_at": job.started_at,
+                "finished_at": job.finished_at,
+            }
+            for job in JOB_STORE.list()
+        ]
+    }
+
+
 @app.get("/results/{job_id}")
 def get_results(job_id: str):
     validate_job_id(job_id)
