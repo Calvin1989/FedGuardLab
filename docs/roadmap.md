@@ -111,6 +111,27 @@ Ruff、开发依赖和 GitHub Actions 质量检查。
 
 ## 后续优先级建议
 
+### v1.1.0-beta.1
+
+Focus: experiment job lifecycle visibility and cancellation groundwork.
+
+Planned / implemented items:
+
+- [x] Add lightweight in-memory JobStore.
+- [x] Replace global job dict with JobStore.
+- [x] Add `GET /jobs`.
+- [x] Add `POST /jobs/{job_id}/cancel`.
+- [x] Track job timestamps: `created_at`, `started_at`, `finished_at`.
+- [x] Filter frontend comparison history to report-ready jobs.
+- [x] Persist hidden jobs in frontend comparison history.
+
+Future work:
+
+- [ ] Decouple training execution from WebSocket connections.
+- [ ] Add background task execution.
+- [ ] Add durable job persistence.
+- [ ] Add true cancellation for running training jobs.
+
 ### v1.1.0
 
 reliability, config validation, job lifecycle, frontend config discovery：
