@@ -35,6 +35,7 @@ const selectedConfig = ref("");
 const recentJobs = ref([]);
 const selectedJobIds = ref([]);
 const RECENT_JOBS_STORAGE_KEY = "fedguardlab_recent_jobs";
+const HIDDEN_JOBS_STORAGE_KEY = "fedguardlab_hidden_jobs";
 const comparisonStatus = ref("idle");
 const comparisonError = ref("");
 const comparisonUrl = ref("");
@@ -104,9 +105,14 @@ const chartOptions = {
   },
 };
 
-onMounted(() => {
-  loadRecentJobs();
-  loadExperimentOptions();
+onMounted(async () => {
+  await loadExperimentOptions();
+
+  try {
+    await loadRecentJobsFromApi();
+  } catch (error) {
+    loadRecentJobs();
+  }
 });
 
 
@@ -196,6 +202,57 @@ async function createComparisonReport() {
 }
 
 
+function loadHiddenJobIds() {
+  const rawValue = window.localStorage.getItem(HIDDEN_JOBS_STORAGE_KEY);
+
+  if (!rawValue) {
+    return new Set();
+  }
+
+  try {
+    const parsedIds = JSON.parse(rawValue);
+
+    if (Array.isArray(parsedIds)) {
+      return new Set(parsedIds);
+    }
+  } catch (error) {
+    console.warn("Failed to load hidden jobs from localStorage:", error);
+    window.localStorage.removeItem(HIDDEN_JOBS_STORAGE_KEY);
+  }
+
+  return new Set();
+}
+
+
+function saveHiddenJobIds(hiddenIds) {
+  window.localStorage.setItem(
+    HIDDEN_JOBS_STORAGE_KEY,
+    JSON.stringify([...hiddenIds])
+  );
+}
+
+
+function hideJobIds(jobIds) {
+  const hiddenIds = loadHiddenJobIds();
+
+  jobIds.forEach((jobId) => {
+    if (jobId) {
+      hiddenIds.add(jobId);
+    }
+  });
+
+  saveHiddenJobIds(hiddenIds);
+}
+
+
+function unhideJobId(jobId) {
+  const hiddenIds = loadHiddenJobIds();
+
+  hiddenIds.delete(jobId);
+  saveHiddenJobIds(hiddenIds);
+}
+
+
 function loadRecentJobs() {
   const rawValue = window.localStorage.getItem(RECENT_JOBS_STORAGE_KEY);
 
@@ -205,14 +262,86 @@ function loadRecentJobs() {
 
   try {
     const parsedJobs = JSON.parse(rawValue);
+    const hiddenIds = loadHiddenJobIds();
 
     if (Array.isArray(parsedJobs)) {
-      recentJobs.value = parsedJobs;
+      recentJobs.value = parsedJobs.filter(
+        (job) => !hiddenIds.has(job.job_id)
+      );
     }
   } catch (error) {
     console.warn("Failed to load recent jobs from localStorage:", error);
     window.localStorage.removeItem(RECENT_JOBS_STORAGE_KEY);
   }
+}
+
+
+async function loadRecentJobsFromApi() {
+  const response = await fetch(`${API_BASE}/jobs`);
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.detail || "Failed to load jobs");
+  }
+
+  const hiddenIds = loadHiddenJobIds();
+
+  const finishedJobs = data.jobs.filter(
+    (job) =>
+      job.status === "finished" &&
+      job.metrics_count > 0 &&
+      job.has_report === true &&
+      !hiddenIds.has(job.job_id)
+  );
+
+  const hydratedJobs = await Promise.all(
+    finishedJobs.map(async (job) => {
+      try {
+        const resultResponse = await fetch(`${API_BASE}/results/${job.job_id}`);
+        const result = await resultResponse.json();
+
+        if (!resultResponse.ok) {
+          return null;
+        }
+
+        const config = result.config || {};
+        const metrics = result.metrics || [];
+        const lastMetric = metrics[metrics.length - 1] || {};
+
+        const experimentName =
+          config.experiment?.name || job.experiment_name || "Unknown Experiment";
+
+        return {
+          job_id: job.job_id,
+          status: job.status,
+          config_path: job.config_path,
+          experiment_name: experimentName,
+          name: experimentName,
+          label: experimentName,
+          aggregation: config.federated?.aggregation || "unknown",
+          defense: config.defense?.type || "unknown",
+          attack: config.attack?.type || "unknown",
+          accuracy: lastMetric.accuracy ?? 0,
+          loss: lastMetric.loss ?? 0,
+          attack_success_rate: lastMetric.attack_success_rate ?? 0,
+          asr: lastMetric.attack_success_rate ?? 0,
+          final_accuracy: lastMetric.accuracy ?? 0,
+          final_loss: lastMetric.loss ?? 0,
+          final_asr: lastMetric.attack_success_rate ?? 0,
+          metrics_count: job.metrics_count,
+          error: job.error,
+          created_at: job.created_at,
+          started_at: job.started_at,
+          finished_at: job.finished_at,
+          report_url: `${API_BASE}/reports/${job.job_id}`,
+        };
+      } catch (error) {
+        return null;
+      }
+    })
+  );
+
+  recentJobs.value = hydratedJobs.filter((job) => job !== null);
 }
 
 
@@ -245,6 +374,8 @@ function buildComparisonTitle() {
 
 
 function clearRecentJobs() {
+  hideJobIds(recentJobs.value.map((job) => job.job_id));
+
   recentJobs.value = [];
   selectedJobIds.value = [];
   comparisonUrl.value = "";
@@ -255,6 +386,8 @@ function clearRecentJobs() {
 
 function deleteSelectedJobs() {
   const selectedIds = new Set(selectedJobIds.value);
+
+  hideJobIds([...selectedIds]);
 
   recentJobs.value = recentJobs.value.filter(
     (job) => !selectedIds.has(job.job_id)
@@ -313,11 +446,17 @@ async function startExperiment() {
         reportUrl.value = `${API_BASE}/reports/${jobId.value}`;
 
         const finalMetric = metrics.value[metrics.value.length - 1] || {};
+        const experimentName = getSelectedExperimentLabel();
+
+        unhideJobId(jobId.value);
 
         recentJobs.value = [
           {
             job_id: jobId.value,
-            label: getSelectedExperimentLabel(),
+            status: "finished",
+            label: experimentName,
+            name: experimentName,
+            experiment_name: experimentName,
             config_path: selectedConfig.value,
             aggregation: finalMetric.aggregation || "unknown",
             defense: finalMetric.defense || "unknown",
@@ -325,9 +464,10 @@ async function startExperiment() {
             final_accuracy: finalMetric.accuracy ?? 0,
             final_loss: finalMetric.loss ?? 0,
             final_asr: finalMetric.attack_success_rate ?? 0,
+            metrics_count: metrics.value.length,
             report_url: `${API_BASE}/reports/${jobId.value}`,
           },
-          ...recentJobs.value,
+          ...recentJobs.value.filter((job) => job.job_id !== jobId.value),
         ].slice(0, 20);
 
         saveRecentJobs();
@@ -542,9 +682,15 @@ async function startExperiment() {
             <td>{{ job.final_loss }}</td>
             <td>{{ job.final_asr }}</td>
             <td>
-              <a class="report-link" :href="job.report_url" target="_blank">
+              <a
+                v-if="job.status === 'finished'"
+                class="report-link"
+                :href="job.report_url"
+                target="_blank"
+              >
                 Open
               </a>
+              <span v-else>Not ready</span>
             </td>
           </tr>
         </tbody>
