@@ -222,3 +222,22 @@ reports/comparisons/<comparison_id>/
 ├── comparison.json
 └── comparison.csv
 ```
+
+---
+
+## Experiment job lifecycle
+
+Each experiment run is represented as a job.
+
+Supported statuses:
+
+- `created`
+- `running`
+- `finished`
+- `failed`
+- `cancelled`
+- `disconnected`
+
+The current implementation uses an in-memory job store. This is sufficient for local experiments and dashboard usage, but the registry is cleared when the backend restarts.
+
+Generated reports are still written to `reports/jobs/{job_id}/`.

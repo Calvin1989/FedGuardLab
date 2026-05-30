@@ -188,13 +188,21 @@ reports/comparisons/<comparison_id>/
 
 ## API 接口
 
-后端提供以下主要接口：
+### Job lifecycle API
 
-- `POST /run` — 启动实验；
-- `GET /configs` — 列出可用实验配置（前端 Dashboard 自动加载）；
-- `GET /reports/{job_id}` — 下载单实验报告；
-- `POST /comparisons` — 生成多实验对比报告；
-- `GET /comparisons/{comparison_id}` — 下载对比报告。
+FedGuardLab exposes lightweight in-memory job lifecycle endpoints:
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/configs` | List available experiment configs. |
+| `POST` | `/run?config_path=...` | Create a new experiment job. |
+| `GET` | `/jobs` | List current in-memory jobs. |
+| `GET` | `/status/{job_id}` | Get job status and timestamps. |
+| `GET` | `/results/{job_id}` | Get job config, metrics, and report paths. |
+| `GET` | `/reports/{job_id}` | Open the generated HTML report. |
+| `POST` | `/jobs/{job_id}/cancel` | Mark a pending or running job as cancelled. |
+
+Current job storage is in-memory. Restarting the backend clears the job registry, while generated report files under `reports/jobs/` remain on disk.
 
 完整接口文档：
 

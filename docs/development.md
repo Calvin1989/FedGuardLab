@@ -158,6 +158,43 @@ docker compose down
 
 ---
 
+## Job lifecycle smoke test
+
+Start the backend:
+
+```bash
+uvicorn api.main:app --reload
+```
+
+Create a job:
+
+```powershell
+$job = Invoke-RestMethod -Method Post "http://127.0.0.1:8000/run?config_path=configs/label_flip_demo.yaml"
+$job
+```
+
+Check status:
+
+```powershell
+Invoke-RestMethod "http://127.0.0.1:8000/status/$($job.job_id)"
+```
+
+List jobs:
+
+```powershell
+Invoke-RestMethod "http://127.0.0.1:8000/jobs"
+```
+
+Cancel a job:
+
+```powershell
+Invoke-RestMethod -Method Post "http://127.0.0.1:8000/jobs/$($job.job_id)/cancel"
+```
+
+A repeated cancel request should return a 400 error.
+
+---
+
 ## GitHub Actions
 
 项目使用 GitHub Actions 执行：
