@@ -2,13 +2,14 @@ import json
 import re
 import uuid
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import List
 
 from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
+from api.jobs import JobRecord, JobStore
 from fedguardlab.config.loader import load_config
 from fedguardlab.core.trainer import run_experiment
 from fedguardlab.reporting.comparison import (
@@ -27,7 +28,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-JOBS: Dict[str, Dict[str, Any]] = {}
+JOB_STORE = JobStore()
 REPORTS_DIR = Path("reports/jobs")
 CONFIGS_DIR = Path("configs")
 JOB_ID_PATTERN = re.compile(
@@ -41,18 +42,21 @@ class ComparisonRequest(BaseModel):
 
 
 def save_job_results(job_id: str) -> None:
-    job = JOBS[job_id]
+    job = JOB_STORE.get(job_id)
+
+    if job is None:
+        raise ValueError(f"job not found: {job_id}")
+
     job_dir = REPORTS_DIR / job_id
     job_dir.mkdir(parents=True, exist_ok=True)
 
     with open(job_dir / "config.json", "w", encoding="utf-8") as f:
-        json.dump(job["config"], f, indent=2, ensure_ascii=False)
+        json.dump(job.config, f, indent=2, ensure_ascii=False)
 
     with open(job_dir / "metrics.json", "w", encoding="utf-8") as f:
-        json.dump(job["metrics"], f, indent=2, ensure_ascii=False)
+        json.dump(job.metrics, f, indent=2, ensure_ascii=False)
 
-    report_path = generate_html_report(job_id, job, job_dir)
-    job["report_path"] = str(report_path)
+    generate_html_report(job_id, JOB_STORE.to_dict(job_id), job_dir)
 
 
 def resolve_config_path(config_path: str) -> Path:
@@ -137,13 +141,13 @@ def create_run(config_path: str = "configs/mnist_fedavg_demo.yaml"):
     job_id = str(uuid.uuid4())
     config = load_config(resolved_config_path)
 
-    JOBS[job_id] = {
-        "status": "created",
-        "config_path": str(resolved_config_path),
-        "config": config.model_dump(),
-        "metrics": [],
-        "error": None,
-    }
+    JOB_STORE.create(
+        JobRecord(
+            job_id=job_id,
+            config_path=str(resolved_config_path),
+            config=config.model_dump(),
+        )
+    )
 
     return {
         "job_id": job_id,
@@ -155,14 +159,19 @@ def create_run(config_path: str = "configs/mnist_fedavg_demo.yaml"):
 def get_status(job_id: str):
     validate_job_id(job_id)
 
-    if job_id not in JOBS:
+    job = JOB_STORE.get(job_id)
+
+    if job is None:
         raise HTTPException(status_code=404, detail="job not found")
 
     return {
         "job_id": job_id,
-        "status": JOBS[job_id]["status"],
-        "metrics_count": len(JOBS[job_id]["metrics"]),
-        "error": JOBS[job_id].get("error"),
+        "status": job.status,
+        "metrics_count": len(job.metrics),
+        "error": job.error,
+        "created_at": job.created_at,
+        "started_at": job.started_at,
+        "finished_at": job.finished_at,
     }
 
 
@@ -170,10 +179,12 @@ def get_status(job_id: str):
 def get_results(job_id: str):
     validate_job_id(job_id)
 
-    if job_id not in JOBS:
+    job = JOB_STORE.get(job_id)
+
+    if job is None:
         raise HTTPException(status_code=404, detail="job not found")
 
-    result = JOBS[job_id].copy()
+    result = JOB_STORE.to_dict(job_id)
     result["report_dir"] = str(REPORTS_DIR / job_id)
     result["report_path"] = str(REPORTS_DIR / job_id / "report.html")
 
@@ -228,31 +239,50 @@ def get_comparison_report(comparison_id: str):
 async def websocket_run(websocket: WebSocket, job_id: str):
     await websocket.accept()
 
-    if job_id not in JOBS:
+    job = JOB_STORE.get(job_id)
+
+    if job is None:
         await websocket.send_json({"error": "job not found"})
         await websocket.close()
         return
 
     try:
-        JOBS[job_id]["status"] = "running"
-        JOBS[job_id]["error"] = None
-        config = load_config(JOBS[job_id]["config_path"])
+        JOB_STORE.set_status(job_id, "running")
+        config = load_config(job.config_path)
 
         async for metric in run_experiment(config):
-            JOBS[job_id]["metrics"].append(metric)
+            current_job = JOB_STORE.get(job_id)
+
+            if current_job is None:
+                await websocket.send_json(
+                    {
+                        "event": "failed",
+                        "error": "job not found during execution",
+                    }
+                )
+                await websocket.close()
+                return
+
+            if current_job.status == "cancelled":
+                await websocket.send_json({"event": "cancelled"})
+                await websocket.close()
+                return
+
+            JOB_STORE.append_metric(job_id, metric)
             await websocket.send_json(metric)
 
-        JOBS[job_id]["status"] = "finished"
+        JOB_STORE.set_status(job_id, "finished")
         save_job_results(job_id)
         await websocket.send_json({"event": "finished"})
 
     except WebSocketDisconnect:
-        JOBS[job_id]["status"] = "disconnected"
+        current_job = JOB_STORE.get(job_id)
+        if current_job is not None and current_job.status == "running":
+            JOB_STORE.set_status(job_id, "disconnected")
 
     except Exception as exc:
         error_message = str(exc)
-        JOBS[job_id]["status"] = "failed"
-        JOBS[job_id]["error"] = error_message
+        JOB_STORE.set_status(job_id, "failed", error=error_message)
         await websocket.send_json(
             {
                 "event": "failed",
