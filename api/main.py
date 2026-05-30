@@ -199,6 +199,29 @@ def list_jobs():
     }
 
 
+@app.post("/jobs/{job_id}/cancel")
+def cancel_job(job_id: str):
+    validate_job_id(job_id)
+
+    job = JOB_STORE.get(job_id)
+
+    if job is None:
+        raise HTTPException(status_code=404, detail="job not found")
+
+    if job.status in {"finished", "failed", "cancelled"}:
+        raise HTTPException(
+            status_code=400,
+            detail=f"cannot cancel job with status {job.status}",
+        )
+
+    JOB_STORE.set_status(job_id, "cancelled")
+
+    return {
+        "job_id": job_id,
+        "status": "cancelled",
+    }
+
+
 @app.get("/results/{job_id}")
 def get_results(job_id: str):
     validate_job_id(job_id)
