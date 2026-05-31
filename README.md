@@ -367,9 +367,9 @@ http://127.0.0.1:8000/docs
 
 ## 当前版本
 
-`v1.2.0`
+`v1.3.0`
 
-v1.2.0 focus: durable job history, artifact metadata indexing, restart recovery validation, Jobs API filtering/sorting, and Recent Jobs UX improvements.
+v1.3.0 focus: Developer Experience, validation reliability, Docker Smoke workflow, and release readiness.
 
 当前版本支持：
 
@@ -403,6 +403,12 @@ v1.2.0 focus: durable job history, artifact metadata indexing, restart recovery 
 - Recent Jobs status filter
 - Recent Jobs limit/sort controls
 - Recent Jobs report/artifact badges
+- Standardized GitHub Actions CI workflow
+- Manual Docker Smoke workflow
+- Docker Compose validation workflow
+- api_smoke_test.py --write-finished-job-id
+- Backend restart recovery smoke validation
+- Validation workflow documentation
 
 ---
 
