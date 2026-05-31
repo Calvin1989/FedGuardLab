@@ -103,6 +103,22 @@ http://localhost:3000
 
 如果 3000 端口被占用，Vite 会自动切换到 3001、3002 等端口。
 
+### 6. Live API Smoke Test
+
+后端启动后，可以用 live smoke test 验证 API 是否正常工作：
+
+```bash
+python api_smoke_test.py
+```
+
+如果 API 不在默认地址，通过环境变量覆盖：
+
+```bash
+FEDGUARDLAB_API_BASE=http://192.168.1.10:8000 python api_smoke_test.py
+```
+
+该脚本使用 Python 标准库（`urllib.request`），不依赖 `requests` 或 `httpx`。
+
 ---
 
 ## Docker 启动
@@ -112,6 +128,8 @@ http://localhost:3000
 ```bash
 docker compose up --build
 ```
+
+`docker compose` 会通过 healthcheck 等待 backend healthy 后再启动 frontend，无需手动处理启动顺序。
 
 前端：
 
@@ -194,6 +212,7 @@ FedGuardLab exposes lightweight in-memory job lifecycle endpoints:
 
 | Method | Endpoint | Description |
 |---|---|---|
+| `GET` | `/health` | Health check, returns `{"status": "ok", "service": "fedguardlab-api"}`. |
 | `GET` | `/configs` | List available experiment configs. |
 | `POST` | `/run?config_path=...` | Create a new experiment job and start background training. |
 | `GET` | `/jobs` | List current in-memory jobs. |
@@ -218,7 +237,7 @@ http://127.0.0.1:8000/docs
 
 ## 当前版本
 
-`v1.1.0-beta.2`
+`v1.1.0-beta.3`
 
 当前版本支持：
 
@@ -228,7 +247,7 @@ http://127.0.0.1:8000/docs
 - Median / Trimmed Mean / Krum 鲁棒聚合
 - HTML / CSV / Markdown 报告导出
 - 多实验对比报告
-- Docker Compose 启动
+- Docker Compose 启动（含 healthcheck readiness）
 - GitHub Actions + Ruff + quick test + 前端 build
 - 前端实验历史持久化
 - 刷新页面后保留已完成实验记录
@@ -243,6 +262,8 @@ http://127.0.0.1:8000/docs
 - 后台任务执行（POST /run 启动异步训练，不依赖 WebSocket）
 - WebSocket 解耦（刷新页面不影响后台训练）
 - 基于 cancellation flag 的任务取消
+- GET /health 健康检查接口
+- Live API Smoke Test（`python api_smoke_test.py`）
 
 v1.1.0 focus: reliability, config validation, job lifecycle, frontend config discovery
 

@@ -138,6 +138,8 @@ CI 中同样会执行此步骤，防止 Vue 语法错误、依赖问题或 Chart
 docker compose up --build
 ```
 
+`docker compose` 会通过 healthcheck 等待 backend healthy 后再启动 frontend。healthcheck 使用 Python 标准库请求 `http://127.0.0.1:8000/health`，不依赖 `curl` 或 `wget`。
+
 前端：
 
 ```text
@@ -200,6 +202,26 @@ ws://127.0.0.1:8000/ws/{job_id}
 ```
 
 The WebSocket replays already-produced metrics, then streams new ones. Disconnecting it does not stop the background training.
+
+---
+
+## Live API Smoke Test
+
+后端启动后，可以用 live smoke test 验证 API 是否正常工作：
+
+```bash
+python api_smoke_test.py
+```
+
+该脚本需要后端已经启动（`uvicorn api.main:app --reload`），使用 Python 标准库（`urllib.request` + `json`），不依赖 `requests` 或 `httpx`。
+
+测试流程：GET /health → GET /configs → POST /run → GET /status → POST /run → POST /cancel → GET /status。
+
+如果 API 不在默认地址，通过环境变量覆盖：
+
+```bash
+FEDGUARDLAB_API_BASE=http://192.168.1.10:8000 python api_smoke_test.py
+```
 
 ---
 

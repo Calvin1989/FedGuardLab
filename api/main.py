@@ -95,6 +95,11 @@ def root():
     return {"message": "FedGuardLab API is running"}
 
 
+@app.get("/health")
+def health():
+    return {"status": "ok", "service": "fedguardlab-api"}
+
+
 @app.get("/configs")
 def list_configs():
     configs = []
@@ -305,29 +310,27 @@ async def websocket_run(websocket: WebSocket, job_id: str):
         await websocket.close()
         return
 
-    for metric in job.metrics:
-        await websocket.send_json(metric)
+    if job.status in {"finished", "failed", "cancelled"}:
+        for metric in job.metrics:
+            await websocket.send_json(metric)
 
-    if job.status == "finished":
-        await websocket.send_json({"event": "finished"})
+        if job.status == "finished":
+            await websocket.send_json({"event": "finished"})
+        elif job.status == "failed":
+            await websocket.send_json(
+                {"event": "failed", "error": job.error or "job failed"}
+            )
+        else:
+            await websocket.send_json({"event": "cancelled"})
+
         await websocket.close()
         return
 
-    if job.status == "failed":
-        await websocket.send_json(
-            {"event": "failed", "error": job.error or "job failed"}
-        )
-        await websocket.close()
-        return
-
-    if job.status == "cancelled":
-        await websocket.send_json({"event": "cancelled"})
-        await websocket.close()
-        return
-
-    queue = None
+    queue = EVENT_HUB.subscribe(job_id)
     try:
-        queue = EVENT_HUB.subscribe(job_id)
+        for metric in job.metrics:
+            await websocket.send_json(metric)
+
         while True:
             event = await queue.get()
             await websocket.send_json(event)
@@ -336,5 +339,4 @@ async def websocket_run(websocket: WebSocket, job_id: str):
     except WebSocketDisconnect:
         pass
     finally:
-        if queue is not None:
-            EVENT_HUB.unsubscribe(job_id, queue)
+        EVENT_HUB.unsubscribe(job_id, queue)
