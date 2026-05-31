@@ -86,6 +86,25 @@ def _assert_index_consistent(job_id: str, status_data: dict[str, Any]) -> None:
     )
 
 
+def run_recovery_check(job_id: str) -> None:
+    print("[RUN] GET /jobs (recovery check)", flush=True)
+    data = _get("/jobs")
+    assert isinstance(data["jobs"], list), f"jobs not list: {data}"
+    job_ids = {j["job_id"] for j in data["jobs"]}
+    assert job_id in job_ids, f"job {job_id} not found in /jobs list"
+    print("[OK]  GET /jobs (recovery check)", flush=True)
+
+    print(f"[RUN] GET /status/{job_id} (recovery check)", flush=True)
+    data = _get(f"/status/{job_id}")
+    assert data["job_id"] == job_id, f"job_id mismatch: {data['job_id']}"
+    assert data["status"] == "finished", f"unexpected status: {data['status']}"
+    assert data.get("metrics_count", 0) > 0, f"no metrics: {data}"
+    assert data.get("has_report") is True, f"has_report not True: {data}"
+    _assert_artifacts_complete(data, require_files=True)
+    _assert_index_consistent(job_id, data)
+    print(f"[OK]  recovery check passed for job_id={job_id}", flush=True)
+
+
 def run_default() -> None:
     # GET /health
     print("[RUN] GET /health", flush=True)
@@ -144,7 +163,17 @@ def main() -> None:
         default=False,
         help="Wait for the first job to finish (default: False)",
     )
+    parser.add_argument(
+        "--check-recovery",
+        metavar="JOB_ID",
+        default=None,
+        help="Verify that a previously finished job is still available after API restart",
+    )
     args = parser.parse_args()
+
+    if args.check_recovery:
+        run_recovery_check(args.check_recovery)
+        return
 
     job_id = run_default()
 
