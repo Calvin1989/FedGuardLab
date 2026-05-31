@@ -274,6 +274,19 @@ Supported `sort` values:
 
 The API smoke test validates both supported and invalid `/jobs` query parameters.
 
+### Recent Jobs filtering
+
+The frontend Recent Jobs panel supports status filtering:
+
+- Finished with reports
+- Finished
+- Running
+- Cancelled
+- Failed
+- Queued
+
+Status filters are backed by the `GET /jobs?status=...` API. Non-finished jobs can be inspected in the table but are not selectable for comparison.
+
 完整接口文档：
 
 ```text

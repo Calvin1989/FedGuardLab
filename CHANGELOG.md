@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Added frontend Recent Jobs status filter.
+  - Users can filter recent jobs by: Finished with reports, Finished, Running, Cancelled, Failed, Queued.
+  - The frontend uses the existing `GET /jobs?status=...` API introduced in alpha.4.
+  - Non-finished jobs remain visible for status inspection but are not selectable for comparison.
+  - This improves navigation when the durable JobStore contains many historical jobs.
 - Added basic `GET /jobs` query parameters: `status`, `limit`, `sort`.
   - Supported status filtering: `queued`, `running`, `finished`, `failed`, `cancelled`.
   - Supported sorting: `created_at_desc` (default), `created_at_asc`.
