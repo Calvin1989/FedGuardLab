@@ -401,6 +401,33 @@ function deleteSelectedJobs() {
 }
 
 
+async function cancelCurrentJob() {
+  if (!jobId.value) {
+    return;
+  }
+
+  try {
+    const response = await fetch(`${API_BASE}/jobs/${jobId.value}/cancel`, {
+      method: "POST",
+    });
+
+    if (response.ok) {
+      status.value = "cancelled";
+      errorMessage.value = "";
+      if (socket) {
+        socket.close();
+        socket = null;
+      }
+    } else {
+      const data = await response.json();
+      errorMessage.value = data.detail || `Failed to cancel job: ${response.status}`;
+    }
+  } catch (error) {
+    errorMessage.value = error.message;
+  }
+}
+
+
 async function startExperiment() {
   errorMessage.value = "";
   metrics.value = [];
@@ -537,17 +564,27 @@ async function startExperiment() {
           {{ selectedExperimentDescription }}
         </p>
 
-        <button
-          class="run-button"
-          :disabled="
-            status === 'creating' ||
-            status === 'running' ||
-            experimentOptions.length === 0
-          "
-          @click="startExperiment"
-        >
-          {{ status === "running" ? "Running..." : "Run Experiment" }}
-        </button>
+        <div class="button-row">
+          <button
+            class="run-button"
+            :disabled="
+              status === 'creating' ||
+              status === 'running' ||
+              experimentOptions.length === 0
+            "
+            @click="startExperiment"
+          >
+            {{ status === "running" ? "Running..." : "Run Experiment" }}
+          </button>
+
+          <button
+            v-if="status === 'creating' || status === 'running'"
+            class="secondary-button"
+            @click="cancelCurrentJob"
+          >
+            Cancel Experiment
+          </button>
+        </div>
       </div>
     </section>
 
@@ -845,6 +882,12 @@ h1 {
   display: grid;
   gap: 10px;
   max-width: 420px;
+}
+
+.button-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
 }
 
 .field-label {
