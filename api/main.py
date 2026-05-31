@@ -194,6 +194,8 @@ def get_status(job_id: str):
     if job is None:
         raise HTTPException(status_code=404, detail="job not found")
 
+    artifacts_info = build_job_artifacts(job_id)
+
     return {
         "job_id": job_id,
         "status": job.status,
@@ -202,6 +204,8 @@ def get_status(job_id: str):
         "created_at": job.created_at,
         "started_at": job.started_at,
         "finished_at": job.finished_at,
+        "has_report": artifacts_info["has_report"],
+        "artifacts": artifacts_info["artifacts"],
     }
 
 
