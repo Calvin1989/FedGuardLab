@@ -314,6 +314,10 @@ The v1.2 alpha series now covers durable JobStore persistence, artifact metadata
 
 The v1.2 beta validation path covers backend checks, frontend build, Docker Compose build/startup, API smoke tests, finished-job artifact validation, and restart recovery checks. The rc.1 phase focuses on final release-candidate validation before the v1.2.0 final release.
 
+### v1.2 stable release scope
+
+FedGuardLab v1.2 focuses on durable job history, artifact metadata indexing, backend restart recovery validation, Jobs API filtering/sorting, and Recent Jobs UX improvements. The final release validation path covers backend checks, frontend build, Docker Compose startup, API smoke tests, finished-job artifact validation, and restart recovery checks.
+
 完整接口文档：
 
 ```text

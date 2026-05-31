@@ -273,6 +273,39 @@ git status
 
 The rc.1 tag must only be applied after the PR is merged to `main`, on the main merge commit. If no blocking issues are found during RC validation, proceed to v1.2.0 final release.
 
+### v1.2.0 final release validation
+
+Run the following commands from the project root. If your current directory is `web`, run `cd ..` first.
+
+```powershell
+ruff check .
+python quick_test.py
+cd web
+npm run build
+cd ..
+docker compose config
+docker compose build
+docker compose up -d
+python api_smoke_test.py
+python api_smoke_test.py --wait-finished
+```
+
+After `--wait-finished` completes, copy the finished `job_id` from the output and run the recovery check. In PowerShell, paste the real UUID — do not include the angle brackets:
+
+```powershell
+docker compose restart backend
+python api_smoke_test.py --check-recovery <paste_job_id_here>
+```
+
+Then stop containers and confirm a clean working tree:
+
+```powershell
+docker compose down
+git status
+```
+
+The `v1.2.0` tag must only be applied after the final release PR is merged to `main`, on the main merge commit.
+
 17. Stop containers:
 
    ```bash
