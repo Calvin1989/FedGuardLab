@@ -122,7 +122,38 @@
       - `limit=0`
       - `sort=unknown`
 
-13. Stop containers:
+13. Verify Recent Jobs status filter (v1.2.0-alpha.5):
+
+    Build the frontend:
+
+    ```powershell
+    cd web
+    npm run build
+    cd ..
+    ```
+
+    Start the stack:
+
+    ```powershell
+    docker compose up -d
+    ```
+
+    Open the frontend and verify the Recent Jobs status filter:
+
+    - Finished with reports
+    - Finished
+    - Running
+    - Cancelled
+    - Failed
+    - Queued
+
+    Verify that changing the filter reloads Recent Jobs through the Jobs API.
+
+    Verify that non-finished jobs are visible for status inspection but not selectable for comparison.
+
+    Verify that artifact/report metadata remains visible for finished jobs.
+
+14. Stop containers:
 
    ```bash
    docker compose down

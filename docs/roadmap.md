@@ -225,6 +225,18 @@ Focus: Jobs API filtering and sorting.
 - [x] Validate invalid `/jobs` query parameters in `api_smoke_test.py`.
 - [ ] Polish frontend Recent Jobs filtering UX.
 
+### v1.2.0-alpha.5
+
+Focus: frontend Recent Jobs filtering UX.
+
+- [x] Add Recent Jobs status filter.
+- [x] Wire frontend filter state to `GET /jobs?status=...`.
+- [x] Clarify default filter as "Finished with reports".
+- [x] Keep non-finished jobs visible but excluded from comparison selection.
+- [x] Keep existing Recent Jobs artifact/report metadata compatibility.
+- [ ] Add Recent Jobs limit/sort controls.
+- [ ] Polish report/artifact badges.
+
 ### v1.2.0
 
 Backdoor attack 增强：
