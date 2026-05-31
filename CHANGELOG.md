@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+- Prepared v1.3.0 final release readiness documentation.
+  - No new runtime feature; focus is Developer Experience, validation, and release reliability.
+  - v1.3.0 release scope:
+    - CI workflow standardized as `.github/workflows/ci.yml`.
+    - Manual Docker Smoke workflow added as `.github/workflows/docker-smoke.yml`.
+    - Docker Smoke covers Docker Compose startup, API smoke, finished-job validation, and backend restart recovery.
+    - `api_smoke_test.py` supports `--write-finished-job-id` for stable recovery validation.
+    - Validation workflow documentation completed.
+  - Final tag must be created on the main merge commit after PR is merged.
 - Prepared v1.3.0-rc.1 release candidate readiness documentation.
   - No new runtime code, no new feature, no CI trigger change.
   - v1.3.0-beta.1 已完成 beta readiness 文档。
