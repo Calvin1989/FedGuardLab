@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Prepared v1.3.0-alpha.2 Docker smoke validation planning.
+  - 文档规划变更，无运行时代码变更，无新增 CI 行为。
+  - 规划独立 workflow（`docker-smoke.yml`），初期使用 `workflow_dispatch` 手动触发。
+  - 规划 Docker smoke 覆盖范围：compose config/build/up、api_smoke_test.py、restart/recovery check、compose down。
 - Prepared v1.3 roadmap planning.
   - Clarified v1.3.0-alpha.1 as CI workflow standardization for lint, quick tests, and frontend build.
   - Confirmed Docker Compose smoke validation should be deferred to v1.3.0-alpha.2.
