@@ -235,7 +235,19 @@ def main() -> None:
             "available after API restart"
         ),
     )
+    parser.add_argument(
+        "--write-finished-job-id",
+        metavar="PATH",
+        default=None,
+        help=(
+            "Write the finished job UUID to the specified file "
+            "(requires --wait-finished)"
+        ),
+    )
     args = parser.parse_args()
+
+    if args.write_finished_job_id and not args.wait_finished:
+        parser.error("--write-finished-job-id requires --wait-finished")
 
     if args.check_recovery:
         run_recovery_check(args.check_recovery)
@@ -257,6 +269,12 @@ def main() -> None:
             f"[OK]  job {job_id} finished with {data['metrics_count']} metrics",
             flush=True,
         )
+        if args.write_finished_job_id:
+            Path(args.write_finished_job_id).write_text(job_id + "\n", encoding="utf-8")
+            print(
+                f"[OK]  wrote finished job id to {args.write_finished_job_id}",
+                flush=True,
+            )
 
     run_cancel()
 

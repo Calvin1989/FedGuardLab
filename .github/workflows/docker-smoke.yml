@@ -65,20 +65,10 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python api_smoke_test.py --wait-finished | tee smoke_wait.log
-          finished_job_id="$(python - <<'PY'
-          import re
-          from pathlib import Path
-
-          text = Path("smoke_wait.log").read_text(encoding="utf-8")
-          match = re.search(r"\[OK\]\s+job\s+([0-9a-fA-F-]+)\s+finished\s+with", text)
-          if not match:
-              raise SystemExit("Could not find finished job id in smoke_wait.log")
-          print(match.group(1))
-          PY
-          )"
-          echo "FINISHED_JOB_ID=${finished_job_id}" >> "$GITHUB_ENV"
-          echo "Finished job id: ${finished_job_id}"
+          python api_smoke_test.py --wait-finished --write-finished-job-id smoke_finished_job_id.txt
+          FINISHED_JOB_ID="$(cat smoke_finished_job_id.txt)"
+          echo "FINISHED_JOB_ID=${FINISHED_JOB_ID}" >> "$GITHUB_ENV"
+          echo "Finished job id: ${FINISHED_JOB_ID}"
 
       - name: Restart backend
         run: |
