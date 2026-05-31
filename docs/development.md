@@ -166,7 +166,7 @@ Start the backend:
 uvicorn api.main:app --reload
 ```
 
-Create a job:
+Create a job (background training starts immediately):
 
 ```powershell
 $job = Invoke-RestMethod -Method Post "http://127.0.0.1:8000/run?config_path=configs/label_flip_demo.yaml"
@@ -185,13 +185,21 @@ List jobs:
 Invoke-RestMethod "http://127.0.0.1:8000/jobs"
 ```
 
-Cancel a job:
+Cancel a job (sets cancellation flag; runner checks between rounds):
 
 ```powershell
 Invoke-RestMethod -Method Post "http://127.0.0.1:8000/jobs/$($job.job_id)/cancel"
 ```
 
 A repeated cancel request should return a 400 error.
+
+To subscribe to real-time metrics, open a WebSocket connection:
+
+```text
+ws://127.0.0.1:8000/ws/{job_id}
+```
+
+The WebSocket replays already-produced metrics, then streams new ones. Disconnecting it does not stop the background training.
 
 ---
 

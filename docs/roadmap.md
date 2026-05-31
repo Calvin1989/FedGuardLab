@@ -125,12 +125,25 @@ Planned / implemented items:
 - [x] Filter frontend comparison history to report-ready jobs.
 - [x] Persist hidden jobs in frontend comparison history.
 
-Future work:
+### v1.1.0-beta.2
 
-- [ ] Decouple training execution from WebSocket connections.
-- [ ] Add background task execution.
-- [ ] Add durable job persistence.
-- [ ] Add true cancellation for running training jobs.
+Focus: background task execution and WebSocket decoupling.
+
+- [x] `POST /run` starts background training immediately via `asyncio.create_task`.
+- [x] WebSocket `/ws/{job_id}` subscribes to an existing job's metrics and events via `JobEventHub`.
+- [x] Refreshing the page or disconnecting WebSocket no longer stops training.
+- [x] `POST /jobs/{job_id}/cancel` sets a cancellation flag; the background runner checks it between rounds and stops gracefully.
+- [x] Frontend handles `{"event": "cancelled"}` as a neutral status, not an error.
+- [x] `JobEventHub` — lightweight async pub/sub with per-job `SubscriberQueue`.
+- [x] `run_job` — standalone async function that drives one experiment end-to-end.
+
+Still in-memory; no database, Redis, or Celery.
+
+Next steps:
+
+- [ ] Durable job persistence (survive backend restarts).
+- [ ] True cancellation: signal trainer to stop mid-round, not only between rounds.
+- [ ] Multi-worker task queue (if concurrent experiments are needed).
 
 ### v1.1.0
 
