@@ -421,38 +421,68 @@ Checklist：
 
 v1.4.0 主题：Experiment Usability + Reproducibility + Project Polish.
 
-### v1.4.0-alpha.1
+### v1.4.0-alpha.1 — completed
 
-Focus: release metadata cleanup and v1.4 planning.
+Focus: experiment config catalog metadata.
 
-- [ ] 更新 README 当前版本为 v1.3.0。
-- [ ] 更新 docs/roadmap.md 标记 v1.3.0 checklist 为 completed。
-- [ ] 新增 v1.4.0 roadmap 小节。
-- [ ] 更新 CHANGELOG.md Unreleased 区域。
+- [x] `GET /configs` now returns an optional `metadata` object per config item: `name`, `description`, `category`, `tags`.
+- [x] Backward compatible: existing fields unchanged; metadata read from raw YAML separately.
+- [x] All existing configs under `configs/` include metadata.
+- [x] `docs/configs.md` updated with metadata field documentation.
 
-### v1.4.0-alpha.2
+### v1.4.0-alpha.2 — completed
 
-Focus: experiment config catalog polish.
+Focus: frontend config metadata display.
 
-- [ ] TBD — experiment config catalog 改进细节待定。
+- [x] After selecting a config, a lightweight info block shows: display name, description, category, and tags.
+- [x] Tags rendered as small badges.
+- [x] Safe fallback when metadata is missing.
 
-### v1.4.0-alpha.3
+### v1.4.0-alpha.3 — completed
 
-Focus: job detail and recovery UX improvement.
+Focus: frontend config category filter.
 
-- [ ] TBD — job detail 页面和恢复体验改进细节待定。
+- [x] Category filter dropdown above the experiment selector, defaulting to "All categories".
+- [x] Category list dynamically extracted, deduplicated, and sorted.
+- [x] Selecting a category filters the config dropdown; auto-selects first available config if current is excluded.
+- [x] Empty state: "No configs available for this category."
 
-### v1.4.0-alpha.4
+### v1.4.0-alpha.4 — completed
 
-Focus: reproducibility metadata.
+Focus: Recent Jobs detail panel.
 
-- [ ] TBD — 实验可复现性元数据方案待定。
+- [x] Clicking a job row shows a lightweight detail card below the table.
+- [x] Detail card displays: job_id, status, config_path, created_at, started_at, finished_at, report availability, artifacts count.
+- [x] Selected row gets a subtle highlight; clicking again deselects.
+- [x] Shows "Select a job to inspect details." when no job is selected.
 
 ### v1.4.0-beta.1
 
-Focus: v1.4 stabilization and release readiness.
+Focus: Beta readiness validation for v1.4.
 
-- [ ] TBD — beta 验证清单待定。
+Beta.1 阶段不新增功能，不修改运行时代码，不改变 CI 触发策略。重点是稳定性验证和 release readiness。
+
+Checklist：
+
+- [ ] `ruff check .`
+- [ ] `python quick_test.py`
+- [ ] 前端构建检查（PowerShell 分两行执行）：
+  - `cd web`
+  - `npm run build`
+  - `cd ..`
+- [ ] `python api_smoke_test.py`
+- [ ] `docker compose config`
+- [ ] `docker compose build`
+- [ ] `docker compose up -d`
+- [ ] `python api_smoke_test.py --wait-finished --write-finished-job-id smoke_finished_job_id.txt`
+- [ ] `type smoke_finished_job_id.txt` — 确认 UUID 已写入
+- [ ] `docker compose restart backend`
+- [ ] wait for backend healthy
+- [ ] `python api_smoke_test.py --check-recovery <真实 finished job UUID>`
+- [ ] `docker compose down`
+- [ ] `Remove-Item smoke_finished_job_id.txt` — 清理临时文件
+- [ ] GitHub Actions CI passing
+- [ ] GitHub Actions Docker Smoke manual workflow passing
 
 ### v1.4.0-rc.1
 
