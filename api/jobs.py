@@ -25,6 +25,7 @@ class JobRecord:
     created_at: str = field(default_factory=lambda: datetime.now(UTC).isoformat())
     started_at: str | None = None
     finished_at: str | None = None
+    cancel_requested: bool = False
 
 
 class JobStore:
@@ -56,6 +57,17 @@ class JobStore:
         if status in {"finished", "failed", "cancelled"}:
             job.finished_at = datetime.now(UTC).isoformat()
 
+    def request_cancel(self, job_id: str) -> None:
+        job = self._jobs[job_id]
+        job.cancel_requested = True
+        self.set_status(job_id, "cancelled")
+
+    def is_cancel_requested(self, job_id: str) -> bool:
+        job = self._jobs.get(job_id)
+        if job is None:
+            return True
+        return job.cancel_requested or job.status == "cancelled"
+
     def append_metric(self, job_id: str, metric: dict[str, Any]) -> None:
         self._jobs[job_id].metrics.append(metric)
 
@@ -72,4 +84,5 @@ class JobStore:
             "created_at": job.created_at,
             "started_at": job.started_at,
             "finished_at": job.finished_at,
+            "cancel_requested": job.cancel_requested,
         }
