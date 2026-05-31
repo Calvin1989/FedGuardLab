@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Prepared v1.2.0-rc.1 release candidate documentation.
+  - Confirmed beta.1 validation path for backend, frontend, Docker Compose, API smoke tests, restart recovery, and artifact metadata consistency.
+  - Clarified that rc.1 is a release-candidate readiness step with no new runtime features.
+  - No new runtime feature is introduced in this documentation-only change.
 - Prepared v1.2.0-beta.1 readiness documentation.
   - Consolidated v1.2 alpha milestones from alpha.1 through alpha.7.
   - Clarified release validation expectations for durable JobStore recovery, artifact metadata, Jobs API filters, and Recent Jobs UX.

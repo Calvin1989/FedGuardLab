@@ -310,6 +310,10 @@ These badges are backed by the persisted job metadata fields `has_report` and `a
 
 The v1.2 alpha series now covers durable JobStore persistence, artifact metadata indexing, restart recovery validation, Jobs API filtering/sorting, and Recent Jobs UX controls. The beta phase focuses on stabilization and release validation rather than adding broad new runtime features.
 
+### v1.2 release candidate readiness
+
+The v1.2 beta validation path covers backend checks, frontend build, Docker Compose build/startup, API smoke tests, finished-job artifact validation, and restart recovery checks. The rc.1 phase focuses on final release-candidate validation before the v1.2.0 final release.
+
 完整接口文档：
 
 ```text
