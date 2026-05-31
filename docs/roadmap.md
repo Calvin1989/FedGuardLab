@@ -248,6 +248,16 @@ Focus: frontend Recent Jobs limit and sort controls.
 - [ ] Polish report/artifact badges.
 - [ ] Add optional frontend recovery UX hints.
 
+### v1.2.0-alpha.7
+
+Focus: frontend report/artifact availability polish.
+
+- [x] Add Recent Jobs report badge.
+- [x] Add Recent Jobs artifacts badge.
+- [x] Add no-report fallback badge.
+- [x] Preserve existing report links and comparison selection behavior.
+- [ ] Add optional frontend recovery UX hints.
+
 ### v1.2.0
 
 Backdoor attack 增强：

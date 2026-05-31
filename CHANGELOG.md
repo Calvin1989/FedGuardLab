@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Added frontend Recent Jobs report/artifact badges.
+  - Recent Jobs now shows lightweight badges for: Report, Artifacts, No report.
+  - Badges are based on persisted job metadata: `has_report`, `artifacts`.
+  - This makes report/artifact availability easier to inspect when browsing recovered jobs.
 - Added frontend Recent Jobs limit and sort controls.
   - Users can choose Recent Jobs limit: 10, 20, or 50.
   - Users can sort Recent Jobs by: Newest first, Oldest first.

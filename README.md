@@ -296,6 +296,16 @@ The frontend Recent Jobs panel also supports lightweight list controls:
 
 These controls are backed by the `GET /jobs?limit=...&sort=...` API and work together with the Recent Jobs status filter.
 
+### Recent Jobs report and artifact badges
+
+The frontend Recent Jobs panel shows lightweight badges for report and artifact availability:
+
+- `Report` when a report is available
+- `Artifacts` when artifact metadata is indexed
+- `No report` when no report or artifact metadata is available
+
+These badges are backed by the persisted job metadata fields `has_report` and `artifacts`.
+
 完整接口文档：
 
 ```text
