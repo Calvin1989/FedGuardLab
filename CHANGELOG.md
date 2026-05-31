@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Added durable JSON JobStore (`reports/jobs/index.json`).
+  - Job metadata and metrics survive backend restarts.
+  - Lightweight JSON persistence — no database, ORM, or external dependency.
+  - Limitations: single-process writes only; not suitable for multi-worker concurrency.
+  - Corrupt or unreadable `index.json` is skipped on startup (empty store).
 - Preparing v1.1.0 release candidate.
 
 ## v1.1.0-beta.3

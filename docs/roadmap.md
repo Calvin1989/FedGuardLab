@@ -175,6 +175,23 @@ Documentation and release stabilization — no new major features.
 - 确认 README、docs、CHANGELOG 和 release checklist 齐全；
 - 确认 Docker、CI、前端 build 和 smoke test 全流程可用。
 
+### v1.2.0-alpha.1
+
+Focus: durable job persistence (lightweight JSON, no database).
+
+- [x] `JobStore` accepts optional `storage_path` parameter.
+- [x] Job metadata and metrics are saved to `reports/jobs/index.json`.
+- [x] On startup, existing jobs are restored from `index.json`.
+- [x] Corrupt or missing `index.json` is handled gracefully (empty store).
+- [x] `_load()` is backward-compatible with older JSON missing `cancel_requested` or `metrics`.
+- [x] Report files (`reports/jobs/{job_id}/`) remain unchanged.
+
+Known limitations:
+
+- Single-process writes only; not suitable for multi-worker concurrency.
+- Full `index.json` rewrite on every mutation (acceptable at current scale).
+- Future v1.2 may upgrade to SQLite or a database backend.
+
 ### v1.2.0
 
 Backdoor attack 增强：
