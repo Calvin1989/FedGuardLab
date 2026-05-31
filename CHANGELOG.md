@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Prepared v1.3 roadmap planning.
+  - Clarified v1.3.0-alpha.1 as CI workflow standardization for lint, quick tests, and frontend build.
+  - Confirmed Docker Compose smoke validation should be deferred to v1.3.0-alpha.2.
+  - No runtime code or CI behavior change is introduced in this documentation-only update.
 - Prepared v1.2.0 final release documentation.
   - Consolidated v1.2 durable JobStore, artifact metadata, restart recovery, Jobs API filters, and Recent Jobs UX improvements.
   - Clarified final release validation path.

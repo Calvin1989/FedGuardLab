@@ -23,7 +23,7 @@ FedGuardLab 是一个面向联邦学习安全实验的交互式实验平台。
 - 单实验 HTML / CSV / Markdown 报告
 - 多实验对比报告
 - Docker Compose 一键启动
-- GitHub Actions + Ruff + quick test
+- GitHub Actions + Ruff + quick test + frontend build
 
 ---
 
@@ -226,14 +226,14 @@ reports/comparisons/<comparison_id>/
 
 ### Job lifecycle API
 
-FedGuardLab exposes lightweight in-memory job lifecycle endpoints:
+FedGuardLab exposes lightweight job lifecycle endpoints:
 
 | Method | Endpoint | Description |
 |---|---|---|
 | `GET` | `/health` | Health check, returns `{"status": "ok", "service": "fedguardlab-api"}`. |
 | `GET` | `/configs` | List available experiment configs. |
 | `POST` | `/run?config_path=...` | Create a new experiment job and start background training. |
-| `GET` | `/jobs` | List current in-memory jobs. |
+| `GET` | `/jobs` | List persisted jobs. |
 | `GET` | `/status/{job_id}` | Get job status and timestamps. |
 | `GET` | `/results/{job_id}` | Get job config, metrics, and report paths. |
 | `GET` | `/reports/{job_id}` | Open the generated HTML report. |
@@ -243,7 +243,7 @@ Since v1.1.0-beta.2, `POST /run` starts background training immediately. WebSock
 
 `POST /jobs/{job_id}/cancel` sets a cancellation request. The background runner checks this flag between training rounds and stops gracefully.
 
-Current job storage is in-memory. Restarting the backend clears the job registry, while generated report files under `reports/jobs/` remain on disk. This is not a multi-worker task queue — there is no database, Redis, or Celery.
+Since v1.2.0, FedGuardLab persists lightweight job metadata through a JSON-backed durable JobStore. Generated reports and artifact metadata can be rediscovered after backend restart for finished jobs. This remains a lightweight local persistence mechanism, not a distributed multi-worker task queue; there is still no database, Redis, or Celery.
 
 ### Jobs API query parameters
 
@@ -328,7 +328,9 @@ http://127.0.0.1:8000/docs
 
 ## 当前版本
 
-`v1.1.0-beta.3`
+`v1.2.0`
+
+v1.2.0 focus: durable job history, artifact metadata indexing, restart recovery validation, Jobs API filtering/sorting, and Recent Jobs UX improvements.
 
 当前版本支持：
 
@@ -355,8 +357,13 @@ http://127.0.0.1:8000/docs
 - 基于 cancellation flag 的任务取消
 - GET /health 健康检查接口
 - Live API Smoke Test（`python api_smoke_test.py`）
-
-v1.1.0 focus: reliability, config validation, job lifecycle, frontend config discovery
+- JSON-backed durable JobStore
+- Job artifact metadata index
+- Backend restart recovery validation
+- Jobs API filtering/sorting
+- Recent Jobs status filter
+- Recent Jobs limit/sort controls
+- Recent Jobs report/artifact badges
 
 ---
 
