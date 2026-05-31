@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
+from pathlib import Path
 from typing import Any, Literal
 
 JobStatus = Literal[
@@ -27,13 +29,69 @@ class JobRecord:
     finished_at: str | None = None
     cancel_requested: bool = False
 
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "job_id": self.job_id,
+            "config_path": self.config_path,
+            "config": self.config,
+            "status": self.status,
+            "metrics": self.metrics,
+            "error": self.error,
+            "created_at": self.created_at,
+            "started_at": self.started_at,
+            "finished_at": self.finished_at,
+            "cancel_requested": self.cancel_requested,
+        }
+
 
 class JobStore:
-    def __init__(self) -> None:
+    def __init__(self, storage_path: Path | None = None) -> None:
         self._jobs: dict[str, JobRecord] = {}
+        self._storage_path = storage_path
+        if storage_path is not None:
+            self._load()
+
+    def _load(self) -> None:
+        assert self._storage_path is not None
+        try:
+            raw = json.loads(self._storage_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            return
+        if not isinstance(raw, list):
+            return
+        for entry in raw:
+            if not isinstance(entry, dict):
+                continue
+            try:
+                job_id = entry["job_id"]
+                config_path = entry["config_path"]
+                config = entry["config"]
+            except KeyError:
+                continue
+            job = JobRecord(
+                job_id=job_id,
+                config_path=config_path,
+                config=config,
+                status=entry.get("status", "created"),
+                metrics=entry.get("metrics", []),
+                error=entry.get("error"),
+                created_at=entry.get("created_at", ""),
+                started_at=entry.get("started_at"),
+                finished_at=entry.get("finished_at"),
+                cancel_requested=entry.get("cancel_requested", False),
+            )
+            self._jobs[job.job_id] = job
+
+    def _save(self) -> None:
+        if self._storage_path is None:
+            return
+        self._storage_path.parent.mkdir(parents=True, exist_ok=True)
+        data = [job.to_dict() for job in self._jobs.values()]
+        self._storage_path.write_text(json.dumps(data, indent=2), encoding="utf-8")
 
     def create(self, job: JobRecord) -> None:
         self._jobs[job.job_id] = job
+        self._save()
 
     def get(self, job_id: str) -> JobRecord | None:
         return self._jobs.get(job_id)
@@ -57,6 +115,8 @@ class JobStore:
         if status in {"finished", "failed", "cancelled"}:
             job.finished_at = datetime.now(UTC).isoformat()
 
+        self._save()
+
     def request_cancel(self, job_id: str) -> None:
         job = self._jobs[job_id]
         job.cancel_requested = True
@@ -70,6 +130,7 @@ class JobStore:
 
     def append_metric(self, job_id: str, metric: dict[str, Any]) -> None:
         self._jobs[job_id].metrics.append(metric)
+        self._save()
 
     def to_dict(self, job_id: str) -> dict[str, Any]:
         job = self._jobs[job_id]
