@@ -243,6 +243,48 @@ python api_smoke_test.py --wait-finished
 
 ---
 
+## Durable Job Store 手动验证
+
+JobStore 现在会将 job 元数据和指标持久化到 `reports/jobs/index.json`。后端重启后，`GET /jobs` 可以恢复历史记录。
+
+这是一个轻量 JSON 持久化方案，不是数据库。报告文件仍然保存在 `reports/jobs/{job_id}/` 下。
+
+**当前限制：**
+
+- 单进程写入，不适合多 worker 并发；
+- `index.json` 损坏时会跳过恢复并以空 store 启动；
+- 后续 v1.2 可能升级为 SQLite 或数据库方案。
+
+**手动验证步骤：**
+
+1. 启动后端：
+
+   ```bash
+   uvicorn api.main:app --reload
+   ```
+
+2. 创建一个 job：
+
+   ```powershell
+   Invoke-RestMethod -Method Post "http://127.0.0.1:8000/run?config_path=configs/label_flip_demo.yaml"
+   ```
+
+3. 确认 `reports/jobs/index.json` 已生成：
+
+   ```bash
+   cat reports/jobs/index.json
+   ```
+
+4. 重启后端（停止并重新启动 `uvicorn`）。
+
+5. 验证 job 历史已恢复：
+
+   ```powershell
+   Invoke-RestMethod "http://127.0.0.1:8000/jobs"
+   ```
+
+---
+
 ## GitHub Actions
 
 项目使用 GitHub Actions 执行：

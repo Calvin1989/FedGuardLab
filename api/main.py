@@ -29,9 +29,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-JOB_STORE = JobStore()
-EVENT_HUB = JobEventHub()
 REPORTS_DIR = Path("reports/jobs")
+JOB_STORE = JobStore(storage_path=REPORTS_DIR / "index.json")
+EVENT_HUB = JobEventHub()
 CONFIGS_DIR = Path("configs")
 JOB_ID_PATTERN = re.compile(
     r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"

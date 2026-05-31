@@ -55,7 +55,21 @@
    python api_smoke_test.py --wait-finished
    ```
 
-9. Stop containers:
+9. Verify durable job store:
+
+   After the smoke test, confirm `reports/jobs/index.json` exists and contains job records:
+
+   ```bash
+   cat reports/jobs/index.json
+   ```
+
+   Restart the API and verify jobs persist:
+
+   ```powershell
+   Invoke-RestMethod "http://127.0.0.1:8000/jobs"
+   ```
+
+10. Stop containers:
 
    ```bash
    docker compose down
