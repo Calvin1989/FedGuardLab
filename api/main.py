@@ -90,6 +90,20 @@ def validate_job_id(job_id: str) -> None:
         raise HTTPException(status_code=400, detail="invalid job_id")
 
 
+def build_job_artifacts(job_id: str) -> dict:
+    job_dir = REPORTS_DIR / job_id
+    artifacts = {
+        "config_json": str(job_dir / "config.json"),
+        "metrics_csv": str(job_dir / "metrics.csv"),
+        "summary_md": str(job_dir / "summary.md"),
+        "report_html": str(job_dir / "report.html"),
+    }
+    return {
+        "has_report": (job_dir / "report.html").exists(),
+        "artifacts": artifacts,
+    }
+
+
 @app.get("/")
 def root():
     return {"message": "FedGuardLab API is running"}
