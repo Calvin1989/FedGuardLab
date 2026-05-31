@@ -315,9 +315,28 @@ Notes:
 
 ### v1.3.0-alpha.2
 
-Focus: Docker smoke validation planning.
+Focus: Docker Compose smoke validation planning.
 
-- [ ] Evaluate whether Docker Compose smoke tests are stable enough for GitHub Actions.
-- [ ] Decide whether Docker validation should run on every PR or only manually.
-- [ ] Consider a separate workflow for Docker smoke tests.
-- [ ] Keep alpha.2 separate from the basic lint / quick test / frontend build CI.
+Alpha.2 暂不把 Docker smoke 放进主 CI（`ci.yml`）。需要先评估 Docker smoke 的运行时间、稳定性和 GitHub Actions 环境差异。
+
+- [ ] 评估 Docker Compose smoke test 在 GitHub Actions 上的运行时间和稳定性。
+- [ ] 评估 GitHub Actions 环境与本地开发环境的差异（Docker 版本、资源限制、网络）。
+- [ ] 规划独立 workflow 文件，例如 `.github/workflows/docker-smoke.yml`。
+- [ ] 初期使用 `workflow_dispatch` 手动触发，不自动跑在每个 PR 上。
+- [ ] 确认 alpha.2 与主 CI（lint / quick test / frontend build）保持独立。
+
+Docker smoke 覆盖范围规划：
+
+- [ ] `docker compose config` — 验证 compose 文件语法。
+- [ ] `docker compose build` — 构建后端和前端镜像。
+- [ ] `docker compose up -d` — 后台启动服务。
+- [ ] `python api_smoke_test.py` — 基本 API 健康检查和 job 生命周期验证。
+- [ ] `python api_smoke_test.py --wait-finished` — 等待 job 完成并验证 artifact metadata。
+- [ ] `docker compose restart backend` — 重启后端，验证持久化恢复。
+- [ ] `python api_smoke_test.py --check-recovery <finished job id>` — 验证重启后 job 数据和 artifact 可恢复。
+- [ ] `docker compose down` — 清理。
+
+注意事项：
+
+- Recovery check 需要先从 `--wait-finished` 输出或 job metadata 中获得真实的 finished job UUID，不能使用占位符。
+- 本阶段仅做规划，不实现 workflow。
