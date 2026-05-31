@@ -87,7 +87,24 @@
     cat reports/jobs/index.json | grep has_report
     ```
 
-11. Stop containers:
+11. Verify restart recovery (v1.2.0-alpha.3):
+
+    After `--wait-finished` completes, copy the finished `job_id` from the output, then restart the backend and run the recovery check:
+
+    ```powershell
+    docker compose restart backend
+    python api_smoke_test.py --check-recovery <job_id>
+    ```
+
+    This validates:
+
+    - `/jobs` recovery — job appears in the list.
+    - `/status/{job_id}` recovery — status is `finished`, metrics are present.
+    - Artifact metadata — all expected keys present with non-empty string values.
+    - Artifact file existence — each artifact path points to an existing file.
+    - `reports/jobs/index.json` consistency — persisted data matches the API status response.
+
+12. Stop containers:
 
    ```bash
    docker compose down

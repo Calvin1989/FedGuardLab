@@ -204,6 +204,16 @@ Focus: job artifact index — expose report file metadata through the API.
 - [x] Reports are still served via `GET /reports/{job_id}` — local file paths are never exposed to the browser.
 - [x] API smoke test `--wait-finished` checks `has_report`, `artifacts`, and `report_html` presence.
 
+### v1.2.0-alpha.3
+
+Focus: restart recovery smoke test and artifact index consistency.
+
+- [x] Add `api_smoke_test.py --check-recovery <job_id>`.
+- [x] Verify recovered jobs through `GET /jobs` and `GET /status/{job_id}` after backend restart.
+- [x] Validate artifact keys and artifact file existence.
+- [x] Validate persisted `reports/jobs/index.json` consistency with API status response.
+- [x] Fix `summary_md` artifact path to match the generated Markdown report file.
+
 ### v1.2.0
 
 Backdoor attack 增强：
