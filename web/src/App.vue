@@ -360,6 +360,8 @@ async function loadRecentJobsFromApi() {
               job.has_report && job.artifacts?.report_html
                 ? `${API_BASE}/reports/${job.job_id}`
                 : `${API_BASE}/reports/${job.job_id}`,
+            has_report: job.has_report === true,
+            artifacts: job.artifacts || {},
           };
         } catch (error) {
           return null;
@@ -395,8 +397,15 @@ async function loadRecentJobsFromApi() {
       started_at: job.started_at,
       finished_at: job.finished_at,
       report_url: `${API_BASE}/reports/${job.job_id}`,
+      has_report: job.has_report === true,
+      artifacts: job.artifacts || {},
     }));
   }
+}
+
+
+function hasArtifacts(job) {
+  return job.artifacts && Object.keys(job.artifacts).length > 0;
 }
 
 
@@ -799,6 +808,7 @@ async function startExperiment() {
             <th>Accuracy</th>
             <th>Loss</th>
             <th>ASR</th>
+            <th>Artifacts</th>
             <th>Report</th>
           </tr>
         </thead>
@@ -823,6 +833,13 @@ async function startExperiment() {
             <td>{{ job.final_accuracy }}</td>
             <td>{{ job.final_loss }}</td>
             <td>{{ job.final_asr }}</td>
+            <td>
+              <div class="job-badges">
+                <span v-if="job.has_report" class="job-badge success">Report</span>
+                <span v-if="hasArtifacts(job)" class="job-badge">Artifacts</span>
+                <span v-if="!job.has_report && !hasArtifacts(job)" class="job-badge muted">No report</span>
+              </div>
+            </td>
             <td>
               <a
                 v-if="job.status === 'finished'"
@@ -1089,6 +1106,32 @@ h1 {
   color: #64748b;
   font-size: 12px;
   word-break: break-all;
+}
+
+.job-badges {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.job-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 600;
+  background: #e2e8f0;
+  color: #475569;
+}
+
+.job-badge.success {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.job-badge.muted {
+  background: #f1f5f9;
+  color: #94a3b8;
 }
 
 .comparison-message {

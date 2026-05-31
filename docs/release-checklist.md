@@ -181,7 +181,33 @@
 
     Verify that non-finished jobs remain excluded from comparison selection.
 
-15. Stop containers:
+15. Verify Recent Jobs report/artifact badges (v1.2.0-alpha.7):
+
+    Build the frontend:
+
+    ```powershell
+    cd web
+    npm run build
+    cd ..
+    ```
+
+    Start the stack:
+
+    ```powershell
+    docker compose up -d
+    ```
+
+    Open the frontend and verify Recent Jobs badges:
+
+    - `Report`
+    - `Artifacts`
+    - `No report`
+
+    Verify that finished jobs with reports still expose their report links.
+
+    Verify that comparison selection behavior is unchanged.
+
+16. Stop containers:
 
    ```bash
    docker compose down
