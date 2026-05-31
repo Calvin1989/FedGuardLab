@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- Added Recent Jobs detail panel for inspecting job metadata.
+  - Clicking a job row in the Recent Jobs table shows a lightweight detail card below the table.
+  - Detail card displays: job_id, status, config_path, created_at, started_at, finished_at, report availability, and artifacts count.
+  - If a report is available, an "Open Report" link is shown (reuses existing report URL).
+  - Selected row gets a subtle highlight; clicking the same row again deselects it.
+  - Shows "Select a job to inspect details." when no job is selected.
+  - No new backend API, no modal, no router change.
 - Added frontend category filtering for experiment config catalog.
   - New category filter dropdown above the experiment selector, defaulting to "All categories".
   - Category list is dynamically extracted from config metadata, deduplicated, and sorted.

@@ -37,6 +37,7 @@ const jobStatusFilter = ref("all");
 const recentJobsLimit = ref(20);
 const recentJobsSort = ref("created_at_desc");
 const selectedJobIds = ref([]);
+const selectedDetailJobId = ref("");
 const RECENT_JOBS_STORAGE_KEY = "fedguardlab_recent_jobs";
 const HIDDEN_JOBS_STORAGE_KEY = "fedguardlab_hidden_jobs";
 const comparisonStatus = ref("idle");
@@ -457,6 +458,28 @@ async function loadRecentJobsFromApi() {
 
 function hasArtifacts(job) {
   return job.artifacts && Object.keys(job.artifacts).length > 0;
+}
+
+
+const selectedDetailJob = computed(() => {
+  if (!selectedDetailJobId.value) {
+    return null;
+  }
+  return recentJobs.value.find((j) => j.job_id === selectedDetailJobId.value) || null;
+});
+
+
+const selectedDetailArtifactsCount = computed(() => {
+  if (!selectedDetailJob.value?.artifacts) {
+    return 0;
+  }
+  return Object.values(selectedDetailJob.value.artifacts).filter(Boolean).length;
+});
+
+
+function toggleDetailJob(jobId) {
+  selectedDetailJobId.value =
+    selectedDetailJobId.value === jobId ? "" : jobId;
 }
 
 
@@ -920,7 +943,13 @@ async function startExperiment() {
         </thead>
 
         <tbody>
-          <tr v-for="job in recentJobs" :key="job.job_id">
+          <tr
+            v-for="job in recentJobs"
+            :key="job.job_id"
+            class="job-row"
+            :class="{ 'job-row-selected': selectedDetailJobId === job.job_id }"
+            @click="toggleDetailJob(job.job_id)"
+          >
             <td>
               <input
                 type="checkbox"
@@ -960,6 +989,64 @@ async function startExperiment() {
           </tr>
         </tbody>
       </table>
+
+      <div class="job-detail-card">
+        <template v-if="selectedDetailJob">
+          <div class="job-detail-header">
+            <strong>Job Detail</strong>
+            <span class="job-detail-name">
+              {{ selectedDetailJob.label || selectedDetailJob.experiment_name }}
+            </span>
+          </div>
+          <div class="job-detail-grid">
+            <div class="job-detail-row">
+              <span class="job-detail-label">Job ID</span>
+              <span class="job-detail-value job-detail-mono">{{ selectedDetailJob.job_id }}</span>
+            </div>
+            <div class="job-detail-row">
+              <span class="job-detail-label">Status</span>
+              <span class="job-detail-value">{{ selectedDetailJob.status }}</span>
+            </div>
+            <div class="job-detail-row">
+              <span class="job-detail-label">Config Path</span>
+              <span class="job-detail-value job-detail-mono">{{ selectedDetailJob.config_path }}</span>
+            </div>
+            <div class="job-detail-row">
+              <span class="job-detail-label">Created</span>
+              <span class="job-detail-value">{{ selectedDetailJob.created_at || "—" }}</span>
+            </div>
+            <div class="job-detail-row">
+              <span class="job-detail-label">Started</span>
+              <span class="job-detail-value">{{ selectedDetailJob.started_at || "—" }}</span>
+            </div>
+            <div class="job-detail-row">
+              <span class="job-detail-label">Finished</span>
+              <span class="job-detail-value">{{ selectedDetailJob.finished_at || "—" }}</span>
+            </div>
+            <div class="job-detail-row">
+              <span class="job-detail-label">Report</span>
+              <span class="job-detail-value">
+                <a
+                  v-if="selectedDetailJob.has_report"
+                  class="report-link"
+                  :href="selectedDetailJob.report_url"
+                  target="_blank"
+                >
+                  Open Report
+                </a>
+                <span v-else>Not available</span>
+              </span>
+            </div>
+            <div class="job-detail-row">
+              <span class="job-detail-label">Artifacts</span>
+              <span class="job-detail-value">{{ selectedDetailArtifactsCount }}</span>
+            </div>
+          </div>
+        </template>
+        <p v-else class="job-detail-hint">
+          Select a job to inspect details.
+        </p>
+      </div>
 
       <div v-if="comparisonError" class="error comparison-message">
         <strong>Error:</strong>
@@ -1289,6 +1376,82 @@ h1 {
 .job-badge.muted {
   background: #f1f5f9;
   color: #94a3b8;
+}
+
+.job-row {
+  cursor: pointer;
+}
+
+.job-row:hover {
+  background: #f8fafc;
+}
+
+.job-row-selected {
+  background: #eff6ff;
+}
+
+.job-detail-card {
+  margin-top: 16px;
+  padding: 16px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
+}
+
+.job-detail-header {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.job-detail-header strong {
+  font-size: 14px;
+  color: #0f172a;
+}
+
+.job-detail-name {
+  font-size: 13px;
+  color: #64748b;
+}
+
+.job-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px 24px;
+  font-size: 13px;
+}
+
+.job-detail-row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.job-detail-label {
+  font-weight: 600;
+  color: #64748b;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.job-detail-value {
+  color: #0f172a;
+}
+
+.job-detail-mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 12px;
+  word-break: break-all;
+}
+
+.job-detail-hint {
+  margin: 0;
+  color: #94a3b8;
+  font-size: 13px;
+  font-style: italic;
 }
 
 .comparison-message {
