@@ -306,6 +306,10 @@ The frontend Recent Jobs panel shows lightweight badges for report and artifact 
 
 These badges are backed by the persisted job metadata fields `has_report` and `artifacts`.
 
+### v1.2 beta readiness
+
+The v1.2 alpha series now covers durable JobStore persistence, artifact metadata indexing, restart recovery validation, Jobs API filtering/sorting, and Recent Jobs UX controls. The beta phase focuses on stabilization and release validation rather than adding broad new runtime features.
+
 完整接口文档：
 
 ```text
