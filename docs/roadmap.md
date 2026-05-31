@@ -237,6 +237,17 @@ Focus: frontend Recent Jobs filtering UX.
 - [ ] Add Recent Jobs limit/sort controls.
 - [ ] Polish report/artifact badges.
 
+### v1.2.0-alpha.6
+
+Focus: frontend Recent Jobs limit and sort controls.
+
+- [x] Add Recent Jobs limit control.
+- [x] Add Recent Jobs sort control.
+- [x] Wire frontend controls to `GET /jobs?limit=...&sort=...`.
+- [x] Keep controls compatible with the Recent Jobs status filter.
+- [ ] Polish report/artifact badges.
+- [ ] Add optional frontend recovery UX hints.
+
 ### v1.2.0
 
 Backdoor attack 增强：

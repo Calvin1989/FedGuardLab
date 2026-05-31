@@ -34,6 +34,8 @@ const selectedConfig = ref("");
 
 const recentJobs = ref([]);
 const jobStatusFilter = ref("all");
+const recentJobsLimit = ref(20);
+const recentJobsSort = ref("created_at_desc");
 const selectedJobIds = ref([]);
 const RECENT_JOBS_STORAGE_KEY = "fedguardlab_recent_jobs";
 const HIDDEN_JOBS_STORAGE_KEY = "fedguardlab_hidden_jobs";
@@ -288,8 +290,15 @@ function loadRecentJobs() {
 
 async function loadRecentJobsFromApi() {
   const filter = jobStatusFilter.value;
-  const query = filter !== "all" ? `?status=${filter}` : "";
-  const response = await fetch(`${API_BASE}/jobs${query}`);
+  const params = new URLSearchParams();
+  params.set("limit", String(recentJobsLimit.value));
+  params.set("sort", recentJobsSort.value);
+
+  if (filter !== "all") {
+    params.set("status", filter);
+  }
+
+  const response = await fetch(`${API_BASE}/jobs?${params.toString()}`);
   const data = await response.json();
 
   if (!response.ok) {
@@ -391,7 +400,7 @@ async function loadRecentJobsFromApi() {
 }
 
 
-watch(jobStatusFilter, () => {
+watch([jobStatusFilter, recentJobsLimit, recentJobsSort], () => {
   loadRecentJobsFromApi().catch((error) => {
     console.warn("Failed to reload jobs after filter change:", error);
   });
@@ -707,17 +716,36 @@ async function startExperiment() {
           <p>
             Select at least two finished experiments and generate a comparison report.
           </p>
-          <label class="status-filter">
-            Status:
-            <select v-model="jobStatusFilter">
-              <option value="all">Finished with reports</option>
-              <option value="finished">Finished</option>
-              <option value="running">Running</option>
-              <option value="cancelled">Cancelled</option>
-              <option value="failed">Failed</option>
-              <option value="queued">Queued</option>
-            </select>
-          </label>
+          <div class="job-filters">
+            <label class="status-filter">
+              Status:
+              <select v-model="jobStatusFilter">
+                <option value="all">Finished with reports</option>
+                <option value="finished">Finished</option>
+                <option value="running">Running</option>
+                <option value="cancelled">Cancelled</option>
+                <option value="failed">Failed</option>
+                <option value="queued">Queued</option>
+              </select>
+            </label>
+
+            <label class="status-filter">
+              Limit:
+              <select v-model.number="recentJobsLimit">
+                <option :value="10">10</option>
+                <option :value="20">20</option>
+                <option :value="50">50</option>
+              </select>
+            </label>
+
+            <label class="status-filter">
+              Sort:
+              <select v-model="recentJobsSort">
+                <option value="created_at_desc">Newest first</option>
+                <option value="created_at_asc">Oldest first</option>
+              </select>
+            </label>
+          </div>
         </div>
 
         <div class="section-actions">
@@ -1006,11 +1034,17 @@ h1 {
   color: #64748b;
 }
 
+.job-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
 .status-filter {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  margin-top: 10px;
   font-size: 13px;
   color: #475569;
 }

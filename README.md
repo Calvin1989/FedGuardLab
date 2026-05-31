@@ -287,6 +287,15 @@ The frontend Recent Jobs panel supports status filtering:
 
 Status filters are backed by the `GET /jobs?status=...` API. Non-finished jobs can be inspected in the table but are not selectable for comparison.
 
+### Recent Jobs limit and sort controls
+
+The frontend Recent Jobs panel also supports lightweight list controls:
+
+- Limit: 10, 20, or 50 jobs
+- Sort: Newest first or Oldest first
+
+These controls are backed by the `GET /jobs?limit=...&sort=...` API and work together with the Recent Jobs status filter.
+
 完整接口文档：
 
 ```text

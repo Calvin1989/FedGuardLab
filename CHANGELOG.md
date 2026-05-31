@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Added frontend Recent Jobs limit and sort controls.
+  - Users can choose Recent Jobs limit: 10, 20, or 50.
+  - Users can sort Recent Jobs by: Newest first, Oldest first.
+  - Controls reuse the existing `GET /jobs?limit=...&sort=...` API introduced in alpha.4.
+  - Controls work together with the alpha.5 status filter.
 - Added frontend Recent Jobs status filter.
   - Users can filter recent jobs by: Finished with reports, Finished, Running, Cancelled, Failed, Queued.
   - The frontend uses the existing `GET /jobs?status=...` API introduced in alpha.4.
