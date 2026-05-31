@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Prepared v1.2.0-beta.1 readiness documentation.
+  - Consolidated v1.2 alpha milestones from alpha.1 through alpha.7.
+  - Clarified release validation expectations for durable JobStore recovery, artifact metadata, Jobs API filters, and Recent Jobs UX.
+  - No new runtime feature is introduced in this documentation-only change.
 - Added frontend Recent Jobs report/artifact badges.
   - Recent Jobs now shows lightweight badges for: Report, Artifacts, No report.
   - Badges are based on persisted job metadata: `has_report`, `artifacts`.

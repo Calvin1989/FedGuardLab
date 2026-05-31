@@ -258,6 +258,18 @@ Focus: frontend report/artifact availability polish.
 - [x] Preserve existing report links and comparison selection behavior.
 - [ ] Add optional frontend recovery UX hints.
 
+### v1.2.0-beta.1
+
+Focus: v1.2 stabilization and release readiness.
+
+- [x] Consolidate alpha.1-alpha.7 documentation.
+- [x] Confirm durable JobStore recovery validation path.
+- [x] Confirm artifact metadata/index validation path.
+- [x] Confirm Jobs API filter/sort validation path.
+- [x] Confirm Recent Jobs UX validation path.
+- [ ] Run full beta release validation from the release checklist.
+- [ ] Prepare v1.2.0-rc.1 after beta validation is stable.
+
 ### v1.2.0
 
 Backdoor attack 增强：
