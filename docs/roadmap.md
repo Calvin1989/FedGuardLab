@@ -337,7 +337,7 @@ Focus: validation workflow documentation.
 - [x] CI section in README updated to reference `ci.yml` and `docker-smoke.yml`.
 - [x] `smoke_finished_job_id.txt` noted as temporary file,不应提交。
 
-### v1.3.0-beta.1
+### v1.3.0-beta.1 — completed
 
 Focus: Beta readiness validation for v1.3.
 
@@ -345,16 +345,43 @@ Beta.1 阶段不新增功能，不修改运行时代码，不改变 CI 触发策
 
 Checklist：
 
+- [x] `ruff check .`
+- [x] `python quick_test.py`
+- [x] `cd web && npm run build`
+- [x] `docker compose config`
+- [x] `docker compose build`
+- [x] `docker compose up -d`
+- [x] `python api_smoke_test.py`
+- [x] `python api_smoke_test.py --wait-finished --write-finished-job-id smoke_finished_job_id.txt`
+- [x] `docker compose restart backend`
+- [x] `python api_smoke_test.py --check-recovery <真实 finished job UUID>`
+- [x] `docker compose down`
+- [x] GitHub Actions CI passing
+- [x] GitHub Actions Docker Smoke manual workflow passing
+
+### v1.3.0-rc.1
+
+Focus: Release candidate validation for v1.3.0.
+
+rc.1 阶段不新增功能，不修改运行时代码，不改变 CI 触发策略。重点是 final release candidate validation。
+
+Checklist：
+
 - [ ] `ruff check .`
 - [ ] `python quick_test.py`
-- [ ] `cd web && npm run build`
+- [ ] 前端构建检查（PowerShell 用户不要使用 `cd web && npm run build`，应分两行执行）：
+  - `cd web`
+  - `npm run build`
+  - `cd ..`
 - [ ] `docker compose config`
 - [ ] `docker compose build`
 - [ ] `docker compose up -d`
 - [ ] `python api_smoke_test.py`
 - [ ] `python api_smoke_test.py --wait-finished --write-finished-job-id smoke_finished_job_id.txt`
+- [ ] `type smoke_finished_job_id.txt` — 确认 UUID 已写入
 - [ ] `docker compose restart backend`
-- [ ] `python api_smoke_test.py --check-recovery <真实 finished job UUID>`
+- [ ] 等待 backend healthy 后执行 `python api_smoke_test.py --check-recovery <真实 finished job UUID>`
 - [ ] `docker compose down`
+- [ ] `Remove-Item smoke_finished_job_id.txt` — 清理临时文件
 - [ ] GitHub Actions CI passing
-- [ ] GitHub Actions Docker Smoke manual workflow passing
+- [ ] GitHub Actions Docker Smoke manual workflow passing on main
