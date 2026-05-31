@@ -214,6 +214,17 @@ Focus: restart recovery smoke test and artifact index consistency.
 - [x] Validate persisted `reports/jobs/index.json` consistency with API status response.
 - [x] Fix `summary_md` artifact path to match the generated Markdown report file.
 
+### v1.2.0-alpha.4
+
+Focus: Jobs API filtering and sorting.
+
+- [x] Add `GET /jobs?status=...`.
+- [x] Add `GET /jobs?limit=...`.
+- [x] Add `GET /jobs?sort=created_at_desc`.
+- [x] Add `GET /jobs?sort=created_at_asc`.
+- [x] Validate invalid `/jobs` query parameters in `api_smoke_test.py`.
+- [ ] Polish frontend Recent Jobs filtering UX.
+
 ### v1.2.0
 
 Backdoor attack 增强：

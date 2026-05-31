@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Added basic `GET /jobs` query parameters: `status`, `limit`, `sort`.
+  - Supported status filtering: `queued`, `running`, `finished`, `failed`, `cancelled`.
+  - Supported sorting: `created_at_desc` (default), `created_at_asc`.
+  - Invalid status, limit, or sort values return HTTP 400.
+  - `limit` values exceeding 100 are clamped to 100.
+  - Added smoke test coverage for valid and invalid `/jobs` query parameters.
 - Added restart recovery smoke test for durable JobStore.
   - `api_smoke_test.py --check-recovery <job_id>` verifies that a finished job remains available after backend restart.
   - Recovery check validates `/jobs`, `/status/{job_id}`, artifact metadata, artifact file existence, and `reports/jobs/index.json` consistency.
