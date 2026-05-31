@@ -139,6 +139,16 @@ Focus: background task execution and WebSocket decoupling.
 
 Still in-memory; no database, Redis, or Celery.
 
+### v1.1.0-beta.3
+
+Focus: API healthcheck, Docker Compose readiness, and live API smoke test.
+
+- [x] `GET /health` — returns `{"status": "ok", "service": "fedguardlab-api"}`.
+- [x] Docker Compose healthcheck on backend — frontend waits for `service_healthy`.
+- [x] Live API smoke test (`python api_smoke_test.py`) — uses Python stdlib, no external deps.
+- [x] `FEDGUARDLAB_API_BASE` env var to override API address in smoke test.
+- [x] Runner cancellation race fix — check cancel flag before entering "running" state.
+
 Next steps:
 
 - [ ] Durable job persistence (survive backend restarts).
