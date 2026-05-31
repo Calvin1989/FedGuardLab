@@ -116,7 +116,11 @@ def main() -> None:
         data = _wait_until_finished(job_id)
         assert data["status"] == "finished", f"unexpected status: {data['status']}"
         assert data.get("metrics_count", 0) > 0, f"no metrics: {data}"
-        print(f"[OK]  job {job_id} finished with {data['metrics_count']} metrics", flush=True)
+        print(
+            f"[OK]  job {job_id} finished with "
+            f"{data['metrics_count']} metrics",
+            flush=True,
+        )
 
     run_cancel()
 
