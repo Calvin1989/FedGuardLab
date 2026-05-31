@@ -3,8 +3,9 @@ import json
 import re
 import uuid
 from pathlib import Path
-from typing import List
+from typing import Any, Dict, List
 
+import yaml
 from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
@@ -92,6 +93,33 @@ def resolve_config_path(config_path: str) -> Path:
     return resolved_path
 
 
+def _read_config_metadata(config_path: Path) -> Dict[str, Any]:
+    """Read optional metadata from a config YAML file.
+
+    Falls back to sensible defaults if the file has no metadata block.
+    """
+    try:
+        with open(config_path, "r", encoding="utf-8") as f:
+            raw = yaml.safe_load(f)
+        meta = raw.get("metadata") if isinstance(raw, dict) else None
+        if isinstance(meta, dict):
+            return {
+                "name": meta.get("name", config_path.stem),
+                "description": meta.get("description", ""),
+                "category": meta.get("category", "uncategorized"),
+                "tags": meta.get("tags", []) or [],
+            }
+    except Exception:
+        pass
+
+    return {
+        "name": config_path.stem,
+        "description": "",
+        "category": "uncategorized",
+        "tags": [],
+    }
+
+
 def validate_job_id(job_id: str) -> None:
     if not JOB_ID_PATTERN.fullmatch(job_id):
         raise HTTPException(status_code=400, detail="invalid job_id")
@@ -139,6 +167,8 @@ def list_configs():
             )
             continue
 
+        metadata = _read_config_metadata(config_path)
+
         configs.append(
             {
                 "label": config.experiment.name,
@@ -156,6 +186,7 @@ def list_configs():
                 "dataset": config.dataset.model_dump(),
                 "attack": config.attack.model_dump(),
                 "defense": config.defense.model_dump(),
+                "metadata": metadata,
             }
         )
 

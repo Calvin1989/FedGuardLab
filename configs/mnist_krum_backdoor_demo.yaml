@@ -1,4 +1,13 @@
-﻿experiment:
+﻿metadata:
+  name: "MNIST Krum Backdoor"
+  description: "Backdoor attack with Krum defense"
+  category: "defense"
+  tags:
+    - mnist
+    - krum
+    - backdoor
+
+experiment:
   name: "mnist_krum_backdoor_demo"
   seed: 42
   rounds: 3

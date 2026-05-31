@@ -1,3 +1,12 @@
+metadata:
+  name: "MNIST Krum Label Flip"
+  description: "Label flipping attack with Krum defense"
+  category: "defense"
+  tags:
+    - mnist
+    - krum
+    - label_flipping
+
 experiment:
   name: "mnist_krum_label_flip_demo"
   seed: 42

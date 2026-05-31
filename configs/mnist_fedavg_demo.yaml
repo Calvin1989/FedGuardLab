@@ -1,4 +1,13 @@
-﻿experiment:
+﻿metadata:
+  name: "MNIST FedAvg Demo"
+  description: "Baseline MNIST training with FedAvg, no attack"
+  category: "baseline"
+  tags:
+    - mnist
+    - fedavg
+    - baseline
+
+experiment:
   name: "mnist_fedavg_demo"
   seed: 42
   rounds: 3
