@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- Added frontend category filtering for experiment config catalog.
+  - New category filter dropdown above the experiment selector, defaulting to "All categories".
+  - Category list is dynamically extracted from config metadata, deduplicated, and sorted.
+  - Selecting a category filters the config dropdown; selecting a new category auto-selects the first available config if the current one is excluded.
+  - Shows "No configs available for this category." when the filtered list is empty.
+  - Configs without metadata category use "uncategorized" as fallback.
+  - Preserves the v1.4.0-alpha.2 config metadata display block.
 - Added frontend display for experiment config catalog metadata.
   - After selecting a config, a lightweight info block shows: display name, description, category, and tags.
   - Tags are rendered as small badges (same style as Recent Jobs badges).

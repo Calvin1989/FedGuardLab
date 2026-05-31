@@ -44,6 +44,7 @@ const comparisonError = ref("");
 const comparisonUrl = ref("");
 
 const experimentOptions = ref([]);
+const selectedCategory = ref("all");
 
 let socket = null;
 
@@ -145,6 +146,36 @@ const selectedConfigMetadata = computed(() => {
     category: meta.category || "",
     tags: Array.isArray(meta.tags) ? meta.tags : [],
   };
+});
+
+
+const configCategories = computed(() => {
+  const cats = new Set(
+    experimentOptions.value.map(
+      (opt) => opt.metadata?.category || "uncategorized"
+    )
+  );
+  return [...cats].sort();
+});
+
+
+const filteredExperimentOptions = computed(() => {
+  if (selectedCategory.value === "all") {
+    return experimentOptions.value;
+  }
+  return experimentOptions.value.filter(
+    (opt) => (opt.metadata?.category || "uncategorized") === selectedCategory.value
+  );
+});
+
+
+watch(selectedCategory, () => {
+  const current = filteredExperimentOptions.value.find(
+    (opt) => opt.value === selectedConfig.value
+  );
+  if (!current && filteredExperimentOptions.value.length > 0) {
+    selectedConfig.value = filteredExperimentOptions.value[0].value;
+  }
 });
 
 
@@ -632,24 +663,49 @@ async function startExperiment() {
       </p>
 
       <div class="control-panel">
+        <label class="field-label" for="category-filter">
+          Category
+        </label>
+
+        <select
+          id="category-filter"
+          v-model="selectedCategory"
+          class="experiment-select"
+          :disabled="status === 'creating' || status === 'running'"
+        >
+          <option value="all">All categories</option>
+          <option
+            v-for="cat in configCategories"
+            :key="cat"
+            :value="cat"
+          >
+            {{ cat }}
+          </option>
+        </select>
+
         <label class="field-label" for="experiment-select">
           Experiment
         </label>
 
         <select
+          v-if="filteredExperimentOptions.length > 0"
           id="experiment-select"
           v-model="selectedConfig"
           class="experiment-select"
           :disabled="status === 'creating' || status === 'running'"
         >
           <option
-            v-for="option in experimentOptions"
+            v-for="option in filteredExperimentOptions"
             :key="option.value"
             :value="option.value"
           >
             {{ option.label }}
           </option>
         </select>
+
+        <p v-else class="config-empty-filter">
+          No configs available for this category.
+        </p>
 
         <p class="option-description">
           {{ selectedExperimentDescription }}
@@ -691,7 +747,7 @@ async function startExperiment() {
             :disabled="
               status === 'creating' ||
               status === 'running' ||
-              experimentOptions.length === 0
+              filteredExperimentOptions.length === 0
             "
             @click="startExperiment"
           >
@@ -1117,6 +1173,13 @@ h1 {
   font-weight: 600;
   background: #e2e8f0;
   color: #475569;
+}
+
+.config-empty-filter {
+  margin: 0;
+  color: #94a3b8;
+  font-size: 13px;
+  font-style: italic;
 }
 
 .comparison-card {
