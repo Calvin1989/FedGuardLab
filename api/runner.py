@@ -44,6 +44,11 @@ async def run_job(
     if job is None:
         return
 
+    if job_store.is_cancel_requested(job_id):
+        job_store.set_status(job_id, "cancelled")
+        await event_hub.publish(job_id, {"event": "cancelled"})
+        return
+
     job_store.set_status(job_id, "running")
 
     try:
@@ -51,6 +56,7 @@ async def run_job(
 
         async for metric in run_experiment(config):
             if job_store.is_cancel_requested(job_id):
+                job_store.set_status(job_id, "cancelled")
                 await event_hub.publish(job_id, {"event": "cancelled"})
                 return
 
