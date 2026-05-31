@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+- Prepared v1.4.0 final release readiness documentation.
+  - No new runtime feature; focus is Experiment Usability + Reproducibility + Project Polish.
+  - v1.4.0 release scope:
+    - Experiment config catalog metadata (GET /configs returns metadata block).
+    - Frontend config metadata display (name, description, category, tags).
+    - Frontend config category filter.
+    - Recent Jobs detail panel for inspecting job metadata.
+    - Beta readiness documentation.
+    - Release candidate readiness documentation.
+  - Final tag must be created on the main merge commit after PR is merged.
 - Prepared v1.4.0-rc.1 release candidate readiness documentation.
   - No new runtime code, no new feature, no CI trigger change.
   - v1.4.0-beta.1 已完成 beta readiness 文档。

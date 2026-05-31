@@ -484,11 +484,39 @@ Checklist：
 - [x] GitHub Actions CI passing
 - [x] GitHub Actions Docker Smoke manual workflow passing
 
-### v1.4.0-rc.1
+### v1.4.0-rc.1 — completed
 
 Focus: Release candidate validation for v1.4.0.
 
 rc.1 阶段不新增功能，不修改运行时代码，不改变 CI 触发策略。重点是 final release candidate validation。
+
+Checklist：
+
+- [x] `ruff check .`
+- [x] `python quick_test.py`
+- [x] 前端构建检查（PowerShell 分两行执行）：
+  - `cd web`
+  - `npm run build`
+  - `cd ..`
+- [x] `python api_smoke_test.py`
+- [x] `docker compose config`
+- [x] `docker compose build`
+- [x] `docker compose up -d`
+- [x] `python api_smoke_test.py --wait-finished --write-finished-job-id smoke_finished_job_id.txt`
+- [x] `type smoke_finished_job_id.txt` — 确认 UUID 已写入
+- [x] `docker compose restart backend`
+- [x] `Start-Sleep -Seconds 10`
+- [x] `python api_smoke_test.py --check-recovery <真实 finished job UUID>`
+- [x] `docker compose down`
+- [x] `Remove-Item smoke_finished_job_id.txt` — 清理临时文件
+- [x] GitHub Actions CI passing
+- [x] GitHub Actions Docker Smoke manual workflow passing on main
+
+### v1.4.0
+
+Focus: Stable v1.4 experiment usability and release polish.
+
+v1.4.0 不新增 runtime feature，重点是 Experiment Usability + Reproducibility + Project Polish。
 
 Checklist：
 
@@ -509,11 +537,6 @@ Checklist：
 - [ ] `python api_smoke_test.py --check-recovery <真实 finished job UUID>`
 - [ ] `docker compose down`
 - [ ] `Remove-Item smoke_finished_job_id.txt` — 清理临时文件
-- [ ] GitHub Actions CI passing
+- [ ] GitHub Actions CI passing on main
 - [ ] GitHub Actions Docker Smoke manual workflow passing on main
-
-### v1.4.0
-
-Focus: stable release for experiment usability, reproducibility, and project polish.
-
-- [ ] TBD — final release scope 待定。
+- [ ] Final tag 打在 main merge commit 上（PR 合并后）
