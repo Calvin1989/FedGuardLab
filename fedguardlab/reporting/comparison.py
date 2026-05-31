@@ -77,6 +77,7 @@ def load_job_summary(job_id: str) -> Dict[str, Any]:
 def generate_comparison_report(
     job_ids: List[str],
     title: str = "Robust Aggregation Comparison",
+    api_base_url: str = "http://127.0.0.1:8000",
 ) -> Path:
     if len(job_ids) == 0:
         raise ValueError("job_ids cannot be empty")
@@ -98,6 +99,7 @@ def generate_comparison_report(
         comparison_id=comparison_id,
         title=title,
         experiments=experiments,
+        api_base_url=api_base_url,
     )
 
     output_path = output_dir / "comparison.html"

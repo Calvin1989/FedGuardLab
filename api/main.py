@@ -296,6 +296,7 @@ def create_comparison(request: ComparisonRequest):
         output_path = generate_comparison_report(
             job_ids=request.job_ids,
             title=request.title,
+            api_base_url="http://127.0.0.1:8000",
         )
 
         comparison_id = output_path.parent.name
