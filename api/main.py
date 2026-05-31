@@ -13,7 +13,6 @@ from pydantic import BaseModel
 from api.jobs import JobRecord, JobStore
 from api.runner import JobEventHub, run_job
 from fedguardlab.config.loader import load_config
-from fedguardlab.core.trainer import run_experiment
 from fedguardlab.reporting.comparison import (
     COMPARISONS_DIR,
     generate_comparison_report,
@@ -301,51 +300,40 @@ async def websocket_run(websocket: WebSocket, job_id: str):
     job = JOB_STORE.get(job_id)
 
     if job is None:
-        await websocket.send_json({"error": "job not found"})
+        await websocket.send_json({"event": "failed", "error": "job not found"})
         await websocket.close()
         return
 
-    try:
-        JOB_STORE.set_status(job_id, "running")
-        config = load_config(job.config_path)
+    for metric in job.metrics:
+        await websocket.send_json(metric)
 
-        async for metric in run_experiment(config):
-            current_job = JOB_STORE.get(job_id)
-
-            if current_job is None:
-                await websocket.send_json(
-                    {
-                        "event": "failed",
-                        "error": "job not found during execution",
-                    }
-                )
-                await websocket.close()
-                return
-
-            if current_job.status == "cancelled":
-                await websocket.send_json({"event": "cancelled"})
-                await websocket.close()
-                return
-
-            JOB_STORE.append_metric(job_id, metric)
-            await websocket.send_json(metric)
-
-        JOB_STORE.set_status(job_id, "finished")
-        save_job_results(job_id)
+    if job.status == "finished":
         await websocket.send_json({"event": "finished"})
+        await websocket.close()
+        return
 
-    except WebSocketDisconnect:
-        current_job = JOB_STORE.get(job_id)
-        if current_job is not None and current_job.status == "running":
-            JOB_STORE.set_status(job_id, "disconnected")
-
-    except Exception as exc:
-        error_message = str(exc)
-        JOB_STORE.set_status(job_id, "failed", error=error_message)
+    if job.status == "failed":
         await websocket.send_json(
-            {
-                "event": "failed",
-                "error": error_message,
-            }
+            {"event": "failed", "error": job.error or "job failed"}
         )
         await websocket.close()
+        return
+
+    if job.status == "cancelled":
+        await websocket.send_json({"event": "cancelled"})
+        await websocket.close()
+        return
+
+    queue = None
+    try:
+        queue = EVENT_HUB.subscribe(job_id)
+        while True:
+            event = await queue.get()
+            await websocket.send_json(event)
+            if event.get("event") in {"finished", "failed", "cancelled"}:
+                break
+    except WebSocketDisconnect:
+        pass
+    finally:
+        if queue is not None:
+            EVENT_HUB.unsubscribe(job_id, queue)
