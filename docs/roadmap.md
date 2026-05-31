@@ -270,6 +270,18 @@ Focus: v1.2 stabilization and release readiness.
 - [ ] Run full beta release validation from the release checklist.
 - [ ] Prepare v1.2.0-rc.1 after beta validation is stable.
 
+### v1.2.0-rc.1
+
+Focus: release candidate readiness.
+
+- [x] Confirm beta.1 validation path.
+- [x] Confirm durable JobStore recovery validation.
+- [x] Confirm artifact metadata/index validation.
+- [x] Confirm Jobs API filter/sort validation.
+- [x] Confirm Recent Jobs UX validation.
+- [ ] Run final RC validation from the release checklist.
+- [ ] Prepare v1.2.0 final release after RC validation is stable.
+
 ### v1.2.0
 
 Backdoor attack 增强：
