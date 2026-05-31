@@ -1,6 +1,6 @@
 ﻿# FedGuardLab
 
-![Quick Test](https://github.com/Calvin1989/FedGuardLab/actions/workflows/quick-test.yml/badge.svg)
+![CI](https://github.com/Calvin1989/FedGuardLab/actions/workflows/ci.yml/badge.svg)
 
 FedGuardLab 是一个面向联邦学习安全实验的交互式实验平台。
 
