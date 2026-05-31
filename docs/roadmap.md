@@ -155,14 +155,25 @@ Next steps:
 - [ ] True cancellation: signal trainer to stop mid-round, not only between rounds.
 - [ ] Multi-worker task queue (if concurrent experiments are needed).
 
+### v1.1.0-rc.1
+
+Release candidate — polish, documentation, and final stabilization.
+
+- [ ] Frontend Cancel Experiment button (`web/src/App.vue`).
+- [ ] API smoke test `--wait-finished` option.
+- [ ] CHANGELOG.md。
+- [ ] release checklist (`docs/release-checklist.md`)。
+- [ ] README / docs final polish。
+- [ ] Screenshots review。
+
 ### v1.1.0
 
-reliability, config validation, job lifecycle, frontend config discovery：
+Documentation and release stabilization — no new major features.
 
-- 配置语义校验（Krum、Dirichlet 等约束）；
-- 实验 job 生命周期管理；
-- 前端自动发现可用配置；
-- 更完善的错误提示。
+- 固化 v1.1.0-beta / rc 全部能力；
+- 完善已知限制说明；
+- 确认 README、docs、CHANGELOG 和 release checklist 齐全；
+- 确认 Docker、CI、前端 build 和 smoke test 全流程可用。
 
 ### v1.2.0
 
