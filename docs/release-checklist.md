@@ -153,7 +153,35 @@
 
     Verify that artifact/report metadata remains visible for finished jobs.
 
-14. Stop containers:
+14. Verify Recent Jobs limit/sort controls (v1.2.0-alpha.6):
+
+    Build the frontend:
+
+    ```powershell
+    cd web
+    npm run build
+    cd ..
+    ```
+
+    Start the stack:
+
+    ```powershell
+    docker compose up -d
+    ```
+
+    Open the frontend and verify Recent Jobs controls:
+
+    - Limit: 10, 20, 50
+    - Sort: Newest first, Oldest first
+    - Status filter still works together with limit/sort
+
+    Verify that changing limit or sort reloads Recent Jobs through the Jobs API.
+
+    Verify that finished jobs with reports remain selectable for comparison.
+
+    Verify that non-finished jobs remain excluded from comparison selection.
+
+15. Stop containers:
 
    ```bash
    docker compose down
