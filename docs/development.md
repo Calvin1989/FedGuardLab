@@ -215,13 +215,31 @@ python api_smoke_test.py
 
 该脚本需要后端已经启动（`uvicorn api.main:app --reload`），使用 Python 标准库（`urllib.request` + `json`），不依赖 `requests` 或 `httpx`。
 
-测试流程：GET /health → GET /configs → POST /run → GET /status → POST /run → POST /cancel → GET /status。
+测试流程：GET /health → GET /configs → POST /run → 等待 job 离开 created → POST /run（第二个 job）→ cancel → 确认 cancelled。
 
 如果 API 不在默认地址，通过环境变量覆盖：
 
-```bash
-FEDGUARDLAB_API_BASE=http://192.168.1.10:8000 python api_smoke_test.py
+**PowerShell：**
+
+```powershell
+$env:FEDGUARDLAB_API_BASE = "http://127.0.0.1:8000"
+python api_smoke_test.py
+Remove-Item Env:FEDGUARDLAB_API_BASE
 ```
+
+**Bash：**
+
+```bash
+FEDGUARDLAB_API_BASE=http://127.0.0.1:8000 python api_smoke_test.py
+```
+
+如果需要等待第一个 job 完整执行完毕（含 metrics 产出）：
+
+```bash
+python api_smoke_test.py --wait-finished
+```
+
+`--wait-finished` 会轮询 `/status/{job_id}` 最多 60 秒，直到 status == finished 且 metrics_count > 0。
 
 ---
 

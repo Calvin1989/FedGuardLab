@@ -113,8 +113,26 @@ python api_smoke_test.py
 
 如果 API 不在默认地址，通过环境变量覆盖：
 
+**PowerShell：**
+
+```powershell
+$env:FEDGUARDLAB_API_BASE = "http://127.0.0.1:8000"
+python api_smoke_test.py
+Remove-Item Env:FEDGUARDLAB_API_BASE
+```
+
+**Bash：**
+
 ```bash
-FEDGUARDLAB_API_BASE=http://192.168.1.10:8000 python api_smoke_test.py
+FEDGUARDLAB_API_BASE=http://127.0.0.1:8000 python api_smoke_test.py
+```
+
+默认流程：GET /health → GET /configs → POST /run → 等待 job 离开 created → POST /run（第二个 job）→ cancel → 确认 cancelled。
+
+如果需要等待第一个 job 完整执行完毕（含 metrics 产出）：
+
+```bash
+python api_smoke_test.py --wait-finished
 ```
 
 该脚本使用 Python 标准库（`urllib.request`），不依赖 `requests` 或 `httpx`。
