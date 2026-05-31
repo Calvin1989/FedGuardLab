@@ -60,6 +60,13 @@ def save_job_results(job_id: str) -> None:
 
     generate_html_report(job_id, JOB_STORE.to_dict(job_id), job_dir)
 
+    metadata = build_job_artifacts(job_id)
+    JOB_STORE.set_artifacts(
+        job_id,
+        has_report=metadata["has_report"],
+        artifacts=metadata["artifacts"],
+    )
+
 
 def resolve_config_path(config_path: str) -> Path:
     requested_path = Path(config_path)
