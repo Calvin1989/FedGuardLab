@@ -211,7 +211,7 @@ def list_jobs():
 
 
 @app.post("/jobs/{job_id}/cancel")
-def cancel_job(job_id: str):
+async def cancel_job(job_id: str):
     validate_job_id(job_id)
 
     job = JOB_STORE.get(job_id)
@@ -225,7 +225,8 @@ def cancel_job(job_id: str):
             detail=f"cannot cancel job with status {job.status}",
         )
 
-    JOB_STORE.set_status(job_id, "cancelled")
+    JOB_STORE.request_cancel(job_id)
+    await EVENT_HUB.publish(job_id, {"event": "cancelled"})
 
     return {
         "job_id": job_id,
