@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import argparse
 import json
 import os
 import time
@@ -35,7 +36,20 @@ def _wait_until_status(job_id: str, timeout: float = 30.0) -> str:
     raise AssertionError(f"Timed out waiting for job {job_id} to leave 'created'")
 
 
-def main() -> None:
+def _wait_until_finished(job_id: str, timeout: float = 60.0) -> dict[str, Any]:
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        data = _get(f"/status/{job_id}")
+        status = data["status"]
+        if status == "finished":
+            return data
+        if status in {"failed", "cancelled"}:
+            raise AssertionError(f"Job {job_id} reached terminal status '{status}'")
+        time.sleep(0.5)
+    raise AssertionError(f"Timed out waiting for job {job_id} to finish")
+
+
+def run_default() -> None:
     # GET /health
     print("[RUN] GET /health", flush=True)
     data = _get("/health")
@@ -61,6 +75,10 @@ def main() -> None:
     assert status in {"created", "running", "finished"}, f"unexpected status: {status}"
     print(f"[OK]  GET /status/{job_id} -> {status}", flush=True)
 
+    return job_id
+
+
+def run_cancel() -> None:
     # POST /run (second job)
     print("[RUN] POST /run (second job)", flush=True)
     data = _post("/run?config_path=configs/label_flip_demo.yaml")
@@ -79,6 +97,28 @@ def main() -> None:
     data = _get(f"/status/{job_id2}")
     assert data["status"] == "cancelled", f"unexpected status: {data['status']}"
     print(f"[OK]  GET /status/{job_id2} -> cancelled", flush=True)
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description="FedGuardLab API smoke test")
+    parser.add_argument(
+        "--wait-finished",
+        action="store_true",
+        default=False,
+        help="Wait for the first job to finish (default: False)",
+    )
+    args = parser.parse_args()
+
+    job_id = run_default()
+
+    if args.wait_finished:
+        print(f"[RUN] Wait for job {job_id} to finish", flush=True)
+        data = _wait_until_finished(job_id)
+        assert data["status"] == "finished", f"unexpected status: {data['status']}"
+        assert data.get("metrics_count", 0) > 0, f"no metrics: {data}"
+        print(f"[OK]  job {job_id} finished with {data['metrics_count']} metrics", flush=True)
+
+    run_cancel()
 
 
 if __name__ == "__main__":
