@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Prepared v1.3.0-rc.1 release candidate readiness documentation.
+  - No new runtime code, no new feature, no CI trigger change.
+  - v1.3.0-beta.1 已完成 beta readiness 文档。
+  - rc.1 阶段不新增功能，重点是 final release candidate validation。
 - Prepared v1.3.0-beta.1 readiness documentation.
   - No new runtime code, no new feature, no CI trigger change.
   - Beta.1 focus: stability validation and release readiness.
