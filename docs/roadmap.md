@@ -328,3 +328,33 @@ Focus: finished job id output for smoke recovery.
 - [x] `--write-finished-job-id` requires `--wait-finished`; errors early otherwise.
 - [x] Docker Smoke workflow reads `smoke_finished_job_id.txt` instead of parsing logs with regex.
 - [x] Recovery check uses the UUID read from the file.
+
+### v1.3.0-alpha.4 — completed
+
+Focus: validation workflow documentation.
+
+- [x] `docs/development.md` updated with recommended local verification order.
+- [x] CI section in README updated to reference `ci.yml` and `docker-smoke.yml`.
+- [x] `smoke_finished_job_id.txt` noted as temporary file,不应提交。
+
+### v1.3.0-beta.1
+
+Focus: Beta readiness validation for v1.3.
+
+Beta.1 阶段不新增功能，不修改运行时代码，不改变 CI 触发策略。重点是稳定性验证和 release readiness。
+
+Checklist：
+
+- [ ] `ruff check .`
+- [ ] `python quick_test.py`
+- [ ] `cd web && npm run build`
+- [ ] `docker compose config`
+- [ ] `docker compose build`
+- [ ] `docker compose up -d`
+- [ ] `python api_smoke_test.py`
+- [ ] `python api_smoke_test.py --wait-finished --write-finished-job-id smoke_finished_job_id.txt`
+- [ ] `docker compose restart backend`
+- [ ] `python api_smoke_test.py --check-recovery <真实 finished job UUID>`
+- [ ] `docker compose down`
+- [ ] GitHub Actions CI passing
+- [ ] GitHub Actions Docker Smoke manual workflow passing
