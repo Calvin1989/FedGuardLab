@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Prepared v1.4 roadmap planning.
+  - Documentation-only update; no runtime feature, no CI behavior change.
+  - v1.3.0 release metadata cleanup and roadmap expansion.
+  - v1.3.0 final checklist marked as completed in docs/roadmap.md.
+  - v1.4.0 theme: Experiment Usability + Reproducibility + Project Polish.
+  - Added v1.4.0-alpha.1 through alpha.4 planning and beta/rc/final placeholders.
 - Prepared v1.3.0 final release readiness documentation.
   - No new runtime feature; focus is Developer Experience, validation, and release reliability.
   - v1.3.0 release scope:

@@ -386,7 +386,7 @@ Checklist：
 - [x] GitHub Actions CI passing
 - [x] GitHub Actions Docker Smoke manual workflow passing on main
 
-### v1.3.0
+### v1.3.0 — completed
 
 Focus: Stable v1.3 validation and release reliability.
 
@@ -394,23 +394,74 @@ v1.3.0 不新增 runtime feature，重点是 Developer Experience / Validation /
 
 Checklist：
 
-- [ ] `ruff check .`
-- [ ] `python quick_test.py`
-- [ ] 前端构建检查（PowerShell 分两行执行）：
+- [x] `ruff check .`
+- [x] `python quick_test.py`
+- [x] 前端构建检查（PowerShell 分两行执行）：
   - `cd web`
   - `npm run build`
   - `cd ..`
-- [ ] `docker compose config`
-- [ ] `docker compose build`
-- [ ] `docker compose up -d`
-- [ ] `python api_smoke_test.py`
-- [ ] `python api_smoke_test.py --wait-finished --write-finished-job-id smoke_finished_job_id.txt`
-- [ ] `type smoke_finished_job_id.txt` — 确认 UUID 已写入
-- [ ] `docker compose restart backend`
-- [ ] wait for backend healthy
-- [ ] `python api_smoke_test.py --check-recovery <真实 finished job UUID>`
-- [ ] `docker compose down`
-- [ ] `Remove-Item smoke_finished_job_id.txt` — 清理临时文件
-- [ ] GitHub Actions CI passing on main
-- [ ] GitHub Actions Docker Smoke manual workflow passing on main
-- [ ] Final tag 打在 main merge commit 上（PR 合并后）
+- [x] `docker compose config`
+- [x] `docker compose build`
+- [x] `docker compose up -d`
+- [x] `python api_smoke_test.py`
+- [x] `python api_smoke_test.py --wait-finished --write-finished-job-id smoke_finished_job_id.txt`
+- [x] `type smoke_finished_job_id.txt` — 确认 UUID 已写入
+- [x] `docker compose restart backend`
+- [x] wait for backend healthy
+- [x] `python api_smoke_test.py --check-recovery <真实 finished job UUID>`
+- [x] `docker compose down`
+- [x] `Remove-Item smoke_finished_job_id.txt` — 清理临时文件
+- [x] GitHub Actions CI passing on main
+- [x] GitHub Actions Docker Smoke manual workflow passing on main
+- [x] Final tag 打在 main merge commit 上（PR 合并后）
+
+---
+
+## v1.4.0 Roadmap
+
+v1.4.0 主题：Experiment Usability + Reproducibility + Project Polish.
+
+### v1.4.0-alpha.1
+
+Focus: release metadata cleanup and v1.4 planning.
+
+- [ ] 更新 README 当前版本为 v1.3.0。
+- [ ] 更新 docs/roadmap.md 标记 v1.3.0 checklist 为 completed。
+- [ ] 新增 v1.4.0 roadmap 小节。
+- [ ] 更新 CHANGELOG.md Unreleased 区域。
+
+### v1.4.0-alpha.2
+
+Focus: experiment config catalog polish.
+
+- [ ] TBD — experiment config catalog 改进细节待定。
+
+### v1.4.0-alpha.3
+
+Focus: job detail and recovery UX improvement.
+
+- [ ] TBD — job detail 页面和恢复体验改进细节待定。
+
+### v1.4.0-alpha.4
+
+Focus: reproducibility metadata.
+
+- [ ] TBD — 实验可复现性元数据方案待定。
+
+### v1.4.0-beta.1
+
+Focus: v1.4 stabilization and release readiness.
+
+- [ ] TBD — beta 验证清单待定。
+
+### v1.4.0-rc.1
+
+Focus: release candidate readiness.
+
+- [ ] TBD — rc 验证清单待定。
+
+### v1.4.0
+
+Focus: stable release for experiment usability, reproducibility, and project polish.
+
+- [ ] TBD — final release scope 待定。
