@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { Line } from "vue-chartjs";
 import {
   Chart as ChartJS,
@@ -33,6 +33,7 @@ const reportUrl = ref("");
 const selectedConfig = ref("");
 
 const recentJobs = ref([]);
+const jobStatusFilter = ref("all");
 const selectedJobIds = ref([]);
 const RECENT_JOBS_STORAGE_KEY = "fedguardlab_recent_jobs";
 const HIDDEN_JOBS_STORAGE_KEY = "fedguardlab_hidden_jobs";
@@ -277,7 +278,9 @@ function loadRecentJobs() {
 
 
 async function loadRecentJobsFromApi() {
-  const response = await fetch(`${API_BASE}/jobs`);
+  const filter = jobStatusFilter.value;
+  const query = filter !== "all" ? `?status=${filter}` : "";
+  const response = await fetch(`${API_BASE}/jobs${query}`);
   const data = await response.json();
 
   if (!response.ok) {
@@ -286,66 +289,104 @@ async function loadRecentJobsFromApi() {
 
   const hiddenIds = loadHiddenJobIds();
 
-  const finishedJobs = data.jobs.filter(
-    (job) =>
-      job.status === "finished" &&
-      job.metrics_count > 0 &&
-      job.has_report === true &&
-      !hiddenIds.has(job.job_id)
-  );
+  if (filter === "all") {
+    // Default view: only finished jobs with full results (backward-compatible)
+    const finishedJobs = data.jobs.filter(
+      (job) =>
+        job.status === "finished" &&
+        job.metrics_count > 0 &&
+        job.has_report === true &&
+        !hiddenIds.has(job.job_id)
+    );
 
-  const hydratedJobs = await Promise.all(
-    finishedJobs.map(async (job) => {
-      try {
-        const resultResponse = await fetch(`${API_BASE}/results/${job.job_id}`);
-        const result = await resultResponse.json();
+    const hydratedJobs = await Promise.all(
+      finishedJobs.map(async (job) => {
+        try {
+          const resultResponse = await fetch(`${API_BASE}/results/${job.job_id}`);
+          const result = await resultResponse.json();
 
-        if (!resultResponse.ok) {
+          if (!resultResponse.ok) {
+            return null;
+          }
+
+          const config = result.config || {};
+          const metrics = result.metrics || [];
+          const lastMetric = metrics[metrics.length - 1] || {};
+
+          const experimentName =
+            config.experiment?.name || job.experiment_name || "Unknown Experiment";
+
+          return {
+            job_id: job.job_id,
+            status: job.status,
+            config_path: job.config_path,
+            experiment_name: experimentName,
+            name: experimentName,
+            label: experimentName,
+            aggregation: config.federated?.aggregation || "unknown",
+            defense: config.defense?.type || "unknown",
+            attack: config.attack?.type || "unknown",
+            accuracy: lastMetric.accuracy ?? 0,
+            loss: lastMetric.loss ?? 0,
+            attack_success_rate: lastMetric.attack_success_rate ?? 0,
+            asr: lastMetric.attack_success_rate ?? 0,
+            final_accuracy: lastMetric.accuracy ?? 0,
+            final_loss: lastMetric.loss ?? 0,
+            final_asr: lastMetric.attack_success_rate ?? 0,
+            metrics_count: job.metrics_count,
+            error: job.error,
+            created_at: job.created_at,
+            started_at: job.started_at,
+            finished_at: job.finished_at,
+            report_url:
+              job.has_report && job.artifacts?.report_html
+                ? `${API_BASE}/reports/${job.job_id}`
+                : `${API_BASE}/reports/${job.job_id}`,
+          };
+        } catch (error) {
           return null;
         }
+      })
+    );
 
-        const config = result.config || {};
-        const metrics = result.metrics || [];
-        const lastMetric = metrics[metrics.length - 1] || {};
+    recentJobs.value = hydratedJobs.filter((job) => job !== null);
+  } else {
+    // Specific status filter: show raw jobs without hydration
+    const filtered = data.jobs.filter((job) => !hiddenIds.has(job.job_id));
 
-        const experimentName =
-          config.experiment?.name || job.experiment_name || "Unknown Experiment";
-
-        return {
-          job_id: job.job_id,
-          status: job.status,
-          config_path: job.config_path,
-          experiment_name: experimentName,
-          name: experimentName,
-          label: experimentName,
-          aggregation: config.federated?.aggregation || "unknown",
-          defense: config.defense?.type || "unknown",
-          attack: config.attack?.type || "unknown",
-          accuracy: lastMetric.accuracy ?? 0,
-          loss: lastMetric.loss ?? 0,
-          attack_success_rate: lastMetric.attack_success_rate ?? 0,
-          asr: lastMetric.attack_success_rate ?? 0,
-          final_accuracy: lastMetric.accuracy ?? 0,
-          final_loss: lastMetric.loss ?? 0,
-          final_asr: lastMetric.attack_success_rate ?? 0,
-          metrics_count: job.metrics_count,
-          error: job.error,
-          created_at: job.created_at,
-          started_at: job.started_at,
-          finished_at: job.finished_at,
-          report_url:
-            job.has_report && job.artifacts?.report_html
-              ? `${API_BASE}/reports/${job.job_id}`
-              : `${API_BASE}/reports/${job.job_id}`,
-        };
-      } catch (error) {
-        return null;
-      }
-    })
-  );
-
-  recentJobs.value = hydratedJobs.filter((job) => job !== null);
+    recentJobs.value = filtered.map((job) => ({
+      job_id: job.job_id,
+      status: job.status,
+      config_path: job.config_path,
+      experiment_name: job.experiment_name || "Unknown Experiment",
+      name: job.experiment_name || "Unknown Experiment",
+      label: job.experiment_name || "Unknown Experiment",
+      aggregation: "—",
+      defense: "—",
+      attack: "—",
+      accuracy: "—",
+      loss: "—",
+      attack_success_rate: "—",
+      asr: "—",
+      final_accuracy: "—",
+      final_loss: "—",
+      final_asr: "—",
+      metrics_count: job.metrics_count,
+      error: job.error,
+      created_at: job.created_at,
+      started_at: job.started_at,
+      finished_at: job.finished_at,
+      report_url: `${API_BASE}/reports/${job.job_id}`,
+    }));
+  }
 }
+
+
+watch(jobStatusFilter, () => {
+  loadRecentJobsFromApi().catch((error) => {
+    console.warn("Failed to reload jobs after filter change:", error);
+  });
+});
 
 
 function saveRecentJobs() {
@@ -657,6 +698,17 @@ async function startExperiment() {
           <p>
             Select at least two finished experiments and generate a comparison report.
           </p>
+          <label class="status-filter">
+            Status:
+            <select v-model="jobStatusFilter">
+              <option value="all">All</option>
+              <option value="finished">Finished</option>
+              <option value="running">Running</option>
+              <option value="cancelled">Cancelled</option>
+              <option value="failed">Failed</option>
+              <option value="queued">Queued</option>
+            </select>
+          </label>
         </div>
 
         <div class="section-actions">
@@ -691,7 +743,12 @@ async function startExperiment() {
       </div>
 
       <div v-if="recentJobs.length === 0" class="empty-state small">
-        Finished experiments will appear here.
+        <template v-if="jobStatusFilter === 'all'">
+          Finished experiments will appear here.
+        </template>
+        <template v-else>
+          No {{ jobStatusFilter }} jobs found.
+        </template>
       </div>
 
       <table v-else class="jobs-table">
@@ -937,6 +994,25 @@ h1 {
 .section-header p {
   margin: 0;
   color: #64748b;
+}
+
+.status-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  font-size: 13px;
+  color: #475569;
+}
+
+.status-filter select {
+  padding: 4px 8px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 13px;
+  background: white;
+  color: #1e293b;
+  cursor: pointer;
 }
 
 .jobs-table {
