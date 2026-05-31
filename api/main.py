@@ -95,6 +95,11 @@ def root():
     return {"message": "FedGuardLab API is running"}
 
 
+@app.get("/health")
+def health():
+    return {"status": "ok", "service": "fedguardlab-api"}
+
+
 @app.get("/configs")
 def list_configs():
     configs = []
