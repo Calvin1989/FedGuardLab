@@ -441,6 +441,13 @@ async function startExperiment() {
         return;
       }
 
+      if (message.event === "cancelled") {
+        status.value = "cancelled";
+        errorMessage.value = "";
+        socket.close();
+        return;
+      }
+
       if (message.event === "finished") {
         status.value = "finished";
         reportUrl.value = `${API_BASE}/reports/${jobId.value}`;
