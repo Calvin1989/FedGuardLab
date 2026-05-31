@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Added frontend display for experiment config catalog metadata.
+  - After selecting a config, a lightweight info block shows: display name, description, category, and tags.
+  - Tags are rendered as small badges (same style as Recent Jobs badges).
+  - Safe fallback when metadata is missing: name defaults to label/path, empty description/category are hidden, missing tags row is hidden.
+  - No changes to API call path, backend, package.json, or CSS architecture.
 - Added experiment config catalog metadata for v1.4 planning.
   - `GET /configs` now returns an optional `metadata` object per config item: `name`, `description`, `category`, `tags`.
   - Backward compatible: existing fields (`label`, `value`, `description`, `valid`, etc.) are unchanged.

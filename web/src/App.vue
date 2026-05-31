@@ -128,6 +128,26 @@ const selectedExperimentDescription = computed(() => {
 });
 
 
+const selectedConfigMetadata = computed(() => {
+  const option = experimentOptions.value.find(
+    (item) => item.value === selectedConfig.value
+  );
+
+  if (!option?.metadata) {
+    return null;
+  }
+
+  const meta = option.metadata;
+
+  return {
+    name: meta.name || option.label || selectedConfig.value,
+    description: meta.description || "",
+    category: meta.category || "",
+    tags: Array.isArray(meta.tags) ? meta.tags : [],
+  };
+});
+
+
 function getSelectedExperimentLabel() {
   const option = experimentOptions.value.find(
     (item) => item.value === selectedConfig.value
@@ -635,6 +655,36 @@ async function startExperiment() {
           {{ selectedExperimentDescription }}
         </p>
 
+        <div v-if="selectedConfigMetadata" class="config-metadata">
+          <div class="config-metadata-name">
+            {{ selectedConfigMetadata.name }}
+          </div>
+          <div
+            v-if="selectedConfigMetadata.description"
+            class="config-metadata-description"
+          >
+            {{ selectedConfigMetadata.description }}
+          </div>
+          <div
+            v-if="selectedConfigMetadata.category"
+            class="config-metadata-category"
+          >
+            {{ selectedConfigMetadata.category }}
+          </div>
+          <div
+            v-if="selectedConfigMetadata.tags.length > 0"
+            class="config-metadata-tags"
+          >
+            <span
+              v-for="tag in selectedConfigMetadata.tags"
+              :key="tag"
+              class="config-tag"
+            >
+              {{ tag }}
+            </span>
+          </div>
+        </div>
+
         <div class="button-row">
           <button
             class="run-button"
@@ -1023,6 +1073,50 @@ h1 {
   margin: 0 0 8px;
   color: #64748b;
   font-size: 14px;
+}
+
+.config-metadata {
+  padding: 12px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.config-metadata-name {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.config-metadata-description {
+  margin-top: 4px;
+  color: #475569;
+}
+
+.config-metadata-category {
+  margin-top: 6px;
+  color: #64748b;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.config-metadata-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.config-tag {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 600;
+  background: #e2e8f0;
+  color: #475569;
 }
 
 .comparison-card {
