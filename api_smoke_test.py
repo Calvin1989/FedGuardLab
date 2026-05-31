@@ -117,12 +117,17 @@ def main() -> None:
         assert data["status"] == "finished", f"unexpected status: {data['status']}"
         assert data.get("metrics_count", 0) > 0, f"no metrics: {data}"
         print(
-            f"[OK]  job {job_id} finished with "
-            f"{data['metrics_count']} metrics",
+            f"[OK]  job {job_id} finished with {data['metrics_count']} metrics",
             flush=True,
         )
 
     run_cancel()
+
+    print(
+        "[INFO] Durable store check: restart the API and call GET /jobs "
+        "to verify persisted jobs.",
+        flush=True,
+    )
 
 
 if __name__ == "__main__":
