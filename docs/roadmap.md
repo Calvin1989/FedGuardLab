@@ -456,11 +456,39 @@ Focus: Recent Jobs detail panel.
 - [x] Selected row gets a subtle highlight; clicking again deselects.
 - [x] Shows "Select a job to inspect details." when no job is selected.
 
-### v1.4.0-beta.1
+### v1.4.0-beta.1 — completed
 
 Focus: Beta readiness validation for v1.4.
 
 Beta.1 阶段不新增功能，不修改运行时代码，不改变 CI 触发策略。重点是稳定性验证和 release readiness。
+
+Checklist：
+
+- [x] `ruff check .`
+- [x] `python quick_test.py`
+- [x] 前端构建检查（PowerShell 分两行执行）：
+  - `cd web`
+  - `npm run build`
+  - `cd ..`
+- [x] `python api_smoke_test.py`
+- [x] `docker compose config`
+- [x] `docker compose build`
+- [x] `docker compose up -d`
+- [x] `python api_smoke_test.py --wait-finished --write-finished-job-id smoke_finished_job_id.txt`
+- [x] `type smoke_finished_job_id.txt` — 确认 UUID 已写入
+- [x] `docker compose restart backend`
+- [x] wait for backend healthy
+- [x] `python api_smoke_test.py --check-recovery <真实 finished job UUID>`
+- [x] `docker compose down`
+- [x] `Remove-Item smoke_finished_job_id.txt` — 清理临时文件
+- [x] GitHub Actions CI passing
+- [x] GitHub Actions Docker Smoke manual workflow passing
+
+### v1.4.0-rc.1
+
+Focus: Release candidate validation for v1.4.0.
+
+rc.1 阶段不新增功能，不修改运行时代码，不改变 CI 触发策略。重点是 final release candidate validation。
 
 Checklist：
 
@@ -477,18 +505,12 @@ Checklist：
 - [ ] `python api_smoke_test.py --wait-finished --write-finished-job-id smoke_finished_job_id.txt`
 - [ ] `type smoke_finished_job_id.txt` — 确认 UUID 已写入
 - [ ] `docker compose restart backend`
-- [ ] wait for backend healthy
+- [ ] `Start-Sleep -Seconds 10`
 - [ ] `python api_smoke_test.py --check-recovery <真实 finished job UUID>`
 - [ ] `docker compose down`
 - [ ] `Remove-Item smoke_finished_job_id.txt` — 清理临时文件
 - [ ] GitHub Actions CI passing
-- [ ] GitHub Actions Docker Smoke manual workflow passing
-
-### v1.4.0-rc.1
-
-Focus: release candidate readiness.
-
-- [ ] TBD — rc 验证清单待定。
+- [ ] GitHub Actions Docker Smoke manual workflow passing on main
 
 ### v1.4.0
 
