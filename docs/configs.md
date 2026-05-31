@@ -13,6 +13,15 @@ configs/
 典型配置结构如下：
 
 ```yaml
+metadata:
+  name: "MNIST FedAvg Demo"
+  description: "Baseline MNIST training with FedAvg, no attack"
+  category: "baseline"
+  tags:
+    - mnist
+    - fedavg
+    - baseline
+
 experiment:
   name: "experiment_name"
   seed: 42
@@ -49,6 +58,32 @@ metrics:
   - loss
   - attack_success_rate
 ```
+
+---
+
+## metadata（可选）
+
+```yaml
+metadata:
+  name: "MNIST FedAvg Demo"
+  description: "Baseline MNIST training with FedAvg, no attack"
+  category: "baseline"
+  tags:
+    - mnist
+    - fedavg
+    - baseline
+```
+
+`metadata` 是可选块，用于丰富 `GET /configs` 返回的配置目录信息，不影响训练逻辑。
+
+字段说明：
+
+- `name`：配置的显示名称，比 `experiment.name` 更友好；未提供时 fallback 为文件名去扩展名。
+- `description`：配置的简要描述；未提供时 fallback 为空字符串。
+- `category`：配置分类（如 `baseline`、`attack`、`defense`）；未提供时 fallback 为 `uncategorized`。
+- `tags`：标签列表，便于筛选和组织；未提供时 fallback 为空数组。
+
+如果配置文件不含 `metadata` 块，`GET /configs` 仍会返回该配置，只是 metadata 字段使用 fallback 值。现有前端不依赖 metadata 字段，因此缺失不会导致问题。
 
 ---
 

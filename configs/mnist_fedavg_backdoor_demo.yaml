@@ -1,4 +1,13 @@
-﻿experiment:
+﻿metadata:
+  name: "MNIST FedAvg Backdoor"
+  description: "MNIST FedAvg with backdoor attack, no defense"
+  category: "attack"
+  tags:
+    - mnist
+    - fedavg
+    - backdoor
+
+experiment:
   name: "mnist_fedavg_backdoor_demo"
   seed: 42
   rounds: 3

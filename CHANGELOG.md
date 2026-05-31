@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- Added experiment config catalog metadata for v1.4 planning.
+  - `GET /configs` now returns an optional `metadata` object per config item: `name`, `description`, `category`, `tags`.
+  - Backward compatible: existing fields (`label`, `value`, `description`, `valid`, etc.) are unchanged.
+  - If a config YAML has a `metadata` block, its values are used; otherwise fallback defaults apply.
+  - `load_config` schema is not modified; metadata is read from raw YAML separately.
+  - All existing configs under `configs/` now include metadata.
+  - Documentation updated in `docs/configs.md`.
 - Prepared v1.4 roadmap planning.
   - Documentation-only update; no runtime feature, no CI behavior change.
   - v1.3.0 release metadata cleanup and roadmap expansion.

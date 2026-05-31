@@ -1,4 +1,13 @@
-﻿experiment:
+﻿metadata:
+  name: "MNIST Trimmed Mean Backdoor"
+  description: "Backdoor attack with Trimmed Mean defense"
+  category: "defense"
+  tags:
+    - mnist
+    - trimmed_mean
+    - backdoor
+
+experiment:
   name: "mnist_trimmed_mean_backdoor_demo"
   seed: 42
   rounds: 3

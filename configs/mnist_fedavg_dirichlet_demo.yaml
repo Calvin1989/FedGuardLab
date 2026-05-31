@@ -1,3 +1,13 @@
+metadata:
+  name: "MNIST FedAvg Dirichlet Demo"
+  description: "FedAvg with Dirichlet Non-IID data partition"
+  category: "baseline"
+  tags:
+    - mnist
+    - fedavg
+    - dirichlet
+    - non-iid
+
 experiment:
   name: "mnist_fedavg_dirichlet_demo"
   seed: 42

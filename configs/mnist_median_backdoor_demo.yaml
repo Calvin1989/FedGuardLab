@@ -1,4 +1,13 @@
-﻿experiment:
+﻿metadata:
+  name: "MNIST Median Backdoor"
+  description: "Backdoor attack with Median defense"
+  category: "defense"
+  tags:
+    - mnist
+    - median
+    - backdoor
+
+experiment:
   name: "mnist_median_backdoor_demo"
   seed: 42
   rounds: 3
