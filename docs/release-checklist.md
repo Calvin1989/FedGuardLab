@@ -69,7 +69,25 @@
    Invoke-RestMethod "http://127.0.0.1:8000/jobs"
    ```
 
-10. Stop containers:
+10. Verify artifact metadata:
+
+    After `--wait-finished` completes, confirm the status response includes artifact metadata:
+
+    ```powershell
+    $jobId = "<job_id from smoke test>"
+    $status = Invoke-RestMethod "http://127.0.0.1:8000/status/$jobId"
+    # Expect: has_report = True, artifacts.report_html present
+    $status.has_report
+    $status.artifacts
+    ```
+
+    Also confirm `index.json` contains persisted artifact data:
+
+    ```bash
+    cat reports/jobs/index.json | grep has_report
+    ```
+
+11. Stop containers:
 
    ```bash
    docker compose down

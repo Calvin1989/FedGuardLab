@@ -60,6 +60,13 @@ def save_job_results(job_id: str) -> None:
 
     generate_html_report(job_id, JOB_STORE.to_dict(job_id), job_dir)
 
+    metadata = build_job_artifacts(job_id)
+    JOB_STORE.set_artifacts(
+        job_id,
+        has_report=metadata["has_report"],
+        artifacts=metadata["artifacts"],
+    )
+
 
 def resolve_config_path(config_path: str) -> Path:
     requested_path = Path(config_path)
@@ -88,6 +95,20 @@ def resolve_config_path(config_path: str) -> Path:
 def validate_job_id(job_id: str) -> None:
     if not JOB_ID_PATTERN.fullmatch(job_id):
         raise HTTPException(status_code=400, detail="invalid job_id")
+
+
+def build_job_artifacts(job_id: str) -> dict:
+    job_dir = REPORTS_DIR / job_id
+    artifacts = {
+        "config_json": str(job_dir / "config.json"),
+        "metrics_csv": str(job_dir / "metrics.csv"),
+        "summary_md": str(job_dir / "summary.md"),
+        "report_html": str(job_dir / "report.html"),
+    }
+    return {
+        "has_report": (job_dir / "report.html").exists(),
+        "artifacts": artifacts,
+    }
 
 
 @app.get("/")
@@ -180,6 +201,8 @@ def get_status(job_id: str):
     if job is None:
         raise HTTPException(status_code=404, detail="job not found")
 
+    artifacts_info = build_job_artifacts(job_id)
+
     return {
         "job_id": job_id,
         "status": job.status,
@@ -188,6 +211,8 @@ def get_status(job_id: str):
         "created_at": job.created_at,
         "started_at": job.started_at,
         "finished_at": job.finished_at,
+        "has_report": artifacts_info["has_report"],
+        "artifacts": artifacts_info["artifacts"],
     }
 
 
@@ -205,10 +230,8 @@ def list_jobs():
                 "created_at": job.created_at,
                 "started_at": job.started_at,
                 "finished_at": job.finished_at,
-                "has_report": (
-                    (REPORTS_DIR / job.job_id / "config.json").exists()
-                    and (REPORTS_DIR / job.job_id / "report.html").exists()
-                ),
+                "has_report": build_job_artifacts(job.job_id)["has_report"],
+                "artifacts": build_job_artifacts(job.job_id)["artifacts"],
             }
             for job in JOB_STORE.list()
         ]

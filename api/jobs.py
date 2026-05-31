@@ -28,6 +28,8 @@ class JobRecord:
     started_at: str | None = None
     finished_at: str | None = None
     cancel_requested: bool = False
+    has_report: bool = False
+    artifacts: dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -41,6 +43,8 @@ class JobRecord:
             "started_at": self.started_at,
             "finished_at": self.finished_at,
             "cancel_requested": self.cancel_requested,
+            "has_report": self.has_report,
+            "artifacts": self.artifacts,
         }
 
 
@@ -79,6 +83,8 @@ class JobStore:
                 started_at=entry.get("started_at"),
                 finished_at=entry.get("finished_at"),
                 cancel_requested=entry.get("cancel_requested", False),
+                has_report=entry.get("has_report", False),
+                artifacts=entry.get("artifacts", {}),
             )
             self._jobs[job.job_id] = job
 
@@ -130,6 +136,14 @@ class JobStore:
 
     def append_metric(self, job_id: str, metric: dict[str, Any]) -> None:
         self._jobs[job_id].metrics.append(metric)
+        self._save()
+
+    def set_artifacts(self, job_id: str, has_report: bool, artifacts: dict) -> None:
+        job = self._jobs.get(job_id)
+        if job is None:
+            return
+        job.has_report = has_report
+        job.artifacts = artifacts
         self._save()
 
     def to_dict(self, job_id: str) -> dict[str, Any]:

@@ -333,7 +333,10 @@ async function loadRecentJobsFromApi() {
           created_at: job.created_at,
           started_at: job.started_at,
           finished_at: job.finished_at,
-          report_url: `${API_BASE}/reports/${job.job_id}`,
+          report_url:
+            job.has_report && job.artifacts?.report_html
+              ? `${API_BASE}/reports/${job.job_id}`
+              : `${API_BASE}/reports/${job.job_id}`,
         };
       } catch (error) {
         return null;

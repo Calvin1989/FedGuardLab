@@ -116,6 +116,9 @@ def main() -> None:
         data = _wait_until_finished(job_id)
         assert data["status"] == "finished", f"unexpected status: {data['status']}"
         assert data.get("metrics_count", 0) > 0, f"no metrics: {data}"
+        assert data.get("has_report") is True, f"has_report not True: {data}"
+        assert isinstance(data.get("artifacts"), dict), f"artifacts not dict: {data}"
+        assert "report_html" in data["artifacts"], f"report_html missing: {data}"
         print(
             f"[OK]  job {job_id} finished with {data['metrics_count']} metrics",
             flush=True,

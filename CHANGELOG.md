@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Added job artifact index to `GET /jobs` and `GET /status/{job_id}`.
+  - Response now includes `has_report` (bool) and `artifacts` (dict).
+  - `artifacts` contains paths for `config_json`, `metrics_csv`, `summary_md`, `report_html`.
+  - Artifact metadata is persisted to `index.json` alongside existing job data.
+  - Frontend uses artifact metadata to gate report availability; actual file paths are never exposed — reports are still served via `GET /reports/{job_id}`.
+  - API smoke test (`--wait-finished`) validates artifact metadata in status response.
 - Added durable JSON JobStore (`reports/jobs/index.json`).
   - Job metadata and metrics survive backend restarts.
   - Lightweight JSON persistence — no database, ORM, or external dependency.

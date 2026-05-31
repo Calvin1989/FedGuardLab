@@ -192,6 +192,18 @@ Known limitations:
 - Full `index.json` rewrite on every mutation (acceptable at current scale).
 - Future v1.2 may upgrade to SQLite or a database backend.
 
+### v1.2.0-alpha.2
+
+Focus: job artifact index — expose report file metadata through the API.
+
+- [x] `GET /jobs` and `GET /status/{job_id}` now return `has_report` and `artifacts`.
+- [x] `artifacts` dict contains `config_json`, `metrics_csv`, `summary_md`, `report_html` (string paths).
+- [x] Artifact metadata persisted to `index.json` via `JobStore.set_artifacts()`.
+- [x] `save_job_results()` calls `build_job_artifacts()` and writes metadata after report generation.
+- [x] Frontend `loadRecentJobsFromApi()` uses `job.artifacts?.report_html` + `job.has_report` to gate report availability.
+- [x] Reports are still served via `GET /reports/{job_id}` — local file paths are never exposed to the browser.
+- [x] API smoke test `--wait-finished` checks `has_report`, `artifacts`, and `report_html` presence.
+
 ### v1.2.0
 
 Backdoor attack 增强：
