@@ -12,7 +12,7 @@ FedGuardLab 是一个面向联邦学习安全实验的交互式实验平台。
 
 - Vue + Vite 前端 Dashboard
 - FastAPI 后端服务
-- WebSocket 实时推送实验指标
+- 后台任务执行，WebSocket 解耦订阅
 - YAML 实验配置
 - Pydantic 配置校验
 - Simulated trainer 快速演示
@@ -195,14 +195,18 @@ FedGuardLab exposes lightweight in-memory job lifecycle endpoints:
 | Method | Endpoint | Description |
 |---|---|---|
 | `GET` | `/configs` | List available experiment configs. |
-| `POST` | `/run?config_path=...` | Create a new experiment job. |
+| `POST` | `/run?config_path=...` | Create a new experiment job and start background training. |
 | `GET` | `/jobs` | List current in-memory jobs. |
 | `GET` | `/status/{job_id}` | Get job status and timestamps. |
 | `GET` | `/results/{job_id}` | Get job config, metrics, and report paths. |
 | `GET` | `/reports/{job_id}` | Open the generated HTML report. |
 | `POST` | `/jobs/{job_id}/cancel` | Mark a pending or running job as cancelled. |
 
-Current job storage is in-memory. Restarting the backend clears the job registry, while generated report files under `reports/jobs/` remain on disk.
+Since v1.1.0-beta.2, `POST /run` starts background training immediately. WebSocket `/ws/{job_id}` only subscribes to an existing job's real-time metrics and events — it no longer triggers training. Refreshing the page or disconnecting WebSocket will not stop the backend training process.
+
+`POST /jobs/{job_id}/cancel` sets a cancellation request. The background runner checks this flag between training rounds and stops gracefully.
+
+Current job storage is in-memory. Restarting the backend clears the job registry, while generated report files under `reports/jobs/` remain on disk. This is not a multi-worker task queue — there is no database, Redis, or Celery.
 
 完整接口文档：
 
@@ -214,7 +218,7 @@ http://127.0.0.1:8000/docs
 
 ## 当前版本
 
-`v1.0.0`
+`v1.1.0-beta.2`
 
 当前版本支持：
 
@@ -236,6 +240,9 @@ http://127.0.0.1:8000/docs
 - Dashboard 和实验报告展示优化
 - README 项目截图展示
 - Dashboard 支持删除选中的历史实验记录
+- 后台任务执行（POST /run 启动异步训练，不依赖 WebSocket）
+- WebSocket 解耦（刷新页面不影响后台训练）
+- 基于 cancellation flag 的任务取消
 
 v1.1.0 focus: reliability, config validation, job lifecycle, frontend config discovery
 

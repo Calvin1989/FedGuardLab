@@ -227,7 +227,7 @@ reports/comparisons/<comparison_id>/
 
 ## Experiment job lifecycle
 
-Each experiment run is represented as a job.
+Each experiment run is represented as a job. Since v1.1.0-beta.2, training runs in the background as soon as `POST /run` is called — no WebSocket connection is required.
 
 Supported statuses:
 
@@ -238,6 +238,14 @@ Supported statuses:
 - `cancelled`
 - `disconnected`
 
-The current implementation uses an in-memory job store. This is sufficient for local experiments and dashboard usage, but the registry is cleared when the backend restarts.
+### How it works
+
+1. `POST /run` creates a job and launches `run_job` as a background async task.
+2. `run_job` loads the config, iterates `run_experiment`, and appends each metric to the job.
+3. `GET /status/{job_id}` or `GET /jobs` reflect the current state.
+4. `POST /jobs/{job_id}/cancel` sets a cancellation flag. The runner checks `is_cancel_requested` between training rounds and stops if set.
+5. WebSocket `/ws/{job_id}` subscribes to an existing job's real-time metrics and events. It replays already-produced metrics on connect, then streams new ones. Disconnecting the WebSocket does not stop training.
+
+The current implementation uses an in-memory job store. This is sufficient for local experiments and dashboard usage, but the registry is cleared when the backend restarts. There is no database, Redis, or Celery.
 
 Generated reports are still written to `reports/jobs/{job_id}/`.
