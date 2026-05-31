@@ -111,6 +111,60 @@ def run_recovery_check(job_id: str) -> None:
     print(f"[OK]  recovery check passed for job_id={job_id}", flush=True)
 
 
+def _get_with_status(path: str) -> tuple[int, Any]:
+    url = f"{BASE}{path}"
+    req = urllib.request.Request(url, method="GET")
+    try:
+        with urllib.request.urlopen(req) as resp:
+            return resp.status, json.loads(resp.read())
+    except urllib.error.HTTPError as exc:
+        return exc.code, None
+
+
+def _assert_jobs_query_params() -> None:
+    print("[RUN] GET /jobs?limit=1", flush=True)
+    code, data = _get_with_status("/jobs?limit=1")
+    assert code == 200, f"expected 200, got {code}"
+    assert len(data["jobs"]) <= 1, (
+        f"expected <=1 job, got {len(data['jobs'])}"
+    )
+    print("[OK]  GET /jobs?limit=1", flush=True)
+
+    print("[RUN] GET /jobs?sort=created_at_desc", flush=True)
+    code, data = _get_with_status("/jobs?sort=created_at_desc")
+    assert code == 200, f"expected 200, got {code}"
+    print("[OK]  GET /jobs?sort=created_at_desc", flush=True)
+
+    print("[RUN] GET /jobs?sort=created_at_asc", flush=True)
+    code, data = _get_with_status("/jobs?sort=created_at_asc")
+    assert code == 200, f"expected 200, got {code}"
+    print("[OK]  GET /jobs?sort=created_at_asc", flush=True)
+
+    print("[RUN] GET /jobs?status=finished", flush=True)
+    code, data = _get_with_status("/jobs?status=finished")
+    assert code == 200, f"expected 200, got {code}"
+    for job in data["jobs"]:
+        assert job["status"] == "finished", (
+            f"expected finished, got {job['status']}"
+        )
+    print("[OK]  GET /jobs?status=finished", flush=True)
+
+    print("[RUN] GET /jobs?status=unknown (expect 400)", flush=True)
+    code, _ = _get_with_status("/jobs?status=unknown")
+    assert code == 400, f"expected 400, got {code}"
+    print("[OK]  GET /jobs?status=unknown -> 400", flush=True)
+
+    print("[RUN] GET /jobs?limit=0 (expect 400)", flush=True)
+    code, _ = _get_with_status("/jobs?limit=0")
+    assert code == 400, f"expected 400, got {code}"
+    print("[OK]  GET /jobs?limit=0 -> 400", flush=True)
+
+    print("[RUN] GET /jobs?sort=unknown (expect 400)", flush=True)
+    code, _ = _get_with_status("/jobs?sort=unknown")
+    assert code == 400, f"expected 400, got {code}"
+    print("[OK]  GET /jobs?sort=unknown -> 400", flush=True)
+
+
 def run_default() -> None:
     # GET /health
     print("[RUN] GET /health", flush=True)
@@ -123,6 +177,9 @@ def run_default() -> None:
     data = _get("/configs")
     assert isinstance(data["configs"], list) and len(data["configs"]) > 0
     print("[OK]  GET /configs", flush=True)
+
+    # GET /jobs query params
+    _assert_jobs_query_params()
 
     # POST /run
     print("[RUN] POST /run", flush=True)

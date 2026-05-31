@@ -245,6 +245,35 @@ Since v1.1.0-beta.2, `POST /run` starts background training immediately. WebSock
 
 Current job storage is in-memory. Restarting the backend clears the job registry, while generated report files under `reports/jobs/` remain on disk. This is not a multi-worker task queue — there is no database, Redis, or Celery.
 
+### Jobs API query parameters
+
+`GET /jobs` supports optional query parameters for lightweight filtering and sorting:
+
+```text
+GET /jobs?status=finished
+GET /jobs?limit=5
+GET /jobs?sort=created_at_desc
+GET /jobs?sort=created_at_asc
+GET /jobs?status=finished&limit=5&sort=created_at_desc
+```
+
+Supported `status` values:
+
+- `queued`
+- `running`
+- `finished`
+- `failed`
+- `cancelled`
+
+Supported `sort` values:
+
+- `created_at_desc`
+- `created_at_asc`
+
+`limit` must be a positive integer; values exceeding 100 are clamped to 100. Invalid parameters return HTTP 400.
+
+The API smoke test validates both supported and invalid `/jobs` query parameters.
+
 完整接口文档：
 
 ```text

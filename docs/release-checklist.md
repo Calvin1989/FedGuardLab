@@ -104,7 +104,25 @@
     - Artifact file existence — each artifact path points to an existing file.
     - `reports/jobs/index.json` consistency — persisted data matches the API status response.
 
-12. Stop containers:
+12. Verify `/jobs` query parameters (v1.2.0-alpha.4):
+
+    ```powershell
+    python api_smoke_test.py
+    python api_smoke_test.py --wait-finished
+    ```
+
+    Both commands now cover:
+
+    - `GET /jobs?limit=1` — returns at most 1 job.
+    - `GET /jobs?sort=created_at_desc` — returns 200.
+    - `GET /jobs?sort=created_at_asc` — returns 200.
+    - `GET /jobs?status=finished` — returns 200; all jobs have status `finished`.
+    - Invalid query parameters return 400:
+      - `status=unknown`
+      - `limit=0`
+      - `sort=unknown`
+
+13. Stop containers:
 
    ```bash
    docker compose down

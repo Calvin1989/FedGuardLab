@@ -216,15 +216,55 @@ def get_status(job_id: str):
     }
 
 
+VALID_JOB_STATUSES = {"queued", "running", "finished", "failed", "cancelled"}
+VALID_SORT_OPTIONS = {"created_at_desc", "created_at_asc"}
+
+
 @app.get("/jobs")
-def list_jobs():
+def list_jobs(
+    status: str | None = None,
+    limit: int | None = None,
+    sort: str = "created_at_desc",
+):
+    if status is not None and status not in VALID_JOB_STATUSES:
+        raise HTTPException(
+            status_code=400,
+            detail=f"invalid status: {status}",
+        )
+
+    if sort not in VALID_SORT_OPTIONS:
+        raise HTTPException(
+            status_code=400,
+            detail=f"invalid sort: {sort}",
+        )
+
+    if limit is not None and limit <= 0:
+        raise HTTPException(
+            status_code=400,
+            detail="limit must be greater than 0",
+        )
+
+    jobs = JOB_STORE.list()
+
+    if status is not None:
+        jobs = [j for j in jobs if j.status == status]
+
+    reverse = sort == "created_at_desc"
+    jobs.sort(key=lambda j: j.created_at, reverse=reverse)
+
+    effective_limit = min(limit, 100) if limit is not None else None
+    if effective_limit is not None:
+        jobs = jobs[:effective_limit]
+
     return {
         "jobs": [
             {
                 "job_id": job.job_id,
                 "status": job.status,
                 "config_path": job.config_path,
-                "experiment_name": job.config.get("experiment", {}).get("name"),
+                "experiment_name": (
+                    job.config.get("experiment", {}).get("name")
+                ),
                 "metrics_count": len(job.metrics),
                 "error": job.error,
                 "created_at": job.created_at,
@@ -233,7 +273,7 @@ def list_jobs():
                 "has_report": build_job_artifacts(job.job_id)["has_report"],
                 "artifacts": build_job_artifacts(job.job_id)["artifacts"],
             }
-            for job in JOB_STORE.list()
+            for job in jobs
         ]
     }
 
