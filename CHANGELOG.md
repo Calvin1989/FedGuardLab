@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Updated documentation to reflect v1.3.0-alpha progress.
+  - Documentation-only update; no new runtime code or CI behavior change.
+  - CI workflow standardized as `.github/workflows/ci.yml` (covers ruff check, quick_test.py, frontend build).
+  - Manual Docker Smoke workflow added as `.github/workflows/docker-smoke.yml` (`workflow_dispatch` only, not triggered on push / PR).
+  - `api_smoke_test.py` supports `--write-finished-job-id <path>` to write the finished job UUID to a file.
+  - Docker Smoke workflow reads `smoke_finished_job_id.txt` instead of parsing logs with regex for recovery check.
 - Prepared v1.3.0-alpha.2 Docker smoke validation planning.
   - 文档规划变更，无运行时代码变更，无新增 CI 行为。
   - 规划独立 workflow（`docker-smoke.yml`），初期使用 `workflow_dispatch` 手动触发。

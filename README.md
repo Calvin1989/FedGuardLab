@@ -222,6 +222,45 @@ reports/comparisons/<comparison_id>/
 
 ---
 
+## CI / GitHub Actions
+
+### 主 CI（push / PR 自动触发）
+
+主 CI workflow 文件：
+
+```text
+.github/workflows/ci.yml
+```
+
+每次 push 和 Pull Request 自动运行，覆盖：
+
+- `ruff check .` — Python 代码质量检查
+- `python quick_test.py` — 后端快速单元测试
+- `cd web && npm run build` — 前端构建检查
+
+### Docker Smoke（手动触发）
+
+Docker Smoke workflow 文件：
+
+```text
+.github/workflows/docker-smoke.yml
+```
+
+通过 GitHub Actions 页面手动运行（`workflow_dispatch`），不在 push / PR 时自动触发。
+
+Docker Smoke 覆盖：
+
+1. `docker compose config` — 验证 Compose 文件语法
+2. `docker compose build` — 构建后端和前端镜像
+3. `docker compose up -d` — 后台启动服务
+4. `python api_smoke_test.py` — 基本 API 健康检查和 job 生命周期验证
+5. `python api_smoke_test.py --wait-finished` — 等待 job 完成并验证 artifact metadata，同时将 finished job UUID 写入文件
+6. `docker compose restart backend` — 重启后端
+7. `python api_smoke_test.py --check-recovery <finished job id>` — 验证重启后 job 数据和 artifact 可恢复
+8. `docker compose down` — 清理
+
+---
+
 ## API 接口
 
 ### Job lifecycle API
