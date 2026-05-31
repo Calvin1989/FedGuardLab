@@ -1,3 +1,4 @@
+import asyncio
 import json
 import re
 import uuid
@@ -10,6 +11,7 @@ from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
 from api.jobs import JobRecord, JobStore
+from api.runner import JobEventHub, run_job
 from fedguardlab.config.loader import load_config
 from fedguardlab.core.trainer import run_experiment
 from fedguardlab.reporting.comparison import (
@@ -29,6 +31,7 @@ app.add_middleware(
 )
 
 JOB_STORE = JobStore()
+EVENT_HUB = JobEventHub()
 REPORTS_DIR = Path("reports/jobs")
 CONFIGS_DIR = Path("configs")
 JOB_ID_PATTERN = re.compile(
@@ -135,7 +138,7 @@ def list_configs():
 
 
 @app.post("/run")
-def create_run(config_path: str = "configs/mnist_fedavg_demo.yaml"):
+async def create_run(config_path: str = "configs/mnist_fedavg_demo.yaml"):
     resolved_config_path = resolve_config_path(config_path)
 
     job_id = str(uuid.uuid4())
@@ -146,6 +149,15 @@ def create_run(config_path: str = "configs/mnist_fedavg_demo.yaml"):
             job_id=job_id,
             config_path=str(resolved_config_path),
             config=config.model_dump(),
+        )
+    )
+
+    asyncio.create_task(
+        run_job(
+            job_id=job_id,
+            job_store=JOB_STORE,
+            event_hub=EVENT_HUB,
+            save_results=save_job_results,
         )
     )
 
