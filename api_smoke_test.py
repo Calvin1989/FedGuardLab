@@ -62,7 +62,9 @@ def _assert_artifacts_complete(data: dict[str, Any], *, require_files: bool) -> 
     )
     for key in EXPECTED_ARTIFACT_KEYS:
         val = artifacts[key]
-        assert isinstance(val, str) and val, f"artifact {key} not non-empty string: {val!r}"
+        assert isinstance(val, str) and val, (
+            f"artifact {key} not non-empty string: {val!r}"
+        )
         if require_files:
             assert Path(val).exists(), f"artifact file missing: {val}"
 
@@ -72,13 +74,17 @@ def _assert_index_consistent(job_id: str, status_data: dict[str, Any]) -> None:
     index = json.loads(JOB_INDEX_PATH.read_text(encoding="utf-8"))
     assert isinstance(index, list), f"index not a list: {type(index)}"
     matches = [entry for entry in index if entry.get("job_id") == job_id]
-    assert len(matches) == 1, f"job {job_id} not found in index (matches={len(matches)})"
+    assert len(matches) == 1, (
+        f"job {job_id} not found in index (matches={len(matches)})"
+    )
     entry = matches[0]
     assert entry["has_report"] == status_data["has_report"], (
-        f"has_report mismatch: index={entry['has_report']} status={status_data['has_report']}"
+        f"has_report mismatch: index={entry['has_report']} "
+        f"status={status_data['has_report']}"
     )
     assert entry["artifacts"] == status_data["artifacts"], (
-        f"artifacts mismatch: index={entry['artifacts']} status={status_data['artifacts']}"
+        f"artifacts mismatch: index={entry['artifacts']} "
+        f"status={status_data['artifacts']}"
     )
     assert len(entry.get("metrics", [])) == status_data["metrics_count"], (
         f"metrics length mismatch: index={len(entry.get('metrics', []))} "
@@ -167,7 +173,10 @@ def main() -> None:
         "--check-recovery",
         metavar="JOB_ID",
         default=None,
-        help="Verify that a previously finished job is still available after API restart",
+        help=(
+            "Verify that a previously finished job is still "
+            "available after API restart"
+        ),
     )
     args = parser.parse_args()
 
