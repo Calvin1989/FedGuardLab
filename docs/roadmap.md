@@ -295,3 +295,29 @@ Focus: stable release for durable jobs, artifacts, recovery validation, and Rece
 - [x] Complete beta.1 and rc.1 readiness documentation.
 - [ ] Run final release validation from the release checklist.
 - [ ] Create `v1.2.0` tag after final PR is merged to main.
+
+### v1.3.0-alpha.1
+
+Focus: CI workflow standardization for lint, quick tests, and frontend build.
+
+- [ ] Review existing `.github/workflows/quick-test.yml`.
+- [ ] Confirm CI covers `ruff check .`.
+- [ ] Confirm CI covers `python quick_test.py`.
+- [ ] Confirm CI covers frontend `npm ci` and `npm run build` under `web/`.
+- [ ] Avoid adding a duplicate workflow if the existing quick-test workflow already covers the required checks.
+- [ ] Consider standardizing the workflow name/file to `ci.yml` in a small follow-up change.
+- [ ] Do not add Docker Compose smoke tests to CI in alpha.1.
+
+Notes:
+
+- Docker Compose smoke validation is intentionally deferred to v1.3.0-alpha.2.
+- This alpha should remain lightweight and focused on CI reliability.
+
+### v1.3.0-alpha.2
+
+Focus: Docker smoke validation planning.
+
+- [ ] Evaluate whether Docker Compose smoke tests are stable enough for GitHub Actions.
+- [ ] Decide whether Docker validation should run on every PR or only manually.
+- [ ] Consider a separate workflow for Docker smoke tests.
+- [ ] Keep alpha.2 separate from the basic lint / quick test / frontend build CI.
