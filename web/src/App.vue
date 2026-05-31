@@ -155,6 +155,15 @@ async function loadExperimentOptions() {
 }
 
 
+function canSelectJobForComparison(job) {
+  return (
+    job.status === "finished" &&
+    job.metrics_count > 0 &&
+    Boolean(job.report_url)
+  );
+}
+
+
 function toggleJobSelection(jobId) {
   if (selectedJobIds.value.includes(jobId)) {
     selectedJobIds.value = selectedJobIds.value.filter((id) => id !== jobId);
@@ -701,7 +710,7 @@ async function startExperiment() {
           <label class="status-filter">
             Status:
             <select v-model="jobStatusFilter">
-              <option value="all">All</option>
+              <option value="all">Finished with reports</option>
               <option value="finished">Finished</option>
               <option value="running">Running</option>
               <option value="cancelled">Cancelled</option>
@@ -744,7 +753,7 @@ async function startExperiment() {
 
       <div v-if="recentJobs.length === 0" class="empty-state small">
         <template v-if="jobStatusFilter === 'all'">
-          Finished experiments will appear here.
+          Finished experiments with reports will appear here.
         </template>
         <template v-else>
           No {{ jobStatusFilter }} jobs found.
@@ -772,6 +781,7 @@ async function startExperiment() {
               <input
                 type="checkbox"
                 :checked="selectedJobIds.includes(job.job_id)"
+                :disabled="!canSelectJobForComparison(job)"
                 @change="toggleJobSelection(job.job_id)"
               />
             </td>
