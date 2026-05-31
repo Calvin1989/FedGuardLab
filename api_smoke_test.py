@@ -6,9 +6,13 @@ import os
 import time
 import urllib.error
 import urllib.request
+from pathlib import Path
 from typing import Any
 
 BASE = os.environ.get("FEDGUARDLAB_API_BASE", "http://127.0.0.1:8000")
+
+EXPECTED_ARTIFACT_KEYS = {"config_json", "metrics_csv", "summary_md", "report_html"}
+JOB_INDEX_PATH = Path("reports/jobs/index.json")
 
 
 def _get(path: str) -> Any:
@@ -47,6 +51,64 @@ def _wait_until_finished(job_id: str, timeout: float = 60.0) -> dict[str, Any]:
             raise AssertionError(f"Job {job_id} reached terminal status '{status}'")
         time.sleep(0.5)
     raise AssertionError(f"Timed out waiting for job {job_id} to finish")
+
+
+def _assert_artifacts_complete(data: dict[str, Any], *, require_files: bool) -> None:
+    assert isinstance(data.get("has_report"), bool), f"has_report not bool: {data}"
+    artifacts = data.get("artifacts")
+    assert isinstance(artifacts, dict), f"artifacts not dict: {data}"
+    assert EXPECTED_ARTIFACT_KEYS <= artifacts.keys(), (
+        f"missing artifact keys: {EXPECTED_ARTIFACT_KEYS - artifacts.keys()}"
+    )
+    for key in EXPECTED_ARTIFACT_KEYS:
+        val = artifacts[key]
+        assert isinstance(val, str) and val, (
+            f"artifact {key} not non-empty string: {val!r}"
+        )
+        if require_files:
+            assert Path(val).exists(), f"artifact file missing: {val}"
+
+
+def _assert_index_consistent(job_id: str, status_data: dict[str, Any]) -> None:
+    assert JOB_INDEX_PATH.exists(), f"index file missing: {JOB_INDEX_PATH}"
+    index = json.loads(JOB_INDEX_PATH.read_text(encoding="utf-8"))
+    assert isinstance(index, list), f"index not a list: {type(index)}"
+    matches = [entry for entry in index if entry.get("job_id") == job_id]
+    assert len(matches) == 1, (
+        f"job {job_id} not found in index (matches={len(matches)})"
+    )
+    entry = matches[0]
+    assert entry["has_report"] == status_data["has_report"], (
+        f"has_report mismatch: index={entry['has_report']} "
+        f"status={status_data['has_report']}"
+    )
+    assert entry["artifacts"] == status_data["artifacts"], (
+        f"artifacts mismatch: index={entry['artifacts']} "
+        f"status={status_data['artifacts']}"
+    )
+    assert len(entry.get("metrics", [])) == status_data["metrics_count"], (
+        f"metrics length mismatch: index={len(entry.get('metrics', []))} "
+        f"status={status_data['metrics_count']}"
+    )
+
+
+def run_recovery_check(job_id: str) -> None:
+    print("[RUN] GET /jobs (recovery check)", flush=True)
+    data = _get("/jobs")
+    assert isinstance(data["jobs"], list), f"jobs not list: {data}"
+    job_ids = {j["job_id"] for j in data["jobs"]}
+    assert job_id in job_ids, f"job {job_id} not found in /jobs list"
+    print("[OK]  GET /jobs (recovery check)", flush=True)
+
+    print(f"[RUN] GET /status/{job_id} (recovery check)", flush=True)
+    data = _get(f"/status/{job_id}")
+    assert data["job_id"] == job_id, f"job_id mismatch: {data['job_id']}"
+    assert data["status"] == "finished", f"unexpected status: {data['status']}"
+    assert data.get("metrics_count", 0) > 0, f"no metrics: {data}"
+    assert data.get("has_report") is True, f"has_report not True: {data}"
+    _assert_artifacts_complete(data, require_files=True)
+    _assert_index_consistent(job_id, data)
+    print(f"[OK]  recovery check passed for job_id={job_id}", flush=True)
 
 
 def run_default() -> None:
@@ -107,7 +169,20 @@ def main() -> None:
         default=False,
         help="Wait for the first job to finish (default: False)",
     )
+    parser.add_argument(
+        "--check-recovery",
+        metavar="JOB_ID",
+        default=None,
+        help=(
+            "Verify that a previously finished job is still "
+            "available after API restart"
+        ),
+    )
     args = parser.parse_args()
+
+    if args.check_recovery:
+        run_recovery_check(args.check_recovery)
+        return
 
     job_id = run_default()
 
@@ -119,6 +194,8 @@ def main() -> None:
         assert data.get("has_report") is True, f"has_report not True: {data}"
         assert isinstance(data.get("artifacts"), dict), f"artifacts not dict: {data}"
         assert "report_html" in data["artifacts"], f"report_html missing: {data}"
+        _assert_artifacts_complete(data, require_files=True)
+        _assert_index_consistent(job_id, data)
         print(
             f"[OK]  job {job_id} finished with {data['metrics_count']} metrics",
             flush=True,

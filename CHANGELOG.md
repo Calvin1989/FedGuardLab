@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Added restart recovery smoke test for durable JobStore.
+  - `api_smoke_test.py --check-recovery <job_id>` verifies that a finished job remains available after backend restart.
+  - Recovery check validates `/jobs`, `/status/{job_id}`, artifact metadata, artifact file existence, and `reports/jobs/index.json` consistency.
+- Tightened artifact index consistency validation.
+  - `api_smoke_test.py --wait-finished` now checks artifact keys, artifact file existence, and persisted index metadata.
+  - Fixed `summary_md` artifact path to point to the generated `report.md`.
 - Added job artifact index to `GET /jobs` and `GET /status/{job_id}`.
   - Response now includes `has_report` (bool) and `artifacts` (dict).
   - `artifacts` contains paths for `config_json`, `metrics_csv`, `summary_md`, `report_html`.

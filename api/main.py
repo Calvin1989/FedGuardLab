@@ -102,7 +102,7 @@ def build_job_artifacts(job_id: str) -> dict:
     artifacts = {
         "config_json": str(job_dir / "config.json"),
         "metrics_csv": str(job_dir / "metrics.csv"),
-        "summary_md": str(job_dir / "summary.md"),
+        "summary_md": str(job_dir / "report.md"),
         "report_html": str(job_dir / "report.html"),
     }
     return {
