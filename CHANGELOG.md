@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- Prepared v1.4.0-beta.1 readiness documentation.
+  - No new runtime code, no new feature, no CI trigger change.
+  - Beta.1 focus: stability validation and release readiness.
+  - Summarized v1.4 alpha series completion:
+    - alpha.1: experiment config catalog metadata (GET /configs returns metadata block).
+    - alpha.2: frontend config metadata display (name, description, category, tags).
+    - alpha.3: frontend config category filter.
+    - alpha.4: Recent Jobs detail panel for inspecting job metadata.
 - Added Recent Jobs detail panel for inspecting job metadata.
   - Clicking a job row in the Recent Jobs table shows a lightweight detail card below the table.
   - Detail card displays: job_id, status, config_path, created_at, started_at, finished_at, report availability, and artifacts count.
