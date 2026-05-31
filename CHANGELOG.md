@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- Prepared v1.3.0-beta.1 readiness documentation.
+  - No new runtime code, no new feature, no CI trigger change.
+  - Beta.1 focus: stability validation and release readiness.
+  - Summarized v1.3 alpha series completion:
+    - alpha.1: CI workflow standardized as `ci.yml`.
+    - alpha.2: manual Docker Smoke workflow added.
+    - alpha.3: `api_smoke_test.py` supports `--write-finished-job-id`; Docker Smoke no longer parses logs for finished job id.
+    - alpha.4: validation workflow documentation completed.
 - Updated documentation to reflect v1.3.0-alpha progress.
   - Documentation-only update; no new runtime code or CI behavior change.
   - CI workflow standardized as `.github/workflows/ci.yml` (covers ruff check, quick_test.py, frontend build).
