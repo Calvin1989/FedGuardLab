@@ -284,8 +284,14 @@ Focus: release candidate readiness.
 
 ### v1.2.0
 
-Backdoor attack 增强：
+Focus: stable release for durable jobs, artifacts, recovery validation, and Recent Jobs UX.
 
-- 支持更多 trigger pattern；
-- 支持更多目标标签攻击；
-- 支持 backdoor ASR 评估优化。
+- [x] Complete durable JobStore persistence.
+- [x] Complete job artifact metadata indexing.
+- [x] Complete restart recovery validation.
+- [x] Complete Jobs API filtering/sorting.
+- [x] Complete Recent Jobs status/limit/sort controls.
+- [x] Complete Recent Jobs report/artifact badges.
+- [x] Complete beta.1 and rc.1 readiness documentation.
+- [ ] Run final release validation from the release checklist.
+- [ ] Create `v1.2.0` tag after final PR is merged to main.
