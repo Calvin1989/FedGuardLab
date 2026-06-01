@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+- Added comparison report metadata section with compared job summaries.
+  - Comparison HTML report 新增"参与实验 / Compared Jobs"区域。
+  - 显示每个参与对比的 job 的 job_id、experiment_name、config_path、status、created_at、finished_at。
+  - 每个 job 提供独立的 report link（带当前语言参数）。
+  - Status badge 使用颜色编码：finished 绿色、running 蓝色、failed 红色、cancelled 灰色、created/queued 黄色。
+  - comparison.json 新增 `compared_jobs` 字段，持久化 job metadata。
+  - 保持 v1.5 zh/en 双语能力（`?lang=zh` / `?lang=en`）。
+  - 不改变现有 API 行为，不修改后端逻辑，不引入新依赖。
+  - 不修改 `report.html.j2`、不修改前端首页。
 - Prepared v1.6 roadmap planning.
   - Documentation-only update; no runtime feature, no CI behavior change.
   - v1.6.0 theme: Experiment Comparison UX + Export Polish.
