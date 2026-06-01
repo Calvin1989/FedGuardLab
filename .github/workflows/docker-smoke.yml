@@ -21,6 +21,10 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -r requirements-dev.txt
 
+      - name: Run regression tests
+        run: |
+          python -m pytest tests/ -v
+
       - name: Validate Docker Compose config
         run: |
           docker compose config

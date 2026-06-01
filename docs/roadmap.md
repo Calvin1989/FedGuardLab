@@ -928,33 +928,33 @@ v1.7.0 目标：
 
 ### v1.7.0-alpha.1
 
-Focus: report/artifact regression tests.
+Focus: report/artifact regression tests. ✅ 已完成。
 
-- [ ] 新增 `tests/` 目录，使用 pytest 组织自动化测试。
-- [ ] 新增 `tests/test_report_artifact_regression.py`。
-- [ ] 覆盖 `--wait-finished` smoke run 完整流程：POST /run → wait finished → 验证 status、metrics_count、has_report、artifacts。
-- [ ] 覆盖 report.html 模板渲染：验证 report HTML 内容非空、包含关键字段（experiment name、rounds、accuracy）。
-- [ ] 覆盖 comparison.html 模板渲染：创建 comparison → 验证 comparison HTML 内容非空、包含参与 job 信息。
-- [ ] 覆盖 job artifact 下载：逐一验证 `GET /reports/{job_id}/config.json`、`metrics.json`、`metrics.csv`、`report.md` 返回 200 且内容非空。
-- [ ] 覆盖 comparison artifact 下载：验证 comparison 相关下载路由返回 200 且内容非空（comparison.html、comparison.csv、comparison.json）。
-- [ ] 覆盖 backend restart recovery：finished job 在 backend restart 后仍然可通过 `/jobs`、`/status/{job_id}` 访问，artifact metadata 一致。
-- [ ] 不新增依赖（pytest 为 dev dependency，已在 requirements-dev.txt 中）。
-- [ ] 不修改训练核心逻辑。
-- [ ] 不改变现有 API 行为。
+- [x] 新增 `tests/` 目录，使用 pytest 组织自动化测试。
+- [x] 新增 `tests/test_report_artifact_regression.py`。
+- [x] 覆盖 `--wait-finished` smoke run 完整流程：POST /run → wait finished → 验证 status、metrics_count、has_report、artifacts。
+- [x] 覆盖 report.html 模板渲染：验证 report HTML 内容非空、包含关键字段（experiment name、rounds、accuracy）。
+- [x] 覆盖 comparison.html 模板渲染：创建 comparison → 验证 comparison HTML 内容非空、包含参与 job 信息。
+- [x] 覆盖 job artifact 下载：逐一验证 `GET /reports/{job_id}/config.json`、`metrics.json`、`metrics.csv`、`report.md` 返回 200 且内容非空。
+- [x] 覆盖 comparison artifact 下载：验证 comparison 相关下载路由返回 200 且内容非空（comparison.html、comparison.csv、comparison.json）。
+- [x] 覆盖 backend restart recovery：finished job 在 backend restart 后仍然可通过 `/jobs`、`/status/{job_id}` 访问，artifact metadata 一致。
+- [x] 不新增依赖（pytest 为 dev dependency，已在 requirements-dev.txt 中）。
+- [x] 不修改训练核心逻辑。
+- [x] 不改变现有 API 行为。
 
 ### v1.7.0-alpha.2
 
-Focus: CI smoke workflow hardening.
+Focus: CI smoke workflow hardening. ✅ 已完成。
 
-- [ ] 强化 `.github/workflows/ci.yml`：在 lint / quick_test / web build 基础上，新增 `python -m pytest tests/` 步骤。
-- [ ] 强化 `.github/workflows/docker-smoke.yml`：在现有 smoke 流程基础上，新增 report/artifact regression test 步骤。
-- [ ] CI 验证链路完整覆盖：ruff check → quick_test → web build → pytest tests。
-- [ ] Docker Smoke 验证链路完整覆盖：compose config → build → up → health check → api_smoke → wait-finished → pytest regression → restart → recovery check → down。
-- [ ] 确认 CI 在 push/PR 到 main 时自动触发。
-- [ ] 确认 Docker Smoke 仍为 workflow_dispatch 手动触发。
-- [ ] 不新增依赖。
-- [ ] 不修改训练核心逻辑。
-- [ ] 不改变现有 API 行为。
+- [x] 强化 `.github/workflows/ci.yml`：在 lint / quick_test / web build 基础上，新增 `python -m pytest tests/` 步骤。
+- [x] 强化 `.github/workflows/docker-smoke.yml`：在现有 smoke 流程基础上，新增 report/artifact regression test 步骤。
+- [x] CI 验证链路完整覆盖：ruff check → quick_test → pytest tests → web build。
+- [x] Docker Smoke 验证链路完整覆盖：pytest regression → compose config → build → up → health check → api_smoke → wait-finished → restart → recovery check → down。
+- [x] 确认 CI 在 push/PR 到 main 时自动触发。
+- [x] 确认 Docker Smoke 仍为 workflow_dispatch 手动触发。
+- [x] 不新增依赖。
+- [x] 不修改训练核心逻辑。
+- [x] 不改变现有 API 行为。
 
 ### v1.7.0-beta.1
 
