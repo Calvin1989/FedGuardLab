@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Hardened CI smoke workflows for v1.7.0-alpha.2.
+  - Added `python -m pytest tests/ -v` step to `.github/workflows/ci.yml`.
+  - Added regression test step to `.github/workflows/docker-smoke.yml`.
+  - CI verification chain: ruff → quick_test → pytest → web build.
+  - Docker Smoke verification chain: pytest regression → compose config → build → up → api_smoke → wait-finished → restart → recovery → down.
+
 - Added v1.7.0-alpha.1 report and artifact regression tests.
   - New test file: tests/test_report_artifact_regression.py.
   - Covers single-experiment and comparison report template rendering.
