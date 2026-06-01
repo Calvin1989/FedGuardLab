@@ -2,6 +2,22 @@
 
 ## Unreleased
 
+- Prepared v1.5 roadmap planning.
+  - Documentation-only update; no runtime feature, no CI behavior change.
+  - v1.5.0 theme: Frontend Localization + UI Polish.
+  - v1.5.0 goals:
+    - 页面默认中文显示。
+    - 支持中文 / English 手动切换。
+    - 使用 localStorage 保存语言选择。
+    - 不使用 IP 判断语言。
+    - 页面视觉美化，提升卡片、按钮、表格、状态标签的一致性。
+  - v1.5.0-alpha.1: Frontend localization with Chinese default and English toggle.
+    - 不引入 vue-i18n；使用轻量本地 translations object。
+  - v1.5.0-alpha.2: Dashboard visual polish.
+    - 只做视觉美化，不改 API、不改训练逻辑。
+  - v1.5.0-beta.1: Beta readiness.
+  - v1.5.0-rc.1: Release candidate readiness.
+  - v1.5.0: Final release.
 - Prepared v1.4.0 final release readiness documentation.
   - No new runtime feature; focus is Experiment Usability + Reproducibility + Project Polish.
   - v1.4.0 release scope:
