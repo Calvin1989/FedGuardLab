@@ -6,19 +6,32 @@ from pathlib import Path
 from typing import Any, Dict, List
 
 import yaml
-from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
+from fastapi import (
+    FastAPI,
+    HTTPException,
+    Query,
+    WebSocket,
+    WebSocketDisconnect,
+)
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi.responses import HTMLResponse
+from jinja2 import Environment, FileSystemLoader, select_autoescape
 from pydantic import BaseModel
 
 from api.jobs import JobRecord, JobStore
 from api.runner import JobEventHub, run_job
 from fedguardlab.config.loader import load_config
 from fedguardlab.reporting.comparison import (
+    COMPARISON_LABELS,
     COMPARISONS_DIR,
     generate_comparison_report,
+    normalize_comparison_lang,
 )
-from fedguardlab.reporting.generator import generate_html_report
+from fedguardlab.reporting.generator import (
+    REPORT_LABELS,
+    generate_html_report,
+    normalize_report_lang,
+)
 
 app = FastAPI(title="FedGuardLab API")
 
@@ -31,6 +44,11 @@ app.add_middleware(
 )
 
 REPORTS_DIR = Path("reports/jobs")
+TEMPLATE_DIR = Path("fedguardlab/reporting/templates")
+TEMPLATE_ENV = Environment(
+    loader=FileSystemLoader(TEMPLATE_DIR),
+    autoescape=select_autoescape(["html", "xml"]),
+)
 JOB_STORE = JobStore(storage_path=REPORTS_DIR / "index.json")
 EVENT_HUB = JobEventHub()
 CONFIGS_DIR = Path("configs")
@@ -350,15 +368,40 @@ def get_results(job_id: str):
 
 
 @app.get("/reports/{job_id}")
-def get_report(job_id: str):
+def get_report(job_id: str, lang: str = Query(default="zh")):
     validate_job_id(job_id)
 
-    report_path = REPORTS_DIR / job_id / "report.html"
+    job_dir = REPORTS_DIR / job_id
+    config_path = job_dir / "config.json"
+    metrics_path = job_dir / "metrics.json"
 
-    if not report_path.exists():
+    if not config_path.exists() or not metrics_path.exists():
         raise HTTPException(status_code=404, detail="report not found")
 
-    return FileResponse(report_path)
+    config = json.loads(config_path.read_text(encoding="utf-8"))
+    metrics = json.loads(metrics_path.read_text(encoding="utf-8"))
+
+    final_metric = metrics[-1] if metrics else {}
+
+    lang = normalize_report_lang(lang)
+    labels = REPORT_LABELS[lang]
+
+    job_record = JOB_STORE.get(job_id)
+    status = job_record.status if job_record else "finished"
+
+    template = TEMPLATE_ENV.get_template("report.html.j2")
+    html = template.render(
+        lang=lang,
+        labels=labels,
+        job_id=job_id,
+        status=status,
+        experiment_name=config.get("experiment", {}).get("name", job_id),
+        config_json=json.dumps(config, indent=2, ensure_ascii=False),
+        metrics=metrics,
+        final_metric=final_metric,
+    )
+
+    return HTMLResponse(content=html)
 
 
 @app.post("/comparisons")
@@ -383,15 +426,31 @@ def create_comparison(request: ComparisonRequest):
 
 
 @app.get("/comparisons/{comparison_id}")
-def get_comparison_report(comparison_id: str):
+def get_comparison_report(comparison_id: str, lang: str = Query(default="zh")):
     validate_job_id(comparison_id)
 
-    report_path = COMPARISONS_DIR / comparison_id / "comparison.html"
+    comparison_dir = COMPARISONS_DIR / comparison_id
+    metadata_path = comparison_dir / "comparison.json"
 
-    if not report_path.exists():
+    if not metadata_path.exists():
         raise HTTPException(status_code=404, detail="comparison report not found")
 
-    return FileResponse(report_path)
+    metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+
+    lang = normalize_comparison_lang(lang)
+    labels = COMPARISON_LABELS[lang]
+
+    template = TEMPLATE_ENV.get_template("comparison.html.j2")
+    html = template.render(
+        lang=lang,
+        labels=labels,
+        comparison_id=comparison_id,
+        title=metadata.get("title", "Comparison"),
+        experiments=metadata.get("experiments", []),
+        api_base_url="http://127.0.0.1:8000",
+    )
+
+    return HTMLResponse(content=html)
 
 
 @app.websocket("/ws/{job_id}")

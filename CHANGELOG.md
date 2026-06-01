@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+- Added frontend localization with Chinese default, English toggle, and localized HTML reports.
+  - 前端：页面默认中文；右上角提供 中文 / English 切换按钮。
+  - 使用 localStorage 持久化语言选择（key: `fedguardlab_language`）。
+  - 不使用 IP 判断语言；不引入 vue-i18n 或其他新依赖。
+  - 前端覆盖范围：标题、副标题、配置选择、按钮、状态卡片、指标卡片、图表标题、实验对比、Recent Jobs 表格表头和徽章、Job Detail 面板、空状态和错误文案。
+  - HTML 报告支持 `?lang=zh` / `?lang=en` query 参数，默认 zh。
+  - Experiment Report 和 Comparison Report 的标题、指标标签、表格表头、导出文件说明、注释等主要可见文案根据 lang 切换。
+  - 前端打开报告链接自动追加当前语言参数；切换语言后打开的报告同步更新。
+  - 技术字段（job_id、config_path、status 值等）保留英文原文。
+  - 不修改训练逻辑、workflow、Docker 配置或 package.json。
 - Prepared v1.5 roadmap planning.
   - Documentation-only update; no runtime feature, no CI behavior change.
   - v1.5.0 theme: Frontend Localization + UI Polish.
