@@ -1,3 +1,4 @@
+import asyncio
 import copy
 import random
 from typing import Any, AsyncGenerator, Dict, List
@@ -223,6 +224,8 @@ async def run_mnist_fedavg_experiment(
     global_model = SimpleCNN().to(device)
 
     for current_round in range(1, config.experiment.rounds + 1):
+        await asyncio.sleep(0)
+
         client_states: List[Dict[str, torch.Tensor]] = []
         client_sizes: List[int] = []
 
@@ -297,3 +300,5 @@ async def run_mnist_fedavg_experiment(
             "client_label_summary": client_label_summary,
             "clean_client_label_summary": clean_client_label_summary,
         }
+
+        await asyncio.sleep(0)

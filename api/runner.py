@@ -50,6 +50,7 @@ async def run_job(
         return
 
     job_store.set_status(job_id, "running")
+    await asyncio.sleep(0.1)
 
     try:
         config = load_config(job.config_path)
@@ -62,10 +63,12 @@ async def run_job(
 
             job_store.append_metric(job_id, metric)
             await event_hub.publish(job_id, metric)
+            await asyncio.sleep(0)
 
         job_store.set_status(job_id, "finished")
         save_results(job_id)
         await event_hub.publish(job_id, {"event": "finished"})
+        await asyncio.sleep(0)
 
     except Exception as exc:
         logger.exception("Job %s failed", job_id)

@@ -583,20 +583,31 @@
       <h2>{{ L.exported_files|default("导出文件") }}</h2>
 
       <div class="export-grid">
-        <div class="export-card">
+        <a
+          class="export-card export-download"
+          href="{{ artifact_urls.comparison_html_url|default('#') }}?lang={{ lang }}"
+        >
           <strong>comparison.html</strong>
           <span>{{ L.export_comparison_html|default("对比 HTML 报告") }}</span>
-        </div>
+        </a>
 
-        <div class="export-card">
+        <a
+          class="export-card export-download"
+          href="{{ artifact_urls.comparison_csv_url|default('#') }}"
+          download
+        >
           <strong>comparison.csv</strong>
           <span>{{ L.export_comparison_csv|default("对比 CSV") }}</span>
-        </div>
+        </a>
 
-        <div class="export-card">
+        <a
+          class="export-card export-download"
+          href="{{ artifact_urls.comparison_json_url|default('#') }}"
+          download
+        >
           <strong>comparison.json</strong>
           <span>{{ L.export_comparison_json|default("对比 JSON") }}</span>
-        </div>
+        </a>
       </div>
     </section>
   </main>
