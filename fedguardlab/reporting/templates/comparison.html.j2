@@ -358,6 +358,32 @@
       background: currentColor;
     }
 
+    .status-finished {
+      background: var(--success-soft);
+      color: var(--success);
+    }
+
+    .status-running {
+      background: var(--primary-soft);
+      color: var(--primary-strong);
+    }
+
+    .status-failed {
+      background: #fee2e2;
+      color: #dc2626;
+    }
+
+    .status-cancelled {
+      background: #f1f5f9;
+      color: #64748b;
+    }
+
+    .status-created,
+    .status-queued {
+      background: #fef9c3;
+      color: #a16207;
+    }
+
     .metric-strong {
       color: var(--text);
       font-weight: 900;
@@ -448,6 +474,60 @@
         </div>
       </div>
     </section>
+
+    {% if compared_jobs %}
+    <section class="section">
+      <h2>{{ L.compared_jobs|default("参与实验") }}</h2>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>{{ L.job_id|default("任务 ID") }}</th>
+              <th>{{ L.experiment|default("实验") }}</th>
+              <th>{{ L.config_path|default("配置路径") }}</th>
+              <th>{{ L.status|default("状态") }}</th>
+              <th>{{ L.created_at|default("创建时间") }}</th>
+              <th>{{ L.finished_at|default("完成时间") }}</th>
+              <th>{{ L.report_link|default("报告") }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for job in compared_jobs %}
+            <tr>
+              <td class="job-id">{{ job.job_id }}</td>
+              <td>{{ job.experiment_name|default("-") }}</td>
+              <td><code>{{ job.config_path|default("-") }}</code></td>
+              <td>
+                {% if job.status %}
+                <span class="status-badge status-{{ job.status }}">{{ job.status }}</span>
+                {% else %}
+                -
+                {% endif %}
+              </td>
+              <td>{{ job.created_at|default("-") }}</td>
+              <td>{{ job.finished_at|default("-") }}</td>
+              <td>
+                {% if job.job_id %}
+                <a
+                  class="action-link"
+                  href="{{ api_base_url }}/reports/{{ job.job_id }}?lang={{ lang_code }}"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {{ L.view_report|default("查看报告") }}
+                </a>
+                {% else %}
+                -
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+    {% endif %}
 
     <section class="section">
       <h2>{{ L.final_metrics|default("最终指标") }}</h2>

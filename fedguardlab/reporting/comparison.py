@@ -32,6 +32,13 @@ COMPARISON_LABELS = {
         ),
         "exported_files": "导出文件",
         "and": "和",
+        "compared_jobs": "参与实验",
+        "config_path": "配置路径",
+        "status": "状态",
+        "created_at": "创建时间",
+        "finished_at": "完成时间",
+        "report_link": "报告",
+        "view_report": "查看报告",
     },
     "en": {
         "title": "FedGuardLab Comparison Report",
@@ -56,6 +63,13 @@ COMPARISON_LABELS = {
         ),
         "exported_files": "Exported files",
         "and": "and",
+        "compared_jobs": "Compared Jobs",
+        "config_path": "Config Path",
+        "status": "Status",
+        "created_at": "Created At",
+        "finished_at": "Finished At",
+        "report_link": "Report",
+        "view_report": "View Report",
     },
 }
 
@@ -129,6 +143,39 @@ def load_job_summary(job_id: str) -> Dict[str, Any]:
     }
 
 
+def load_job_metadata(job_ids: List[str]) -> Dict[str, Dict[str, Any]]:
+    """Load job metadata from the persisted JobStore index.
+
+    Returns a dict keyed by job_id. Each value contains
+    config_path, status, created_at, finished_at.
+    Falls back gracefully if the index file is missing.
+    """
+    index_path = JOBS_DIR / "index.json"
+    result: Dict[str, Dict[str, Any]] = {}
+
+    try:
+        entries = json.loads(index_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return result
+
+    if not isinstance(entries, list):
+        return result
+
+    for entry in entries:
+        if not isinstance(entry, dict):
+            continue
+        jid = entry.get("job_id")
+        if jid in job_ids:
+            result[jid] = {
+                "config_path": entry.get("config_path", ""),
+                "status": entry.get("status", ""),
+                "created_at": entry.get("created_at", ""),
+                "finished_at": entry.get("finished_at"),
+            }
+
+    return result
+
+
 def generate_comparison_report(
     job_ids: List[str],
     title: str = "Robust Aggregation Comparison",
@@ -143,6 +190,20 @@ def generate_comparison_report(
     output_dir.mkdir(parents=True, exist_ok=True)
 
     experiments = [load_job_summary(job_id) for job_id in job_ids]
+    job_metadata = load_job_metadata(job_ids)
+
+    compared_jobs = []
+    for exp in experiments:
+        jid = exp["job_id"]
+        meta = job_metadata.get(jid, {})
+        compared_jobs.append({
+            "job_id": jid,
+            "experiment_name": exp.get("experiment_name", ""),
+            "config_path": meta.get("config_path", ""),
+            "status": meta.get("status", ""),
+            "created_at": meta.get("created_at", ""),
+            "finished_at": meta.get("finished_at"),
+        })
 
     env = Environment(
         loader=FileSystemLoader(TEMPLATE_DIR),
@@ -160,6 +221,7 @@ def generate_comparison_report(
         comparison_id=comparison_id,
         title=title,
         experiments=experiments,
+        compared_jobs=compared_jobs,
         api_base_url=api_base_url,
     )
 
@@ -174,6 +236,7 @@ def generate_comparison_report(
                 "title": title,
                 "job_ids": job_ids,
                 "experiments": experiments,
+                "compared_jobs": compared_jobs,
             },
             indent=2,
             ensure_ascii=False,
