@@ -120,6 +120,11 @@ const messages = {
     comparisonCreating: "正在生成对比报告…",
     comparisonSuccess: "对比报告已生成。",
     comparisonFailed: "对比报告生成失败。",
+    comparisonExportsTitle: "对比导出",
+    exportsTitle: "导出文件",
+    exportHtmlReport: "HTML 报告",
+    exportCsvMetrics: "CSV 指标",
+    exportMarkdownReport: "Markdown 报告",
     statusValues: {
       idle: "空闲",
       creating: "创建中",
@@ -207,6 +212,11 @@ const messages = {
     comparisonCreating: "Generating comparison report…",
     comparisonSuccess: "Comparison report generated.",
     comparisonFailed: "Failed to generate comparison report.",
+    comparisonExportsTitle: "Comparison Exports",
+    exportsTitle: "Exports",
+    exportHtmlReport: "HTML Report",
+    exportCsvMetrics: "CSV Metrics",
+    exportMarkdownReport: "Markdown Report",
     statusValues: {
       idle: "idle",
       creating: "creating",
@@ -1285,6 +1295,29 @@ async function startExperiment() {
               <strong>{{ selectedDetailJob.has_report ? t.available : t.notReady }}</strong>
             </div>
           </div>
+
+          <div v-if="selectedDetailJob.has_report" class="detail-exports">
+            <h3 class="detail-exports-title">{{ t.exportsTitle }}</h3>
+            <div class="detail-exports-grid">
+              <a
+                class="detail-export-item"
+                :href="withLang(selectedDetailJob.report_url)"
+                target="_blank"
+                rel="noreferrer"
+              >
+                <span class="detail-export-icon">📊</span>
+                <span class="detail-export-label">{{ t.exportHtmlReport }}</span>
+              </a>
+              <span class="detail-export-item disabled">
+                <span class="detail-export-icon">📄</span>
+                <span class="detail-export-label">{{ t.exportCsvMetrics }}</span>
+              </span>
+              <span class="detail-export-item disabled">
+                <span class="detail-export-icon">📝</span>
+                <span class="detail-export-label">{{ t.exportMarkdownReport }}</span>
+              </span>
+            </div>
+          </div>
         </div>
 
         <div v-else class="empty-state small">
@@ -1330,9 +1363,25 @@ async function startExperiment() {
 
       <div v-if="comparisonStatus === 'finished' && comparisonUrl" class="comparison-feedback success">
         <strong>{{ t.comparisonSuccess }}</strong>
-        <a class="report-link" :href="withLang(comparisonUrl)" target="_blank">
-          {{ t.openComparisonReport }}
-        </a>
+        <div class="comparison-exports">
+          <a
+            class="comparison-export-item"
+            :href="withLang(comparisonUrl)"
+            target="_blank"
+            rel="noreferrer"
+          >
+            <span class="detail-export-icon">📊</span>
+            <span class="detail-export-label">{{ t.comparisonHtmlReport }}</span>
+          </a>
+          <span class="comparison-export-item disabled">
+            <span class="detail-export-icon">📄</span>
+            <span class="detail-export-label">{{ t.comparisonCsv }}</span>
+          </span>
+          <span class="comparison-export-item disabled">
+            <span class="detail-export-icon">📋</span>
+            <span class="detail-export-label">{{ t.comparisonJson }}</span>
+          </span>
+        </div>
       </div>
 
       <div v-if="comparisonStatus === 'error' && comparisonError" class="comparison-feedback error-feedback">
@@ -2190,6 +2239,75 @@ button:disabled,
   background: rgba(248, 250, 252, 0.7);
   color: #64748b;
   font-size: 12px;
+}
+
+/* ---------------- Detail Exports ---------------- */
+
+.detail-exports {
+  margin-top: 18px;
+  padding: 18px;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(248, 250, 252, 0.74), rgba(255, 255, 255, 0.92));
+}
+
+.detail-exports-title {
+  margin: 0 0 12px;
+  color: #1f2a44;
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.detail-exports-grid,
+.comparison-exports {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.detail-export-item,
+.comparison-export-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 38px;
+  padding: 9px 14px;
+  border: 1px solid rgba(147, 197, 253, 0.5);
+  border-radius: 12px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-size: 12px;
+  font-weight: 900;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
+}
+
+.detail-export-item:hover,
+.comparison-export-item:hover {
+  transform: translateY(-1px);
+  background: #dbeafe;
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.12);
+}
+
+.detail-export-item.disabled,
+.comparison-export-item.disabled {
+  border-color: rgba(148, 163, 184, 0.3);
+  background: rgba(248, 250, 252, 0.6);
+  color: #94a3b8;
+  cursor: default;
+  pointer-events: none;
+}
+
+.detail-export-icon {
+  font-size: 15px;
+  line-height: 1;
+}
+
+.detail-export-label {
+  white-space: nowrap;
 }
 
 /* ---------------- Responsive ---------------- */

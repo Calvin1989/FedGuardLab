@@ -576,11 +576,27 @@
 
       <div class="note">
         {{ L.comparison_note|default("较低的 ASR 通常表示对当前目标攻击具有更强抵抗能力。当前结果用于轻量演示和快速比较，不应直接视为正式 benchmark。") }}
-        <p>
-          {{ L.exported_files|default("导出文件") }}:
-          <code>comparison.json</code>
-          <code>comparison.csv</code>
-        </p>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>{{ L.exported_files|default("导出文件") }}</h2>
+
+      <div class="export-grid">
+        <div class="export-card">
+          <strong>comparison.html</strong>
+          <span>{{ L.export_comparison_html|default("对比 HTML 报告") }}</span>
+        </div>
+
+        <div class="export-card">
+          <strong>comparison.csv</strong>
+          <span>{{ L.export_comparison_csv|default("对比 CSV") }}</span>
+        </div>
+
+        <div class="export-card">
+          <strong>comparison.json</strong>
+          <span>{{ L.export_comparison_json|default("对比 JSON") }}</span>
+        </div>
       </div>
     </section>
   </main>

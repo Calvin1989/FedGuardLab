@@ -31,6 +31,9 @@ COMPARISON_LABELS = {
             "当前结果用于轻量演示，不作为正式基准测试。"
         ),
         "exported_files": "导出文件",
+        "export_comparison_html": "对比 HTML 报告",
+        "export_comparison_csv": "对比 CSV",
+        "export_comparison_json": "对比 JSON",
         "and": "和",
         "compared_jobs": "参与实验",
         "config_path": "配置路径",
@@ -62,6 +65,9 @@ COMPARISON_LABELS = {
             "not formal benchmarking."
         ),
         "exported_files": "Exported files",
+        "export_comparison_html": "Comparison HTML Report",
+        "export_comparison_csv": "Comparison CSV",
+        "export_comparison_json": "Comparison JSON",
         "and": "and",
         "compared_jobs": "Compared Jobs",
         "config_path": "Config Path",

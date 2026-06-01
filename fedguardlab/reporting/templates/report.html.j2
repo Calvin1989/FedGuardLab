@@ -549,29 +549,29 @@
       <h2>{{ L.exported_files|default("导出文件") }}</h2>
 
       <div class="export-grid">
-        <div class="export-card">
+        <a class="export-card export-download" href="#config-details-section">
           <strong>config.json</strong>
-          <span>{{ L.config_json_desc|default("实验配置快照") }}</span>
-        </div>
+          <span>{{ L.export_config|default("实验配置") }}</span>
+        </a>
 
         <div class="export-card">
           <strong>metrics.json</strong>
-          <span>{{ L.metrics_json_desc|default("逐轮原始指标") }}</span>
+          <span>{{ L.export_metrics_json|default("逐轮原始指标") }}</span>
         </div>
 
         <div class="export-card">
           <strong>metrics.csv</strong>
-          <span>{{ L.metrics_csv_desc|default("可用于表格分析的指标") }}</span>
+          <span>{{ L.export_metrics_csv|default("可导入表格的指标") }}</span>
         </div>
 
         <div class="export-card">
           <strong>report.md</strong>
-          <span>{{ L.report_md_desc|default("Markdown 实验摘要") }}</span>
+          <span>{{ L.export_report_md|default("Markdown 实验摘要") }}</span>
         </div>
       </div>
 
-      <details class="config-details" open>
-        <summary>{{ L.experiment_configuration|default("实验配置") }}</summary>
+      <details class="config-details" id="config-details-section" open>
+        <summary>{{ L.config_details|default("实验配置详情") }}</summary>
         <pre>{{ config_json }}</pre>
       </details>
     </section>
