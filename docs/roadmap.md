@@ -754,7 +754,7 @@ Focus: Export/download entry polish.
 - [x] 不引入新依赖。
 - [x] 不改变现有 API 行为。
 
-### v1.6.0-beta.1
+### v1.6.0-beta.1 — completed
 
 Focus: Beta readiness validation for v1.6.
 
@@ -777,17 +777,17 @@ Beta.1 验证重点：
 
 Checklist：
 
-- [ ] `ruff check .`
-- [ ] `python quick_test.py`
-- [ ] 前端构建检查：
+- [x] `ruff check .`
+- [x] `python quick_test.py`
+- [x] 前端构建检查：
   - `cd web`
   - `npm run build`
   - `cd ..`
-- [ ] `python api_smoke_test.py`
-- [ ] 目视检查 comparison report 显示 job 摘要信息。
-- [ ] 目视检查 comparison report `?lang=zh` / `?lang=en`。
-- [ ] 目视检查首页 comparison 区域 UX。
-- [ ] 目视检查导出入口。
+- [x] `python api_smoke_test.py`
+- [x] 目视检查 comparison report 显示 job 摘要信息。
+- [x] 目视检查 comparison report `?lang=zh` / `?lang=en`。
+- [x] 目视检查首页 comparison 区域 UX。
+- [x] 目视检查导出入口。
 - [ ] `docker compose config`
 - [ ] `docker compose build`
 - [ ] `docker compose up -d`
@@ -805,9 +805,22 @@ Checklist：
 
 Focus: Release candidate validation for v1.6.0.
 
-rc.1 阶段不新增功能，不修改运行时代码，不改变 CI 触发策略。重点是 final release candidate validation。
+rc.1 阶段不新增功能，不新增依赖，不改 API，不修改运行时代码，不改变 CI 触发策略。重点是 final release candidate validation。
 
-v1.6.0-beta.1 已完成 beta readiness。
+v1.6.0-beta.1 已完成 beta readiness。alpha series 已完成 comparison report metadata、frontend comparison UX、export/download entry polish。
+
+rc.1 验证重点：
+
+- `ruff check .`
+- `python quick_test.py`
+- `cd web && npm run build`
+- `python api_smoke_test.py`
+- Docker Compose config / build / up / down
+- `--wait-finished` smoke run
+- restart recovery check
+- zh/en dashboard 手动检查
+- zh/en experiment report 手动检查
+- zh/en comparison report 手动检查
 
 Checklist：
 
@@ -818,10 +831,18 @@ Checklist：
   - `npm run build`
   - `cd ..`
 - [ ] `python api_smoke_test.py`
+- [ ] 目视检查首页默认中文。
+- [ ] 目视检查 English 切换。
+- [ ] 目视检查刷新后语言保持。
+- [ ] 目视检查 `/reports/<job_id>?lang=zh`。
+- [ ] 目视检查 `/reports/<job_id>?lang=en`。
+- [ ] 目视检查 `/comparisons/<comparison_id>?lang=zh`。
+- [ ] 目视检查 `/comparisons/<comparison_id>?lang=en`。
 - [ ] 目视检查 comparison report 显示 job 摘要信息。
-- [ ] 目视检查 comparison report `?lang=zh` / `?lang=en`。
-- [ ] 目视检查首页 comparison 区域 UX。
-- [ ] 目视检查导出入口。
+- [ ] 目视检查 selected jobs preview。
+- [ ] 目视检查 comparison creation feedback。
+- [ ] 目视检查 job detail 导出区域。
+- [ ] 目视检查 comparison 导出区域。
 - [ ] `docker compose config`
 - [ ] `docker compose build`
 - [ ] `docker compose up -d`
@@ -849,6 +870,8 @@ v1.6.0 release scope：
 - Beta readiness documentation.
 - Release candidate readiness documentation.
 
+v1.6.0-rc.1 已完成 release candidate validation。
+
 Checklist：
 
 - [ ] `ruff check .`
@@ -858,9 +881,18 @@ Checklist：
   - `npm run build`
   - `cd ..`
 - [ ] `python api_smoke_test.py`
+- [ ] 目视检查首页默认中文。
+- [ ] 目视检查 English 切换。
+- [ ] 目视检查刷新后语言保持。
+- [ ] 目视检查 `/reports/<job_id>?lang=zh`。
+- [ ] 目视检查 `/reports/<job_id>?lang=en`。
+- [ ] 目视检查 `/comparisons/<comparison_id>?lang=zh`。
+- [ ] 目视检查 `/comparisons/<comparison_id>?lang=en`。
 - [ ] 目视检查 comparison report 显示 job 摘要信息。
-- [ ] 目视检查 comparison report `?lang=zh` / `?lang=en`。
-- [ ] 目视检查首页 comparison 区域 UX。
+- [ ] 目视检查 selected jobs preview。
+- [ ] 目视检查 comparison creation feedback。
+- [ ] 目视检查 job detail 导出区域。
+- [ ] 目视检查 comparison 导出区域。
 - [ ] 目视检查导出入口。
 - [ ] `docker compose config`
 - [ ] `docker compose build`
