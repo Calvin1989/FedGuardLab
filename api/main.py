@@ -199,6 +199,7 @@ def _job_summary(job: JobRecord) -> dict[str, Any]:
         "finished_at": job.finished_at,
         "has_report": artifacts_info["has_report"],
         "artifacts": artifacts_info["artifacts"],
+        "events": job.events,
     }
 
 
@@ -276,6 +277,7 @@ async def create_run(config_path: str = "configs/mnist_fedavg_demo.yaml"):
             config=config.model_dump(),
         )
     )
+    JOB_STORE.add_event(job_id, {"type": "created", "message": "Job created"})
 
     asyncio.create_task(
         run_job(
@@ -363,6 +365,9 @@ async def cancel_job(job_id: str):
         )
 
     JOB_STORE.request_cancel(job_id)
+    JOB_STORE.add_event(
+        job_id, {"type": "cancelled", "message": "Job cancelled by user"}
+    )
     await EVENT_HUB.publish(job_id, {"event": "cancelled"})
 
     return {

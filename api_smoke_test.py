@@ -95,6 +95,26 @@ def _assert_summary_fields(data: dict[str, Any]) -> None:
     )
 
 
+EXPECTED_LIFECYCLE_EVENTS = {"created", "started", "finished"}
+
+
+def _assert_events(
+    data: dict[str, Any], expected_types: set[str] | None = None
+) -> None:
+    """Verify that a /status response includes events with expected types."""
+    events = data.get("events")
+    assert isinstance(events, list), f"events not list: {type(events)}"
+    assert len(events) > 0, "events is empty"
+    types = {e["type"] for e in events}
+    required = expected_types or EXPECTED_LIFECYCLE_EVENTS
+    missing = required - types
+    assert not missing, f"missing event types: {missing}"
+    for ev in events:
+        assert "type" in ev, f"event missing type: {ev}"
+        assert "message" in ev, f"event missing message: {ev}"
+        assert "created_at" in ev, f"event missing created_at: {ev}"
+
+
 def _assert_index_consistent(job_id: str, status_data: dict[str, Any]) -> None:
     assert JOB_INDEX_PATH.exists(), f"index file missing: {JOB_INDEX_PATH}"
     index = json.loads(JOB_INDEX_PATH.read_text(encoding="utf-8"))
@@ -140,9 +160,14 @@ def run_recovery_check(job_id: str) -> None:
     assert data.get("has_report") is True, f"has_report not True: {data}"
     _assert_artifacts_complete(data, require_files=True)
     _assert_summary_fields(data)
+    _assert_events(data)
     _assert_index_consistent(job_id, data)
     _assert_report_artifact_downloads(job_id)
-    print(f"[OK]  recovery check passed for job_id={job_id}", flush=True)
+    print(
+        f"[OK]  recovery check passed for job_id={job_id} "
+        f"({len(data.get('events', []))} events)",
+        flush=True,
+    )
 
 
 def _get_with_status(path: str) -> tuple[int, Any]:
@@ -287,7 +312,12 @@ def run_cancel() -> None:
     print("[RUN] GET /status/{job_id2} (after cancel)", flush=True)
     data = _get(f"/status/{job_id2}")
     assert data["status"] == "cancelled", f"unexpected status: {data['status']}"
-    print(f"[OK]  GET /status/{job_id2} -> cancelled", flush=True)
+    events = data.get("events", [])
+    cancelled_events = [e for e in events if e["type"] == "cancelled"]
+    assert len(cancelled_events) > 0, (
+        f"cancelled job missing cancelled event: {events}"
+    )
+    print(f"[OK]  GET /status/{job_id2} -> cancelled (with event)", flush=True)
 
 
 def main() -> None:
@@ -337,10 +367,16 @@ def main() -> None:
         assert "report_html" in data["artifacts"], f"report_html missing: {data}"
         _assert_artifacts_complete(data, require_files=True)
         _assert_summary_fields(data)
+        _assert_events(data)
         _assert_index_consistent(job_id, data)
         _assert_report_artifact_downloads(job_id)
+        round_progress_count = sum(
+            1 for e in data.get("events", []) if e["type"] == "round_progress"
+        )
+        assert round_progress_count > 0, "no round_progress events"
         print(
-            f"[OK]  job {job_id} finished with {data['metrics_count']} metrics",
+            f"[OK]  job {job_id} finished with {data['metrics_count']} metrics, "
+            f"{len(data.get('events', []))} events",
             flush=True,
         )
         if args.write_finished_job_id:

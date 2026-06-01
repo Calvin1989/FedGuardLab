@@ -128,6 +128,19 @@ const messages = {
     comparisonHtmlReport: "对比 HTML 报告",
     comparisonCsv: "对比 CSV",
     comparisonJson: "对比 JSON",
+    eventTimeline: "事件时间线",
+    eventRound: "轮次",
+    eventFailureReason: "失败原因",
+    noEvents: "暂无事件记录",
+    eventType: {
+      created: "已创建",
+      started: "已启动",
+      round_progress: "训练进度",
+      artifact_written: "产物已保存",
+      finished: "已完成",
+      failed: "失败",
+      cancelled: "已取消",
+    },
     statusValues: {
       idle: "空闲",
       creating: "创建中",
@@ -223,6 +236,19 @@ const messages = {
     comparisonHtmlReport: "Comparison HTML Report",
     comparisonCsv: "Comparison CSV",
     comparisonJson: "Comparison JSON",
+    eventTimeline: "Event Timeline",
+    eventRound: "Round",
+    eventFailureReason: "Failure Reason",
+    noEvents: "No events recorded",
+    eventType: {
+      created: "Created",
+      started: "Started",
+      round_progress: "Round Progress",
+      artifact_written: "Artifacts Written",
+      finished: "Finished",
+      failed: "Failed",
+      cancelled: "Cancelled",
+    },
     statusValues: {
       idle: "idle",
       creating: "creating",
@@ -609,6 +635,7 @@ function mapApiJobToRecentJob(job) {
       : "",
     has_report: hasReport,
     artifacts,
+    events: job.events || [],
   };
 }
 
@@ -648,6 +675,29 @@ async function loadRecentJobsFromApi() {
   recentJobs.value = visibleJobs.map(mapApiJobToRecentJob);
 }
 
+
+function eventIcon(type) {
+  const icons = {
+    created: "🆕",
+    started: "▶️",
+    round_progress: "🔄",
+    artifact_written: "📦",
+    finished: "✅",
+    failed: "❌",
+    cancelled: "⛔",
+  };
+  return icons[type] || "📌";
+}
+
+function formatEventTime(ts) {
+  if (!ts) return "—";
+  try {
+    const d = new Date(ts);
+    return d.toLocaleString(language.value === "zh" ? "zh-CN" : "en-US");
+  } catch {
+    return ts;
+  }
+}
 
 function jobArtifactUrl(job, key) {
   if (!job?.job_id) {
@@ -1387,6 +1437,40 @@ async function startExperiment() {
                 <span class="detail-export-icon">📝</span>
                 <span class="detail-export-label">{{ t.exportMarkdownReport }}</span>
               </span>
+            </div>
+          </div>
+
+          <div class="detail-events">
+            <h3 class="detail-events-title">{{ t.eventTimeline }}</h3>
+            <div v-if="selectedDetailJob.events && selectedDetailJob.events.length > 0" class="event-timeline">
+              <div
+                v-for="(ev, idx) in selectedDetailJob.events"
+                :key="idx"
+                class="event-item"
+                :class="'event-' + ev.type"
+              >
+                <span class="event-icon">{{ eventIcon(ev.type) }}</span>
+                <div class="event-body">
+                  <div class="event-header">
+                    <span class="event-badge" :class="'badge-' + ev.type">{{ t.eventType[ev.type] || ev.type }}</span>
+                    <span class="event-time">{{ formatEventTime(ev.created_at) }}</span>
+                  </div>
+                  <p class="event-message">{{ ev.message }}</p>
+                  <div v-if="ev.type === 'round_progress' && ev.metrics" class="event-metrics">
+                    <span>{{ t.eventRound }} {{ ev.round }}/{{ ev.total_rounds }}</span>
+                    <span>{{ t.accuracy }}: {{ ev.metrics.accuracy }}</span>
+                    <span>{{ t.loss }}: {{ ev.metrics.loss }}</span>
+                    <span>{{ t.asr }}: {{ ev.metrics.attack_success_rate }}</span>
+                  </div>
+                  <div v-if="ev.type === 'failed' && ev.details" class="event-failure">
+                    <p><strong>{{ t.eventFailureReason }}:</strong> {{ ev.details.error }}</p>
+                    <pre v-if="ev.details.traceback_summary" class="event-traceback">{{ ev.details.traceback_summary }}</pre>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div v-else class="empty-state small">
+              <p>{{ t.noEvents }}</p>
             </div>
           </div>
         </div>
@@ -2399,6 +2483,169 @@ button:disabled,
 
 .detail-export-label {
   white-space: nowrap;
+}
+
+/* ---------------- Event Timeline ---------------- */
+
+.detail-events {
+  margin-top: 20px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.detail-events-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #475569;
+  margin-bottom: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.event-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  position: relative;
+  padding-left: 28px;
+}
+
+.event-timeline::before {
+  content: "";
+  position: absolute;
+  left: 10px;
+  top: 8px;
+  bottom: 8px;
+  width: 2px;
+  background: rgba(148, 163, 184, 0.3);
+  border-radius: 1px;
+}
+
+.event-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 10px 0;
+  position: relative;
+}
+
+.event-icon {
+  position: absolute;
+  left: -28px;
+  top: 10px;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  background: #f8fafc;
+  border-radius: 50%;
+  z-index: 1;
+}
+
+.event-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.event-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.event-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.badge-created {
+  background: rgba(99, 102, 241, 0.12);
+  color: #4f46e5;
+}
+
+.badge-started {
+  background: rgba(59, 130, 246, 0.12);
+  color: #2563eb;
+}
+
+.badge-round_progress {
+  background: rgba(14, 165, 233, 0.12);
+  color: #0284c7;
+}
+
+.badge-artifact_written {
+  background: rgba(139, 92, 246, 0.12);
+  color: #7c3aed;
+}
+
+.badge-finished {
+  background: rgba(34, 197, 94, 0.12);
+  color: #16a34a;
+}
+
+.badge-failed {
+  background: rgba(239, 68, 68, 0.12);
+  color: #dc2626;
+}
+
+.badge-cancelled {
+  background: rgba(148, 163, 184, 0.15);
+  color: #64748b;
+}
+
+.event-time {
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+.event-message {
+  font-size: 13px;
+  color: #475569;
+  margin: 0;
+}
+
+.event-metrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 6px;
+  font-size: 12px;
+  color: #64748b;
+}
+
+.event-metrics span {
+  background: rgba(148, 163, 184, 0.1);
+  padding: 2px 6px;
+  border-radius: 6px;
+}
+
+.event-failure {
+  margin-top: 6px;
+  font-size: 12px;
+  color: #dc2626;
+}
+
+.event-failure p {
+  margin: 0;
+}
+
+.event-traceback {
+  margin-top: 4px;
+  padding: 8px;
+  background: rgba(239, 68, 68, 0.06);
+  border-radius: 8px;
+  font-size: 11px;
+  color: #991b1b;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-all;
 }
 
 /* ---------------- Responsive ---------------- */

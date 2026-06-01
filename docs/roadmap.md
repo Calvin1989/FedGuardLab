@@ -1138,13 +1138,13 @@ v1.8.0 目标：
 
 Focus: Job event timeline and runtime diagnostics.
 
-- [ ] 为 job 增加轻量 event timeline。
-- [ ] 展示 job 生命周期事件：created、started、round_progress、artifact_written、finished、failed、cancelled。
-- [ ] API 返回 job detail 时包含 events。
-- [ ] 前端 job detail panel 展示事件时间线。
-- [ ] 失败时显示 failure reason / traceback summary。
-- [ ] 不改变训练核心算法。
-- [ ] 不新增依赖。
+- [x] 为 job 增加轻量 event timeline。
+- [x] 展示 job 生命周期事件：created、started、round_progress、artifact_written、finished、failed、cancelled。
+- [x] API 返回 job detail 时包含 events。
+- [x] 前端 job detail panel 展示事件时间线。
+- [x] 失败时显示 failure reason / traceback summary。
+- [x] 不改变训练核心算法。
+- [x] 不新增依赖。
 
 ### v1.8.0-alpha.2
 

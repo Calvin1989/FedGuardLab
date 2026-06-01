@@ -30,6 +30,7 @@ class JobRecord:
     cancel_requested: bool = False
     has_report: bool = False
     artifacts: dict[str, Any] = field(default_factory=dict)
+    events: list[dict[str, Any]] = field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -45,6 +46,7 @@ class JobRecord:
             "cancel_requested": self.cancel_requested,
             "has_report": self.has_report,
             "artifacts": self.artifacts,
+            "events": self.events,
         }
 
 
@@ -85,6 +87,7 @@ class JobStore:
                 cancel_requested=entry.get("cancel_requested", False),
                 has_report=entry.get("has_report", False),
                 artifacts=entry.get("artifacts", {}),
+                events=entry.get("events", []),
             )
             self._jobs[job.job_id] = job
 
@@ -146,6 +149,14 @@ class JobStore:
         job.artifacts = artifacts
         self._save()
 
+    def add_event(self, job_id: str, event: dict[str, Any]) -> None:
+        job = self._jobs.get(job_id)
+        if job is None:
+            return
+        event.setdefault("created_at", datetime.now(UTC).isoformat())
+        job.events.append(event)
+        self._save()
+
     def to_dict(self, job_id: str) -> dict[str, Any]:
         job = self._jobs[job_id]
         return {
@@ -160,4 +171,5 @@ class JobStore:
             "started_at": job.started_at,
             "finished_at": job.finished_at,
             "cancel_requested": job.cancel_requested,
+            "events": job.events,
         }
