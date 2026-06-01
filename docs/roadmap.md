@@ -960,21 +960,34 @@ Focus: CI smoke workflow hardening. ✅ 已完成。
 
 Focus: Beta readiness validation for v1.7.
 
-Beta.1 阶段不新增功能，不新增依赖，不改 API，不修改运行时代码，不改变 CI 触发策略。重点是稳定性验证和 release readiness。
+Beta.1 阶段不新增功能、不新增依赖、不改变 API、不修改训练核心逻辑。重点是稳定性验证和 release readiness。
 
 v1.7 alpha series 已完成：
 
 - v1.7.0-alpha.1：report/artifact regression tests。
 - v1.7.0-alpha.2：CI smoke workflow hardening。
 
+v1.7 当前已完成能力：
+
+- report/artifact regression tests（tests/test_report_artifact_regression.py）。
+- pytest 接入 CI（.github/workflows/ci.yml）。
+- Docker smoke workflow hardening（.github/workflows/docker-smoke.yml）。
+- job artifact 下载回归保护（config.json、metrics.json、metrics.csv、report.md）。
+- comparison artifact 下载回归保护（comparison.html、comparison.csv、comparison.json）。
+- report.html / comparison.html 模板渲染回归保护。
+- summary persistence / restart recovery 回归保护。
+
 Beta.1 验证重点：
 
-- regression test 是否覆盖全部 v1.6.1 修复点。
-- CI workflow 是否稳定通过。
-- Docker Smoke workflow 是否稳定通过。
-- 不新增依赖确认。
-- 不修改训练核心逻辑确认。
-- 不改变现有 API 行为确认。
+- `ruff check .`
+- `python quick_test.py`
+- `python -m pytest tests/ -v`
+- `cd web && npm run build`
+- `python api_smoke_test.py`
+- `docker compose config` / `build` / `up` / `down`
+- `--wait-finished` smoke run
+- backend restart recovery check
+- artifact download check
 
 Checklist：
 
