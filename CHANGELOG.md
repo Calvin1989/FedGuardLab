@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+- Prepared v1.5.0-beta.1 readiness documentation.
+  - No new runtime code, no new feature, no CI trigger change.
+  - Beta.1 阶段不新增功能，重点是稳定性验证和 release readiness。
+  - Summarized v1.5 alpha series completion:
+    - alpha.1: Frontend localization with Chinese default and English toggle.
+    - alpha.1: Localized HTML experiment and comparison reports via `?lang=zh` / `?lang=en`.
+    - alpha.2: Dashboard visual polish.
+    - alpha.2: Unified Experiment Report and Comparison Report visual style.
+  - Beta.1 focus: Beta readiness validation for localized and polished v1.5 UI.
+  - Beta.1 不修改运行时代码，不新增功能，不改变 CI 触发策略。
 - Added dashboard visual polish for a more cohesive localized UI.
   - 页面背景改为多层径向渐变（蓝紫/青色调），视觉更柔和。
   - Hero 区域改为双栏 grid 布局：左侧标题/副标题，右侧控制面板；语言切换定位在 hero 右上角。
