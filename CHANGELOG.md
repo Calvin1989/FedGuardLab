@@ -2,6 +2,20 @@
 
 ## Unreleased
 
+- Prepared v1.5.0 final release readiness documentation.
+  - No new runtime feature; focus is Frontend Localization + UI Polish.
+  - v1.5.0 release scope:
+    - Frontend localization with Chinese default.
+    - English language toggle.
+    - localStorage language persistence.
+    - Localized HTML Experiment Report.
+    - Localized HTML Comparison Report.
+    - Dashboard visual polish.
+    - Unified report page visual style.
+    - Beta readiness documentation.
+    - Release candidate readiness documentation.
+  - v1.5.0 不新增 runtime feature，重点是 Frontend Localization + UI Polish。
+  - Final tag 必须在 PR 合并后打在 main merge commit 上。
 - Prepared v1.5.0-rc.1 release candidate readiness documentation.
   - No new runtime code, no new feature, no CI trigger change.
   - v1.5.0-beta.1 已完成 beta readiness。

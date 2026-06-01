@@ -618,13 +618,61 @@ Checklist：
 - [x] GitHub Actions CI passing
 - [x] GitHub Actions Docker Smoke manual workflow passing
 
-### v1.5.0-rc.1
+### v1.5.0-rc.1 — completed
 
 Focus: Release candidate validation for localized and polished v1.5 UI.
 
 rc.1 阶段不新增功能，不修改运行时代码，不改变 CI 触发策略。重点是 final release candidate validation。
 
 v1.5.0-beta.1 已完成 beta readiness。
+
+Checklist：
+
+- [x] `ruff check .`
+- [x] `python quick_test.py`
+- [x] 前端构建检查：
+  - `cd web`
+  - `npm run build`
+  - `cd ..`
+- [x] `python api_smoke_test.py`
+- [x] 目视检查首页默认中文。
+- [x] 目视检查 English 切换。
+- [x] 目视检查刷新后语言保持。
+- [x] 目视检查 report 链接带 `?lang=zh` / `?lang=en`。
+- [x] 目视检查 `/reports/<job_id>?lang=zh`。
+- [x] 目视检查 `/reports/<job_id>?lang=en`。
+- [x] 目视检查 `/comparisons/<comparison_id>?lang=zh`。
+- [x] 目视检查 `/comparisons/<comparison_id>?lang=en`。
+- [x] `docker compose config`
+- [x] `docker compose build`
+- [x] `docker compose up -d`
+- [x] `python api_smoke_test.py --wait-finished --write-finished-job-id smoke_finished_job_id.txt`
+- [x] `type smoke_finished_job_id.txt` — 确认 UUID 已写入
+- [x] `docker compose restart backend`
+- [x] `Start-Sleep -Seconds 10`
+- [x] `python api_smoke_test.py --check-recovery <真实 finished job UUID>`
+- [x] `docker compose down`
+- [x] `Remove-Item smoke_finished_job_id.txt` — 清理临时文件
+- [x] GitHub Actions CI passing
+- [x] GitHub Actions Docker Smoke manual workflow passing on main
+
+### v1.5.0
+
+Focus: Stable localized and polished FedGuardLab UI.
+
+v1.5.0 不新增 runtime feature，重点是 Frontend Localization + UI Polish。
+
+v1.5.0 release scope：
+
+- Frontend localization with Chinese default.
+- English language toggle.
+- localStorage language persistence.
+- Localized HTML Experiment Report.
+- Localized HTML Comparison Report.
+- Dashboard visual polish.
+- Unified report page visual style.
+- Beta readiness documentation.
+- Release candidate readiness documentation.
 
 Checklist：
 
@@ -646,34 +694,6 @@ Checklist：
 - [ ] `docker compose config`
 - [ ] `docker compose build`
 - [ ] `docker compose up -d`
-- [ ] `python api_smoke_test.py --wait-finished --write-finished-job-id smoke_finished_job_id.txt`
-- [ ] `type smoke_finished_job_id.txt` — 确认 UUID 已写入
-- [ ] `docker compose restart backend`
-- [ ] `Start-Sleep -Seconds 10`
-- [ ] `python api_smoke_test.py --check-recovery <真实 finished job UUID>`
-- [ ] `docker compose down`
-- [ ] `Remove-Item smoke_finished_job_id.txt` — 清理临时文件
-- [ ] GitHub Actions CI passing
-- [ ] GitHub Actions Docker Smoke manual workflow passing on main
-
-### v1.5.0
-
-Focus: Stable v1.5 frontend localization and UI polish.
-
-v1.5.0 不新增 runtime feature，重点是 Frontend Localization + UI Polish。
-
-Checklist：
-
-- [ ] `ruff check .`
-- [ ] `python quick_test.py`
-- [ ] 前端构建检查：
-  - `cd web`
-  - `npm run build`
-  - `cd ..`
-- [ ] `docker compose config`
-- [ ] `docker compose build`
-- [ ] `docker compose up -d`
-- [ ] `python api_smoke_test.py`
 - [ ] `python api_smoke_test.py --wait-finished --write-finished-job-id smoke_finished_job_id.txt`
 - [ ] `type smoke_finished_job_id.txt` — 确认 UUID 已写入
 - [ ] `docker compose restart backend`
