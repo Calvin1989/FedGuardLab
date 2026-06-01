@@ -906,3 +906,178 @@ Checklist：
 - [ ] GitHub Actions CI passing on main
 - [ ] GitHub Actions Docker Smoke manual workflow passing on main
 - [ ] Final tag 打在 main merge commit 上（PR 合并后）
+
+---
+
+## v1.7.0 Roadmap
+
+v1.7.0 主题：Runtime / Report / Artifact Regression Hardening.
+
+v1.7.0 目标：
+
+- 把 v1.6.1 修复过的问题固化成自动化测试和 CI 保护。
+- 新增 regression test 覆盖 wait-finished smoke run。
+- 新增 regression test 覆盖 report.html 模板渲染。
+- 新增 regression test 覆盖 comparison.html 模板渲染。
+- 新增 regression test 覆盖 job artifact 下载（config.json、metrics.json、metrics.csv、report.md）。
+- 新增 regression test 覆盖 comparison artifact 下载（comparison.html、comparison.csv、comparison.json）。
+- 新增 regression test 覆盖 backend restart recovery。
+- 强化 CI 验证链路：ruff / quick_test / web build / api_smoke_test / docker compose。
+- 明确不新增依赖、不修改训练核心逻辑、不改变现有 API 行为。
+- 不优先做：新 UI 功能、新训练算法、新攻击算法、大规模后端重构、新依赖。
+
+### v1.7.0-alpha.1
+
+Focus: report/artifact regression tests.
+
+- [ ] 新增 `tests/` 目录，使用 pytest 组织自动化测试。
+- [ ] 新增 `tests/test_report_artifact_regression.py`。
+- [ ] 覆盖 `--wait-finished` smoke run 完整流程：POST /run → wait finished → 验证 status、metrics_count、has_report、artifacts。
+- [ ] 覆盖 report.html 模板渲染：验证 report HTML 内容非空、包含关键字段（experiment name、rounds、accuracy）。
+- [ ] 覆盖 comparison.html 模板渲染：创建 comparison → 验证 comparison HTML 内容非空、包含参与 job 信息。
+- [ ] 覆盖 job artifact 下载：逐一验证 `GET /reports/{job_id}/config.json`、`metrics.json`、`metrics.csv`、`report.md` 返回 200 且内容非空。
+- [ ] 覆盖 comparison artifact 下载：验证 comparison 相关下载路由返回 200 且内容非空（comparison.html、comparison.csv、comparison.json）。
+- [ ] 覆盖 backend restart recovery：finished job 在 backend restart 后仍然可通过 `/jobs`、`/status/{job_id}` 访问，artifact metadata 一致。
+- [ ] 不新增依赖（pytest 为 dev dependency，已在 requirements-dev.txt 中）。
+- [ ] 不修改训练核心逻辑。
+- [ ] 不改变现有 API 行为。
+
+### v1.7.0-alpha.2
+
+Focus: CI smoke workflow hardening.
+
+- [ ] 强化 `.github/workflows/ci.yml`：在 lint / quick_test / web build 基础上，新增 `python -m pytest tests/` 步骤。
+- [ ] 强化 `.github/workflows/docker-smoke.yml`：在现有 smoke 流程基础上，新增 report/artifact regression test 步骤。
+- [ ] CI 验证链路完整覆盖：ruff check → quick_test → web build → pytest tests。
+- [ ] Docker Smoke 验证链路完整覆盖：compose config → build → up → health check → api_smoke → wait-finished → pytest regression → restart → recovery check → down。
+- [ ] 确认 CI 在 push/PR 到 main 时自动触发。
+- [ ] 确认 Docker Smoke 仍为 workflow_dispatch 手动触发。
+- [ ] 不新增依赖。
+- [ ] 不修改训练核心逻辑。
+- [ ] 不改变现有 API 行为。
+
+### v1.7.0-beta.1
+
+Focus: Beta readiness validation for v1.7.
+
+Beta.1 阶段不新增功能，不新增依赖，不改 API，不修改运行时代码，不改变 CI 触发策略。重点是稳定性验证和 release readiness。
+
+v1.7 alpha series 已完成：
+
+- v1.7.0-alpha.1：report/artifact regression tests。
+- v1.7.0-alpha.2：CI smoke workflow hardening。
+
+Beta.1 验证重点：
+
+- regression test 是否覆盖全部 v1.6.1 修复点。
+- CI workflow 是否稳定通过。
+- Docker Smoke workflow 是否稳定通过。
+- 不新增依赖确认。
+- 不修改训练核心逻辑确认。
+- 不改变现有 API 行为确认。
+
+Checklist：
+
+- [ ] `ruff check .`
+- [ ] `python quick_test.py`
+- [ ] 前端构建检查：
+  - `cd web`
+  - `npm run build`
+  - `cd ..`
+- [ ] `python -m pytest tests/ -v`
+- [ ] `python api_smoke_test.py`
+- [ ] `docker compose config`
+- [ ] `docker compose build`
+- [ ] `docker compose up -d`
+- [ ] `python api_smoke_test.py --wait-finished --write-finished-job-id smoke_finished_job_id.txt`
+- [ ] `type smoke_finished_job_id.txt` — 确认 UUID 已写入
+- [ ] `docker compose restart backend`
+- [ ] `Start-Sleep -Seconds 10`
+- [ ] `python api_smoke_test.py --check-recovery <真实 finished job UUID>`
+- [ ] `docker compose down`
+- [ ] `Remove-Item smoke_finished_job_id.txt` — 清理临时文件
+- [ ] GitHub Actions CI passing
+- [ ] GitHub Actions Docker Smoke manual workflow passing
+
+### v1.7.0-rc.1
+
+Focus: Release candidate validation for v1.7.0.
+
+rc.1 阶段不新增功能，不新增依赖，不改 API，不修改运行时代码，不改变 CI 触发策略。重点是 final release candidate validation。
+
+v1.7.0-beta.1 已完成 beta readiness。alpha series 已完成 regression tests 和 CI hardening。
+
+rc.1 验证重点：
+
+- `ruff check .`
+- `python quick_test.py`
+- `cd web && npm run build`
+- `python -m pytest tests/ -v`
+- `python api_smoke_test.py`
+- Docker Compose config / build / up / down
+- `--wait-finished` smoke run
+- restart recovery check
+- regression test 全量通过
+- CI 和 Docker Smoke workflow 稳定
+
+Checklist：
+
+- [ ] `ruff check .`
+- [ ] `python quick_test.py`
+- [ ] 前端构建检查：
+  - `cd web`
+  - `npm run build`
+  - `cd ..`
+- [ ] `python -m pytest tests/ -v`
+- [ ] `python api_smoke_test.py`
+- [ ] `docker compose config`
+- [ ] `docker compose build`
+- [ ] `docker compose up -d`
+- [ ] `python api_smoke_test.py --wait-finished --write-finished-job-id smoke_finished_job_id.txt`
+- [ ] `type smoke_finished_job_id.txt` — 确认 UUID 已写入
+- [ ] `docker compose restart backend`
+- [ ] `Start-Sleep -Seconds 10`
+- [ ] `python api_smoke_test.py --check-recovery <真实 finished job UUID>`
+- [ ] `docker compose down`
+- [ ] `Remove-Item smoke_finished_job_id.txt` — 清理临时文件
+- [ ] GitHub Actions CI passing on main
+- [ ] GitHub Actions Docker Smoke manual workflow passing on main
+
+### v1.7.0
+
+Focus: Stable regression hardening release.
+
+v1.7.0 不新增 runtime feature，重点是 Runtime / Report / Artifact Regression Hardening。
+
+v1.7.0 release scope：
+
+- report/artifact regression tests。
+- CI smoke workflow hardening。
+- Beta readiness documentation。
+- Release candidate readiness documentation。
+
+v1.7.0-rc.1 已完成 release candidate validation。
+
+Checklist：
+
+- [ ] `ruff check .`
+- [ ] `python quick_test.py`
+- [ ] 前端构建检查：
+  - `cd web`
+  - `npm run build`
+  - `cd ..`
+- [ ] `python -m pytest tests/ -v`
+- [ ] `python api_smoke_test.py`
+- [ ] `docker compose config`
+- [ ] `docker compose build`
+- [ ] `docker compose up -d`
+- [ ] `python api_smoke_test.py --wait-finished --write-finished-job-id smoke_finished_job_id.txt`
+- [ ] `type smoke_finished_job_id.txt` — 确认 UUID 已写入
+- [ ] `docker compose restart backend`
+- [ ] `Start-Sleep -Seconds 10`
+- [ ] `python api_smoke_test.py --check-recovery <真实 finished job UUID>`
+- [ ] `docker compose down`
+- [ ] `Remove-Item smoke_finished_job_id.txt` — 清理临时文件
+- [ ] GitHub Actions CI passing on main
+- [ ] GitHub Actions Docker Smoke manual workflow passing on main
+- [ ] Final tag 打在 main merge commit 上（PR 合并后）
