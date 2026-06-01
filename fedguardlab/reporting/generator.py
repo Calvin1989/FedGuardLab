@@ -7,6 +7,21 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 TEMPLATE_DIR = Path(__file__).parent / "templates"
 
+
+def build_report_artifact_urls(
+    job_id: str,
+    api_base_url: str = "http://127.0.0.1:8000",
+) -> dict[str, str]:
+    base_url = api_base_url.rstrip("/")
+    return {
+        "config_json_url": f"{base_url}/reports/{job_id}/config.json",
+        "metrics_json_url": f"{base_url}/reports/{job_id}/metrics.json",
+        "metrics_csv_url": f"{base_url}/reports/{job_id}/metrics.csv",
+        "summary_md_url": f"{base_url}/reports/{job_id}/report.md",
+        "report_html_url": f"{base_url}/reports/{job_id}",
+    }
+
+
 REPORT_LABELS = {
     "zh": {
         "title": "FedGuardLab 实验报告",
@@ -228,6 +243,7 @@ def generate_html_report(
         config_json=json.dumps(job["config"], indent=2, ensure_ascii=False),
         metrics=metrics,
         final_metric=final_metric,
+        artifact_urls=build_report_artifact_urls(job_id),
     )
 
     output_path = output_dir / "report.html"
