@@ -956,7 +956,7 @@ Focus: CI smoke workflow hardening. ✅ 已完成。
 - [x] 不修改训练核心逻辑。
 - [x] 不改变现有 API 行为。
 
-### v1.7.0-beta.1
+### v1.7.0-beta.1 — completed
 
 Focus: Beta readiness validation for v1.7.
 
@@ -991,47 +991,60 @@ Beta.1 验证重点：
 
 Checklist：
 
-- [ ] `ruff check .`
-- [ ] `python quick_test.py`
-- [ ] 前端构建检查：
+- [x] `ruff check .`
+- [x] `python quick_test.py`
+- [x] 前端构建检查：
   - `cd web`
   - `npm run build`
   - `cd ..`
-- [ ] `python -m pytest tests/ -v`
-- [ ] `python api_smoke_test.py`
-- [ ] `docker compose config`
-- [ ] `docker compose build`
-- [ ] `docker compose up -d`
-- [ ] `python api_smoke_test.py --wait-finished --write-finished-job-id smoke_finished_job_id.txt`
-- [ ] `type smoke_finished_job_id.txt` — 确认 UUID 已写入
-- [ ] `docker compose restart backend`
-- [ ] `Start-Sleep -Seconds 10`
-- [ ] `python api_smoke_test.py --check-recovery <真实 finished job UUID>`
-- [ ] `docker compose down`
-- [ ] `Remove-Item smoke_finished_job_id.txt` — 清理临时文件
-- [ ] GitHub Actions CI passing
-- [ ] GitHub Actions Docker Smoke manual workflow passing
+- [x] `python -m pytest tests/ -v`
+- [x] `python api_smoke_test.py`
+- [x] `docker compose config`
+- [x] `docker compose build`
+- [x] `docker compose up -d`
+- [x] `python api_smoke_test.py --wait-finished --write-finished-job-id smoke_finished_job_id.txt`
+- [x] `type smoke_finished_job_id.txt` — 确认 UUID 已写入
+- [x] `docker compose restart backend`
+- [x] `Start-Sleep -Seconds 10`
+- [x] `python api_smoke_test.py --check-recovery <真实 finished job UUID>`
+- [x] `docker compose down`
+- [x] `Remove-Item smoke_finished_job_id.txt` — 清理临时文件
+- [x] GitHub Actions CI passing
+- [x] GitHub Actions Docker Smoke manual workflow passing
 
 ### v1.7.0-rc.1
 
-Focus: Release candidate validation for v1.7.0.
+Focus: Release candidate readiness for v1.7.0.
 
-rc.1 阶段不新增功能，不新增依赖，不改 API，不修改运行时代码，不改变 CI 触发策略。重点是 final release candidate validation。
+rc.1 阶段不新增功能、不新增依赖、不改变 API、不修改训练核心逻辑。重点是 final release candidate validation。
 
 v1.7.0-beta.1 已完成 beta readiness。alpha series 已完成 regression tests 和 CI hardening。
 
-rc.1 验证重点：
+v1.7 当前已完成能力：
+
+- report/artifact regression tests（tests/test_report_artifact_regression.py）。
+- pytest 接入 CI（.github/workflows/ci.yml）。
+- Docker smoke workflow hardening（.github/workflows/docker-smoke.yml）。
+- job artifact 下载回归保护（config.json、metrics.json、metrics.csv、report.md）。
+- comparison artifact 下载回归保护（comparison.html、comparison.csv、comparison.json）。
+- report.html / comparison.html 模板渲染回归保护。
+- summary persistence / restart recovery 回归保护。
+
+rc.1 最终验证重点：
 
 - `ruff check .`
 - `python quick_test.py`
+- `python -m pytest`
 - `cd web && npm run build`
-- `python -m pytest tests/ -v`
 - `python api_smoke_test.py`
-- Docker Compose config / build / up / down
+- `docker compose config`
+- `docker compose build`
+- `docker compose up` / `docker compose down`
 - `--wait-finished` smoke run
-- restart recovery check
-- regression test 全量通过
-- CI 和 Docker Smoke workflow 稳定
+- backend restart recovery check
+- artifact download check
+- GitHub Actions CI check
+- GitHub Actions Docker Smoke check
 
 Checklist：
 
