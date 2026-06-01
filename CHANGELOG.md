@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+- Prepared v1.6.0 final release readiness documentation.
+  - No new runtime feature; focus is Experiment Comparison UX + Export Polish.
+  - v1.6.0 release scope:
+    - Comparison report metadata polish.
+    - Frontend comparison UX polish.
+    - Export/download entry polish.
+    - Beta readiness documentation.
+    - Release candidate readiness documentation.
+  - v1.6.0 不新增 runtime feature，重点是 Experiment Comparison UX + Export Polish。
+  - Final tag 必须在 PR 合并后打在 main merge commit 上。
 - Prepared v1.6.0-rc.1 release candidate readiness documentation.
   - No new runtime code, no new feature, no CI trigger change.
   - v1.6.0-beta.1 已完成 beta readiness。
