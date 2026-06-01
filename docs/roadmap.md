@@ -723,48 +723,57 @@ v1.6.0 目标：
 - 不新增训练算法、攻击算法。
 - 不大规模重构后端、不引入新数据库、不引入新 UI 框架。
 
-### v1.6.0-alpha.1
+### v1.6.0-alpha.1 — completed
 
 Focus: Comparison report metadata polish.
 
-- [ ] Comparison report 显示更清晰的实验摘要（comparison summary）。
-- [ ] Comparison report 显示参与对比的 job 列表。
-- [ ] Comparison report 显示每个 job 的 config、status、created_at、finished_at。
-- [ ] Comparison report 保持 zh/en 双语（`?lang=zh` / `?lang=en`）。
-- [ ] 不改变现有 API 行为，不修改后端逻辑。
-- [ ] 不引入新依赖。
+- [x] Comparison report 显示更清晰的实验摘要（comparison summary）。
+- [x] Comparison report 显示参与对比的 job 列表。
+- [x] Comparison report 显示每个 job 的 config、status、created_at、finished_at。
+- [x] Comparison report 保持 zh/en 双语（`?lang=zh` / `?lang=en`）。
+- [x] 不改变现有 API 行为，不修改后端逻辑。
+- [x] 不引入新依赖。
 
-### v1.6.0-alpha.2
+### v1.6.0-alpha.2 — completed
 
 Focus: Frontend comparison UX polish.
 
-- [ ] 首页 comparison 区域更清晰。
-- [ ] 选中 jobs 后显示更好的对比预览。
-- [ ] 对比按钮和状态提示更明确。
-- [ ] 不引入新依赖。
-- [ ] 不改变现有 API 行为。
+- [x] 首页 comparison 区域更清晰。
+- [x] 选中 jobs 后显示更好的对比预览。
+- [x] 对比按钮和状态提示更明确。
+- [x] 不引入新依赖。
+- [x] 不改变现有 API 行为。
 
-### v1.6.0-alpha.3
+### v1.6.0-alpha.3 — completed
 
 Focus: Export/download entry polish.
 
-- [ ] report / CSV / Markdown 下载入口更清晰。
-- [ ] job detail panel 中导出入口更统一。
-- [ ] comparison export 入口更清晰。
-- [ ] 不引入新依赖。
-- [ ] 不改变现有 API 行为。
+- [x] report / CSV / Markdown 下载入口更清晰。
+- [x] job detail panel 中导出入口更统一。
+- [x] comparison export 入口更清晰。
+- [x] 不引入新依赖。
+- [x] 不改变现有 API 行为。
 
 ### v1.6.0-beta.1
 
 Focus: Beta readiness validation for v1.6.
 
-Beta.1 阶段不新增功能，不修改运行时代码，不改变 CI 触发策略。重点是稳定性验证和 release readiness。
+Beta.1 阶段不新增功能，不新增依赖，不改 API，不修改运行时代码，不改变 CI 触发策略。重点是稳定性验证和 release readiness。
 
-v1.6 alpha series 计划完成：
+v1.6 alpha series 已完成：
 
-- v1.6.0-alpha.1：Comparison report metadata polish。
-- v1.6.0-alpha.2：Frontend comparison UX polish。
-- v1.6.0-alpha.3：Export/download entry polish。
+- v1.6.0-alpha.1：Comparison report metadata polish（comparison report 显示 job 摘要信息）。
+- v1.6.0-alpha.2：Frontend comparison UX polish（已选择实验预览、comparison 创建反馈优化）。
+- v1.6.0-alpha.3：Export/download entry polish（job 导出区域、comparison 导出区域、report 页面导出优化）。
+
+Beta.1 验证重点：
+
+- comparison report metadata 是否准确。
+- selected jobs preview 是否清晰。
+- comparison creation feedback 是否稳定。
+- job exports 和 comparison exports 是否易发现。
+- zh/en 双语是否一致。
+- report 页面风格是否统一。
 
 Checklist：
 
