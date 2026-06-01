@@ -1113,3 +1113,207 @@ Checklist：
 - [x] GitHub Actions CI passing on main
 - [x] GitHub Actions Docker Smoke manual workflow passing on main
 - [x] Final tag 打在 main merge commit 上（PR 合并后）
+
+---
+
+## v1.8.0 Roadmap
+
+v1.8.0 主题：Experiment Observability and Result Insight.
+
+v1.8.0 目标：
+
+- 提升实验运行可观测性。
+- 提升失败可解释性。
+- 提升结果对比可读性。
+- 提升报告洞察能力。
+- 不新增依赖，除非非常必要。
+- 不重构训练核心。
+- 不破坏现有 API。
+- 不破坏已有 report/artifact URL。
+- 保持中文 / English 双语。
+- 保持 v1.7.0 已有 regression tests 和 CI workflow。
+- 不优先做：新训练算法、新攻击算法、大规模后端重构、新数据库、新 UI 框架、新依赖。
+
+### v1.8.0-alpha.1
+
+Focus: Job event timeline and runtime diagnostics.
+
+- [ ] 为 job 增加轻量 event timeline。
+- [ ] 展示 job 生命周期事件：created、started、round_progress、artifact_written、finished、failed、cancelled。
+- [ ] API 返回 job detail 时包含 events。
+- [ ] 前端 job detail panel 展示事件时间线。
+- [ ] 失败时显示 failure reason / traceback summary。
+- [ ] 不改变训练核心算法。
+- [ ] 不新增依赖。
+
+### v1.8.0-alpha.2
+
+Focus: Result insight cards and comparison highlights.
+
+- [ ] 首页增加结果洞察卡片。
+- [ ] comparison report 增加结果洞察卡片。
+- [ ] 高亮最佳 accuracy、最低 loss、最低 ASR。
+- [ ] 对比不同实验时给出简短中文/英文摘要。
+- [ ] comparison report 中显示 winner / trade-off / risk hint。
+- [ ] 不改变现有 comparison artifact 路径。
+- [ ] 不新增依赖。
+
+### v1.8.0-alpha.3
+
+Focus: Config preview and explainability polish.
+
+- [ ] 运行实验前展示配置预览。
+- [ ] 展示 dataset、aggregation、attack、defense、rounds、clients 等关键参数。
+- [ ] 对关键配置字段给出简短中文/英文解释。
+- [ ] 降低用户误选配置的概率。
+- [ ] 不新增复杂配置编辑器。
+- [ ] 不新增依赖。
+
+### v1.8.0-beta.1
+
+Focus: Beta readiness validation for v1.8.
+
+Beta.1 阶段不新增功能、不新增依赖、不改变 API、不修改训练核心逻辑。重点是稳定性验证和 release readiness。
+
+v1.8 alpha series 已完成（待 alpha 完成后更新）：
+
+- v1.8.0-alpha.1：Job event timeline and runtime diagnostics。
+- v1.8.0-alpha.2：Result insight cards and comparison highlights。
+- v1.8.0-alpha.3：Config preview and explainability polish。
+
+v1.8 当前已完成能力（待 alpha 完成后更新）：
+
+- Job event timeline。
+- Runtime diagnostics / failure reason 展示。
+- Result insight cards。
+- Comparison highlights（winner / trade-off / risk hint）。
+- Config preview and explainability。
+
+Beta.1 验证重点：
+
+- `ruff check .`
+- `python quick_test.py`
+- `python -m pytest`
+- `cd web && npm run build`
+- `python api_smoke_test.py`
+- `docker compose config` / `build` / `up` / `down`
+- `--wait-finished` smoke run
+- backend restart recovery check
+- artifact download check
+- event timeline 功能验证
+- result insight 功能验证
+- config preview 功能验证
+
+Checklist：
+
+- [ ] `ruff check .`
+- [ ] `python quick_test.py`
+- [ ] 前端构建检查：
+  - `cd web`
+  - `npm run build`
+  - `cd ..`
+- [ ] `python -m pytest tests/ -v`
+- [ ] `python api_smoke_test.py`
+- [ ] `docker compose config`
+- [ ] `docker compose build`
+- [ ] `docker compose up -d`
+- [ ] `python api_smoke_test.py --wait-finished --write-finished-job-id smoke_finished_job_id.txt`
+- [ ] `type smoke_finished_job_id.txt` — 确认 UUID 已写入
+- [ ] `docker compose restart backend`
+- [ ] `Start-Sleep -Seconds 10`
+- [ ] `python api_smoke_test.py --check-recovery <真实 finished job UUID>`
+- [ ] `docker compose down`
+- [ ] `Remove-Item smoke_finished_job_id.txt` — 清理临时文件
+- [ ] GitHub Actions CI passing
+- [ ] GitHub Actions Docker Smoke manual workflow passing
+
+### v1.8.0-rc.1
+
+Focus: Release candidate readiness for v1.8.0.
+
+rc.1 阶段不新增功能、不新增依赖、不改变 API、不修改训练核心逻辑。重点是 final release candidate validation。
+
+v1.8.0-beta.1 已完成 beta readiness。alpha series 已完成 observability 和 insight 增强。
+
+rc.1 最终验证重点：
+
+- `ruff check .`
+- `python quick_test.py`
+- `python -m pytest`
+- `cd web && npm run build`
+- `python api_smoke_test.py`
+- `docker compose config`
+- `docker compose build`
+- `docker compose up` / `docker compose down`
+- `--wait-finished` smoke run
+- backend restart recovery check
+- artifact download check
+- GitHub Actions CI check
+- GitHub Actions Docker Smoke check
+- event timeline 功能验证
+- result insight 功能验证
+- config preview 功能验证
+- zh/en 双语验证
+
+Checklist：
+
+- [ ] `ruff check .`
+- [ ] `python quick_test.py`
+- [ ] 前端构建检查：
+  - `cd web`
+  - `npm run build`
+  - `cd ..`
+- [ ] `python -m pytest tests/ -v`
+- [ ] `python api_smoke_test.py`
+- [ ] `docker compose config`
+- [ ] `docker compose build`
+- [ ] `docker compose up -d`
+- [ ] `python api_smoke_test.py --wait-finished --write-finished-job-id smoke_finished_job_id.txt`
+- [ ] `type smoke_finished_job_id.txt` — 确认 UUID 已写入
+- [ ] `docker compose restart backend`
+- [ ] `Start-Sleep -Seconds 10`
+- [ ] `python api_smoke_test.py --check-recovery <真实 finished job UUID>`
+- [ ] `docker compose down`
+- [ ] `Remove-Item smoke_finished_job_id.txt` — 清理临时文件
+- [ ] GitHub Actions CI passing on main
+- [ ] GitHub Actions Docker Smoke manual workflow passing on main
+
+### v1.8.0
+
+Focus: Stable observability and insight release.
+
+v1.8.0 不新增 runtime feature（除 observability / insight 增强外），重点是 Experiment Observability and Result Insight。
+
+v1.8.0 release scope：
+
+- Job event timeline and runtime diagnostics。
+- Result insight cards and comparison highlights。
+- Config preview and explainability polish。
+- Beta readiness documentation。
+- Release candidate readiness documentation。
+
+v1.8.0-rc.1 已完成 release candidate validation。
+
+Checklist：
+
+- [ ] `ruff check .`
+- [ ] `python quick_test.py`
+- [ ] 前端构建检查：
+  - `cd web`
+  - `npm run build`
+  - `cd ..`
+- [ ] `python -m pytest tests/ -v`
+- [ ] `python api_smoke_test.py`
+- [ ] `docker compose config`
+- [ ] `docker compose build`
+- [ ] `docker compose up -d`
+- [ ] `python api_smoke_test.py --wait-finished --write-finished-job-id smoke_finished_job_id.txt`
+- [ ] `type smoke_finished_job_id.txt` — 确认 UUID 已写入
+- [ ] `docker compose restart backend`
+- [ ] `Start-Sleep -Seconds 10`
+- [ ] `python api_smoke_test.py --check-recovery <真实 finished job UUID>`
+- [ ] `docker compose down`
+- [ ] `Remove-Item smoke_finished_job_id.txt` — 清理临时文件
+- [ ] GitHub Actions CI passing on main
+- [ ] GitHub Actions Docker Smoke manual workflow passing on main
+- [ ] Final tag 打在 main merge commit 上（PR 合并后）

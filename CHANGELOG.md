@@ -1,5 +1,34 @@
 # Changelog
 
+## Unreleased
+
+- Prepared v1.8.0 roadmap planning.
+  - Documentation-only update; no runtime feature, no CI behavior change.
+  - v1.8.0 theme: Experiment Observability and Result Insight.
+  - v1.8.0 goals：
+    - 为 job 增加轻量 event timeline，展示生命周期事件。
+    - 失败时显示 failure reason / traceback summary。
+    - 首页和 comparison report 增加结果洞察卡片。
+    - 高亮最佳 accuracy、最低 loss、最低 ASR。
+    - 对比实验时给出简短中文/英文摘要。
+    - comparison report 展示 winner / trade-off / risk hint。
+    - 运行实验前展示配置预览。
+    - 对关键配置字段给出中文/英文解释。
+    - 降低用户误选配置的概率。
+    - 不新增依赖，除非非常必要。
+    - 不重构训练核心。
+    - 不破坏现有 API。
+    - 不破坏已有 report/artifact URL。
+    - 保持中文 / English 双语。
+    - 保持 v1.7.0 已有 regression tests 和 CI workflow。
+  - v1.8.0-alpha.1：Job event timeline and runtime diagnostics。
+  - v1.8.0-alpha.2：Result insight cards and comparison highlights。
+  - v1.8.0-alpha.3：Config preview and explainability polish。
+  - v1.8.0-beta.1：Beta readiness。
+  - v1.8.0-rc.1：Release candidate readiness。
+  - v1.8.0：Final release。
+  - v1.8 不优先做：新训练算法、新攻击算法、大规模后端重构、新数据库、新 UI 框架、新依赖。
+
 ## v1.7.0
 
 v1.7.0 final release — Runtime / Report / Artifact Regression Hardening。
