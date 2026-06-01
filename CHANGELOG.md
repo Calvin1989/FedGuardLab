@@ -2,6 +2,27 @@
 
 ## Unreleased
 
+- Prepared v1.6.0-rc.1 release candidate readiness documentation.
+  - No new runtime code, no new feature, no CI trigger change.
+  - v1.6.0-beta.1 已完成 beta readiness。
+  - rc.1 阶段不新增功能，不新增依赖，不改 API，不修改运行时代码。
+  - v1.6 alpha series 已完成：
+    - alpha.1: Comparison report metadata polish。
+    - alpha.2: Frontend comparison UX polish。
+    - alpha.3: Export/download entry polish。
+  - Beta.1 已完成 beta readiness 验证。
+  - rc.1 focus: Release candidate validation for v1.6 comparison UX and export polish。
+  - rc.1 验证重点：
+    - `ruff check .`
+    - `python quick_test.py`
+    - `cd web && npm run build`
+    - `python api_smoke_test.py`
+    - Docker Compose config / build / up / down
+    - `--wait-finished` smoke run
+    - restart recovery check
+    - zh/en dashboard 手动检查
+    - zh/en experiment report 手动检查
+    - zh/en comparison report 手动检查
 - Prepared v1.6.0-beta.1 readiness documentation.
   - No new runtime code, no new feature, no CI trigger change.
   - Beta.1 阶段不新增功能，不新增依赖，不改 API。
