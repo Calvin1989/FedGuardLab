@@ -114,6 +114,12 @@ const messages = {
     comparisonLabel: "对比",
     openComparisonReport: "查看对比报告",
     selectAtLeastTwo: "请至少选择两个已完成的实验。",
+    selectedJobsTitle: "已选择实验",
+    selectedJobsCount: "已选择 {count} 个实验",
+    selectedJobsHint: "至少需要选择 2 个实验才能生成对比报告。",
+    comparisonCreating: "正在生成对比报告…",
+    comparisonSuccess: "对比报告已生成。",
+    comparisonFailed: "对比报告生成失败。",
     statusValues: {
       idle: "空闲",
       creating: "创建中",
@@ -195,6 +201,12 @@ const messages = {
     comparisonLabel: "Comparison",
     openComparisonReport: "Open Comparison Report",
     selectAtLeastTwo: "Please select at least two finished experiments.",
+    selectedJobsTitle: "Selected Jobs",
+    selectedJobsCount: "{count} job(s) selected",
+    selectedJobsHint: "Select at least 2 experiments to generate a comparison report.",
+    comparisonCreating: "Generating comparison report…",
+    comparisonSuccess: "Comparison report generated.",
+    comparisonFailed: "Failed to generate comparison report.",
     statusValues: {
       idle: "idle",
       creating: "creating",
@@ -1280,16 +1292,56 @@ async function startExperiment() {
         </div>
       </div>
 
-      <div v-if="comparisonError" class="error comparison-message">
-        <strong>{{ t.errorLabel }}:</strong>
-        <span>{{ comparisonError }}</span>
+      <div v-if="selectedJobIds.length > 0" class="selected-jobs-preview">
+        <div class="selected-jobs-header">
+          <p class="section-kicker">{{ t.selectedJobsTitle }}</p>
+          <span class="selected-jobs-count">
+            {{ t.selectedJobsCount.replace('{count}', selectedJobIds.length) }}
+          </span>
+        </div>
+
+        <div class="selected-jobs-list">
+          <div
+            v-for="jobId in selectedJobIds"
+            :key="jobId"
+            class="selected-job-chip"
+          >
+            <span class="selected-job-id">{{ jobId.slice(0, 8) }}</span>
+            <span class="selected-job-name">
+              {{ (recentJobs.find(j => j.job_id === jobId) || {}).experiment_name || (recentJobs.find(j => j.job_id === jobId) || {}).config_path || '—' }}
+            </span>
+            <span
+              class="selected-job-status"
+              :class="'status-' + ((recentJobs.find(j => j.job_id === jobId) || {}).status || '')"
+            >
+              {{ t.statusValues[(recentJobs.find(j => j.job_id === jobId) || {}).status] || (recentJobs.find(j => j.job_id === jobId) || {}).status || '—' }}
+            </span>
+            <span class="selected-job-time">
+              {{ (recentJobs.find(j => j.job_id === jobId) || {}).finished_at || (recentJobs.find(j => j.job_id === jobId) || {}).created_at || '—' }}
+            </span>
+          </div>
+        </div>
       </div>
 
-      <div v-if="comparisonUrl" class="comparison-message">
-        <strong>{{ t.comparisonLabel }}:</strong>
+      <div v-if="comparisonStatus === 'creating'" class="comparison-feedback creating">
+        <span class="feedback-spinner"></span>
+        {{ t.comparisonCreating }}
+      </div>
+
+      <div v-if="comparisonStatus === 'finished' && comparisonUrl" class="comparison-feedback success">
+        <strong>{{ t.comparisonSuccess }}</strong>
         <a class="report-link" :href="withLang(comparisonUrl)" target="_blank">
           {{ t.openComparisonReport }}
         </a>
+      </div>
+
+      <div v-if="comparisonStatus === 'error' && comparisonError" class="comparison-feedback error-feedback">
+        <strong>{{ t.comparisonFailed }}</strong>
+        <span>{{ comparisonError }}</span>
+      </div>
+
+      <div v-if="selectedJobIds.length < 2 && selectedJobIds.length > 0" class="comparison-hint">
+        {{ t.selectedJobsHint }}
       </div>
     </section>
   </main>
@@ -1979,6 +2031,167 @@ button:disabled,
   color: #64748b;
 }
 
+/* ---------------- Selected Jobs Preview ---------------- */
+
+.selected-jobs-preview {
+  margin-top: 20px;
+  padding: 18px 20px;
+  border: 1px solid rgba(37, 99, 235, 0.2);
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(219, 234, 254, 0.3), rgba(255, 255, 255, 0.92));
+}
+
+.selected-jobs-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.selected-jobs-header .section-kicker {
+  margin: 0;
+}
+
+.selected-jobs-count {
+  color: #2563eb;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.selected-jobs-list {
+  display: grid;
+  gap: 8px;
+}
+
+.selected-job-chip {
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.86);
+  font-size: 12px;
+}
+
+.selected-job-id {
+  color: #64748b;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11px;
+}
+
+.selected-job-name {
+  color: #172033;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.selected-job-status {
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+  background: #eef2ff;
+  color: #334155;
+}
+
+.selected-job-status.status-finished {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.selected-job-status.status-running {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.selected-job-status.status-failed {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.selected-job-status.status-cancelled {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.selected-job-time {
+  color: #64748b;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+/* ---------------- Comparison Feedback ---------------- */
+
+.comparison-feedback {
+  margin-top: 18px;
+  padding: 14px 18px;
+  border-radius: 16px;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.comparison-feedback.creating {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid rgba(37, 99, 235, 0.24);
+  background: rgba(219, 234, 254, 0.4);
+  color: #1d4ed8;
+}
+
+.comparison-feedback.success {
+  border: 1px solid rgba(22, 163, 74, 0.24);
+  background: rgba(220, 252, 231, 0.4);
+  color: #166534;
+}
+
+.comparison-feedback.success strong {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.comparison-feedback.error-feedback {
+  border: 1px solid rgba(220, 38, 38, 0.24);
+  background: rgba(254, 226, 226, 0.4);
+  color: #b91c1c;
+}
+
+.comparison-feedback.error-feedback strong {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.feedback-spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(29, 78, 216, 0.3);
+  border-top-color: #1d4ed8;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.comparison-hint {
+  margin-top: 12px;
+  padding: 10px 14px;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 12px;
+  background: rgba(248, 250, 252, 0.7);
+  color: #64748b;
+  font-size: 12px;
+}
+
 /* ---------------- Responsive ---------------- */
 
 @media (max-width: 980px) {
@@ -2048,6 +2261,19 @@ button:disabled,
 
   .lang-switcher {
     margin-top: 22px;
+  }
+
+  .selected-job-chip {
+    grid-template-columns: 1fr 1fr;
+    gap: 6px 12px;
+  }
+
+  .selected-job-id {
+    grid-column: 1 / -1;
+  }
+
+  .selected-job-name {
+    grid-column: 1 / -1;
   }
 }
 </style>

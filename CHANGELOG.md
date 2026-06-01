@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+- Added frontend comparison selection preview and clearer comparison action states.
+  - 新增已选择实验预览区域（Selected Jobs Preview）。
+  - 显示已选择 job 数量、短 ID、实验名称、status、完成时间。
+  - 优化 comparison 创建按钮状态：未选择足够 jobs 时 disabled 并显示提示。
+  - 创建中显示 loading spinner 和提示文案。
+  - 创建成功后显示成功提示和 comparison report 链接。
+  - 创建失败后显示清晰错误信息。
+  - 保持中文 / English 双语。
+  - 不修改 API、不修改 report 模板、不引入新依赖。
 - Added comparison report metadata section with compared job summaries.
   - Comparison HTML report 新增"参与实验 / Compared Jobs"区域。
   - 显示每个参与对比的 job 的 job_id、experiment_name、config_path、status、created_at、finished_at。
