@@ -75,6 +75,26 @@ def _assert_artifacts_complete(data: dict[str, Any], *, require_files: bool) -> 
             assert Path(val).exists(), f"artifact file missing: {val}"
 
 
+EXPECTED_SUMMARY_FIELDS = {
+    "aggregation",
+    "defense",
+    "attack",
+    "final_accuracy",
+    "final_loss",
+    "final_asr",
+    "has_report",
+}
+
+
+def _assert_summary_fields(data: dict[str, Any]) -> None:
+    """Verify that a /status or /jobs summary includes all expected fields."""
+    missing = EXPECTED_SUMMARY_FIELDS - data.keys()
+    assert not missing, f"missing summary fields: {missing}"
+    assert isinstance(data["has_report"], bool), (
+        f"has_report not bool: {data['has_report']}"
+    )
+
+
 def _assert_index_consistent(job_id: str, status_data: dict[str, Any]) -> None:
     assert JOB_INDEX_PATH.exists(), f"index file missing: {JOB_INDEX_PATH}"
     index = json.loads(JOB_INDEX_PATH.read_text(encoding="utf-8"))
@@ -119,6 +139,7 @@ def run_recovery_check(job_id: str) -> None:
     assert data.get("metrics_count", 0) > 0, f"no metrics: {data}"
     assert data.get("has_report") is True, f"has_report not True: {data}"
     _assert_artifacts_complete(data, require_files=True)
+    _assert_summary_fields(data)
     _assert_index_consistent(job_id, data)
     _assert_report_artifact_downloads(job_id)
     print(f"[OK]  recovery check passed for job_id={job_id}", flush=True)
@@ -157,6 +178,20 @@ def _assert_report_artifact_downloads(job_id: str) -> None:
         assert code == 200, f"expected 200 for {artifact_path}, got {code}"
         assert content, f"empty artifact response for {artifact_path}"
         print(f"[OK]  GET {artifact_path}", flush=True)
+
+
+def _assert_comparison_artifact_downloads(comparison_id: str) -> None:
+    for artifact_path in (
+        f"/comparisons/{comparison_id}",
+        f"/comparisons/{comparison_id}/comparison.csv",
+        f"/comparisons/{comparison_id}/comparison.json",
+    ):
+        print(f"[RUN] GET {artifact_path}", flush=True)
+        code, content = _get_raw_with_status(artifact_path)
+        assert code == 200, f"expected 200 for {artifact_path}, got {code}"
+        assert content, f"empty artifact response for {artifact_path}"
+        print(f"[OK]  GET {artifact_path}", flush=True)
+
 
 def _assert_jobs_query_params() -> None:
     print("[RUN] GET /jobs?limit=1", flush=True)
@@ -301,6 +336,7 @@ def main() -> None:
         assert isinstance(data.get("artifacts"), dict), f"artifacts not dict: {data}"
         assert "report_html" in data["artifacts"], f"report_html missing: {data}"
         _assert_artifacts_complete(data, require_files=True)
+        _assert_summary_fields(data)
         _assert_index_consistent(job_id, data)
         _assert_report_artifact_downloads(job_id)
         print(
