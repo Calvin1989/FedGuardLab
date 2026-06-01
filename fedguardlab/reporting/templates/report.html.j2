@@ -1,161 +1,275 @@
+{% set lang_code = lang|default("zh") %}
+{% set L = labels|default({}) %}
 <!DOCTYPE html>
-<html lang="{{ lang }}">
+<html lang="{{ lang_code }}">
 <head>
   <meta charset="UTF-8" />
-  <title>{{ labels.title }} - {{ job_id }}</title>
+  <title>{{ L.report_title|default("FedGuardLab 实验报告") }} - {{ job_id }}</title>
   <style>
+    :root {
+      color-scheme: light;
+      --surface: rgba(255, 255, 255, 0.92);
+      --surface-strong: #ffffff;
+      --surface-soft: #f8fafc;
+      --border: rgba(148, 163, 184, 0.24);
+      --border-strong: rgba(148, 163, 184, 0.38);
+      --text: #0f172a;
+      --muted: #64748b;
+      --muted-strong: #475569;
+      --primary: #2563eb;
+      --primary-strong: #1d4ed8;
+      --primary-soft: #dbeafe;
+      --success: #16a34a;
+      --success-soft: #dcfce7;
+      --shadow: 0 24px 70px rgba(15, 23, 42, 0.12);
+      --shadow-soft: 0 14px 40px rgba(15, 23, 42, 0.08);
+      --radius-xl: 30px;
+      --radius-lg: 20px;
+      --radius-md: 14px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html {
+      min-height: 100%;
+      background:
+        radial-gradient(circle at 12% 0%, rgba(99, 102, 241, 0.16), transparent 28%),
+        radial-gradient(circle at 90% 8%, rgba(56, 189, 248, 0.18), transparent 30%),
+        linear-gradient(135deg, #f6f7ff 0%, #f8fbff 48%, #f6f2ff 100%);
+    }
+
     body {
+      min-height: 100vh;
       margin: 0;
-      background: #f8fafc;
-      color: #0f172a;
+      padding: 36px 20px 64px;
+      color: var(--text);
       font-family:
-        Inter,
-        ui-sans-serif,
-        system-ui,
-        -apple-system,
-        BlinkMacSystemFont,
-        "Segoe UI",
-        sans-serif;
+        Inter, "Microsoft YaHei", "PingFang SC", "Noto Sans CJK SC",
+        ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+        "Segoe UI", sans-serif;
     }
 
-    .container {
+    .page-shell {
       max-width: 1120px;
-      margin: 40px auto;
-      padding: 40px;
-      background: #ffffff;
-      border: 1px solid #e2e8f0;
-      border-radius: 18px;
-      box-shadow: 0 24px 60px rgba(15, 23, 42, 0.08);
+      margin: 0 auto;
     }
 
-    .report-kicker {
-      color: #64748b;
-      font-size: 14px;
-      font-weight: 700;
-      letter-spacing: 0.04em;
+    .hero {
+      position: relative;
+      overflow: hidden;
+      padding: 42px 44px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      background:
+        radial-gradient(circle at 96% 85%, rgba(59, 130, 246, 0.14), transparent 24%),
+        linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(249, 251, 255, 0.9));
+      box-shadow: var(--shadow);
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      right: -138px;
+      bottom: -172px;
+      width: 410px;
+      height: 410px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, rgba(96, 165, 250, 0.22), rgba(168, 85, 247, 0.09));
+      pointer-events: none;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      top: -150px;
+      left: 38%;
+      width: 330px;
+      height: 330px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.62);
+      filter: blur(16px);
+      pointer-events: none;
+    }
+
+    .hero > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .top-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 320px;
+      gap: 30px;
+      align-items: start;
+    }
+
+    .kicker {
+      margin: 0 0 10px;
+      color: var(--primary);
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 0.16em;
       text-transform: uppercase;
     }
 
     h1 {
-      margin: 10px 0 18px;
-      font-size: 36px;
-      line-height: 1.1;
+      max-width: 720px;
+      margin: 0;
+      color: var(--text);
+      font-size: clamp(34px, 4vw, 52px);
+      line-height: 1.08;
+      letter-spacing: -0.052em;
     }
 
-    h2 {
-      margin-top: 32px;
-      margin-bottom: 16px;
-      font-size: 22px;
+    .subtitle {
+      max-width: 720px;
+      margin: 18px 0 0;
+      color: #5f6f87;
+      font-size: 15px;
+      line-height: 1.78;
+    }
+
+    .meta-panel,
+    .meta-card {
+      padding: 18px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      background: rgba(255, 255, 255, 0.86);
+      box-shadow: var(--shadow-soft);
+      backdrop-filter: blur(14px);
+    }
+
+    .meta-panel strong,
+    .meta-card span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .meta-panel span,
+    .meta-card strong {
+      display: block;
+      margin-top: 7px;
+      overflow-wrap: anywhere;
+      color: var(--text);
+      font-weight: 900;
+    }
+
+    .meta-card strong {
+      font-size: 28px;
+      line-height: 1.1;
+      letter-spacing: -0.04em;
+    }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+      min-width: 0;
+    }
+
+    .section {
+      margin-top: 24px;
+      padding: 26px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      background: var(--surface);
+      box-shadow: var(--shadow-soft);
+      backdrop-filter: blur(14px);
+    }
+
+    .section h2 {
+      margin: 0 0 18px;
+      color: var(--text);
+      font-size: 23px;
+      letter-spacing: -0.03em;
     }
 
     .metric-grid {
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 16px;
-      margin: 24px 0;
+      margin-top: 24px;
     }
 
-    .metric-card {
+    .metric-card,
+    .export-card {
       padding: 18px;
-      border: 1px solid #e2e8f0;
-      border-radius: 14px;
-      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      background: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(248,250,252,0.92));
+      box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
     }
 
     .metric-label {
       display: block;
-      color: #64748b;
-      font-size: 13px;
-      font-weight: 700;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
     }
 
     .metric-value {
       display: block;
-      margin-top: 8px;
-      font-size: 28px;
-      font-weight: 800;
+      margin-top: 10px;
+      color: var(--text);
+      font-size: clamp(24px, 3vw, 34px);
+      line-height: 1.1;
+      font-weight: 900;
+      letter-spacing: -0.04em;
     }
 
-    .overview-table {
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      background: var(--surface-strong);
+    }
+
+    table {
       width: 100%;
       border-collapse: collapse;
-      overflow: hidden;
-      border: 1px solid #e2e8f0;
-      border-radius: 12px;
+      font-size: 14px;
     }
 
-    .overview-table th,
-    .overview-table td {
-      padding: 12px 14px;
-      border-bottom: 1px solid #e2e8f0;
+    th,
+    td {
+      padding: 13px 15px;
+      border-bottom: 1px solid rgba(226, 232, 240, 0.9);
+      vertical-align: top;
+    }
+
+    th {
+      color: #334155;
+      background: linear-gradient(180deg, #f8fafc, #f1f5f9);
+      font-weight: 900;
       text-align: left;
+      white-space: nowrap;
+    }
+
+    td {
+      color: var(--muted-strong);
+    }
+
+    tr:last-child th,
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    tbody tr:hover {
+      background: rgba(37, 99, 235, 0.035);
     }
 
     .overview-table th {
-      width: 35%;
-      background: #f1f5f9;
-    }
-
-    .export-grid {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 12px;
-      margin-bottom: 16px;
-    }
-
-    .export-card {
-      padding: 14px;
-      border: 1px solid #e2e8f0;
-      border-radius: 12px;
-      background: #f8fafc;
-    }
-
-    .export-card strong {
-      display: block;
-      font-size: 14px;
-    }
-
-    .export-card span {
-      display: block;
-      margin-top: 6px;
-      color: #64748b;
-      font-size: 13px;
-    }
-
-    .config-details {
-      margin-top: 16px;
-      border: 1px solid #e2e8f0;
-      border-radius: 14px;
-      background: #f8fafc;
-      overflow: hidden;
-    }
-
-    .config-details summary {
-      cursor: pointer;
-      padding: 16px 18px;
-      font-weight: 800;
-    }
-
-    pre {
-      margin: 0;
-      padding: 20px;
-      overflow-x: auto;
-      background: #0f172a;
-      color: #e2e8f0;
-      font-size: 13px;
-      line-height: 1.55;
-    }
-
-    .metrics-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 14px;
+      width: 34%;
     }
 
     .metrics-table th,
     .metrics-table td {
-      padding: 10px 12px;
-      border-bottom: 1px solid #e2e8f0;
       text-align: right;
     }
 
@@ -164,174 +278,330 @@
       text-align: left;
     }
 
-    .metrics-table th {
-      background: #f1f5f9;
+    .export-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
     }
 
-    .label-counts {
-      font-family:
-        ui-monospace,
-        SFMono-Regular,
-        Menlo,
-        Monaco,
-        Consolas,
-        "Liberation Mono",
-        monospace;
-      font-size: 12px;
+    .export-card strong {
+      display: block;
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 900;
+    }
+
+    .export-card span {
+      display: block;
+      margin-top: 7px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .config-details {
+      margin-top: 18px;
+      overflow: hidden;
+      border: 1px solid rgba(15, 23, 42, 0.16);
+      border-radius: var(--radius-lg);
+      background: #0f172a;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
+    }
+
+    .config-details summary {
+      cursor: pointer;
+      padding: 16px 18px;
+      color: #e2e8f0;
+      font-weight: 900;
+      background: rgba(15, 23, 42, 0.96);
+    }
+
+    pre {
+      margin: 0;
+      padding: 20px;
+      overflow-x: auto;
+      color: #dbeafe;
+      background: #111827;
+      font-size: 13px;
+      line-height: 1.65;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    }
+
+    .label-counts,
+    .job-id {
       color: #334155;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: 12px;
+      overflow-wrap: anywhere;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 26px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: var(--primary-soft);
+      color: var(--primary-strong);
+      font-size: 12px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .status-badge::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: currentColor;
+    }
+
+    .metric-strong {
+      color: var(--text);
+      font-weight: 900;
+    }
+
+    .action-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 34px;
+      padding: 8px 13px;
+      border: 1px solid rgba(147, 197, 253, 0.58);
+      border-radius: 999px;
+      color: var(--primary-strong);
+      background: #eff6ff;
+      font-size: 13px;
+      font-weight: 900;
+      text-decoration: none;
+      white-space: nowrap;
+      transition: transform 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
+    }
+
+    .action-link:hover {
+      transform: translateY(-1px);
+      background: #dbeafe;
+      box-shadow: 0 8px 20px rgba(37, 99, 235, 0.16);
+    }
+
+    .note {
+      margin-top: 24px;
+      padding: 18px 20px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      color: var(--muted-strong);
+      background: linear-gradient(180deg, rgba(255,255,255,0.92), rgba(248,250,252,0.88));
+      line-height: 1.75;
+    }
+
+    code {
+      padding: 2px 6px;
+      border-radius: 7px;
+      background: #e2e8f0;
+      color: #334155;
+      font-size: 12px;
+    }
+
+    @media (max-width: 900px) {
+      body { padding: 24px 14px; }
+      .top-row { grid-template-columns: 1fr; }
+      .meta-panel { width: 100%; }
+      .metric-grid,
+      .export-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 640px) {
+      .hero,
+      .section { padding: 22px; border-radius: 22px; }
+      .metric-grid,
+      .export-grid { grid-template-columns: 1fr; }
+      th,
+      td { padding: 11px 12px; }
+      h1 { font-size: clamp(30px, 10vw, 42px); }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <p class="report-kicker">{{ labels.title }}</p>
-    <h1>{{ experiment_name }}</h1>
+  <main class="page-shell">
+    <section class="hero">
+      <div class="top-row">
+        <div>
+          <p class="kicker">{{ L.report_kicker|default("FedGuardLab Experiment Report") }}</p>
+          <h1>{{ L.report_title|default("FedGuardLab 实验报告") }}</h1>
+          <p class="subtitle">
+            {{ L.report_subtitle|default("查看本次联邦学习安全实验的最终指标、配置摘要、导出文件与逐轮训练结果。") }}
+          </p>
+        </div>
 
-    <p><strong>{{ labels.job_id }}：</strong> {{ job_id }}</p>
-    <p><strong>{{ labels.status }}：</strong> {{ status }}</p>
-
-    <div class="metric-grid">
-      <div class="metric-card">
-        <span class="metric-label">{{ labels.final_round }}</span>
-        <strong class="metric-value">{{ final_metric.round }}</strong>
+        <aside class="meta-panel">
+          <strong>{{ L.job_id|default("任务 ID") }}</strong>
+          <span>{{ job_id }}</span>
+          <br />
+          <strong>{{ L.status|default("状态") }}</strong>
+          <span class="status-badge">{{ status }}</span>
+        </aside>
       </div>
 
-      <div class="metric-card">
-        <span class="metric-label">{{ labels.final_accuracy }}</span>
-        <strong class="metric-value">{{ final_metric.accuracy }}</strong>
+      <div class="metric-grid">
+        <div class="metric-card">
+          <span class="metric-label">{{ L.final_round|default("最终轮次") }}</span>
+          <strong class="metric-value">{{ final_metric.round }}</strong>
+        </div>
+
+        <div class="metric-card">
+          <span class="metric-label">{{ L.final_accuracy|default("最终准确率") }}</span>
+          <strong class="metric-value">{{ final_metric.accuracy }}</strong>
+        </div>
+
+        <div class="metric-card">
+          <span class="metric-label">{{ L.final_loss|default("最终损失") }}</span>
+          <strong class="metric-value">{{ final_metric.loss }}</strong>
+        </div>
+
+        <div class="metric-card">
+          <span class="metric-label">{{ L.final_asr|default("最终 ASR") }}</span>
+          <strong class="metric-value">{{ final_metric.attack_success_rate }}</strong>
+        </div>
       </div>
+    </section>
 
-      <div class="metric-card">
-        <span class="metric-label">{{ labels.final_loss }}</span>
-        <strong class="metric-value">{{ final_metric.loss }}</strong>
+    <section class="section">
+      <h2>{{ L.experiment_overview|default("实验概览") }}</h2>
+
+      <div class="table-wrap">
+        <table class="overview-table">
+          <tbody>
+            <tr>
+              <th>{{ L.trainer|default("训练器") }}</th>
+              <td>{{ final_metric.trainer }}</td>
+            </tr>
+            <tr>
+              <th>{{ L.mode|default("模式") }}</th>
+              <td>{{ final_metric.mode }}</td>
+            </tr>
+            <tr>
+              <th>{{ L.dataset|default("数据集") }}</th>
+              <td>{{ final_metric.dataset }}</td>
+            </tr>
+            <tr>
+              <th>{{ L.partition|default("数据划分") }}</th>
+              <td>{{ final_metric.partition }}</td>
+            </tr>
+            <tr>
+              <th>{{ L.clients|default("客户端数量") }}</th>
+              <td>{{ final_metric.num_clients }}</td>
+            </tr>
+            <tr>
+              <th>{{ L.malicious_clients|default("恶意客户端") }}</th>
+              <td>{{ final_metric.malicious_clients }}</td>
+            </tr>
+            <tr>
+              <th>{{ L.aggregation|default("聚合方法") }}</th>
+              <td>{{ final_metric.aggregation }}</td>
+            </tr>
+            <tr>
+              <th>{{ L.attack|default("攻击") }}</th>
+              <td>{{ final_metric.attack }}</td>
+            </tr>
+            <tr>
+              <th>{{ L.defense|default("防御") }}</th>
+              <td>{{ final_metric.defense }}</td>
+            </tr>
+            <tr>
+              <th>{{ L.device|default("设备") }}</th>
+              <td>{{ final_metric.device }}</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
-
-      <div class="metric-card">
-        <span class="metric-label">{{ labels.final_asr }}</span>
-        <strong class="metric-value">{{ final_metric.attack_success_rate }}</strong>
-      </div>
-    </div>
-
-    <h2>{{ labels.overview }}</h2>
-
-    <table class="overview-table">
-      <tbody>
-        <tr>
-          <th>{{ labels.trainer }}</th>
-          <td>{{ final_metric.trainer }}</td>
-        </tr>
-        <tr>
-          <th>{{ labels.mode }}</th>
-          <td>{{ final_metric.mode }}</td>
-        </tr>
-        <tr>
-          <th>{{ labels.dataset }}</th>
-          <td>{{ final_metric.dataset }}</td>
-        </tr>
-        <tr>
-          <th>{{ labels.partition }}</th>
-          <td>{{ final_metric.partition }}</td>
-        </tr>
-        <tr>
-          <th>{{ labels.clients }}</th>
-          <td>{{ final_metric.num_clients }}</td>
-        </tr>
-        <tr>
-          <th>{{ labels.malicious_clients }}</th>
-          <td>{{ final_metric.malicious_clients }}</td>
-        </tr>
-        <tr>
-          <th>{{ labels.aggregation }}</th>
-          <td>{{ final_metric.aggregation }}</td>
-        </tr>
-        <tr>
-          <th>{{ labels.attack }}</th>
-          <td>{{ final_metric.attack }}</td>
-        </tr>
-        <tr>
-          <th>{{ labels.defense }}</th>
-          <td>{{ final_metric.defense }}</td>
-        </tr>
-        <tr>
-          <th>{{ labels.device }}</th>
-          <td>{{ final_metric.device }}</td>
-        </tr>
-      </tbody>
-    </table>
+    </section>
 
     {% if final_metric.client_label_summary is defined %}
-    <h2>{{ labels.client_distribution }}</h2>
+    <section class="section">
+      <h2>{{ L.client_label_distribution|default("客户端标签分布") }}</h2>
 
-    <table class="metrics-table">
-      <thead>
-        <tr>
-          <th>{{ labels.client_id }}</th>
-          <th>{{ labels.samples }}</th>
-          <th>{{ labels.label_counts }}</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for client in final_metric.client_label_summary %}
-        <tr>
-          <td>{{ client.client_id }}</td>
-          <td>{{ client.num_samples }}</td>
-          <td class="label-counts">{{ client.label_counts }}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+      <div class="table-wrap">
+        <table class="metrics-table">
+          <thead>
+            <tr>
+              <th>{{ L.client_id|default("客户端 ID") }}</th>
+              <th>{{ L.samples|default("样本数") }}</th>
+              <th>{{ L.label_counts|default("标签计数") }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for client in final_metric.client_label_summary %}
+            <tr>
+              <td>{{ client.client_id }}</td>
+              <td>{{ client.num_samples }}</td>
+              <td class="label-counts">{{ client.label_counts }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
     {% endif %}
 
-    <h2>{{ labels.exported_files }}</h2>
+    <section class="section">
+      <h2>{{ L.exported_files|default("导出文件") }}</h2>
 
-    <div class="export-grid">
-      <div class="export-card">
-        <strong>config.json</strong>
-        <span>{{ labels.export_config }}</span>
+      <div class="export-grid">
+        <div class="export-card">
+          <strong>config.json</strong>
+          <span>{{ L.config_json_desc|default("实验配置快照") }}</span>
+        </div>
+
+        <div class="export-card">
+          <strong>metrics.json</strong>
+          <span>{{ L.metrics_json_desc|default("逐轮原始指标") }}</span>
+        </div>
+
+        <div class="export-card">
+          <strong>metrics.csv</strong>
+          <span>{{ L.metrics_csv_desc|default("可用于表格分析的指标") }}</span>
+        </div>
+
+        <div class="export-card">
+          <strong>report.md</strong>
+          <span>{{ L.report_md_desc|default("Markdown 实验摘要") }}</span>
+        </div>
       </div>
 
-      <div class="export-card">
-        <strong>metrics.json</strong>
-        <span>{{ labels.export_metrics_json }}</span>
+      <details class="config-details" open>
+        <summary>{{ L.experiment_configuration|default("实验配置") }}</summary>
+        <pre>{{ config_json }}</pre>
+      </details>
+    </section>
+
+    <section class="section">
+      <h2>{{ L.metrics|default("指标") }}</h2>
+
+      <div class="table-wrap">
+        <table class="metrics-table">
+          <thead>
+            <tr>
+              <th>{{ L.round|default("轮次") }}</th>
+              <th>{{ L.accuracy|default("准确率") }}</th>
+              <th>{{ L.loss|default("损失") }}</th>
+              <th>{{ L.attack_success_rate|default("攻击成功率") }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in metrics %}
+            <tr>
+              <td>{{ item.round }}</td>
+              <td>{{ item.accuracy }}</td>
+              <td>{{ item.loss }}</td>
+              <td>{{ item.attack_success_rate }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
       </div>
-
-      <div class="export-card">
-        <strong>metrics.csv</strong>
-        <span>{{ labels.export_metrics_csv }}</span>
-      </div>
-
-      <div class="export-card">
-        <strong>report.md</strong>
-        <span>{{ labels.export_report_md }}</span>
-      </div>
-    </div>
-
-    <details class="config-details" open>
-      <summary>{{ labels.config_details }}</summary>
-      <pre>{{ config_json }}</pre>
-    </details>
-
-    <h2>{{ labels.metrics }}</h2>
-    <table class="metrics-table">
-      <thead>
-        <tr>
-          <th>{{ labels.round }}</th>
-          <th>{{ labels.accuracy }}</th>
-          <th>{{ labels.loss }}</th>
-          <th>{{ labels.asr }}</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for item in metrics %}
-        <tr>
-          <td>{{ item.round }}</td>
-          <td>{{ item.accuracy }}</td>
-          <td>{{ item.loss }}</td>
-          <td>{{ item.attack_success_rate }}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
+    </section>
+  </main>
 </body>
 </html>

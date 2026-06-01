@@ -1,125 +1,508 @@
+{% set lang_code = lang|default("zh") %}
+{% set L = labels|default({}) %}
 <!DOCTYPE html>
-<html lang="{{ lang }}">
+<html lang="{{ lang_code }}">
 <head>
   <meta charset="UTF-8" />
-  <title>{{ labels.title }} - {{ comparison_id }}</title>
+  <title>{{ L.comparison_report_title|default("FedGuardLab 对比报告") }} - {{ comparison_id }}</title>
   <style>
+    :root {
+      color-scheme: light;
+      --surface: rgba(255, 255, 255, 0.92);
+      --surface-strong: #ffffff;
+      --surface-soft: #f8fafc;
+      --border: rgba(148, 163, 184, 0.24);
+      --border-strong: rgba(148, 163, 184, 0.38);
+      --text: #0f172a;
+      --muted: #64748b;
+      --muted-strong: #475569;
+      --primary: #2563eb;
+      --primary-strong: #1d4ed8;
+      --primary-soft: #dbeafe;
+      --success: #16a34a;
+      --success-soft: #dcfce7;
+      --shadow: 0 24px 70px rgba(15, 23, 42, 0.12);
+      --shadow-soft: 0 14px 40px rgba(15, 23, 42, 0.08);
+      --radius-xl: 30px;
+      --radius-lg: 20px;
+      --radius-md: 14px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html {
+      min-height: 100%;
+      background:
+        radial-gradient(circle at 12% 0%, rgba(99, 102, 241, 0.16), transparent 28%),
+        radial-gradient(circle at 90% 8%, rgba(56, 189, 248, 0.18), transparent 30%),
+        linear-gradient(135deg, #f6f7ff 0%, #f8fbff 48%, #f6f2ff 100%);
+    }
+
     body {
-      font-family: Arial, sans-serif;
-      margin: 40px;
-      background: #f8fafc;
-      color: #0f172a;
+      min-height: 100vh;
+      margin: 0;
+      padding: 36px 20px 64px;
+      color: var(--text);
+      font-family:
+        Inter, "Microsoft YaHei", "PingFang SC", "Noto Sans CJK SC",
+        ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+        "Segoe UI", sans-serif;
     }
 
-    .container {
-      max-width: 1100px;
+    .page-shell {
+      max-width: 1120px;
       margin: 0 auto;
-      background: white;
-      padding: 32px;
-      border-radius: 16px;
-      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
     }
 
-    h1, h2 {
-      margin-top: 0;
+    .hero {
+      position: relative;
+      overflow: hidden;
+      padding: 42px 44px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      background:
+        radial-gradient(circle at 96% 85%, rgba(59, 130, 246, 0.14), transparent 24%),
+        linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(249, 251, 255, 0.9));
+      box-shadow: var(--shadow);
     }
 
-    .muted {
-      color: #64748b;
+    .hero::before {
+      content: "";
+      position: absolute;
+      right: -138px;
+      bottom: -172px;
+      width: 410px;
+      height: 410px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, rgba(96, 165, 250, 0.22), rgba(168, 85, 247, 0.09));
+      pointer-events: none;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      top: -150px;
+      left: 38%;
+      width: 330px;
+      height: 330px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.62);
+      filter: blur(16px);
+      pointer-events: none;
+    }
+
+    .hero > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .top-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 320px;
+      gap: 30px;
+      align-items: start;
+    }
+
+    .kicker {
+      margin: 0 0 10px;
+      color: var(--primary);
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      max-width: 720px;
+      margin: 0;
+      color: var(--text);
+      font-size: clamp(34px, 4vw, 52px);
+      line-height: 1.08;
+      letter-spacing: -0.052em;
+    }
+
+    .subtitle {
+      max-width: 720px;
+      margin: 18px 0 0;
+      color: #5f6f87;
+      font-size: 15px;
+      line-height: 1.78;
+    }
+
+    .meta-panel,
+    .meta-card {
+      padding: 18px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      background: rgba(255, 255, 255, 0.86);
+      box-shadow: var(--shadow-soft);
+      backdrop-filter: blur(14px);
+    }
+
+    .meta-panel strong,
+    .meta-card span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .meta-panel span,
+    .meta-card strong {
+      display: block;
+      margin-top: 7px;
+      overflow-wrap: anywhere;
+      color: var(--text);
+      font-weight: 900;
+    }
+
+    .meta-card strong {
+      font-size: 28px;
+      line-height: 1.1;
+      letter-spacing: -0.04em;
+    }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+      min-width: 0;
+    }
+
+    .section {
+      margin-top: 24px;
+      padding: 26px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      background: var(--surface);
+      box-shadow: var(--shadow-soft);
+      backdrop-filter: blur(14px);
+    }
+
+    .section h2 {
+      margin: 0 0 18px;
+      color: var(--text);
+      font-size: 23px;
+      letter-spacing: -0.03em;
+    }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+      margin-top: 24px;
+    }
+
+    .metric-card,
+    .export-card {
+      padding: 18px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      background: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(248,250,252,0.92));
+      box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+    }
+
+    .metric-label {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .metric-value {
+      display: block;
+      margin-top: 10px;
+      color: var(--text);
+      font-size: clamp(24px, 3vw, 34px);
+      line-height: 1.1;
+      font-weight: 900;
+      letter-spacing: -0.04em;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      background: var(--surface-strong);
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 16px;
+      font-size: 14px;
     }
 
-    th, td {
-      border-bottom: 1px solid #e2e8f0;
-      padding: 10px;
-      text-align: left;
+    th,
+    td {
+      padding: 13px 15px;
+      border-bottom: 1px solid rgba(226, 232, 240, 0.9);
       vertical-align: top;
     }
 
     th {
-      background: #f1f5f9;
+      color: #334155;
+      background: linear-gradient(180deg, #f8fafc, #f1f5f9);
+      font-weight: 900;
+      text-align: left;
+      white-space: nowrap;
     }
 
-    a {
-      color: #2563eb;
-      font-weight: 700;
+    td {
+      color: var(--muted-strong);
+    }
+
+    tr:last-child th,
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    tbody tr:hover {
+      background: rgba(37, 99, 235, 0.035);
+    }
+
+    .overview-table th {
+      width: 34%;
+    }
+
+    .metrics-table th,
+    .metrics-table td {
+      text-align: right;
+    }
+
+    .metrics-table th:first-child,
+    .metrics-table td:first-child {
+      text-align: left;
+    }
+
+    .export-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .export-card strong {
+      display: block;
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 900;
+    }
+
+    .export-card span {
+      display: block;
+      margin-top: 7px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .config-details {
+      margin-top: 18px;
+      overflow: hidden;
+      border: 1px solid rgba(15, 23, 42, 0.16);
+      border-radius: var(--radius-lg);
+      background: #0f172a;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
+    }
+
+    .config-details summary {
+      cursor: pointer;
+      padding: 16px 18px;
+      color: #e2e8f0;
+      font-weight: 900;
+      background: rgba(15, 23, 42, 0.96);
+    }
+
+    pre {
+      margin: 0;
+      padding: 20px;
+      overflow-x: auto;
+      color: #dbeafe;
+      background: #111827;
+      font-size: 13px;
+      line-height: 1.65;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    }
+
+    .label-counts,
+    .job-id {
+      color: #334155;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: 12px;
+      overflow-wrap: anywhere;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 26px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: var(--primary-soft);
+      color: var(--primary-strong);
+      font-size: 12px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .status-badge::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: currentColor;
+    }
+
+    .metric-strong {
+      color: var(--text);
+      font-weight: 900;
+    }
+
+    .action-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 34px;
+      padding: 8px 13px;
+      border: 1px solid rgba(147, 197, 253, 0.58);
+      border-radius: 999px;
+      color: var(--primary-strong);
+      background: #eff6ff;
+      font-size: 13px;
+      font-weight: 900;
       text-decoration: none;
+      white-space: nowrap;
+      transition: transform 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
     }
 
-    a:hover {
-      text-decoration: underline;
-    }
-
-    .highlight {
-      font-weight: 700;
+    .action-link:hover {
+      transform: translateY(-1px);
+      background: #dbeafe;
+      box-shadow: 0 8px 20px rgba(37, 99, 235, 0.16);
     }
 
     .note {
       margin-top: 24px;
-      padding: 16px;
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      border-radius: 12px;
-      color: #475569;
+      padding: 18px 20px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      color: var(--muted-strong);
+      background: linear-gradient(180deg, rgba(255,255,255,0.92), rgba(248,250,252,0.88));
+      line-height: 1.75;
+    }
+
+    code {
+      padding: 2px 6px;
+      border-radius: 7px;
+      background: #e2e8f0;
+      color: #334155;
+      font-size: 12px;
+    }
+
+    @media (max-width: 900px) {
+      body { padding: 24px 14px; }
+      .top-row { grid-template-columns: 1fr; }
+      .meta-panel { width: 100%; }
+      .metric-grid,
+      .export-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 640px) {
+      .hero,
+      .section { padding: 22px; border-radius: 22px; }
+      .metric-grid,
+      .export-grid { grid-template-columns: 1fr; }
+      th,
+      td { padding: 11px 12px; }
+      h1 { font-size: clamp(30px, 10vw, 42px); }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <p class="muted">{{ labels.title }}</p>
-    <h1>{{ title }}</h1>
+  <main class="page-shell">
+    <section class="hero">
+      <div class="top-row">
+        <div>
+          <p class="kicker">{{ L.comparison_report_kicker|default("FedGuardLab Comparison Report") }}</p>
+          <h1>{{ L.comparison_report_title|default("FedGuardLab 对比报告") }}</h1>
+          <p class="subtitle">
+            {{ L.comparison_report_subtitle|default("对多个实验任务的最终指标、攻击防御配置与报告入口进行统一对比。") }}
+          </p>
+        </div>
 
-    <p><strong>{{ labels.comparison_id }}：</strong> {{ comparison_id }}</p>
-    <p><strong>{{ labels.num_experiments }}：</strong> {{ experiments | length }}</p>
+        <div class="meta-grid">
+          <div class="meta-card">
+            <span>{{ L.comparison_id|default("对比 ID") }}</span>
+            <strong>{{ comparison_id }}</strong>
+          </div>
 
-    <h2>{{ labels.final_metrics }}</h2>
+          <div class="meta-card">
+            <span>{{ L.number_of_experiments|default("实验数量") }}</span>
+            <strong>{{ experiments | length }}</strong>
+          </div>
+        </div>
+      </div>
+    </section>
 
-    <table>
-      <thead>
-        <tr>
-          <th>{{ labels.experiment }}</th>
-          <th>{{ labels.aggregation }}</th>
-          <th>{{ labels.defense }}</th>
-          <th>{{ labels.attack }}</th>
-          <th>{{ labels.final_accuracy }}</th>
-          <th>{{ labels.final_loss }}</th>
-          <th>{{ labels.final_asr }}</th>
-          <th>{{ labels.job_id }}</th>
-          <th>{{ labels.report }}</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for item in experiments %}
-        <tr>
-          <td>{{ item.experiment_name }}</td>
-          <td>{{ item.aggregation }}</td>
-          <td>{{ item.defense }}</td>
-          <td>{{ item.attack }}</td>
-          <td>{{ item.final_accuracy }}</td>
-          <td>{{ item.final_loss }}</td>
-          <td class="highlight">{{ item.final_asr }}</td>
-          <td>{{ item.job_id }}</td>
-          <td>
-            <a href="{{ api_base_url }}/reports/{{ item.job_id }}?lang={{ lang }}" target="_blank">
-              {{ labels.open }}
-            </a>
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+    <section class="section">
+      <h2>{{ L.final_metrics|default("最终指标") }}</h2>
 
-    <div class="note">
-      {{ labels.note }}
-      <p>
-        {{ labels.exported_files }}：<code>comparison.json</code> {{ labels.and }} <code>comparison.csv</code>
-      </p>
-    </div>
-  </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>{{ L.experiment|default("实验") }}</th>
+              <th>{{ L.aggregation|default("聚合方法") }}</th>
+              <th>{{ L.defense|default("防御") }}</th>
+              <th>{{ L.attack|default("攻击") }}</th>
+              <th>{{ L.final_accuracy|default("最终准确率") }}</th>
+              <th>{{ L.final_loss|default("最终损失") }}</th>
+              <th>{{ L.final_asr|default("最终 ASR") }}</th>
+              <th>{{ L.job_id|default("任务 ID") }}</th>
+              <th>{{ L.report|default("报告") }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in experiments %}
+            <tr>
+              <td>{{ item.experiment_name }}</td>
+              <td>{{ item.aggregation }}</td>
+              <td>{{ item.defense }}</td>
+              <td>{{ item.attack }}</td>
+              <td>{{ item.final_accuracy }}</td>
+              <td>{{ item.final_loss }}</td>
+              <td class="metric-strong">{{ item.final_asr }}</td>
+              <td class="job-id">{{ item.job_id }}</td>
+              <td>
+                <a
+                  class="action-link"
+                  href="{{ api_base_url }}/reports/{{ item.job_id }}?lang={{ lang_code }}"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {{ L.open_report|default("打开报告") }}
+                </a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="note">
+        {{ L.comparison_note|default("较低的 ASR 通常表示对当前目标攻击具有更强抵抗能力。当前结果用于轻量演示和快速比较，不应直接视为正式 benchmark。") }}
+        <p>
+          {{ L.exported_files|default("导出文件") }}:
+          <code>comparison.json</code>
+          <code>comparison.csv</code>
+        </p>
+      </div>
+    </section>
+  </main>
 </body>
 </html>
