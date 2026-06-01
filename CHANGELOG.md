@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+- Added dashboard visual polish for a more cohesive localized UI.
+  - 页面背景改为多层径向渐变（蓝紫/青色调），视觉更柔和。
+  - Hero 区域改为双栏 grid 布局：左侧标题/副标题，右侧控制面板；语言切换定位在 hero 右上角。
+  - 按钮统一：primary（深蓝渐变）/ secondary（蓝底蓝字）/ danger / ghost，hover 上浮、disabled 降透明度。
+  - 状态标签使用颜色编码 badge：running 蓝色、finished 绿色、failed/error 红色、cancelled 灰色、creating 黄色等。
+  - 状态筛选新增"全部状态"选项，可查看所有状态的任务。
+  - 表格优化：圆角容器包裹、sticky 表头、渐变背景、行 hover、选中行左侧蓝色边条。
+  - Job Detail 面板改为 inspector 风格：圆角卡片、key-value grid。
+  - Report 链接统一为 pill 样式 action button。
+  - 中文字体 fallback：Inter / Microsoft YaHei / PingFang SC / Noto Sans CJK SC。
+  - 移动端响应式：metric-grid 2 列、hero 堆叠、filter 单列、按钮全宽。
+  - 不修改业务逻辑、API、后端、package.json。
 - Added frontend localization with Chinese default, English toggle, and localized HTML reports.
   - 前端：页面默认中文；右上角提供 中文 / English 切换按钮。
   - 使用 localStorage 持久化语言选择（key: `fedguardlab_language`）。

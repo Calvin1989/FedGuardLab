@@ -70,6 +70,8 @@ const messages = {
     comparisonTitle: "实验对比",
     comparisonHint: "选择至少两个已完成的实验，生成对比报告。",
     statusFilter: "状态",
+    allStatuses: "全部状态",
+    finishedWithReport: "已完成（报告）",
     limitFilter: "数量",
     sortFilter: "排序",
     newestFirst: "最新优先",
@@ -79,6 +81,7 @@ const messages = {
     generateReport: "生成对比报告",
     generating: "生成中...",
     emptyAll: "已完成且有报告的实验将显示在这里。",
+    emptyAllStatuses: "暂无任务记录。",
     emptyFiltered: "没有找到{status}的任务。",
     tableSelect: "选择",
     tableExperiment: "实验",
@@ -106,6 +109,7 @@ const messages = {
     jobDetailArtifacts: "产物数量",
     openReport: "查看报告",
     notAvailable: "暂无",
+    available: "可用",
     jobDetailHint: "点击任务行查看详情。",
     comparisonLabel: "对比",
     openComparisonReport: "查看对比报告",
@@ -147,6 +151,8 @@ const messages = {
     comparisonTitle: "Experiment Comparison",
     comparisonHint: "Select at least two finished experiments and generate a comparison report.",
     statusFilter: "Status",
+    allStatuses: "All statuses",
+    finishedWithReport: "Finished with report",
     limitFilter: "Limit",
     sortFilter: "Sort",
     newestFirst: "Newest first",
@@ -156,6 +162,7 @@ const messages = {
     generateReport: "Generate Comparison Report",
     generating: "Generating...",
     emptyAll: "Finished experiments with reports will appear here.",
+    emptyAllStatuses: "No jobs recorded yet.",
     emptyFiltered: "No {status} jobs found.",
     tableSelect: "Select",
     tableExperiment: "Experiment",
@@ -183,6 +190,7 @@ const messages = {
     jobDetailArtifacts: "Artifacts",
     openReport: "Open Report",
     notAvailable: "Not available",
+    available: "Available",
     jobDetailHint: "Select a job to inspect details.",
     comparisonLabel: "Comparison",
     openComparisonReport: "Open Comparison Report",
@@ -519,7 +527,7 @@ async function loadRecentJobsFromApi() {
   params.set("limit", String(recentJobsLimit.value));
   params.set("sort", recentJobsSort.value);
 
-  if (filter !== "all") {
+  if (filter !== "all" && filter !== "finished_report") {
     params.set("status", filter);
   }
 
@@ -533,6 +541,36 @@ async function loadRecentJobsFromApi() {
   const hiddenIds = loadHiddenJobIds();
 
   if (filter === "all") {
+    // All statuses: show raw jobs without hydration
+    const filtered = data.jobs.filter((job) => !hiddenIds.has(job.job_id));
+
+    recentJobs.value = filtered.map((job) => ({
+      job_id: job.job_id,
+      status: job.status,
+      config_path: job.config_path,
+      experiment_name: job.experiment_name || "Unknown Experiment",
+      name: job.experiment_name || "Unknown Experiment",
+      label: job.experiment_name || "Unknown Experiment",
+      aggregation: "—",
+      defense: "—",
+      attack: "—",
+      accuracy: "—",
+      loss: "—",
+      attack_success_rate: "—",
+      asr: "—",
+      final_accuracy: "—",
+      final_loss: "—",
+      final_asr: "—",
+      metrics_count: job.metrics_count,
+      error: job.error,
+      created_at: job.created_at,
+      started_at: job.started_at,
+      finished_at: job.finished_at,
+      report_url: `${API_BASE}/reports/${job.job_id}`,
+      has_report: job.has_report === true,
+      artifacts: job.artifacts || {},
+    }));
+  } else if (filter === "finished_report") {
     // Default view: only finished jobs with full results (backward-compatible)
     const finishedJobs = data.jobs.filter(
       (job) =>
@@ -848,25 +886,29 @@ async function startExperiment() {
 <template>
   <main class="page">
     <section class="hero">
-      <p class="eyebrow">{{ t.eyebrow }}</p>
-      <h1>{{ t.heroTitle }}</h1>
-      <p class="subtitle">{{ t.heroSubtitle }}</p>
+      <div class="hero-header">
+        <div class="hero-text">
+          <p class="eyebrow">{{ t.eyebrow }}</p>
+          <h1>{{ t.heroTitle }}</h1>
+          <p class="subtitle">{{ t.heroSubtitle }}</p>
+        </div>
 
-      <div class="lang-switcher">
-        <button
-          class="lang-button"
-          :class="{ active: language === 'zh' }"
-          @click="setLanguage('zh')"
-        >
-          中文
-        </button>
-        <button
-          class="lang-button"
-          :class="{ active: language === 'en' }"
-          @click="setLanguage('en')"
-        >
-          English
-        </button>
+        <div class="lang-switcher">
+          <button
+            class="lang-button"
+            :class="{ active: language === 'zh' }"
+            @click="setLanguage('zh')"
+          >
+            中文
+          </button>
+          <button
+            class="lang-button"
+            :class="{ active: language === 'en' }"
+            @click="setLanguage('en')"
+          >
+            English
+          </button>
+        </div>
       </div>
 
       <div class="control-panel">
@@ -975,7 +1017,7 @@ async function startExperiment() {
     <section class="status-card">
       <div>
         <strong>{{ t.statusLabel }}:</strong>
-        <span>{{ t.statusValues[status] || status }}</span>
+        <span class="status-badge" :class="'status-' + status">{{ t.statusValues[status] || status }}</span>
       </div>
 
       <div v-if="jobId">
@@ -1039,7 +1081,8 @@ async function startExperiment() {
             <label class="status-filter">
               {{ t.statusFilter }}:
               <select v-model="jobStatusFilter">
-                <option value="all">{{ t.statusValues.finished }} ({{ t.badgeReport }})</option>
+                <option value="all">{{ t.allStatuses }}</option>
+                <option value="finished_report">{{ t.finishedWithReport }}</option>
                 <option value="finished">{{ t.statusValues.finished }}</option>
                 <option value="running">{{ t.statusValues.running }}</option>
                 <option value="cancelled">{{ t.statusValues.cancelled }}</option>
@@ -1096,6 +1139,9 @@ async function startExperiment() {
 
       <div v-if="recentJobs.length === 0" class="empty-state small">
         <template v-if="jobStatusFilter === 'all'">
+          {{ t.emptyAllStatuses }}
+        </template>
+        <template v-else-if="jobStatusFilter === 'finished_report'">
           {{ t.emptyAll }}
         </template>
         <template v-else>
@@ -1124,7 +1170,7 @@ async function startExperiment() {
             v-for="job in recentJobs"
             :key="job.job_id"
             class="job-row"
-            :class="{ 'job-row-selected': selectedDetailJobId === job.job_id }"
+            :class="{ 'job-row-selected': selectedDetailJobId === job.job_id, 'selected': selectedDetailJobId === job.job_id }"
             @click="toggleDetailJob(job.job_id)"
           >
             <td>
@@ -1168,61 +1214,70 @@ async function startExperiment() {
       </table>
 
       <div class="job-detail-card">
-        <template v-if="selectedDetailJob">
+        <div v-if="selectedDetailJob" class="job-detail-panel">
           <div class="job-detail-header">
-            <strong>{{ t.jobDetailTitle }}</strong>
-            <span class="job-detail-name">
-              {{ selectedDetailJob.label || selectedDetailJob.experiment_name }}
-            </span>
+            <div>
+              <p class="section-kicker">{{ t.jobDetailTitle }}</p>
+              <h2>{{ selectedDetailJob.label || selectedDetailJob.experiment_name || selectedDetailJob.config_path || "—" }}</h2>
+            </div>
+
+            <a
+              v-if="selectedDetailJob.has_report"
+              class="report-link detail-report-link"
+              :href="withLang(selectedDetailJob.report_url)"
+              target="_blank"
+              rel="noreferrer"
+            >
+              {{ t.openReport }}
+            </a>
           </div>
+
           <div class="job-detail-grid">
-            <div class="job-detail-row">
-              <span class="job-detail-label">{{ t.jobDetailId }}</span>
-              <span class="job-detail-value job-detail-mono">{{ selectedDetailJob.job_id }}</span>
+            <div class="detail-item detail-item-wide">
+              <span>{{ t.jobDetailId }}</span>
+              <strong>{{ selectedDetailJob.job_id || "—" }}</strong>
             </div>
-            <div class="job-detail-row">
-              <span class="job-detail-label">{{ t.jobDetailStatus }}</span>
-              <span class="job-detail-value">{{ t.statusValues[selectedDetailJob.status] || selectedDetailJob.status }}</span>
+
+            <div class="detail-item">
+              <span>{{ t.jobDetailStatus }}</span>
+              <strong>{{ t.statusValues[selectedDetailJob.status] || selectedDetailJob.status || "—" }}</strong>
             </div>
-            <div class="job-detail-row">
-              <span class="job-detail-label">{{ t.jobDetailConfig }}</span>
-              <span class="job-detail-value job-detail-mono">{{ selectedDetailJob.config_path }}</span>
+
+            <div class="detail-item">
+              <span>{{ t.jobDetailArtifacts }}</span>
+              <strong>{{ selectedDetailArtifactsCount }}</strong>
             </div>
-            <div class="job-detail-row">
-              <span class="job-detail-label">{{ t.jobDetailCreated }}</span>
-              <span class="job-detail-value">{{ selectedDetailJob.created_at || "—" }}</span>
+
+            <div class="detail-item detail-item-wide">
+              <span>{{ t.jobDetailConfig }}</span>
+              <strong>{{ selectedDetailJob.config_path || "—" }}</strong>
             </div>
-            <div class="job-detail-row">
-              <span class="job-detail-label">{{ t.jobDetailStarted }}</span>
-              <span class="job-detail-value">{{ selectedDetailJob.started_at || "—" }}</span>
+
+            <div class="detail-item">
+              <span>{{ t.jobDetailCreated }}</span>
+              <strong>{{ selectedDetailJob.created_at || "—" }}</strong>
             </div>
-            <div class="job-detail-row">
-              <span class="job-detail-label">{{ t.jobDetailFinished }}</span>
-              <span class="job-detail-value">{{ selectedDetailJob.finished_at || "—" }}</span>
+
+            <div class="detail-item">
+              <span>{{ t.jobDetailStarted }}</span>
+              <strong>{{ selectedDetailJob.started_at || "—" }}</strong>
             </div>
-            <div class="job-detail-row">
-              <span class="job-detail-label">{{ t.jobDetailReport }}</span>
-              <span class="job-detail-value">
-                <a
-                  v-if="selectedDetailJob.has_report"
-                  class="report-link"
-                  :href="withLang(selectedDetailJob.report_url)"
-                  target="_blank"
-                >
-                  {{ t.openReport }}
-                </a>
-                <span v-else>{{ t.notAvailable }}</span>
-              </span>
+
+            <div class="detail-item">
+              <span>{{ t.jobDetailFinished }}</span>
+              <strong>{{ selectedDetailJob.finished_at || "—" }}</strong>
             </div>
-            <div class="job-detail-row">
-              <span class="job-detail-label">{{ t.jobDetailArtifacts }}</span>
-              <span class="job-detail-value">{{ selectedDetailArtifactsCount }}</span>
+
+            <div class="detail-item">
+              <span>{{ t.jobDetailReport }}</span>
+              <strong>{{ selectedDetailJob.has_report ? t.available : t.notReady }}</strong>
             </div>
           </div>
-        </template>
-        <p v-else class="job-detail-hint">
+        </div>
+
+        <div v-else class="empty-state small">
           {{ t.jobDetailHint }}
-        </p>
+        </div>
       </div>
 
       <div v-if="comparisonError" class="error comparison-message">
@@ -1241,115 +1296,432 @@ async function startExperiment() {
 </template>
 
 <style scoped>
+:global(*) {
+  box-sizing: border-box;
+}
+
+:global(html) {
+  min-height: 100%;
+  background:
+    radial-gradient(circle at 12% 0%, rgba(99, 102, 241, 0.16), transparent 28%),
+    radial-gradient(circle at 90% 8%, rgba(56, 189, 248, 0.18), transparent 30%),
+    linear-gradient(135deg, #f6f7ff 0%, #f8fbff 48%, #f6f2ff 100%);
+}
+
+:global(body) {
+  margin: 0;
+  min-height: 100vh;
+}
+
 .page {
   min-height: 100vh;
-  padding: 40px;
-  background: #f8fafc;
-  color: #0f172a;
+  padding: 36px 24px 64px;
+  color: #111827;
   font-family:
-    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-    sans-serif;
+    Inter, "Microsoft YaHei", "PingFang SC", "Noto Sans CJK SC", system-ui,
+    -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
+
+.page > * {
+  width: min(100%, 1120px);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ---------------- Hero ---------------- */
 
 .hero {
-  max-width: 900px;
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  grid-template-areas: "intro controls";
+  align-items: center;
+  gap: 36px;
+  min-height: 390px;
   margin-bottom: 24px;
+  padding: 44px 44px 42px;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 32px;
+  background:
+    radial-gradient(circle at 96% 85%, rgba(59, 130, 246, 0.14), transparent 24%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(249, 251, 255, 0.9));
+  box-shadow:
+    0 32px 90px rgba(79, 70, 229, 0.12),
+    0 18px 44px rgba(15, 23, 42, 0.08);
 }
 
-.eyebrow {
-  margin: 0 0 8px;
-  font-size: 14px;
-  font-weight: 700;
+.hero::before {
+  content: "";
+  position: absolute;
+  right: -138px;
+  bottom: -172px;
+  width: 410px;
+  height: 410px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(96, 165, 250, 0.22), rgba(168, 85, 247, 0.09));
+  pointer-events: none;
+}
+
+.hero::after {
+  content: "";
+  position: absolute;
+  top: -150px;
+  left: 38%;
+  width: 330px;
+  height: 330px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.62);
+  filter: blur(16px);
+  pointer-events: none;
+}
+
+.hero > * {
+  position: relative;
+  z-index: 1;
+}
+
+.hero-header {
+  grid-area: intro;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  min-width: 0;
+  padding-right: 12px;
+}
+
+.hero-text {
+  max-width: 620px;
+}
+
+.eyebrow,
+.section-kicker {
+  margin: 0 0 10px;
   color: #2563eb;
-  letter-spacing: 0.08em;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
 }
 
 h1 {
+  max-width: 620px;
   margin: 0;
-  font-size: 40px;
-  line-height: 1.1;
+  color: #0f172a;
+  font-size: clamp(34px, 4.1vw, 52px);
+  line-height: 1.08;
+  letter-spacing: -0.052em;
 }
 
 .subtitle {
-  max-width: 720px;
-  margin: 16px 0 24px;
-  color: #475569;
-  font-size: 16px;
+  max-width: 620px;
+  margin: 18px 0 0;
+  color: #5f6f87;
+  font-size: 15px;
+  line-height: 1.78;
 }
 
 .lang-switcher {
-  display: flex;
-  gap: 0;
-  margin-bottom: 20px;
-  border: 1px solid #cbd5e1;
-  border-radius: 8px;
-  overflow: hidden;
-  width: fit-content;
+  position: static;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 28px;
+  padding: 5px;
+  border: 1px solid rgba(148, 163, 184, 0.34);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.86);
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+  backdrop-filter: blur(14px);
 }
 
 .lang-button {
-  padding: 6px 16px;
+  min-height: 32px;
+  padding: 7px 14px;
   border: 0;
-  background: white;
-  color: #64748b;
-  font-size: 13px;
-  font-weight: 600;
+  border-radius: 999px;
+  background: transparent;
+  color: #334155;
+  font-size: 12px;
+  font-weight: 900;
   cursor: pointer;
-  transition: background 0.15s, color 0.15s;
-}
-
-.lang-button:not(:last-child) {
-  border-right: 1px solid #cbd5e1;
 }
 
 .lang-button.active {
-  background: #0f172a;
-  color: white;
+  background: #111827;
+  color: #ffffff;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.18);
 }
 
-.lang-button:hover:not(.active) {
-  background: #f1f5f9;
+/* ---------------- Control panel ---------------- */
+
+.control-panel {
+  grid-area: controls;
+  align-self: center;
+  width: 100%;
+  display: grid;
+  gap: 9px;
+  padding: 20px;
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow:
+    0 24px 56px rgba(15, 23, 42, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(16px);
+}
+
+.field-label {
+  display: block;
+  margin-bottom: 4px;
+  color: #1f2a44;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.experiment-select,
+.status-filter select,
+select,
+input {
+  width: 100%;
+  min-height: 34px;
+  padding: 6px 10px;
+  border: 1px solid rgba(148, 163, 184, 0.46);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.96);
+  color: #172033;
+  font-size: 12px;
+  line-height: 1.35;
+  outline: none;
+  transition: border-color 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
+}
+
+.experiment-select:focus,
+.status-filter select:focus,
+select:focus,
+input:focus {
+  border-color: rgba(37, 99, 235, 0.78);
+  background: #ffffff;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+}
+
+.option-description {
+  margin: 4px 0 0;
+  color: #64748b;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.config-empty-filter {
+  margin: 0;
+  color: #64748b;
+  font-size: 12px;
+}
+
+.config-metadata {
+  display: grid;
+  gap: 5px;
+  margin-top: 4px;
+  padding: 14px;
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(248, 250, 252, 0.9), rgba(255, 255, 255, 0.92));
+  color: #475569;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.config-metadata-name {
+  color: #172033;
+  font-weight: 900;
+}
+
+.config-metadata-description,
+.config-metadata-category {
+  color: #64748b;
+}
+
+.config-metadata-tags,
+.job-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.config-tag,
+.job-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  padding: 4px 9px;
+  border-radius: 999px;
+  background: #eef2ff;
+  color: #334155;
+  font-size: 11px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.job-badge.success {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.job-badge.muted {
+  background: #eef2ff;
+  color: #64748b;
+}
+
+/* ---------------- Buttons ---------------- */
+
+.button-row,
+.section-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.button-row {
+  margin-top: 6px;
+}
+
+button,
+.run-button,
+.secondary-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  padding: 9px 15px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 1;
+  cursor: pointer;
+  transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease, background 0.16s ease, color 0.16s ease, opacity 0.16s ease;
+}
+
+button:hover:not(:disabled),
+.run-button:hover:not(:disabled),
+.secondary-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+button:disabled,
+.run-button:disabled,
+.secondary-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+  transform: none;
+  box-shadow: none;
 }
 
 .run-button {
-  padding: 12px 18px;
-  border: 0;
-  border-radius: 12px;
-  background: #0f172a;
-  color: white;
-  font-weight: 700;
-  cursor: pointer;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: linear-gradient(135deg, #0f2a66, #1d4ed8);
+  color: #ffffff;
+  box-shadow: 0 14px 28px rgba(29, 78, 216, 0.22);
 }
 
-.run-button:disabled {
-  cursor: not-allowed;
-  opacity: 0.6;
+.secondary-button {
+  border: 1px solid rgba(147, 197, 253, 0.55);
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.secondary-button:hover:not(:disabled) {
+  background: #dbeafe;
+  box-shadow: 0 12px 26px rgba(37, 99, 235, 0.12);
+}
+
+/* ---------------- Cards ---------------- */
+
+.status-card,
+.chart-card,
+.comparison-card,
+.metric-card,
+.job-detail-card {
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 18px 44px rgba(15, 23, 42, 0.07);
+  backdrop-filter: blur(14px);
 }
 
 .status-card,
 .chart-card,
-.metric-card {
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 16px;
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+.comparison-card {
+  margin-bottom: 24px;
+  border-radius: 26px;
 }
 
 .status-card {
   display: grid;
-  gap: 8px;
-  padding: 18px;
-  margin-bottom: 24px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  padding: 20px 24px;
+}
+
+.status-card > div {
+  min-height: 52px;
+  padding: 10px 12px;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(248, 250, 252, 0.74), rgba(255, 255, 255, 0.82));
+}
+
+.status-card strong {
+  display: block;
+  margin-bottom: 7px;
+  color: #1f2a44;
+  font-size: 12px;
+  font-weight: 900;
 }
 
 .status-card span {
-  margin-left: 8px;
+  color: #475569;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #eef2ff;
+  color: #334155;
+  font-weight: 900;
+}
+
+.status-running,
+.status-creating,
+.status-queued {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.status-finished {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.status-cancelled {
+  background: #f1f5f9;
   color: #475569;
 }
 
-.error span {
-  color: #dc2626;
+.status-failed,
+.status-error,
+.status-disconnected {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.error {
+  color: #b91c1c;
 }
 
 .metric-grid {
@@ -1360,337 +1732,322 @@ h1 {
 }
 
 .metric-card {
-  padding: 18px;
+  display: grid;
+  gap: 8px;
+  min-height: 104px;
+  padding: 20px;
+  border-radius: 22px;
 }
 
 .metric-card span {
-  display: block;
-  margin-bottom: 8px;
   color: #64748b;
-  font-size: 14px;
+  font-size: 12px;
+  font-weight: 900;
 }
 
 .metric-card strong {
-  font-size: 28px;
+  color: #0f172a;
+  font-size: 30px;
+  line-height: 1;
+  letter-spacing: -0.04em;
 }
 
 .chart-card {
-  height: 420px;
+  min-height: 230px;
   padding: 24px;
 }
 
 .empty-state {
-  height: 100%;
   display: grid;
   place-items: center;
-  color: #64748b;
-}
-
-.report-link {
-  margin-left: 8px;
-  color: #2563eb;
-  font-weight: 700;
-  text-decoration: none;
-}
-
-.report-link:hover {
-  text-decoration: underline;
-}
-
-.control-panel {
-  display: grid;
-  gap: 10px;
-  max-width: 420px;
-}
-
-.button-row {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-}
-
-.field-label {
-  font-weight: 700;
-  color: #334155;
-}
-
-.experiment-select {
-  padding: 10px 12px;
-  border: 1px solid #cbd5e1;
-  border-radius: 10px;
-  background: white;
-  color: #0f172a;
-  font-size: 14px;
-}
-
-.option-description {
-  margin: 0 0 8px;
+  min-height: 160px;
+  padding: 24px;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 18px;
   color: #64748b;
   font-size: 14px;
+  line-height: 1.7;
+  text-align: center;
+  background: rgba(248, 250, 252, 0.58);
 }
 
-.config-metadata {
-  padding: 12px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
+.empty-state.small {
+  min-height: 72px;
+  padding: 16px;
   font-size: 13px;
-  line-height: 1.5;
 }
 
-.config-metadata-name {
-  font-weight: 700;
-  color: #0f172a;
-}
-
-.config-metadata-description {
-  margin-top: 4px;
-  color: #475569;
-}
-
-.config-metadata-category {
-  margin-top: 6px;
-  color: #64748b;
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.config-metadata-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-top: 6px;
-}
-
-.config-tag {
-  display: inline-block;
-  padding: 2px 8px;
-  border-radius: 10px;
-  font-size: 11px;
-  font-weight: 600;
-  background: #e2e8f0;
-  color: #475569;
-}
-
-.config-empty-filter {
-  margin: 0;
-  color: #94a3b8;
-  font-size: 13px;
-  font-style: italic;
-}
+/* ---------------- Comparison / Jobs ---------------- */
 
 .comparison-card {
-  margin-top: 24px;
-  padding: 24px;
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 16px;
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+  padding: 26px;
 }
 
 .section-header {
   display: flex;
-  justify-content: space-between;
-  gap: 16px;
   align-items: flex-start;
-  margin-bottom: 16px;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 20px;
 }
 
 .section-header h2 {
-  margin: 0 0 8px;
+  margin: 0 0 6px;
+  color: #111827;
+  font-size: 24px;
+  letter-spacing: -0.03em;
 }
 
 .section-header p {
   margin: 0;
   color: #64748b;
+  font-size: 13px;
+  line-height: 1.6;
 }
 
 .job-filters {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 10px;
+  gap: 10px;
+  margin-top: 16px;
 }
 
 .status-filter {
-  display: inline-flex;
-  align-items: center;
+  display: grid;
   gap: 6px;
-  font-size: 13px;
-  color: #475569;
+  color: #1f2a44;
+  font-size: 12px;
+  font-weight: 900;
 }
 
 .status-filter select {
-  padding: 4px 8px;
-  border: 1px solid #cbd5e1;
-  border-radius: 6px;
-  font-size: 13px;
-  background: white;
-  color: #1e293b;
-  cursor: pointer;
+  min-width: 170px;
 }
 
 .jobs-table {
   width: 100%;
-  border-collapse: collapse;
-  margin-top: 16px;
-  font-size: 14px;
+  border-collapse: separate;
+  border-spacing: 0;
+  overflow: hidden;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 18px;
+  background: #ffffff;
+  font-size: 12px;
 }
 
 .jobs-table th,
 .jobs-table td {
-  padding: 10px;
-  border-bottom: 1px solid #e2e8f0;
+  padding: 13px 14px;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.82);
   text-align: left;
-  vertical-align: top;
+  vertical-align: middle;
 }
 
 .jobs-table th {
-  background: #f8fafc;
   color: #334155;
+  background: linear-gradient(180deg, #f8fafc, #f1f5f9);
+  font-weight: 900;
+  white-space: nowrap;
 }
 
-.job-label {
-  font-weight: 700;
-  color: #0f172a;
-}
-
-.job-id {
-  margin-top: 4px;
-  color: #64748b;
-  font-size: 12px;
-  word-break: break-all;
-}
-
-.job-badges {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-
-.job-badge {
-  display: inline-block;
-  padding: 2px 8px;
-  border-radius: 10px;
-  font-size: 11px;
-  font-weight: 600;
-  background: #e2e8f0;
-  color: #475569;
-}
-
-.job-badge.success {
-  background: #dcfce7;
-  color: #166534;
-}
-
-.job-badge.muted {
-  background: #f1f5f9;
-  color: #94a3b8;
+.jobs-table tr:last-child td {
+  border-bottom: 0;
 }
 
 .job-row {
   cursor: pointer;
+  transition: background 0.16s ease, box-shadow 0.16s ease;
 }
 
 .job-row:hover {
-  background: #f8fafc;
+  background: rgba(37, 99, 235, 0.04);
 }
 
-.job-row-selected {
+.job-row-selected,
+.job-row.selected {
+  background: linear-gradient(90deg, rgba(37, 99, 235, 0.12), rgba(219, 234, 254, 0.36));
+  box-shadow: inset 4px 0 0 #2563eb;
+}
+
+.job-label {
+  color: #172033;
+  font-weight: 900;
+}
+
+.job-id {
+  margin-top: 3px;
+  color: #64748b;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.jobs-table input[type="checkbox"] {
+  width: 22px;
+  height: 22px;
+  min-height: 22px;
+  accent-color: #2563eb;
+}
+
+.report-link,
+.detail-report-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 30px;
+  padding: 7px 12px;
+  border: 1px solid rgba(147, 197, 253, 0.58);
+  border-radius: 999px;
   background: #eff6ff;
+  color: #1d4ed8;
+  font-size: 12px;
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.report-link:hover,
+.detail-report-link:hover {
+  background: #dbeafe;
 }
 
 .job-detail-card {
-  margin-top: 16px;
-  padding: 16px;
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
+  margin-top: 22px;
+  padding: 22px;
+  border-radius: 22px;
 }
 
 .job-detail-header {
   display: flex;
-  align-items: baseline;
-  gap: 8px;
-  margin-bottom: 12px;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
 }
 
-.job-detail-header strong {
-  font-size: 14px;
-  color: #0f172a;
-}
-
-.job-detail-name {
-  font-size: 13px;
-  color: #64748b;
+.job-detail-header h2 {
+  margin: 0;
+  color: #111827;
+  font-size: 23px;
+  letter-spacing: -0.03em;
 }
 
 .job-detail-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 8px 24px;
-  font-size: 13px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
 }
 
-.job-detail-row {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
+.detail-item {
+  min-width: 0;
+  padding: 15px;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(248, 250, 252, 0.74), rgba(255, 255, 255, 0.92));
 }
 
-.job-detail-label {
-  font-weight: 600;
+.detail-item-wide {
+  grid-column: 1 / -1;
+}
+
+.detail-item span {
+  display: block;
+  margin-bottom: 7px;
   color: #64748b;
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.job-detail-value {
-  color: #0f172a;
-}
-
-.job-detail-mono {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-size: 12px;
-  word-break: break-all;
+  font-weight: 900;
 }
 
-.job-detail-hint {
-  margin: 0;
-  color: #94a3b8;
+.detail-item strong {
+  display: block;
+  color: #111827;
   font-size: 13px;
-  font-style: italic;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
 }
 
 .comparison-message {
-  margin-top: 16px;
-}
-
-.small {
-  height: 120px;
-}
-
-.section-actions {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-}
-
-.secondary-button {
-  border: 1px solid #cbd5e1;
-  background: white;
+  margin-top: 18px;
+  padding: 14px 16px;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 16px;
+  background: rgba(248, 250, 252, 0.72);
   color: #334155;
-  padding: 10px 16px;
-  border-radius: 999px;
-  font-weight: 700;
-  cursor: pointer;
 }
 
-.secondary-button:disabled {
-  cursor: not-allowed;
-  opacity: 0.5;
+.muted {
+  color: #64748b;
+}
+
+/* ---------------- Responsive ---------------- */
+
+@media (max-width: 980px) {
+  .hero {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "intro"
+      "controls";
+    min-height: 0;
+  }
+
+  .control-panel {
+    max-width: 540px;
+  }
+
+  .status-card,
+  .metric-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .section-header {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 720px) {
+  .page {
+    padding: 22px 14px 44px;
+  }
+
+  .hero,
+  .comparison-card,
+  .chart-card,
+  .status-card {
+    border-radius: 22px;
+  }
+
+  .hero {
+    padding: 28px 20px;
+  }
+
+  h1 {
+    font-size: clamp(30px, 10vw, 42px);
+  }
+
+  .status-card,
+  .metric-grid,
+  .job-detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .jobs-table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  .section-actions,
+  .job-filters {
+    width: 100%;
+  }
+
+  .section-actions > *,
+  .job-filters > * {
+    flex: 1 1 100%;
+  }
+
+  .lang-switcher {
+    margin-top: 22px;
+  }
 }
 </style>
