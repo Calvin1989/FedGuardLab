@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Prepared v1.5.0-rc.1 release candidate readiness documentation.
+  - No new runtime code, no new feature, no CI trigger change.
+  - v1.5.0-beta.1 已完成 beta readiness。
+  - rc.1 阶段不新增功能，重点是 final release candidate validation。
+  - rc.1 focus: Release candidate validation for localized and polished v1.5 UI.
+  - rc.1 不修改运行时代码，不新增功能，不改变 CI 触发策略。
 - Prepared v1.5.0-beta.1 readiness documentation.
   - No new runtime code, no new feature, no CI trigger change.
   - Beta.1 阶段不新增功能，重点是稳定性验证和 release readiness。
