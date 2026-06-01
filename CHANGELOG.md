@@ -2,6 +2,21 @@
 
 ## Unreleased
 
+- Prepared v1.6.0-beta.1 readiness documentation.
+  - No new runtime code, no new feature, no CI trigger change.
+  - Beta.1 阶段不新增功能，不新增依赖，不改 API。
+  - v1.6 alpha series 已完成：
+    - alpha.1: Comparison report metadata polish（comparison report 显示 job 摘要信息）。
+    - alpha.2: Frontend comparison UX polish（已选择实验预览、comparison 创建反馈优化）。
+    - alpha.3: Export/download entry polish（job 导出区域、comparison 导出区域、report 页面导出优化）。
+  - Beta.1 focus: Beta readiness validation for v1.6 comparison UX and export polish.
+  - 验证重点：
+    - comparison report metadata 是否准确。
+    - selected jobs preview 是否清晰。
+    - comparison creation feedback 是否稳定。
+    - job exports 和 comparison exports 是否易发现。
+    - zh/en 双语是否一致。
+    - report 页面风格是否统一。
 - Added clearer export and download entry points for job and comparison artifacts.
   - 首页 job detail panel 新增"导出文件 / Exports"区域。
   - 单实验 job detail 中更清晰地展示 HTML Report、CSV Metrics、Markdown Report。
