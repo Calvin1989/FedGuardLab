@@ -2,42 +2,43 @@
 
 ![CI](https://github.com/Calvin1989/FedGuardLab/actions/workflows/ci.yml/badge.svg)
 
-FedGuardLab 是一个面向联邦学习安全实验的交互式实验平台。
+FedGuardLab 是一个面向联邦学习安全实验的轻量级交互式平台。
 
-项目目标不是做一个“大而全”的联邦学习 benchmark，而是提供一个轻量、可视化、可复现的实验环境，帮助学生、研究者和开发者更直观地理解联邦学习中的攻击、防御和实验流程。
-
----
-
-## 核心特性
-
-- Vue + Vite 前端 Dashboard
-- FastAPI 后端服务
-- 后台任务执行，WebSocket 解耦订阅
-- YAML 实验配置
-- Pydantic 配置校验
-- Simulated trainer 快速演示
-- 真实 MNIST + FedAvg 联邦学习训练
-- IID / Dirichlet Non-IID 数据划分
-- Label Flipping 攻击与 ASR 评估
-- Median / Trimmed Mean / Krum 鲁棒聚合防御
-- 单实验 HTML / CSV / Markdown 报告
-- 多实验对比报告
-- Docker Compose 一键启动
-- GitHub Actions + Ruff + quick test + frontend build
+它的目标不是构建一个“大而全”的联邦学习 benchmark，而是提供一个易启动、可视化、可复现的实验环境，帮助学生、研究者和开发者直观理解联邦学习中的攻击、防御、训练过程和实验对比。
 
 ---
 
-## Screenshots
+## 功能亮点
 
-### Dashboard
+* 可视化联邦学习安全实验 Dashboard
+* 默认中文界面，支持 English 切换
+* FastAPI 后端 + Vue / Vite 前端
+* YAML 实验配置与 Pydantic 校验
+* 后台任务执行与实时指标查看
+* 支持 Simulated trainer 快速演示
+* 支持真实 MNIST + FedAvg 联邦学习训练
+* 支持 IID / Dirichlet Non-IID 数据划分
+* 支持 Label Flipping 攻击与 ASR 评估
+* 支持 Backdoor 攻击与 Backdoor ASR 评估
+* 支持 Median / Trimmed Mean / Krum 鲁棒聚合防御
+* 支持单实验 HTML / CSV / Markdown 报告
+* 支持多实验对比报告
+* 支持 Docker Compose 一键启动
+* 支持 GitHub Actions CI 与 Docker Smoke 验证
+
+---
+
+## 截图预览
+
+### 实验 Dashboard
 
 ![Dashboard](docs/screenshots/dashboard.png)
 
-### Experiment Report
+### 实验报告
 
 ![Experiment Report](docs/screenshots/experiment-report.png)
 
-### Comparison Report
+### 对比报告
 
 ![Comparison Report](docs/screenshots/comparison-report.png)
 
@@ -52,7 +53,7 @@ git clone https://github.com/Calvin1989/FedGuardLab.git
 cd FedGuardLab
 ```
 
-### 2. 创建并激活 Python 环境
+### 2. 创建 Python 环境
 
 ```bash
 conda create -n fedguardlab python=3.11 -y
@@ -65,7 +66,7 @@ conda activate fedguardlab
 python -m pip install -r requirements-cpu.txt
 ```
 
-其中 `requirements-cpu.txt` 会安装 CPU 版 PyTorch，适合普通本地开发和 CI 环境。
+`requirements-cpu.txt` 使用 CPU 版 PyTorch，适合本地开发、演示和 CI 环境。
 
 ### 4. 启动后端
 
@@ -73,7 +74,7 @@ python -m pip install -r requirements-cpu.txt
 uvicorn api.main:app --reload
 ```
 
-后端默认运行在：
+后端默认地址：
 
 ```text
 http://127.0.0.1:8000
@@ -95,47 +96,13 @@ npm install
 npm run dev
 ```
 
-默认前端地址：
+前端默认地址：
 
 ```text
 http://localhost:3000
 ```
 
-如果 3000 端口被占用，Vite 会自动切换到 3001、3002 等端口。
-
-### 6. Live API Smoke Test
-
-后端启动后，可以用 live smoke test 验证 API 是否正常工作：
-
-```bash
-python api_smoke_test.py
-```
-
-如果 API 不在默认地址，通过环境变量覆盖：
-
-**PowerShell：**
-
-```powershell
-$env:FEDGUARDLAB_API_BASE = "http://127.0.0.1:8000"
-python api_smoke_test.py
-Remove-Item Env:FEDGUARDLAB_API_BASE
-```
-
-**Bash：**
-
-```bash
-FEDGUARDLAB_API_BASE=http://127.0.0.1:8000 python api_smoke_test.py
-```
-
-默认流程：GET /health → GET /configs → POST /run → 等待 job 离开 created → POST /run（第二个 job）→ cancel → 确认 cancelled。
-
-如果需要等待第一个 job 完整执行完毕（含 metrics 产出）：
-
-```bash
-python api_smoke_test.py --wait-finished
-```
-
-该脚本使用 Python 标准库（`urllib.request`），不依赖 `requests` 或 `httpx`。
+如果 3000 端口被占用，Vite 会自动切换到其他可用端口。
 
 ---
 
@@ -147,18 +114,11 @@ python api_smoke_test.py --wait-finished
 docker compose up --build
 ```
 
-`docker compose` 会通过 healthcheck 等待 backend healthy 后再启动 frontend，无需手动处理启动顺序。
-
-前端：
+访问地址：
 
 ```text
-http://localhost:3000
-```
-
-后端 API：
-
-```text
-http://localhost:8000/docs
+前端：http://localhost:3000
+后端：http://localhost:8000/docs
 ```
 
 停止服务：
@@ -169,21 +129,75 @@ docker compose down
 
 ---
 
-## 当前支持能力
+## 常用验证命令
+
+### 后端与基础测试
+
+```bash
+ruff check .
+python quick_test.py
+```
+
+### 前端构建
+
+```bash
+cd web
+npm run build
+cd ..
+```
+
+### API Smoke Test
+
+后端启动后运行：
+
+```bash
+python api_smoke_test.py
+```
+
+等待实验任务完整结束并生成 finished job id：
+
+```bash
+python api_smoke_test.py --wait-finished --write-finished-job-id smoke_finished_job_id.txt
+```
+
+### Docker Smoke 验证
+
+```bash
+docker compose config
+docker compose build
+docker compose up -d
+python api_smoke_test.py --wait-finished --write-finished-job-id smoke_finished_job_id.txt
+type smoke_finished_job_id.txt
+$jobId = Get-Content smoke_finished_job_id.txt
+docker compose restart backend
+Start-Sleep -Seconds 10
+python api_smoke_test.py --check-recovery $jobId
+docker compose down
+Remove-Item smoke_finished_job_id.txt
+```
+
+---
+
+## 当前支持的实验能力
 
 FedGuardLab 当前支持：
 
-- Simulated Label Flipping Demo
-- Real MNIST FedAvg Demo
-- Real MNIST FedAvg Label Flip Demo
-- Real MNIST Label Flip + Median Defense
-- Real MNIST Label Flip + Trimmed Mean Defense
-- Real MNIST Label Flip + Krum Defense
+* Simulated Label Flipping Demo
+* MNIST FedAvg Demo
+* MNIST FedAvg + Label Flipping
+* MNIST FedAvg + Backdoor Attack
+* Label Flipping + Median Defense
+* Label Flipping + Trimmed Mean Defense
+* Label Flipping + Krum Defense
+* Backdoor + Median Defense
+* Backdoor + Trimmed Mean Defense
+* Backdoor + Krum Defense
+* 多实验指标对比与报告导出
 
-详细实验说明见：
+更多说明见：
 
-- [实验说明](docs/experiments.md)
-- [配置文件说明](docs/configs.md)
+* [实验说明](docs/experiments.md)
+* [配置文件说明](docs/configs.md)
 
 ---
 
@@ -215,203 +229,33 @@ reports/comparisons/<comparison_id>/
 
 ## 项目文档
 
-- [实验说明](docs/experiments.md)
-- [配置文件说明](docs/configs.md)
-- [开发与测试](docs/development.md)
-- [Roadmap](docs/roadmap.md)
-
----
-
-## CI / GitHub Actions
-
-### 主 CI（push / PR 自动触发）
-
-主 CI workflow 文件：
-
-```text
-.github/workflows/ci.yml
-```
-
-每次 push 和 Pull Request 自动运行，覆盖：
-
-- `ruff check .` — Python 代码质量检查
-- `python quick_test.py` — 后端快速单元测试
-- `cd web && npm run build` — 前端构建检查
-
-### Docker Smoke（手动触发）
-
-Docker Smoke workflow 文件：
-
-```text
-.github/workflows/docker-smoke.yml
-```
-
-通过 GitHub Actions 页面手动运行（`workflow_dispatch`），不在 push / PR 时自动触发。
-
-Docker Smoke 覆盖：
-
-1. `docker compose config` — 验证 Compose 文件语法
-2. `docker compose build` — 构建后端和前端镜像
-3. `docker compose up -d` — 后台启动服务
-4. `python api_smoke_test.py` — 基本 API 健康检查和 job 生命周期验证
-5. `python api_smoke_test.py --wait-finished` — 等待 job 完成并验证 artifact metadata，同时将 finished job UUID 写入文件
-6. `docker compose restart backend` — 重启后端
-7. `python api_smoke_test.py --check-recovery <finished job id>` — 验证重启后 job 数据和 artifact 可恢复
-8. `docker compose down` — 清理
-
----
-
-## API 接口
-
-### Job lifecycle API
-
-FedGuardLab exposes lightweight job lifecycle endpoints:
-
-| Method | Endpoint | Description |
-|---|---|---|
-| `GET` | `/health` | Health check, returns `{"status": "ok", "service": "fedguardlab-api"}`. |
-| `GET` | `/configs` | List available experiment configs. |
-| `POST` | `/run?config_path=...` | Create a new experiment job and start background training. |
-| `GET` | `/jobs` | List persisted jobs. |
-| `GET` | `/status/{job_id}` | Get job status and timestamps. |
-| `GET` | `/results/{job_id}` | Get job config, metrics, and report paths. |
-| `GET` | `/reports/{job_id}` | Open the generated HTML report. |
-| `POST` | `/jobs/{job_id}/cancel` | Mark a pending or running job as cancelled. |
-
-Since v1.1.0-beta.2, `POST /run` starts background training immediately. WebSocket `/ws/{job_id}` only subscribes to an existing job's real-time metrics and events — it no longer triggers training. Refreshing the page or disconnecting WebSocket will not stop the backend training process.
-
-`POST /jobs/{job_id}/cancel` sets a cancellation request. The background runner checks this flag between training rounds and stops gracefully.
-
-Since v1.2.0, FedGuardLab persists lightweight job metadata through a JSON-backed durable JobStore. Generated reports and artifact metadata can be rediscovered after backend restart for finished jobs. This remains a lightweight local persistence mechanism, not a distributed multi-worker task queue; there is still no database, Redis, or Celery.
-
-### Jobs API query parameters
-
-`GET /jobs` supports optional query parameters for lightweight filtering and sorting:
-
-```text
-GET /jobs?status=finished
-GET /jobs?limit=5
-GET /jobs?sort=created_at_desc
-GET /jobs?sort=created_at_asc
-GET /jobs?status=finished&limit=5&sort=created_at_desc
-```
-
-Supported `status` values:
-
-- `queued`
-- `running`
-- `finished`
-- `failed`
-- `cancelled`
-
-Supported `sort` values:
-
-- `created_at_desc`
-- `created_at_asc`
-
-`limit` must be a positive integer; values exceeding 100 are clamped to 100. Invalid parameters return HTTP 400.
-
-The API smoke test validates both supported and invalid `/jobs` query parameters.
-
-### Recent Jobs filtering
-
-The frontend Recent Jobs panel supports status filtering:
-
-- Finished with reports
-- Finished
-- Running
-- Cancelled
-- Failed
-- Queued
-
-Status filters are backed by the `GET /jobs?status=...` API. Non-finished jobs can be inspected in the table but are not selectable for comparison.
-
-### Recent Jobs limit and sort controls
-
-The frontend Recent Jobs panel also supports lightweight list controls:
-
-- Limit: 10, 20, or 50 jobs
-- Sort: Newest first or Oldest first
-
-These controls are backed by the `GET /jobs?limit=...&sort=...` API and work together with the Recent Jobs status filter.
-
-### Recent Jobs report and artifact badges
-
-The frontend Recent Jobs panel shows lightweight badges for report and artifact availability:
-
-- `Report` when a report is available
-- `Artifacts` when artifact metadata is indexed
-- `No report` when no report or artifact metadata is available
-
-These badges are backed by the persisted job metadata fields `has_report` and `artifacts`.
-
-### v1.2 beta readiness
-
-The v1.2 alpha series now covers durable JobStore persistence, artifact metadata indexing, restart recovery validation, Jobs API filtering/sorting, and Recent Jobs UX controls. The beta phase focuses on stabilization and release validation rather than adding broad new runtime features.
-
-### v1.2 release candidate readiness
-
-The v1.2 beta validation path covers backend checks, frontend build, Docker Compose build/startup, API smoke tests, finished-job artifact validation, and restart recovery checks. The rc.1 phase focuses on final release-candidate validation before the v1.2.0 final release.
-
-### v1.2 stable release scope
-
-FedGuardLab v1.2 focuses on durable job history, artifact metadata indexing, backend restart recovery validation, Jobs API filtering/sorting, and Recent Jobs UX improvements. The final release validation path covers backend checks, frontend build, Docker Compose startup, API smoke tests, finished-job artifact validation, and restart recovery checks.
-
-完整接口文档：
-
-```text
-http://127.0.0.1:8000/docs
-```
+* [实验说明](docs/experiments.md)
+* [配置文件说明](docs/configs.md)
+* [开发与测试](docs/development.md)
+* [Roadmap](docs/roadmap.md)
 
 ---
 
 ## 当前版本
 
-`v1.3.0`
+当前稳定版本：
 
-v1.3.0 focus: Developer Experience, validation reliability, Docker Smoke workflow, and release readiness.
+```text
+v1.5.0
+```
 
-当前版本支持：
+v1.5.0 重点改进：
 
-- 交互式实验 Dashboard
-- 真实 MNIST FedAvg
-- Label Flipping 攻击与 ASR 评估
-- Median / Trimmed Mean / Krum 鲁棒聚合
-- HTML / CSV / Markdown 报告导出
-- 多实验对比报告
-- Docker Compose 启动（含 healthcheck readiness）
-- GitHub Actions + Ruff + quick test + 前端 build
-- 前端实验历史持久化
-- 刷新页面后保留已完成实验记录
-- 支持清空 Dashboard 历史记录
-- Trigger-based Backdoor Attack
-- Backdoor ASR 评估
-- Backdoor + FedAvg / Median / Trimmed Mean / Krum 对比实验
-- Label Flipping 与 Backdoor 两类攻击对比场景
-- Dashboard 和实验报告展示优化
-- README 项目截图展示
-- Dashboard 支持删除选中的历史实验记录
-- 后台任务执行（POST /run 启动异步训练，不依赖 WebSocket）
-- WebSocket 解耦（刷新页面不影响后台训练）
-- 基于 cancellation flag 的任务取消
-- GET /health 健康检查接口
-- Live API Smoke Test（`python api_smoke_test.py`）
-- JSON-backed durable JobStore
-- Job artifact metadata index
-- Backend restart recovery validation
-- Jobs API filtering/sorting
-- Recent Jobs status filter
-- Recent Jobs limit/sort controls
-- Recent Jobs report/artifact badges
-- Standardized GitHub Actions CI workflow
-- Manual Docker Smoke workflow
-- Docker Compose validation workflow
-- api_smoke_test.py --write-finished-job-id
-- Backend restart recovery smoke validation
-- Validation workflow documentation
+* 首页默认中文显示
+* 支持中文 / English 切换
+* 刷新后保留语言选择
+* 实验报告支持中文 / 英文显示
+* 对比报告支持中文 / 英文显示
+* 首页 Dashboard 视觉美化
+* 实验报告与对比报告视觉风格统一
 
 ---
 
-## License
+## 许可证
 
 MIT
