@@ -540,3 +540,129 @@ Checklist：
 - [ ] GitHub Actions CI passing on main
 - [ ] GitHub Actions Docker Smoke manual workflow passing on main
 - [ ] Final tag 打在 main merge commit 上（PR 合并后）
+
+---
+
+## v1.5.0 Roadmap
+
+v1.5.0 主题：Frontend Localization + UI Polish.
+
+v1.5.0 目标：
+
+- 页面默认中文显示。
+- 支持中文 / English 手动切换。
+- 使用 localStorage 保存语言选择。
+- 不使用 IP 判断语言。
+- 页面视觉美化，提升卡片、按钮、表格、状态标签的一致性。
+
+### v1.5.0-alpha.1
+
+Focus: Frontend localization with Chinese default and English toggle.
+
+- [ ] 页面默认语言改为中文。
+- [ ] 添加中 / 英文手动切换控件。
+- [ ] 使用 localStorage 持久化用户语言选择。
+- [ ] 不引入 vue-i18n；使用轻量本地 translations object 管理文本。
+- [ ] 不使用 IP 地理位置判断语言。
+- [ ] 覆盖 Dashboard 主要文本：标题、按钮、标签、状态、表格列头、提示语。
+
+### v1.5.0-alpha.2
+
+Focus: Dashboard visual polish.
+
+- [ ] 卡片样式统一：圆角、阴影、间距。
+- [ ] 按钮样式统一：颜色、hover 状态、disabled 状态。
+- [ ] 表格样式统一：行高、边框、斑马纹。
+- [ ] 状态标签样式统一：颜色编码、圆角 badge。
+- [ ] 不改 API、不改训练逻辑、不改后端代码。
+
+### v1.5.0-beta.1
+
+Focus: Beta readiness validation for v1.5.
+
+Beta.1 阶段不新增功能，不修改运行时代码，不改变 CI 触发策略。重点是稳定性验证和 release readiness。
+
+Checklist：
+
+- [ ] `ruff check .`
+- [ ] `python quick_test.py`
+- [ ] 前端构建检查：
+  - `cd web`
+  - `npm run build`
+  - `cd ..`
+- [ ] 验证默认中文显示正常。
+- [ ] 验证中 / 英文切换正常。
+- [ ] 验证刷新页面后语言选择保持。
+- [ ] 验证视觉美化无回归。
+- [ ] `docker compose config`
+- [ ] `docker compose build`
+- [ ] `docker compose up -d`
+- [ ] `python api_smoke_test.py`
+- [ ] `python api_smoke_test.py --wait-finished --write-finished-job-id smoke_finished_job_id.txt`
+- [ ] `type smoke_finished_job_id.txt` — 确认 UUID 已写入
+- [ ] `docker compose restart backend`
+- [ ] `Start-Sleep -Seconds 10`
+- [ ] `python api_smoke_test.py --check-recovery <真实 finished job UUID>`
+- [ ] `docker compose down`
+- [ ] `Remove-Item smoke_finished_job_id.txt` — 清理临时文件
+- [ ] GitHub Actions CI passing
+- [ ] GitHub Actions Docker Smoke manual workflow passing
+
+### v1.5.0-rc.1
+
+Focus: Release candidate validation for v1.5.0.
+
+rc.1 阶段不新增功能，不修改运行时代码，不改变 CI 触发策略。重点是 final release candidate validation。
+
+Checklist：
+
+- [ ] `ruff check .`
+- [ ] `python quick_test.py`
+- [ ] 前端构建检查：
+  - `cd web`
+  - `npm run build`
+  - `cd ..`
+- [ ] 最终验证中文默认显示和英文切换。
+- [ ] 最终验证视觉美化一致性。
+- [ ] `docker compose config`
+- [ ] `docker compose build`
+- [ ] `docker compose up -d`
+- [ ] `python api_smoke_test.py`
+- [ ] `python api_smoke_test.py --wait-finished --write-finished-job-id smoke_finished_job_id.txt`
+- [ ] `type smoke_finished_job_id.txt` — 确认 UUID 已写入
+- [ ] `docker compose restart backend`
+- [ ] `Start-Sleep -Seconds 10`
+- [ ] `python api_smoke_test.py --check-recovery <真实 finished job UUID>`
+- [ ] `docker compose down`
+- [ ] `Remove-Item smoke_finished_job_id.txt` — 清理临时文件
+- [ ] GitHub Actions CI passing on main
+- [ ] GitHub Actions Docker Smoke manual workflow passing on main
+
+### v1.5.0
+
+Focus: Stable v1.5 frontend localization and UI polish.
+
+v1.5.0 不新增 runtime feature，重点是 Frontend Localization + UI Polish。
+
+Checklist：
+
+- [ ] `ruff check .`
+- [ ] `python quick_test.py`
+- [ ] 前端构建检查：
+  - `cd web`
+  - `npm run build`
+  - `cd ..`
+- [ ] `docker compose config`
+- [ ] `docker compose build`
+- [ ] `docker compose up -d`
+- [ ] `python api_smoke_test.py`
+- [ ] `python api_smoke_test.py --wait-finished --write-finished-job-id smoke_finished_job_id.txt`
+- [ ] `type smoke_finished_job_id.txt` — 确认 UUID 已写入
+- [ ] `docker compose restart backend`
+- [ ] `Start-Sleep -Seconds 10`
+- [ ] `python api_smoke_test.py --check-recovery <真实 finished job UUID>`
+- [ ] `docker compose down`
+- [ ] `Remove-Item smoke_finished_job_id.txt` — 清理临时文件
+- [ ] GitHub Actions CI passing on main
+- [ ] GitHub Actions Docker Smoke manual workflow passing on main
+- [ ] Final tag 打在 main merge commit 上（PR 合并后）
