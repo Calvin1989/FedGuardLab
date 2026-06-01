@@ -2,6 +2,27 @@
 
 ## Unreleased
 
+- Prepared v1.6 roadmap planning.
+  - Documentation-only update; no runtime feature, no CI behavior change.
+  - v1.6.0 theme: Experiment Comparison UX + Export Polish.
+  - v1.6.0 goals:
+    - Comparison report 显示更清晰的实验摘要。
+    - Comparison report 显示参与对比的 job 列表及每个 job 的 config、status、created_at、finished_at。
+    - Comparison report 保持 zh/en 双语。
+    - 不改变现有 API 行为。
+    - 首页 comparison 区域更清晰，选中 jobs 后显示更好的对比预览。
+    - 对比按钮和状态提示更明确。
+    - report / CSV / Markdown 下载入口更清晰。
+    - job detail panel 中导出入口更统一。
+    - comparison export 入口更清晰。
+    - 不引入新依赖。
+  - v1.6.0-alpha.1: Comparison report metadata polish.
+  - v1.6.0-alpha.2: Frontend comparison UX polish.
+  - v1.6.0-alpha.3: Export/download entry polish.
+  - v1.6.0-beta.1: Beta readiness.
+  - v1.6.0-rc.1: Release candidate readiness.
+  - v1.6.0: Final release.
+  - v1.6 不优先做：新训练算法、新攻击算法、大规模后端重构、新数据库、新 UI 框架。
 - Prepared v1.5.0 final release readiness documentation.
   - No new runtime feature; focus is Frontend Localization + UI Polish.
   - v1.5.0 release scope:
