@@ -578,9 +578,16 @@ Focus: Dashboard visual polish.
 
 ### v1.5.0-beta.1
 
-Focus: Beta readiness validation for v1.5.
+Focus: Beta readiness validation for localized and polished v1.5 UI.
 
 Beta.1 阶段不新增功能，不修改运行时代码，不改变 CI 触发策略。重点是稳定性验证和 release readiness。
+
+v1.5 alpha series 已完成：
+
+- v1.5.0-alpha.1：Frontend localization with Chinese default and English toggle。
+- v1.5.0-alpha.1：Localized HTML experiment and comparison reports via `?lang=zh` / `?lang=en`。
+- v1.5.0-alpha.2：Dashboard visual polish。
+- v1.5.0-alpha.2：Unified Experiment Report and Comparison Report visual style。
 
 Checklist：
 
@@ -590,14 +597,17 @@ Checklist：
   - `cd web`
   - `npm run build`
   - `cd ..`
-- [ ] 验证默认中文显示正常。
-- [ ] 验证中 / 英文切换正常。
-- [ ] 验证刷新页面后语言选择保持。
-- [ ] 验证视觉美化无回归。
+- [ ] `python api_smoke_test.py`
+- [ ] 目视检查首页中文默认。
+- [ ] 目视检查 English 切换。
+- [ ] 目视检查刷新后语言保持。
+- [ ] 目视检查 `/reports/<job_id>?lang=zh`。
+- [ ] 目视检查 `/reports/<job_id>?lang=en`。
+- [ ] 目视检查 `/comparisons/<comparison_id>?lang=zh`。
+- [ ] 目视检查 `/comparisons/<comparison_id>?lang=en`。
 - [ ] `docker compose config`
 - [ ] `docker compose build`
 - [ ] `docker compose up -d`
-- [ ] `python api_smoke_test.py`
 - [ ] `python api_smoke_test.py --wait-finished --write-finished-job-id smoke_finished_job_id.txt`
 - [ ] `type smoke_finished_job_id.txt` — 确认 UUID 已写入
 - [ ] `docker compose restart backend`
