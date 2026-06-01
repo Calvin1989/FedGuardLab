@@ -16,10 +16,11 @@ def build_comparison_artifact_urls(
     api_base_url: str = "http://127.0.0.1:8000",
 ) -> dict[str, str]:
     base_url = api_base_url.rstrip("/")
+    comparison_url = f"{base_url}/comparisons/{comparison_id}"
     return {
-        "comparison_html_url": f"{base_url}/comparisons/{comparison_id}",
-        "comparison_csv_url": f"{base_url}/comparisons/{comparison_id}/comparison.csv",
-        "comparison_json_url": f"{base_url}/comparisons/{comparison_id}/comparison.json",
+        "comparison_html_url": comparison_url,
+        "comparison_csv_url": f"{comparison_url}/comparison.csv",
+        "comparison_json_url": f"{comparison_url}/comparison.json",
     }
 
 
