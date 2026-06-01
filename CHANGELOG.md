@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+- Added v1.7.0-alpha.1 report and artifact regression tests.
+  - New test file: tests/test_report_artifact_regression.py.
+  - Covers single-experiment and comparison report template rendering.
+  - Covers job artifact file generation (config.json, metrics.json, metrics.csv, report.md).
+  - Covers comparison artifact file generation (comparison.csv, comparison.json).
+  - Covers JobStore persistence across simulated restarts.
+  - Covers summary field derivation (aggregation, defense, attack, final_accuracy, final_loss, final_asr, has_report).
+  - Enhanced api_smoke_test.py with summary field assertions and comparison artifact download checks.
+
 - Prepared v1.7 roadmap planning.
   - Documentation-only update; no runtime feature, no CI behavior change.
   - v1.7.0 theme: Runtime / Report / Artifact Regression Hardening.
