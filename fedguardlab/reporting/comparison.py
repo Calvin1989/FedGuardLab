@@ -10,6 +10,19 @@ TEMPLATE_DIR = Path(__file__).parent / "templates"
 JOBS_DIR = Path("reports/jobs")
 COMPARISONS_DIR = Path("reports/comparisons")
 
+
+def build_comparison_artifact_urls(
+    comparison_id: str,
+    api_base_url: str = "http://127.0.0.1:8000",
+) -> dict[str, str]:
+    base_url = api_base_url.rstrip("/")
+    return {
+        "comparison_html_url": f"{base_url}/comparisons/{comparison_id}",
+        "comparison_csv_url": f"{base_url}/comparisons/{comparison_id}/comparison.csv",
+        "comparison_json_url": f"{base_url}/comparisons/{comparison_id}/comparison.json",
+    }
+
+
 COMPARISON_LABELS = {
     "zh": {
         "title": "FedGuardLab 对比报告",
@@ -229,6 +242,7 @@ def generate_comparison_report(
         experiments=experiments,
         compared_jobs=compared_jobs,
         api_base_url=api_base_url,
+        artifact_urls=build_comparison_artifact_urls(comparison_id, api_base_url),
     )
 
     output_path = output_dir / "comparison.html"
