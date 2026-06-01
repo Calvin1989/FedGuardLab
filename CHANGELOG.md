@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- Added clearer export and download entry points for job and comparison artifacts.
+  - 首页 job detail panel 新增"导出文件 / Exports"区域。
+  - 单实验 job detail 中更清晰地展示 HTML Report、CSV Metrics、Markdown Report。
+  - comparison 创建成功后更清晰地展示 Comparison HTML Report、Comparison CSV、Comparison JSON。
+  - 实验报告页面（report.html.j2）优化导出链接区域，使用 export label 系统。
+  - 对比报告页面（comparison.html.j2）新增独立"导出文件"section，展示 comparison.html、comparison.csv、comparison.json。
+  - 保持中文 / English 双语。
+  - 不改变现有 API 行为，不改变报告生成路径，不引入新依赖。
 - Added frontend comparison selection preview and clearer comparison action states.
   - 新增已选择实验预览区域（Selected Jobs Preview）。
   - 显示已选择 job 数量、短 ID、实验名称、status、完成时间。
