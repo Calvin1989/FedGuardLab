@@ -1012,9 +1012,9 @@ Checklist：
 - [x] GitHub Actions CI passing
 - [x] GitHub Actions Docker Smoke manual workflow passing
 
-### v1.7.0-rc.1
+### v1.7.0-rc.1 — completed
 
-Focus: Release candidate readiness for v1.7.0.
+Focus: Release candidate readiness for v1.7.0. ✅ 已完成。
 
 rc.1 阶段不新增功能、不新增依赖、不改变 API、不修改训练核心逻辑。重点是 final release candidate validation。
 
@@ -1048,37 +1048,43 @@ rc.1 最终验证重点：
 
 Checklist：
 
-- [ ] `ruff check .`
-- [ ] `python quick_test.py`
-- [ ] 前端构建检查：
+- [x] `ruff check .`
+- [x] `python quick_test.py`
+- [x] 前端构建检查：
   - `cd web`
   - `npm run build`
   - `cd ..`
-- [ ] `python -m pytest tests/ -v`
-- [ ] `python api_smoke_test.py`
-- [ ] `docker compose config`
-- [ ] `docker compose build`
-- [ ] `docker compose up -d`
-- [ ] `python api_smoke_test.py --wait-finished --write-finished-job-id smoke_finished_job_id.txt`
-- [ ] `type smoke_finished_job_id.txt` — 确认 UUID 已写入
-- [ ] `docker compose restart backend`
-- [ ] `Start-Sleep -Seconds 10`
-- [ ] `python api_smoke_test.py --check-recovery <真实 finished job UUID>`
-- [ ] `docker compose down`
-- [ ] `Remove-Item smoke_finished_job_id.txt` — 清理临时文件
-- [ ] GitHub Actions CI passing on main
-- [ ] GitHub Actions Docker Smoke manual workflow passing on main
+- [x] `python -m pytest tests/ -v`
+- [x] `python api_smoke_test.py`
+- [x] `docker compose config`
+- [x] `docker compose build`
+- [x] `docker compose up -d`
+- [x] `python api_smoke_test.py --wait-finished --write-finished-job-id smoke_finished_job_id.txt`
+- [x] `type smoke_finished_job_id.txt` — 确认 UUID 已写入
+- [x] `docker compose restart backend`
+- [x] `Start-Sleep -Seconds 10`
+- [x] `python api_smoke_test.py --check-recovery <真实 finished job UUID>`
+- [x] `docker compose down`
+- [x] `Remove-Item smoke_finished_job_id.txt` — 清理临时文件
+- [x] GitHub Actions CI passing on main
+- [x] GitHub Actions Docker Smoke manual workflow passing on main
 
-### v1.7.0
+### v1.7.0 — completed
 
-Focus: Stable regression hardening release.
+Focus: Stable regression hardening release. ✅ Final release。
 
-v1.7.0 不新增 runtime feature，重点是 Runtime / Report / Artifact Regression Hardening。
+v1.7.0 不新增 runtime feature、不新增依赖、不改变 API、不修改训练核心逻辑。重点是 Runtime / Report / Artifact Regression Hardening。
 
 v1.7.0 release scope：
 
 - report/artifact regression tests。
-- CI smoke workflow hardening。
+- pytest 接入主 CI。
+- Docker smoke workflow hardening。
+- job artifact 下载回归保护。
+- comparison artifact 下载回归保护。
+- report.html / comparison.html 模板渲染回归保护。
+- summary persistence / restart recovery 回归保护。
+- wait-finished smoke run 自动验证。
 - Beta readiness documentation。
 - Release candidate readiness documentation。
 
@@ -1086,24 +1092,24 @@ v1.7.0-rc.1 已完成 release candidate validation。
 
 Checklist：
 
-- [ ] `ruff check .`
-- [ ] `python quick_test.py`
-- [ ] 前端构建检查：
+- [x] `ruff check .`
+- [x] `python quick_test.py`
+- [x] 前端构建检查：
   - `cd web`
   - `npm run build`
   - `cd ..`
-- [ ] `python -m pytest tests/ -v`
-- [ ] `python api_smoke_test.py`
-- [ ] `docker compose config`
-- [ ] `docker compose build`
-- [ ] `docker compose up -d`
-- [ ] `python api_smoke_test.py --wait-finished --write-finished-job-id smoke_finished_job_id.txt`
-- [ ] `type smoke_finished_job_id.txt` — 确认 UUID 已写入
-- [ ] `docker compose restart backend`
-- [ ] `Start-Sleep -Seconds 10`
-- [ ] `python api_smoke_test.py --check-recovery <真实 finished job UUID>`
-- [ ] `docker compose down`
-- [ ] `Remove-Item smoke_finished_job_id.txt` — 清理临时文件
-- [ ] GitHub Actions CI passing on main
-- [ ] GitHub Actions Docker Smoke manual workflow passing on main
-- [ ] Final tag 打在 main merge commit 上（PR 合并后）
+- [x] `python -m pytest tests/ -v`
+- [x] `python api_smoke_test.py`
+- [x] `docker compose config`
+- [x] `docker compose build`
+- [x] `docker compose up -d`
+- [x] `python api_smoke_test.py --wait-finished --write-finished-job-id smoke_finished_job_id.txt`
+- [x] `type smoke_finished_job_id.txt` — 确认 UUID 已写入
+- [x] `docker compose restart backend`
+- [x] `Start-Sleep -Seconds 10`
+- [x] `python api_smoke_test.py --check-recovery <真实 finished job UUID>`
+- [x] `docker compose down`
+- [x] `Remove-Item smoke_finished_job_id.txt` — 清理临时文件
+- [x] GitHub Actions CI passing on main
+- [x] GitHub Actions Docker Smoke manual workflow passing on main
+- [x] Final tag 打在 main merge commit 上（PR 合并后）
