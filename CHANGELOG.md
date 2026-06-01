@@ -2,6 +2,19 @@
 
 ## Unreleased
 
+- v1.8.0-alpha.1：Job event timeline and runtime diagnostics。
+  - 为 job 增加轻量 events 字段，记录生命周期事件。
+  - 事件类型：created、started、round_progress、artifact_written、finished、failed、cancelled。
+  - round_progress 记录轮次和关键指标（accuracy、loss、ASR）。
+  - failed event 记录 failure reason 和 traceback summary。
+  - events 随 job 持久化到 index.json，backend restart 后仍可恢复。
+  - GET /jobs 和 GET /status/{job_id} 返回 events。
+  - 前端 job detail panel 新增事件时间线区域。
+  - 中文 / English 双语支持。
+  - 扩展 regression tests（tests/test_report_artifact_regression.py）。
+  - 扩展 api_smoke_test.py 事件断言。
+  - 不新增依赖，不修改训练核心算法，不破坏已有 API 字段。
+
 - Prepared v1.8.0 roadmap planning.
   - Documentation-only update; no runtime feature, no CI behavior change.
   - v1.8.0 theme: Experiment Observability and Result Insight.

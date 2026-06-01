@@ -496,3 +496,185 @@ class TestSummaryFieldComputation:
         assert summary["final_accuracy"] == pytest.approx(0.7)
         assert summary["final_loss"] == pytest.approx(0.8)
         assert summary["final_asr"] == pytest.approx(0.2)
+
+
+# ---------------------------------------------------------------------------
+# Test 7 – Job event timeline
+# ---------------------------------------------------------------------------
+
+
+class TestJobEventTimeline:
+    """JobStore events should persist and cover the full lifecycle."""
+
+    def test_finished_job_has_lifecycle_events(self, tmp_path: Path) -> None:
+        index_path = tmp_path / "index.json"
+        store = JobStore(storage_path=index_path)
+        jid = str(uuid.uuid4())
+
+        store.create(
+            JobRecord(
+                job_id=jid,
+                config_path="configs/test.yaml",
+                config=_make_config(),
+            )
+        )
+        store.add_event(jid, {"type": "created", "message": "Job created"})
+        store.add_event(jid, {"type": "started", "message": "Job started"})
+        store.add_event(
+            jid,
+            {
+                "type": "round_progress",
+                "message": "Round 1/2",
+                "round": 1,
+                "total_rounds": 2,
+                "metrics": {"accuracy": 0.6, "loss": 0.9, "attack_success_rate": 0.25},
+            },
+        )
+        store.add_event(
+            jid,
+            {"type": "artifact_written", "message": "Artifacts saved"},
+        )
+        store.add_event(
+            jid, {"type": "finished", "message": "Job finished successfully"}
+        )
+        store.set_status(jid, "finished")
+
+        # Reload from disk.
+        store2 = JobStore(storage_path=index_path)
+        job = store2.get(jid)
+
+        assert job is not None
+        assert len(job.events) == 5
+        types = [e["type"] for e in job.events]
+        assert types == [
+            "created",
+            "started",
+            "round_progress",
+            "artifact_written",
+            "finished",
+        ]
+
+    def test_failed_job_has_failed_event(self, tmp_path: Path) -> None:
+        index_path = tmp_path / "index.json"
+        store = JobStore(storage_path=index_path)
+        jid = str(uuid.uuid4())
+
+        store.create(
+            JobRecord(
+                job_id=jid,
+                config_path="configs/test.yaml",
+                config=_make_config(),
+            )
+        )
+        store.add_event(jid, {"type": "created", "message": "Job created"})
+        store.add_event(jid, {"type": "started", "message": "Job started"})
+        store.add_event(
+            jid,
+            {
+                "type": "failed",
+                "message": "Job failed",
+                "details": {
+                    "error": "CUDA out of memory",
+                    "traceback_summary": "RuntimeError: CUDA out of memory",
+                },
+            },
+        )
+        store.set_status(jid, "failed", error="CUDA out of memory")
+
+        store2 = JobStore(storage_path=index_path)
+        job = store2.get(jid)
+
+        assert job is not None
+        assert job.status == "failed"
+        failed_events = [e for e in job.events if e["type"] == "failed"]
+        assert len(failed_events) == 1
+        assert failed_events[0]["details"]["error"] == "CUDA out of memory"
+        assert "traceback_summary" in failed_events[0]["details"]
+
+    def test_cancelled_job_has_cancelled_event(self, tmp_path: Path) -> None:
+        index_path = tmp_path / "index.json"
+        store = JobStore(storage_path=index_path)
+        jid = str(uuid.uuid4())
+
+        store.create(
+            JobRecord(
+                job_id=jid,
+                config_path="configs/test.yaml",
+                config=_make_config(),
+            )
+        )
+        store.add_event(jid, {"type": "created", "message": "Job created"})
+        store.add_event(jid, {"type": "started", "message": "Job started"})
+        store.add_event(
+            jid, {"type": "cancelled", "message": "Job cancelled"}
+        )
+        store.set_status(jid, "cancelled")
+
+        store2 = JobStore(storage_path=index_path)
+        job = store2.get(jid)
+
+        assert job is not None
+        assert job.status == "cancelled"
+        cancelled_events = [e for e in job.events if e["type"] == "cancelled"]
+        assert len(cancelled_events) == 1
+
+    def test_events_persist_across_restart(self, tmp_path: Path) -> None:
+        index_path = tmp_path / "index.json"
+        store1 = JobStore(storage_path=index_path)
+        jid = str(uuid.uuid4())
+
+        store1.create(
+            JobRecord(
+                job_id=jid,
+                config_path="configs/test.yaml",
+                config=_make_config(),
+            )
+        )
+        store1.add_event(jid, {"type": "created", "message": "Job created"})
+        store1.add_event(jid, {"type": "started", "message": "Job started"})
+
+        # Simulate restart.
+        store2 = JobStore(storage_path=index_path)
+        job = store2.get(jid)
+
+        assert job is not None
+        assert len(job.events) == 2
+        assert job.events[0]["type"] == "created"
+        assert job.events[1]["type"] == "started"
+
+    def test_round_progress_event_has_metrics(self, tmp_path: Path) -> None:
+        index_path = tmp_path / "index.json"
+        store = JobStore(storage_path=index_path)
+        jid = str(uuid.uuid4())
+
+        store.create(
+            JobRecord(
+                job_id=jid,
+                config_path="configs/test.yaml",
+                config=_make_config(),
+            )
+        )
+        store.add_event(
+            jid,
+            {
+                "type": "round_progress",
+                "message": "Round 1/5",
+                "round": 1,
+                "total_rounds": 5,
+                "metrics": {
+                    "accuracy": 0.55,
+                    "loss": 1.2,
+                    "attack_success_rate": 0.7,
+                },
+            },
+        )
+
+        job = store.get(jid)
+        assert job is not None
+        rp = job.events[0]
+        assert rp["type"] == "round_progress"
+        assert rp["round"] == 1
+        assert rp["total_rounds"] == 5
+        assert rp["metrics"]["accuracy"] == pytest.approx(0.55)
+        assert rp["metrics"]["loss"] == pytest.approx(1.2)
+        assert rp["metrics"]["attack_success_rate"] == pytest.approx(0.7)
