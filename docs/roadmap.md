@@ -704,3 +704,165 @@ Checklist：
 - [ ] GitHub Actions CI passing on main
 - [ ] GitHub Actions Docker Smoke manual workflow passing on main
 - [ ] Final tag 打在 main merge commit 上（PR 合并后）
+
+---
+
+## v1.6.0 Roadmap
+
+v1.6.0 主题：Experiment Comparison UX + Export Polish.
+
+v1.6.0 目标：
+
+- Comparison report 显示更清晰的实验摘要。
+- Comparison report 显示参与对比的 job 列表及每个 job 的详细信息。
+- Comparison report 保持 zh/en 双语。
+- 首页 comparison 区域 UX 优化。
+- 导出入口更清晰统一。
+- 不引入新依赖。
+- 不改变现有 API 行为。
+- 不新增训练算法、攻击算法。
+- 不大规模重构后端、不引入新数据库、不引入新 UI 框架。
+
+### v1.6.0-alpha.1
+
+Focus: Comparison report metadata polish.
+
+- [ ] Comparison report 显示更清晰的实验摘要（comparison summary）。
+- [ ] Comparison report 显示参与对比的 job 列表。
+- [ ] Comparison report 显示每个 job 的 config、status、created_at、finished_at。
+- [ ] Comparison report 保持 zh/en 双语（`?lang=zh` / `?lang=en`）。
+- [ ] 不改变现有 API 行为，不修改后端逻辑。
+- [ ] 不引入新依赖。
+
+### v1.6.0-alpha.2
+
+Focus: Frontend comparison UX polish.
+
+- [ ] 首页 comparison 区域更清晰。
+- [ ] 选中 jobs 后显示更好的对比预览。
+- [ ] 对比按钮和状态提示更明确。
+- [ ] 不引入新依赖。
+- [ ] 不改变现有 API 行为。
+
+### v1.6.0-alpha.3
+
+Focus: Export/download entry polish.
+
+- [ ] report / CSV / Markdown 下载入口更清晰。
+- [ ] job detail panel 中导出入口更统一。
+- [ ] comparison export 入口更清晰。
+- [ ] 不引入新依赖。
+- [ ] 不改变现有 API 行为。
+
+### v1.6.0-beta.1
+
+Focus: Beta readiness validation for v1.6.
+
+Beta.1 阶段不新增功能，不修改运行时代码，不改变 CI 触发策略。重点是稳定性验证和 release readiness。
+
+v1.6 alpha series 计划完成：
+
+- v1.6.0-alpha.1：Comparison report metadata polish。
+- v1.6.0-alpha.2：Frontend comparison UX polish。
+- v1.6.0-alpha.3：Export/download entry polish。
+
+Checklist：
+
+- [ ] `ruff check .`
+- [ ] `python quick_test.py`
+- [ ] 前端构建检查：
+  - `cd web`
+  - `npm run build`
+  - `cd ..`
+- [ ] `python api_smoke_test.py`
+- [ ] 目视检查 comparison report 显示 job 摘要信息。
+- [ ] 目视检查 comparison report `?lang=zh` / `?lang=en`。
+- [ ] 目视检查首页 comparison 区域 UX。
+- [ ] 目视检查导出入口。
+- [ ] `docker compose config`
+- [ ] `docker compose build`
+- [ ] `docker compose up -d`
+- [ ] `python api_smoke_test.py --wait-finished --write-finished-job-id smoke_finished_job_id.txt`
+- [ ] `type smoke_finished_job_id.txt` — 确认 UUID 已写入
+- [ ] `docker compose restart backend`
+- [ ] `Start-Sleep -Seconds 10`
+- [ ] `python api_smoke_test.py --check-recovery <真实 finished job UUID>`
+- [ ] `docker compose down`
+- [ ] `Remove-Item smoke_finished_job_id.txt` — 清理临时文件
+- [ ] GitHub Actions CI passing
+- [ ] GitHub Actions Docker Smoke manual workflow passing
+
+### v1.6.0-rc.1
+
+Focus: Release candidate validation for v1.6.0.
+
+rc.1 阶段不新增功能，不修改运行时代码，不改变 CI 触发策略。重点是 final release candidate validation。
+
+v1.6.0-beta.1 已完成 beta readiness。
+
+Checklist：
+
+- [ ] `ruff check .`
+- [ ] `python quick_test.py`
+- [ ] 前端构建检查：
+  - `cd web`
+  - `npm run build`
+  - `cd ..`
+- [ ] `python api_smoke_test.py`
+- [ ] 目视检查 comparison report 显示 job 摘要信息。
+- [ ] 目视检查 comparison report `?lang=zh` / `?lang=en`。
+- [ ] 目视检查首页 comparison 区域 UX。
+- [ ] 目视检查导出入口。
+- [ ] `docker compose config`
+- [ ] `docker compose build`
+- [ ] `docker compose up -d`
+- [ ] `python api_smoke_test.py --wait-finished --write-finished-job-id smoke_finished_job_id.txt`
+- [ ] `type smoke_finished_job_id.txt` — 确认 UUID 已写入
+- [ ] `docker compose restart backend`
+- [ ] `Start-Sleep -Seconds 10`
+- [ ] `python api_smoke_test.py --check-recovery <真实 finished job UUID>`
+- [ ] `docker compose down`
+- [ ] `Remove-Item smoke_finished_job_id.txt` — 清理临时文件
+- [ ] GitHub Actions CI passing
+- [ ] GitHub Actions Docker Smoke manual workflow passing on main
+
+### v1.6.0
+
+Focus: Stable comparison UX and export polish.
+
+v1.6.0 不新增 runtime feature，重点是 Experiment Comparison UX + Export Polish。
+
+v1.6.0 release scope：
+
+- Comparison report metadata polish.
+- Frontend comparison UX polish.
+- Export/download entry polish.
+- Beta readiness documentation.
+- Release candidate readiness documentation.
+
+Checklist：
+
+- [ ] `ruff check .`
+- [ ] `python quick_test.py`
+- [ ] 前端构建检查：
+  - `cd web`
+  - `npm run build`
+  - `cd ..`
+- [ ] `python api_smoke_test.py`
+- [ ] 目视检查 comparison report 显示 job 摘要信息。
+- [ ] 目视检查 comparison report `?lang=zh` / `?lang=en`。
+- [ ] 目视检查首页 comparison 区域 UX。
+- [ ] 目视检查导出入口。
+- [ ] `docker compose config`
+- [ ] `docker compose build`
+- [ ] `docker compose up -d`
+- [ ] `python api_smoke_test.py --wait-finished --write-finished-job-id smoke_finished_job_id.txt`
+- [ ] `type smoke_finished_job_id.txt` — 确认 UUID 已写入
+- [ ] `docker compose restart backend`
+- [ ] `Start-Sleep -Seconds 10`
+- [ ] `python api_smoke_test.py --check-recovery <真实 finished job UUID>`
+- [ ] `docker compose down`
+- [ ] `Remove-Item smoke_finished_job_id.txt` — 清理临时文件
+- [ ] GitHub Actions CI passing on main
+- [ ] GitHub Actions Docker Smoke manual workflow passing on main
+- [ ] Final tag 打在 main merge commit 上（PR 合并后）
