@@ -2,6 +2,26 @@
 
 ## Unreleased
 
+- Prepared v1.7 roadmap planning.
+  - Documentation-only update; no runtime feature, no CI behavior change.
+  - v1.7.0 theme: Runtime / Report / Artifact Regression Hardening.
+  - v1.7.0 goals:
+    - 把 v1.6.1 修复过的问题固化成自动化测试和 CI 保护。
+    - 新增 regression test 覆盖 wait-finished smoke run。
+    - 新增 regression test 覆盖 report.html 模板渲染。
+    - 新增 regression test 覆盖 comparison.html 模板渲染。
+    - 新增 regression test 覆盖 job artifact 下载（config.json、metrics.json、metrics.csv、report.md）。
+    - 新增 regression test 覆盖 comparison artifact 下载（comparison.html、comparison.csv、comparison.json）。
+    - 新增 regression test 覆盖 backend restart recovery。
+    - 强化 CI 验证链路：ruff / quick_test / web build / api_smoke_test / docker compose。
+    - 明确不新增依赖、不修改训练核心逻辑、不改变现有 API 行为。
+  - v1.7.0-alpha.1: report/artifact regression tests。
+  - v1.7.0-alpha.2: CI smoke workflow hardening。
+  - v1.7.0-beta.1: Beta readiness。
+  - v1.7.0-rc.1: Release candidate readiness。
+  - v1.7.0: Final release。
+  - v1.7 不优先做：新 UI 功能、新训练算法、新攻击算法、大规模后端重构、新依赖。
+
 - Fixed v1.6.1 runtime metrics and artifact download issues.
   - Real MNIST runs now yield to the event loop before training and after metric publishing so WebSocket dashboards can receive round metrics during execution.
   - `/jobs` and `/status/{job_id}` now expose aggregation, defense, attack, final accuracy, final loss, final ASR, and final metric summary fields.
