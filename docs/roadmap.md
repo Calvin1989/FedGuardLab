@@ -801,7 +801,7 @@ Checklist：
 - [ ] GitHub Actions CI passing
 - [ ] GitHub Actions Docker Smoke manual workflow passing
 
-### v1.6.0-rc.1
+### v1.6.0-rc.1 — completed
 
 Focus: Release candidate validation for v1.6.0.
 
@@ -824,25 +824,25 @@ rc.1 验证重点：
 
 Checklist：
 
-- [ ] `ruff check .`
-- [ ] `python quick_test.py`
-- [ ] 前端构建检查：
+- [x] `ruff check .`
+- [x] `python quick_test.py`
+- [x] 前端构建检查：
   - `cd web`
   - `npm run build`
   - `cd ..`
-- [ ] `python api_smoke_test.py`
-- [ ] 目视检查首页默认中文。
-- [ ] 目视检查 English 切换。
-- [ ] 目视检查刷新后语言保持。
-- [ ] 目视检查 `/reports/<job_id>?lang=zh`。
-- [ ] 目视检查 `/reports/<job_id>?lang=en`。
-- [ ] 目视检查 `/comparisons/<comparison_id>?lang=zh`。
-- [ ] 目视检查 `/comparisons/<comparison_id>?lang=en`。
-- [ ] 目视检查 comparison report 显示 job 摘要信息。
-- [ ] 目视检查 selected jobs preview。
-- [ ] 目视检查 comparison creation feedback。
-- [ ] 目视检查 job detail 导出区域。
-- [ ] 目视检查 comparison 导出区域。
+- [x] `python api_smoke_test.py`
+- [x] 目视检查首页默认中文。
+- [x] 目视检查 English 切换。
+- [x] 目视检查刷新后语言保持。
+- [x] 目视检查 `/reports/<job_id>?lang=zh`。
+- [x] 目视检查 `/reports/<job_id>?lang=en`。
+- [x] 目视检查 `/comparisons/<comparison_id>?lang=zh`。
+- [x] 目视检查 `/comparisons/<comparison_id>?lang=en`。
+- [x] 目视检查 comparison report 显示 job 摘要信息。
+- [x] 目视检查 selected jobs preview。
+- [x] 目视检查 comparison creation feedback。
+- [x] 目视检查 job detail 导出区域。
+- [x] 目视检查 comparison 导出区域。
 - [ ] `docker compose config`
 - [ ] `docker compose build`
 - [ ] `docker compose up -d`
@@ -893,7 +893,6 @@ Checklist：
 - [ ] 目视检查 comparison creation feedback。
 - [ ] 目视检查 job detail 导出区域。
 - [ ] 目视检查 comparison 导出区域。
-- [ ] 目视检查导出入口。
 - [ ] `docker compose config`
 - [ ] `docker compose build`
 - [ ] `docker compose up -d`
