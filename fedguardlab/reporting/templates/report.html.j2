@@ -549,25 +549,41 @@
       <h2>{{ L.exported_files|default("导出文件") }}</h2>
 
       <div class="export-grid">
-        <a class="export-card export-download" href="#config-details-section">
+        <a
+          class="export-card export-download"
+          href="{{ artifact_urls.config_json_url|default('#config-details-section') }}"
+          download
+        >
           <strong>config.json</strong>
           <span>{{ L.export_config|default("实验配置") }}</span>
         </a>
 
-        <div class="export-card">
+        <a
+          class="export-card export-download"
+          href="{{ artifact_urls.metrics_json_url|default('#') }}"
+          download
+        >
           <strong>metrics.json</strong>
           <span>{{ L.export_metrics_json|default("逐轮原始指标") }}</span>
-        </div>
+        </a>
 
-        <div class="export-card">
+        <a
+          class="export-card export-download"
+          href="{{ artifact_urls.metrics_csv_url|default('#') }}"
+          download
+        >
           <strong>metrics.csv</strong>
           <span>{{ L.export_metrics_csv|default("可导入表格的指标") }}</span>
-        </div>
+        </a>
 
-        <div class="export-card">
+        <a
+          class="export-card export-download"
+          href="{{ artifact_urls.summary_md_url|default('#') }}"
+          download
+        >
           <strong>report.md</strong>
           <span>{{ L.export_report_md|default("Markdown 实验摘要") }}</span>
-        </div>
+        </a>
       </div>
 
       <details class="config-details" id="config-details-section" open>

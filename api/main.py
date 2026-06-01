@@ -14,7 +14,7 @@ from fastapi import (
     WebSocketDisconnect,
 )
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse
+from fastapi.responses import FileResponse, HTMLResponse
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from pydantic import BaseModel
 
@@ -143,18 +143,69 @@ def validate_job_id(job_id: str) -> None:
         raise HTTPException(status_code=400, detail="invalid job_id")
 
 
+def _job_artifact_url(job_id: str, filename: str) -> str:
+    return f"http://127.0.0.1:8000/reports/{job_id}/{filename}"
+
+
+def _comparison_artifact_url(comparison_id: str, filename: str) -> str:
+    return f"http://127.0.0.1:8000/comparisons/{comparison_id}/{filename}"
+
+
 def build_job_artifacts(job_id: str) -> dict:
     job_dir = REPORTS_DIR / job_id
     artifacts = {
         "config_json": str(job_dir / "config.json"),
+        "metrics_json": str(job_dir / "metrics.json"),
         "metrics_csv": str(job_dir / "metrics.csv"),
         "summary_md": str(job_dir / "report.md"),
         "report_html": str(job_dir / "report.html"),
+        "config_json_url": _job_artifact_url(job_id, "config.json"),
+        "metrics_json_url": _job_artifact_url(job_id, "metrics.json"),
+        "metrics_csv_url": _job_artifact_url(job_id, "metrics.csv"),
+        "summary_md_url": _job_artifact_url(job_id, "report.md"),
+        "report_html_url": f"http://127.0.0.1:8000/reports/{job_id}",
     }
     return {
         "has_report": (job_dir / "report.html").exists(),
         "artifacts": artifacts,
     }
+
+
+def _final_metric(metrics: list[dict[str, Any]]) -> dict[str, Any]:
+    return metrics[-1] if metrics else {}
+
+
+def _job_summary(job: JobRecord) -> dict[str, Any]:
+    config = job.config or {}
+    final_metric = _final_metric(job.metrics)
+    artifacts_info = build_job_artifacts(job.job_id)
+
+    return {
+        "job_id": job.job_id,
+        "status": job.status,
+        "config_path": job.config_path,
+        "experiment_name": config.get("experiment", {}).get("name"),
+        "aggregation": config.get("federated", {}).get("aggregation"),
+        "defense": config.get("defense", {}).get("type"),
+        "attack": config.get("attack", {}).get("type"),
+        "final_accuracy": final_metric.get("accuracy"),
+        "final_loss": final_metric.get("loss"),
+        "final_asr": final_metric.get("attack_success_rate"),
+        "final_metric": final_metric,
+        "metrics_count": len(job.metrics),
+        "error": job.error,
+        "created_at": job.created_at,
+        "started_at": job.started_at,
+        "finished_at": job.finished_at,
+        "has_report": artifacts_info["has_report"],
+        "artifacts": artifacts_info["artifacts"],
+    }
+
+
+def _download_file(path: Path, filename: str) -> FileResponse:
+    if not path.exists() or not path.is_file():
+        raise HTTPException(status_code=404, detail="artifact not found")
+    return FileResponse(path=path, filename=filename)
 
 
 @app.get("/")
@@ -250,19 +301,7 @@ def get_status(job_id: str):
     if job is None:
         raise HTTPException(status_code=404, detail="job not found")
 
-    artifacts_info = build_job_artifacts(job_id)
-
-    return {
-        "job_id": job_id,
-        "status": job.status,
-        "metrics_count": len(job.metrics),
-        "error": job.error,
-        "created_at": job.created_at,
-        "started_at": job.started_at,
-        "finished_at": job.finished_at,
-        "has_report": artifacts_info["has_report"],
-        "artifacts": artifacts_info["artifacts"],
-    }
+    return _job_summary(job)
 
 
 VALID_JOB_STATUSES = {"queued", "running", "finished", "failed", "cancelled"}
@@ -305,26 +344,7 @@ def list_jobs(
     if effective_limit is not None:
         jobs = jobs[:effective_limit]
 
-    return {
-        "jobs": [
-            {
-                "job_id": job.job_id,
-                "status": job.status,
-                "config_path": job.config_path,
-                "experiment_name": (
-                    job.config.get("experiment", {}).get("name")
-                ),
-                "metrics_count": len(job.metrics),
-                "error": job.error,
-                "created_at": job.created_at,
-                "started_at": job.started_at,
-                "finished_at": job.finished_at,
-                "has_report": build_job_artifacts(job.job_id)["has_report"],
-                "artifacts": build_job_artifacts(job.job_id)["artifacts"],
-            }
-            for job in jobs
-        ]
-    }
+    return {"jobs": [_job_summary(job) for job in jobs]}
 
 
 @app.post("/jobs/{job_id}/cancel")
@@ -399,9 +419,27 @@ def get_report(job_id: str, lang: str = Query(default="zh")):
         config_json=json.dumps(config, indent=2, ensure_ascii=False),
         metrics=metrics,
         final_metric=final_metric,
+        artifact_urls=build_job_artifacts(job_id)["artifacts"],
     )
 
     return HTMLResponse(content=html)
+
+
+JOB_ARTIFACT_FILENAMES = {
+    "config.json",
+    "metrics.json",
+    "metrics.csv",
+    "report.md",
+}
+
+
+@app.get("/reports/{job_id}/{filename}")
+def get_report_artifact(job_id: str, filename: str):
+    validate_job_id(job_id)
+    if filename not in JOB_ARTIFACT_FILENAMES:
+        raise HTTPException(status_code=404, detail="artifact not found")
+
+    return _download_file(REPORTS_DIR / job_id / filename, filename)
 
 
 @app.post("/comparisons")
@@ -419,6 +457,15 @@ def create_comparison(request: ComparisonRequest):
             "comparison_id": comparison_id,
             "comparison_path": str(output_path),
             "comparison_url": f"http://127.0.0.1:8000/comparisons/{comparison_id}",
+            "artifacts": {
+                "comparison_html_url": f"http://127.0.0.1:8000/comparisons/{comparison_id}",
+                "comparison_csv_url": _comparison_artifact_url(
+                    comparison_id, "comparison.csv"
+                ),
+                "comparison_json_url": _comparison_artifact_url(
+                    comparison_id, "comparison.json"
+                ),
+            },
         }
 
     except Exception as exc:
@@ -448,9 +495,30 @@ def get_comparison_report(comparison_id: str, lang: str = Query(default="zh")):
         title=metadata.get("title", "Comparison"),
         experiments=metadata.get("experiments", []),
         api_base_url="http://127.0.0.1:8000",
+        artifact_urls={
+            "comparison_html_url": f"http://127.0.0.1:8000/comparisons/{comparison_id}",
+            "comparison_csv_url": _comparison_artifact_url(
+                comparison_id, "comparison.csv"
+            ),
+            "comparison_json_url": _comparison_artifact_url(
+                comparison_id, "comparison.json"
+            ),
+        },
     )
 
     return HTMLResponse(content=html)
+
+
+COMPARISON_ARTIFACT_FILENAMES = {"comparison.csv", "comparison.json"}
+
+
+@app.get("/comparisons/{comparison_id}/{filename}")
+def get_comparison_artifact(comparison_id: str, filename: str):
+    validate_job_id(comparison_id)
+    if filename not in COMPARISON_ARTIFACT_FILENAMES:
+        raise HTTPException(status_code=404, detail="artifact not found")
+
+    return _download_file(COMPARISONS_DIR / comparison_id / filename, filename)
 
 
 @app.websocket("/ws/{job_id}")

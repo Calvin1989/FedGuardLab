@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+- Fixed v1.6.1 runtime metrics and artifact download issues.
+  - Real MNIST runs now yield to the event loop before training and after metric publishing so WebSocket dashboards can receive round metrics during execution.
+  - `/jobs` and `/status/{job_id}` now expose aggregation, defense, attack, final accuracy, final loss, final ASR, and final metric summary fields.
+  - Dashboard job history uses API summary fields, so refreshed pages keep completed experiment metrics instead of showing `—`.
+  - Added download routes for job artifacts: `config.json`, `metrics.json`, `metrics.csv`, and `report.md`.
+  - Added download routes for comparison artifacts: `comparison.csv` and `comparison.json`.
+  - Dashboard, experiment report, and comparison report export entries now link to real downloadable files.
+  - Jobs without completed reports can no longer be selected for comparison.
+
 - Prepared v1.6.0 final release readiness documentation.
   - No new runtime feature; focus is Experiment Comparison UX + Export Polish.
   - v1.6.0 release scope:

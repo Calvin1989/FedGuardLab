@@ -125,6 +125,9 @@ const messages = {
     exportHtmlReport: "HTML 报告",
     exportCsvMetrics: "CSV 指标",
     exportMarkdownReport: "Markdown 报告",
+    comparisonHtmlReport: "对比 HTML 报告",
+    comparisonCsv: "对比 CSV",
+    comparisonJson: "对比 JSON",
     statusValues: {
       idle: "空闲",
       creating: "创建中",
@@ -217,6 +220,9 @@ const messages = {
     exportHtmlReport: "HTML Report",
     exportCsvMetrics: "CSV Metrics",
     exportMarkdownReport: "Markdown Report",
+    comparisonHtmlReport: "Comparison HTML Report",
+    comparisonCsv: "Comparison CSV",
+    comparisonJson: "Comparison JSON",
     statusValues: {
       idle: "idle",
       creating: "creating",
@@ -246,6 +252,7 @@ function withLang(url) {
 const comparisonStatus = ref("idle");
 const comparisonError = ref("");
 const comparisonUrl = ref("");
+const comparisonArtifacts = ref({});
 
 const experimentOptions = ref([]);
 const selectedCategory = ref("all");
@@ -416,6 +423,7 @@ function canSelectJobForComparison(job) {
   return (
     job.status === "finished" &&
     job.metrics_count > 0 &&
+    job.has_report === true &&
     Boolean(job.report_url)
   );
 }
@@ -434,6 +442,7 @@ function toggleJobSelection(jobId) {
 async function createComparisonReport() {
   comparisonError.value = "";
   comparisonUrl.value = "";
+  comparisonArtifacts.value = {};
 
   if (selectedJobIds.value.length < 2) {
     comparisonError.value = t.value.selectAtLeastTwo;
@@ -461,6 +470,7 @@ async function createComparisonReport() {
     }
 
     comparisonUrl.value = data.comparison_url;
+    comparisonArtifacts.value = data.artifacts || {};
     comparisonStatus.value = "finished";
   } catch (error) {
     comparisonError.value = error.message;
@@ -543,6 +553,66 @@ function loadRecentJobs() {
 }
 
 
+function formatDisplayValue(value) {
+  if (value === null || value === undefined || value === "") {
+    return "—";
+  }
+
+  return value;
+}
+
+
+function formatMetricValue(value) {
+  if (value === null || value === undefined || value === "") {
+    return "—";
+  }
+
+  if (typeof value === "number") {
+    return Number.isInteger(value) ? String(value) : value.toFixed(4);
+  }
+
+  return value;
+}
+
+
+function mapApiJobToRecentJob(job) {
+  const artifacts = job.artifacts || {};
+  const hasReport = job.has_report === true;
+  const experimentName =
+    job.experiment_name || job.config_path || "Unknown Experiment";
+
+  return {
+    job_id: job.job_id,
+    status: job.status,
+    config_path: job.config_path,
+    experiment_name: experimentName,
+    name: experimentName,
+    label: experimentName,
+    aggregation: formatDisplayValue(job.aggregation),
+    defense: formatDisplayValue(job.defense),
+    attack: formatDisplayValue(job.attack),
+    accuracy: formatMetricValue(job.final_accuracy),
+    loss: formatMetricValue(job.final_loss),
+    attack_success_rate: formatMetricValue(job.final_asr),
+    asr: formatMetricValue(job.final_asr),
+    final_accuracy: formatMetricValue(job.final_accuracy),
+    final_loss: formatMetricValue(job.final_loss),
+    final_asr: formatMetricValue(job.final_asr),
+    final_metric: job.final_metric || {},
+    metrics_count: job.metrics_count || 0,
+    error: job.error,
+    created_at: job.created_at,
+    started_at: job.started_at,
+    finished_at: job.finished_at,
+    report_url: hasReport
+      ? artifacts.report_html_url || `${API_BASE}/reports/${job.job_id}`
+      : "",
+    has_report: hasReport,
+    artifacts,
+  };
+}
+
+
 async function loadRecentJobsFromApi() {
   const filter = jobStatusFilter.value;
   const params = new URLSearchParams();
@@ -561,133 +631,88 @@ async function loadRecentJobsFromApi() {
   }
 
   const hiddenIds = loadHiddenJobIds();
+  const visibleJobs = data.jobs.filter((job) => !hiddenIds.has(job.job_id));
 
-  if (filter === "all") {
-    // All statuses: show raw jobs without hydration
-    const filtered = data.jobs.filter((job) => !hiddenIds.has(job.job_id));
-
-    recentJobs.value = filtered.map((job) => ({
-      job_id: job.job_id,
-      status: job.status,
-      config_path: job.config_path,
-      experiment_name: job.experiment_name || "Unknown Experiment",
-      name: job.experiment_name || "Unknown Experiment",
-      label: job.experiment_name || "Unknown Experiment",
-      aggregation: "—",
-      defense: "—",
-      attack: "—",
-      accuracy: "—",
-      loss: "—",
-      attack_success_rate: "—",
-      asr: "—",
-      final_accuracy: "—",
-      final_loss: "—",
-      final_asr: "—",
-      metrics_count: job.metrics_count,
-      error: job.error,
-      created_at: job.created_at,
-      started_at: job.started_at,
-      finished_at: job.finished_at,
-      report_url: `${API_BASE}/reports/${job.job_id}`,
-      has_report: job.has_report === true,
-      artifacts: job.artifacts || {},
-    }));
-  } else if (filter === "finished_report") {
-    // Default view: only finished jobs with full results (backward-compatible)
-    const finishedJobs = data.jobs.filter(
-      (job) =>
-        job.status === "finished" &&
-        job.metrics_count > 0 &&
-        job.has_report === true &&
-        !hiddenIds.has(job.job_id)
-    );
-
-    const hydratedJobs = await Promise.all(
-      finishedJobs.map(async (job) => {
-        try {
-          const resultResponse = await fetch(`${API_BASE}/results/${job.job_id}`);
-          const result = await resultResponse.json();
-
-          if (!resultResponse.ok) {
-            return null;
-          }
-
-          const config = result.config || {};
-          const metrics = result.metrics || [];
-          const lastMetric = metrics[metrics.length - 1] || {};
-
-          const experimentName =
-            config.experiment?.name || job.experiment_name || "Unknown Experiment";
-
-          return {
-            job_id: job.job_id,
-            status: job.status,
-            config_path: job.config_path,
-            experiment_name: experimentName,
-            name: experimentName,
-            label: experimentName,
-            aggregation: config.federated?.aggregation || "unknown",
-            defense: config.defense?.type || "unknown",
-            attack: config.attack?.type || "unknown",
-            accuracy: lastMetric.accuracy ?? 0,
-            loss: lastMetric.loss ?? 0,
-            attack_success_rate: lastMetric.attack_success_rate ?? 0,
-            asr: lastMetric.attack_success_rate ?? 0,
-            final_accuracy: lastMetric.accuracy ?? 0,
-            final_loss: lastMetric.loss ?? 0,
-            final_asr: lastMetric.attack_success_rate ?? 0,
-            metrics_count: job.metrics_count,
-            error: job.error,
-            created_at: job.created_at,
-            started_at: job.started_at,
-            finished_at: job.finished_at,
-            report_url: `${API_BASE}/reports/${job.job_id}`,
-            has_report: job.has_report === true,
-            artifacts: job.artifacts || {},
-          };
-        } catch (error) {
-          return null;
-        }
-      })
-    );
-
-    recentJobs.value = hydratedJobs.filter((job) => job !== null);
-  } else {
-    // Specific status filter: show raw jobs without hydration
-    const filtered = data.jobs.filter((job) => !hiddenIds.has(job.job_id));
-
-    recentJobs.value = filtered.map((job) => ({
-      job_id: job.job_id,
-      status: job.status,
-      config_path: job.config_path,
-      experiment_name: job.experiment_name || "Unknown Experiment",
-      name: job.experiment_name || "Unknown Experiment",
-      label: job.experiment_name || "Unknown Experiment",
-      aggregation: "—",
-      defense: "—",
-      attack: "—",
-      accuracy: "—",
-      loss: "—",
-      attack_success_rate: "—",
-      asr: "—",
-      final_accuracy: "—",
-      final_loss: "—",
-      final_asr: "—",
-      metrics_count: job.metrics_count,
-      error: job.error,
-      created_at: job.created_at,
-      started_at: job.started_at,
-      finished_at: job.finished_at,
-      report_url: `${API_BASE}/reports/${job.job_id}`,
-      has_report: job.has_report === true,
-      artifacts: job.artifacts || {},
-    }));
+  if (filter === "finished_report") {
+    recentJobs.value = visibleJobs
+      .filter(
+        (job) =>
+          job.status === "finished" &&
+          job.metrics_count > 0 &&
+          job.has_report === true
+      )
+      .map(mapApiJobToRecentJob);
+    return;
   }
+
+  recentJobs.value = visibleJobs.map(mapApiJobToRecentJob);
+}
+
+
+function jobArtifactUrl(job, key) {
+  if (!job?.job_id) {
+    return "";
+  }
+
+  const artifacts = job.artifacts || {};
+  const urlKeys = {
+    report_html: "report_html_url",
+    metrics_csv: "metrics_csv_url",
+    summary_md: "summary_md_url",
+    metrics_json: "metrics_json_url",
+    config_json: "config_json_url",
+  };
+
+  const urlKey = urlKeys[key];
+  if (urlKey && artifacts[urlKey]) {
+    return artifacts[urlKey];
+  }
+
+  if (!job.has_report) {
+    return "";
+  }
+
+  const fallbackUrls = {
+    report_html: `${API_BASE}/reports/${job.job_id}`,
+    metrics_csv: `${API_BASE}/reports/${job.job_id}/metrics.csv`,
+    summary_md: `${API_BASE}/reports/${job.job_id}/report.md`,
+    metrics_json: `${API_BASE}/reports/${job.job_id}/metrics.json`,
+    config_json: `${API_BASE}/reports/${job.job_id}/config.json`,
+  };
+
+  return fallbackUrls[key] || "";
+}
+
+
+function comparisonArtifactUrl(key) {
+  const artifacts = comparisonArtifacts.value || {};
+
+  if (artifacts[key]) {
+    return artifacts[key];
+  }
+
+  if (!comparisonUrl.value) {
+    return "";
+  }
+
+  const fallbackUrls = {
+    comparison_html_url: comparisonUrl.value,
+    comparison_csv_url: `${comparisonUrl.value}/comparison.csv`,
+    comparison_json_url: `${comparisonUrl.value}/comparison.json`,
+  };
+
+  return fallbackUrls[key] || "";
 }
 
 
 function hasArtifacts(job) {
-  return job.artifacts && Object.keys(job.artifacts).length > 0;
+  return Boolean(
+    jobArtifactUrl(job, "report_html") ||
+      jobArtifactUrl(job, "metrics_csv") ||
+      jobArtifactUrl(job, "summary_md") ||
+      jobArtifactUrl(job, "metrics_json") ||
+      jobArtifactUrl(job, "config_json")
+  );
 }
 
 
@@ -700,10 +725,18 @@ const selectedDetailJob = computed(() => {
 
 
 const selectedDetailArtifactsCount = computed(() => {
-  if (!selectedDetailJob.value?.artifacts) {
+  const job = selectedDetailJob.value;
+  if (!job) {
     return 0;
   }
-  return Object.values(selectedDetailJob.value.artifacts).filter(Boolean).length;
+
+  return [
+    jobArtifactUrl(job, "report_html"),
+    jobArtifactUrl(job, "metrics_csv"),
+    jobArtifactUrl(job, "summary_md"),
+    jobArtifactUrl(job, "metrics_json"),
+    jobArtifactUrl(job, "config_json"),
+  ].filter(Boolean).length;
 });
 
 
@@ -875,11 +908,22 @@ async function startExperiment() {
             final_asr: finalMetric.attack_success_rate ?? 0,
             metrics_count: metrics.value.length,
             report_url: `${API_BASE}/reports/${jobId.value}`,
+            has_report: true,
+            artifacts: {
+              report_html_url: `${API_BASE}/reports/${jobId.value}`,
+              metrics_csv_url: `${API_BASE}/reports/${jobId.value}/metrics.csv`,
+              summary_md_url: `${API_BASE}/reports/${jobId.value}/report.md`,
+              metrics_json_url: `${API_BASE}/reports/${jobId.value}/metrics.json`,
+              config_json_url: `${API_BASE}/reports/${jobId.value}/config.json`,
+            },
           },
           ...recentJobs.value.filter((job) => job.job_id !== jobId.value),
         ].slice(0, 20);
 
         saveRecentJobs();
+        loadRecentJobsFromApi().catch((error) => {
+          console.warn("Failed to refresh jobs after run finished:", error);
+        });
 
         socket.close();
         return;
@@ -1222,7 +1266,7 @@ async function startExperiment() {
             </td>
             <td>
               <a
-                v-if="job.status === 'finished'"
+                v-if="job.status === 'finished' && job.has_report && job.report_url"
                 class="report-link"
                 :href="withLang(job.report_url)"
                 target="_blank"
@@ -1244,7 +1288,7 @@ async function startExperiment() {
             </div>
 
             <a
-              v-if="selectedDetailJob.has_report"
+              v-if="selectedDetailJob.has_report && selectedDetailJob.report_url"
               class="report-link detail-report-link"
               :href="withLang(selectedDetailJob.report_url)"
               target="_blank"
@@ -1300,19 +1344,46 @@ async function startExperiment() {
             <h3 class="detail-exports-title">{{ t.exportsTitle }}</h3>
             <div class="detail-exports-grid">
               <a
+                v-if="jobArtifactUrl(selectedDetailJob, 'report_html')"
                 class="detail-export-item"
-                :href="withLang(selectedDetailJob.report_url)"
+                :href="withLang(jobArtifactUrl(selectedDetailJob, 'report_html'))"
                 target="_blank"
                 rel="noreferrer"
               >
                 <span class="detail-export-icon">📊</span>
                 <span class="detail-export-label">{{ t.exportHtmlReport }}</span>
               </a>
-              <span class="detail-export-item disabled">
+              <span v-else class="detail-export-item disabled">
+                <span class="detail-export-icon">📊</span>
+                <span class="detail-export-label">{{ t.exportHtmlReport }}</span>
+              </span>
+
+              <a
+                v-if="jobArtifactUrl(selectedDetailJob, 'metrics_csv')"
+                class="detail-export-item"
+                :href="jobArtifactUrl(selectedDetailJob, 'metrics_csv')"
+                target="_blank"
+                rel="noreferrer"
+              >
+                <span class="detail-export-icon">📄</span>
+                <span class="detail-export-label">{{ t.exportCsvMetrics }}</span>
+              </a>
+              <span v-else class="detail-export-item disabled">
                 <span class="detail-export-icon">📄</span>
                 <span class="detail-export-label">{{ t.exportCsvMetrics }}</span>
               </span>
-              <span class="detail-export-item disabled">
+
+              <a
+                v-if="jobArtifactUrl(selectedDetailJob, 'summary_md')"
+                class="detail-export-item"
+                :href="jobArtifactUrl(selectedDetailJob, 'summary_md')"
+                target="_blank"
+                rel="noreferrer"
+              >
+                <span class="detail-export-icon">📝</span>
+                <span class="detail-export-label">{{ t.exportMarkdownReport }}</span>
+              </a>
+              <span v-else class="detail-export-item disabled">
                 <span class="detail-export-icon">📝</span>
                 <span class="detail-export-label">{{ t.exportMarkdownReport }}</span>
               </span>
@@ -1366,18 +1437,38 @@ async function startExperiment() {
         <div class="comparison-exports">
           <a
             class="comparison-export-item"
-            :href="withLang(comparisonUrl)"
+            :href="withLang(comparisonArtifactUrl('comparison_html_url'))"
             target="_blank"
             rel="noreferrer"
           >
             <span class="detail-export-icon">📊</span>
             <span class="detail-export-label">{{ t.comparisonHtmlReport }}</span>
           </a>
-          <span class="comparison-export-item disabled">
+          <a
+            v-if="comparisonArtifactUrl('comparison_csv_url')"
+            class="comparison-export-item"
+            :href="comparisonArtifactUrl('comparison_csv_url')"
+            target="_blank"
+            rel="noreferrer"
+          >
+            <span class="detail-export-icon">📄</span>
+            <span class="detail-export-label">{{ t.comparisonCsv }}</span>
+          </a>
+          <span v-else class="comparison-export-item disabled">
             <span class="detail-export-icon">📄</span>
             <span class="detail-export-label">{{ t.comparisonCsv }}</span>
           </span>
-          <span class="comparison-export-item disabled">
+          <a
+            v-if="comparisonArtifactUrl('comparison_json_url')"
+            class="comparison-export-item"
+            :href="comparisonArtifactUrl('comparison_json_url')"
+            target="_blank"
+            rel="noreferrer"
+          >
+            <span class="detail-export-icon">📋</span>
+            <span class="detail-export-label">{{ t.comparisonJson }}</span>
+          </a>
+          <span v-else class="comparison-export-item disabled">
             <span class="detail-export-icon">📋</span>
             <span class="detail-export-label">{{ t.comparisonJson }}</span>
           </span>

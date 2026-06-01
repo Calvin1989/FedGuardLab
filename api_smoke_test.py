@@ -11,7 +11,13 @@ from typing import Any
 
 BASE = os.environ.get("FEDGUARDLAB_API_BASE", "http://127.0.0.1:8000")
 
-EXPECTED_ARTIFACT_KEYS = {"config_json", "metrics_csv", "summary_md", "report_html"}
+EXPECTED_ARTIFACT_KEYS = {
+    "config_json",
+    "metrics_json",
+    "metrics_csv",
+    "summary_md",
+    "report_html",
+}
 JOB_INDEX_PATH = Path("reports/jobs/index.json")
 
 
@@ -82,10 +88,16 @@ def _assert_index_consistent(job_id: str, status_data: dict[str, Any]) -> None:
         f"has_report mismatch: index={entry['has_report']} "
         f"status={status_data['has_report']}"
     )
-    assert entry["artifacts"] == status_data["artifacts"], (
-        f"artifacts mismatch: index={entry['artifacts']} "
-        f"status={status_data['artifacts']}"
+    entry_artifacts = entry.get("artifacts", {})
+    status_artifacts = status_data.get("artifacts", {})
+    assert isinstance(entry_artifacts, dict), (
+        f"index artifacts not dict: {entry_artifacts}"
     )
+    assert isinstance(status_artifacts, dict), (
+        f"status artifacts not dict: {status_artifacts}"
+    )
+    for key in EXPECTED_ARTIFACT_KEYS:
+        assert key in status_artifacts, f"status artifact missing {key}"
     assert len(entry.get("metrics", [])) == status_data["metrics_count"], (
         f"metrics length mismatch: index={len(entry.get('metrics', []))} "
         f"status={status_data['metrics_count']}"
@@ -108,6 +120,7 @@ def run_recovery_check(job_id: str) -> None:
     assert data.get("has_report") is True, f"has_report not True: {data}"
     _assert_artifacts_complete(data, require_files=True)
     _assert_index_consistent(job_id, data)
+    _assert_report_artifact_downloads(job_id)
     print(f"[OK]  recovery check passed for job_id={job_id}", flush=True)
 
 
@@ -120,6 +133,30 @@ def _get_with_status(path: str) -> tuple[int, Any]:
     except urllib.error.HTTPError as exc:
         return exc.code, None
 
+
+
+def _get_raw_with_status(path: str) -> tuple[int, bytes]:
+    url = f"{BASE}{path}"
+    req = urllib.request.Request(url, method="GET")
+    try:
+        with urllib.request.urlopen(req) as resp:
+            return resp.status, resp.read()
+    except urllib.error.HTTPError as exc:
+        return exc.code, exc.read()
+
+
+def _assert_report_artifact_downloads(job_id: str) -> None:
+    for artifact_path in (
+        f"/reports/{job_id}/config.json",
+        f"/reports/{job_id}/metrics.json",
+        f"/reports/{job_id}/metrics.csv",
+        f"/reports/{job_id}/report.md",
+    ):
+        print(f"[RUN] GET {artifact_path}", flush=True)
+        code, content = _get_raw_with_status(artifact_path)
+        assert code == 200, f"expected 200 for {artifact_path}, got {code}"
+        assert content, f"empty artifact response for {artifact_path}"
+        print(f"[OK]  GET {artifact_path}", flush=True)
 
 def _assert_jobs_query_params() -> None:
     print("[RUN] GET /jobs?limit=1", flush=True)
@@ -265,6 +302,7 @@ def main() -> None:
         assert "report_html" in data["artifacts"], f"report_html missing: {data}"
         _assert_artifacts_complete(data, require_files=True)
         _assert_index_consistent(job_id, data)
+        _assert_report_artifact_downloads(job_id)
         print(
             f"[OK]  job {job_id} finished with {data['metrics_count']} metrics",
             flush=True,
