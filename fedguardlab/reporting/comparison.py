@@ -10,6 +10,61 @@ TEMPLATE_DIR = Path(__file__).parent / "templates"
 JOBS_DIR = Path("reports/jobs")
 COMPARISONS_DIR = Path("reports/comparisons")
 
+COMPARISON_LABELS = {
+    "zh": {
+        "title": "FedGuardLab 对比报告",
+        "comparison_id": "对比 ID",
+        "num_experiments": "实验数量",
+        "final_metrics": "最终指标",
+        "experiment": "实验",
+        "aggregation": "聚合方式",
+        "defense": "防御",
+        "attack": "攻击",
+        "final_accuracy": "最终准确率",
+        "final_loss": "最终损失",
+        "final_asr": "最终 ASR",
+        "job_id": "任务 ID",
+        "report": "报告",
+        "open": "查看",
+        "note": (
+            "较低的 ASR 通常表示对目标攻击有更强的抵抗力。"
+            "当前结果用于轻量演示，不作为正式基准测试。"
+        ),
+        "exported_files": "导出文件",
+        "and": "和",
+    },
+    "en": {
+        "title": "FedGuardLab Comparison Report",
+        "comparison_id": "Comparison ID",
+        "num_experiments": "Number of Experiments",
+        "final_metrics": "Final Metrics",
+        "experiment": "Experiment",
+        "aggregation": "Aggregation",
+        "defense": "Defense",
+        "attack": "Attack",
+        "final_accuracy": "Final Accuracy",
+        "final_loss": "Final Loss",
+        "final_asr": "Final ASR",
+        "job_id": "Job ID",
+        "report": "Report",
+        "open": "Open",
+        "note": (
+            "Lower ASR usually indicates stronger resistance "
+            "to the configured target attack. Current results "
+            "are intended for lightweight demonstration, "
+            "not formal benchmarking."
+        ),
+        "exported_files": "Exported files",
+        "and": "and",
+    },
+}
+
+
+def normalize_comparison_lang(lang):
+    if lang in COMPARISON_LABELS:
+        return lang
+    return "zh"
+
 
 def generate_comparison_csv(
     experiments: List[Dict[str, Any]],
@@ -78,6 +133,7 @@ def generate_comparison_report(
     job_ids: List[str],
     title: str = "Robust Aggregation Comparison",
     api_base_url: str = "http://127.0.0.1:8000",
+    lang: str = "zh",
 ) -> Path:
     if len(job_ids) == 0:
         raise ValueError("job_ids cannot be empty")
@@ -95,7 +151,12 @@ def generate_comparison_report(
 
     template = env.get_template("comparison.html.j2")
 
+    lang = normalize_comparison_lang(lang)
+    labels = COMPARISON_LABELS[lang]
+
     html = template.render(
+        lang=lang,
+        labels=labels,
         comparison_id=comparison_id,
         title=title,
         experiments=experiments,

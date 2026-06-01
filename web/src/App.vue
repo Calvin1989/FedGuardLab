@@ -40,6 +40,179 @@ const selectedJobIds = ref([]);
 const selectedDetailJobId = ref("");
 const RECENT_JOBS_STORAGE_KEY = "fedguardlab_recent_jobs";
 const HIDDEN_JOBS_STORAGE_KEY = "fedguardlab_hidden_jobs";
+const LANGUAGE_STORAGE_KEY = "fedguardlab_language";
+
+const language = ref(window.localStorage.getItem(LANGUAGE_STORAGE_KEY) || "zh");
+
+const messages = {
+  zh: {
+    eyebrow: "FedGuardLab",
+    heroTitle: "联邦学习安全实验平台",
+    heroSubtitle: "运行模拟或真实联邦学习安全实验，实时查看训练指标，在一个面板中对比攻防效果。",
+    categoryLabel: "分类",
+    allCategories: "全部分类",
+    experimentLabel: "实验",
+    noConfigsForCategory: "当前分类没有可用配置。",
+    runExperiment: "运行实验",
+    running: "运行中...",
+    cancelExperiment: "取消实验",
+    statusLabel: "状态",
+    jobLabel: "任务 ID",
+    errorLabel: "错误",
+    reportLabel: "报告",
+    openHtmlReport: "查看 HTML 报告",
+    round: "轮次",
+    accuracy: "准确率",
+    loss: "损失",
+    asr: "攻击成功率",
+    chartTitle: "实时联邦学习指标",
+    emptyChart: "启动新实验以查看实时指标。已完成的实验将保存在下方的对比历史中。",
+    comparisonTitle: "实验对比",
+    comparisonHint: "选择至少两个已完成的实验，生成对比报告。",
+    statusFilter: "状态",
+    limitFilter: "数量",
+    sortFilter: "排序",
+    newestFirst: "最新优先",
+    oldestFirst: "最早优先",
+    deleteSelected: "删除所选",
+    clearHistory: "清空历史",
+    generateReport: "生成对比报告",
+    generating: "生成中...",
+    emptyAll: "已完成且有报告的实验将显示在这里。",
+    emptyFiltered: "没有找到{status}的任务。",
+    tableSelect: "选择",
+    tableExperiment: "实验",
+    tableAggregation: "聚合",
+    tableDefense: "防御",
+    tableAttack: "攻击",
+    tableAccuracy: "准确率",
+    tableLoss: "损失",
+    tableAsr: "ASR",
+    tableArtifacts: "产物",
+    tableReport: "报告",
+    badgeReport: "报告",
+    badgeArtifacts: "产物",
+    badgeNoReport: "无报告",
+    open: "查看",
+    notReady: "未就绪",
+    jobDetailTitle: "任务详情",
+    jobDetailId: "任务 ID",
+    jobDetailStatus: "状态",
+    jobDetailConfig: "配置路径",
+    jobDetailCreated: "创建时间",
+    jobDetailStarted: "开始时间",
+    jobDetailFinished: "完成时间",
+    jobDetailReport: "报告",
+    jobDetailArtifacts: "产物数量",
+    openReport: "查看报告",
+    notAvailable: "暂无",
+    jobDetailHint: "点击任务行查看详情。",
+    comparisonLabel: "对比",
+    openComparisonReport: "查看对比报告",
+    selectAtLeastTwo: "请至少选择两个已完成的实验。",
+    statusValues: {
+      idle: "空闲",
+      creating: "创建中",
+      running: "运行中",
+      finished: "已完成",
+      cancelled: "已取消",
+      failed: "失败",
+      error: "错误",
+      disconnected: "已断开",
+      queued: "排队中",
+    },
+  },
+  en: {
+    eyebrow: "FedGuardLab",
+    heroTitle: "Interactive FL Security Playground",
+    heroSubtitle: "Run simulated or real federated learning security experiments, stream live metrics, and compare attack-defense outcomes in one dashboard.",
+    categoryLabel: "Category",
+    allCategories: "All categories",
+    experimentLabel: "Experiment",
+    noConfigsForCategory: "No configs available for this category.",
+    runExperiment: "Run Experiment",
+    running: "Running...",
+    cancelExperiment: "Cancel Experiment",
+    statusLabel: "Status",
+    jobLabel: "Job ID",
+    errorLabel: "Error",
+    reportLabel: "Report",
+    openHtmlReport: "Open HTML Report",
+    round: "Round",
+    accuracy: "Accuracy",
+    loss: "Loss",
+    asr: "Attack Success Rate",
+    chartTitle: "Live Federated Learning Metrics",
+    emptyChart: "Start a new experiment to see live metrics here. Finished experiments are saved in the comparison history below.",
+    comparisonTitle: "Experiment Comparison",
+    comparisonHint: "Select at least two finished experiments and generate a comparison report.",
+    statusFilter: "Status",
+    limitFilter: "Limit",
+    sortFilter: "Sort",
+    newestFirst: "Newest first",
+    oldestFirst: "Oldest first",
+    deleteSelected: "Delete Selected",
+    clearHistory: "Clear History",
+    generateReport: "Generate Comparison Report",
+    generating: "Generating...",
+    emptyAll: "Finished experiments with reports will appear here.",
+    emptyFiltered: "No {status} jobs found.",
+    tableSelect: "Select",
+    tableExperiment: "Experiment",
+    tableAggregation: "Aggregation",
+    tableDefense: "Defense",
+    tableAttack: "Attack",
+    tableAccuracy: "Accuracy",
+    tableLoss: "Loss",
+    tableAsr: "ASR",
+    tableArtifacts: "Artifacts",
+    tableReport: "Report",
+    badgeReport: "Report",
+    badgeArtifacts: "Artifacts",
+    badgeNoReport: "No report",
+    open: "Open",
+    notReady: "Not ready",
+    jobDetailTitle: "Job Detail",
+    jobDetailId: "Job ID",
+    jobDetailStatus: "Status",
+    jobDetailConfig: "Config Path",
+    jobDetailCreated: "Created",
+    jobDetailStarted: "Started",
+    jobDetailFinished: "Finished",
+    jobDetailReport: "Report",
+    jobDetailArtifacts: "Artifacts",
+    openReport: "Open Report",
+    notAvailable: "Not available",
+    jobDetailHint: "Select a job to inspect details.",
+    comparisonLabel: "Comparison",
+    openComparisonReport: "Open Comparison Report",
+    selectAtLeastTwo: "Please select at least two finished experiments.",
+    statusValues: {
+      idle: "idle",
+      creating: "creating",
+      running: "running",
+      finished: "finished",
+      cancelled: "cancelled",
+      failed: "failed",
+      error: "error",
+      disconnected: "disconnected",
+      queued: "queued",
+    },
+  },
+};
+
+const t = computed(() => messages[language.value] || messages.zh);
+
+function setLanguage(lang) {
+  language.value = lang;
+  window.localStorage.setItem(LANGUAGE_STORAGE_KEY, lang);
+}
+
+function withLang(url) {
+  if (!url) return url;
+  const sep = url.includes("?") ? "&" : "?";
+  return `${url}${sep}lang=${language.value}`;
+}
 const comparisonStatus = ref("idle");
 const comparisonError = ref("");
 const comparisonUrl = ref("");
@@ -61,7 +234,7 @@ const chartData = computed(() => {
     labels: metrics.value.map((item) => item.round),
     datasets: [
       {
-        label: "Accuracy",
+        label: t.value.accuracy,
         data: metrics.value.map((item) => item.accuracy),
         borderColor: "#2563eb",
         backgroundColor: "rgba(37, 99, 235, 0.12)",
@@ -70,7 +243,7 @@ const chartData = computed(() => {
         pointRadius: 3,
       },
       {
-        label: "Loss",
+        label: t.value.loss,
         data: metrics.value.map((item) => item.loss),
         borderColor: "#dc2626",
         backgroundColor: "rgba(220, 38, 38, 0.12)",
@@ -79,7 +252,7 @@ const chartData = computed(() => {
         pointRadius: 3,
       },
       {
-        label: "Attack Success Rate",
+        label: t.value.asr,
         data: metrics.value.map((item) => item.attack_success_rate),
         borderColor: "#16a34a",
         backgroundColor: "rgba(22, 163, 74, 0.12)",
@@ -91,7 +264,7 @@ const chartData = computed(() => {
   };
 });
 
-const chartOptions = {
+const chartOptions = computed(() => ({
   responsive: true,
   maintainAspectRatio: false,
   plugins: {
@@ -100,7 +273,7 @@ const chartOptions = {
     },
     title: {
       display: true,
-      text: "Live Federated Learning Metrics",
+      text: t.value.chartTitle,
     },
   },
   scales: {
@@ -108,7 +281,7 @@ const chartOptions = {
       beginAtZero: true,
     },
   },
-};
+}));
 
 onMounted(async () => {
   await loadExperimentOptions();
@@ -233,7 +406,7 @@ async function createComparisonReport() {
   comparisonUrl.value = "";
 
   if (selectedJobIds.value.length < 2) {
-    comparisonError.value = "Please select at least two finished experiments.";
+    comparisonError.value = t.value.selectAtLeastTwo;
     return;
   }
 
@@ -408,10 +581,7 @@ async function loadRecentJobsFromApi() {
             created_at: job.created_at,
             started_at: job.started_at,
             finished_at: job.finished_at,
-            report_url:
-              job.has_report && job.artifacts?.report_html
-                ? `${API_BASE}/reports/${job.job_id}`
-                : `${API_BASE}/reports/${job.job_id}`,
+            report_url: `${API_BASE}/reports/${job.job_id}`,
             has_report: job.has_report === true,
             artifacts: job.artifacts || {},
           };
@@ -678,16 +848,30 @@ async function startExperiment() {
 <template>
   <main class="page">
     <section class="hero">
-      <p class="eyebrow">FedGuardLab</p>
-      <h1>Interactive FL Security Playground</h1>
-      <p class="subtitle">
-        Run simulated or real federated learning security experiments, stream live
-        metrics, and compare attack-defense outcomes in one dashboard.
-      </p>
+      <p class="eyebrow">{{ t.eyebrow }}</p>
+      <h1>{{ t.heroTitle }}</h1>
+      <p class="subtitle">{{ t.heroSubtitle }}</p>
+
+      <div class="lang-switcher">
+        <button
+          class="lang-button"
+          :class="{ active: language === 'zh' }"
+          @click="setLanguage('zh')"
+        >
+          中文
+        </button>
+        <button
+          class="lang-button"
+          :class="{ active: language === 'en' }"
+          @click="setLanguage('en')"
+        >
+          English
+        </button>
+      </div>
 
       <div class="control-panel">
         <label class="field-label" for="category-filter">
-          Category
+          {{ t.categoryLabel }}
         </label>
 
         <select
@@ -696,7 +880,7 @@ async function startExperiment() {
           class="experiment-select"
           :disabled="status === 'creating' || status === 'running'"
         >
-          <option value="all">All categories</option>
+          <option value="all">{{ t.allCategories }}</option>
           <option
             v-for="cat in configCategories"
             :key="cat"
@@ -707,7 +891,7 @@ async function startExperiment() {
         </select>
 
         <label class="field-label" for="experiment-select">
-          Experiment
+          {{ t.experimentLabel }}
         </label>
 
         <select
@@ -727,7 +911,7 @@ async function startExperiment() {
         </select>
 
         <p v-else class="config-empty-filter">
-          No configs available for this category.
+          {{ t.noConfigsForCategory }}
         </p>
 
         <p class="option-description">
@@ -774,7 +958,7 @@ async function startExperiment() {
             "
             @click="startExperiment"
           >
-            {{ status === "running" ? "Running..." : "Run Experiment" }}
+            {{ status === "running" ? t.running : t.runExperiment }}
           </button>
 
           <button
@@ -782,7 +966,7 @@ async function startExperiment() {
             class="secondary-button"
             @click="cancelCurrentJob"
           >
-            Cancel Experiment
+            {{ t.cancelExperiment }}
           </button>
         </div>
       </div>
@@ -790,46 +974,46 @@ async function startExperiment() {
 
     <section class="status-card">
       <div>
-        <strong>Status:</strong>
-        <span>{{ status }}</span>
+        <strong>{{ t.statusLabel }}:</strong>
+        <span>{{ t.statusValues[status] || status }}</span>
       </div>
 
       <div v-if="jobId">
-        <strong>Job ID:</strong>
+        <strong>{{ t.jobLabel }}:</strong>
         <span>{{ jobId }}</span>
       </div>
 
       <div v-if="errorMessage" class="error">
-        <strong>Error:</strong>
+        <strong>{{ t.errorLabel }}:</strong>
         <span>{{ errorMessage }}</span>
       </div>
 
       <div v-if="reportUrl">
-        <strong>Report:</strong>
-        <a class="report-link" :href="reportUrl" target="_blank">
-          Open HTML Report
+        <strong>{{ t.reportLabel }}:</strong>
+        <a class="report-link" :href="withLang(reportUrl)" target="_blank">
+          {{ t.openHtmlReport }}
         </a>
       </div>
     </section>
 
     <section v-if="latestMetric" class="metric-grid">
       <div class="metric-card">
-        <span>Round</span>
+        <span>{{ t.round }}</span>
         <strong>{{ latestMetric.round }}</strong>
       </div>
 
       <div class="metric-card">
-        <span>Accuracy</span>
+        <span>{{ t.accuracy }}</span>
         <strong>{{ latestMetric.accuracy }}</strong>
       </div>
 
       <div class="metric-card">
-        <span>Loss</span>
+        <span>{{ t.loss }}</span>
         <strong>{{ latestMetric.loss }}</strong>
       </div>
 
       <div class="metric-card">
-        <span>Attack Success Rate</span>
+        <span>{{ t.asr }}</span>
         <strong>{{ latestMetric.attack_success_rate }}</strong>
       </div>
     </section>
@@ -842,33 +1026,30 @@ async function startExperiment() {
       />
 
       <div v-else class="empty-state">
-        Start a new experiment to see live metrics here. Finished experiments are
-        saved in the comparison history below.
+        {{ t.emptyChart }}
       </div>
     </section>
 
     <section class="comparison-card">
       <div class="section-header">
         <div>
-          <h2>Experiment Comparison</h2>
-          <p>
-            Select at least two finished experiments and generate a comparison report.
-          </p>
+          <h2>{{ t.comparisonTitle }}</h2>
+          <p>{{ t.comparisonHint }}</p>
           <div class="job-filters">
             <label class="status-filter">
-              Status:
+              {{ t.statusFilter }}:
               <select v-model="jobStatusFilter">
-                <option value="all">Finished with reports</option>
-                <option value="finished">Finished</option>
-                <option value="running">Running</option>
-                <option value="cancelled">Cancelled</option>
-                <option value="failed">Failed</option>
-                <option value="queued">Queued</option>
+                <option value="all">{{ t.statusValues.finished }} ({{ t.badgeReport }})</option>
+                <option value="finished">{{ t.statusValues.finished }}</option>
+                <option value="running">{{ t.statusValues.running }}</option>
+                <option value="cancelled">{{ t.statusValues.cancelled }}</option>
+                <option value="failed">{{ t.statusValues.failed }}</option>
+                <option value="queued">{{ t.statusValues.queued }}</option>
               </select>
             </label>
 
             <label class="status-filter">
-              Limit:
+              {{ t.limitFilter }}:
               <select v-model.number="recentJobsLimit">
                 <option :value="10">10</option>
                 <option :value="20">20</option>
@@ -877,10 +1058,10 @@ async function startExperiment() {
             </label>
 
             <label class="status-filter">
-              Sort:
+              {{ t.sortFilter }}:
               <select v-model="recentJobsSort">
-                <option value="created_at_desc">Newest first</option>
-                <option value="created_at_asc">Oldest first</option>
+                <option value="created_at_desc">{{ t.newestFirst }}</option>
+                <option value="created_at_asc">{{ t.oldestFirst }}</option>
               </select>
             </label>
           </div>
@@ -892,7 +1073,7 @@ async function startExperiment() {
             :disabled="selectedJobIds.length === 0"
             @click="deleteSelectedJobs"
           >
-            Delete Selected
+            {{ t.deleteSelected }}
           </button>
 
           <button
@@ -900,7 +1081,7 @@ async function startExperiment() {
             :disabled="recentJobs.length === 0"
             @click="clearRecentJobs"
           >
-            Clear History
+            {{ t.clearHistory }}
           </button>
 
           <button
@@ -908,37 +1089,33 @@ async function startExperiment() {
             :disabled="selectedJobIds.length < 2 || comparisonStatus === 'creating'"
             @click="createComparisonReport"
           >
-            {{
-              comparisonStatus === "creating"
-                ? "Generating..."
-                : "Generate Comparison Report"
-            }}
+            {{ comparisonStatus === "creating" ? t.generating : t.generateReport }}
           </button>
         </div>
       </div>
 
       <div v-if="recentJobs.length === 0" class="empty-state small">
         <template v-if="jobStatusFilter === 'all'">
-          Finished experiments with reports will appear here.
+          {{ t.emptyAll }}
         </template>
         <template v-else>
-          No {{ jobStatusFilter }} jobs found.
+          {{ t.emptyFiltered.replace('{status}', t.statusValues[jobStatusFilter] || jobStatusFilter) }}
         </template>
       </div>
 
       <table v-else class="jobs-table">
         <thead>
           <tr>
-            <th>Select</th>
-            <th>Experiment</th>
-            <th>Aggregation</th>
-            <th>Defense</th>
-            <th>Attack</th>
-            <th>Accuracy</th>
-            <th>Loss</th>
-            <th>ASR</th>
-            <th>Artifacts</th>
-            <th>Report</th>
+            <th>{{ t.tableSelect }}</th>
+            <th>{{ t.tableExperiment }}</th>
+            <th>{{ t.tableAggregation }}</th>
+            <th>{{ t.tableDefense }}</th>
+            <th>{{ t.tableAttack }}</th>
+            <th>{{ t.tableAccuracy }}</th>
+            <th>{{ t.tableLoss }}</th>
+            <th>{{ t.tableAsr }}</th>
+            <th>{{ t.tableArtifacts }}</th>
+            <th>{{ t.tableReport }}</th>
           </tr>
         </thead>
 
@@ -970,21 +1147,21 @@ async function startExperiment() {
             <td>{{ job.final_asr }}</td>
             <td>
               <div class="job-badges">
-                <span v-if="job.has_report" class="job-badge success">Report</span>
-                <span v-if="hasArtifacts(job)" class="job-badge">Artifacts</span>
-                <span v-if="!job.has_report && !hasArtifacts(job)" class="job-badge muted">No report</span>
+                <span v-if="job.has_report" class="job-badge success">{{ t.badgeReport }}</span>
+                <span v-if="hasArtifacts(job)" class="job-badge">{{ t.badgeArtifacts }}</span>
+                <span v-if="!job.has_report && !hasArtifacts(job)" class="job-badge muted">{{ t.badgeNoReport }}</span>
               </div>
             </td>
             <td>
               <a
                 v-if="job.status === 'finished'"
                 class="report-link"
-                :href="job.report_url"
+                :href="withLang(job.report_url)"
                 target="_blank"
               >
-                Open
+                {{ t.open }}
               </a>
-              <span v-else>Not ready</span>
+              <span v-else>{{ t.notReady }}</span>
             </td>
           </tr>
         </tbody>
@@ -993,70 +1170,70 @@ async function startExperiment() {
       <div class="job-detail-card">
         <template v-if="selectedDetailJob">
           <div class="job-detail-header">
-            <strong>Job Detail</strong>
+            <strong>{{ t.jobDetailTitle }}</strong>
             <span class="job-detail-name">
               {{ selectedDetailJob.label || selectedDetailJob.experiment_name }}
             </span>
           </div>
           <div class="job-detail-grid">
             <div class="job-detail-row">
-              <span class="job-detail-label">Job ID</span>
+              <span class="job-detail-label">{{ t.jobDetailId }}</span>
               <span class="job-detail-value job-detail-mono">{{ selectedDetailJob.job_id }}</span>
             </div>
             <div class="job-detail-row">
-              <span class="job-detail-label">Status</span>
-              <span class="job-detail-value">{{ selectedDetailJob.status }}</span>
+              <span class="job-detail-label">{{ t.jobDetailStatus }}</span>
+              <span class="job-detail-value">{{ t.statusValues[selectedDetailJob.status] || selectedDetailJob.status }}</span>
             </div>
             <div class="job-detail-row">
-              <span class="job-detail-label">Config Path</span>
+              <span class="job-detail-label">{{ t.jobDetailConfig }}</span>
               <span class="job-detail-value job-detail-mono">{{ selectedDetailJob.config_path }}</span>
             </div>
             <div class="job-detail-row">
-              <span class="job-detail-label">Created</span>
+              <span class="job-detail-label">{{ t.jobDetailCreated }}</span>
               <span class="job-detail-value">{{ selectedDetailJob.created_at || "—" }}</span>
             </div>
             <div class="job-detail-row">
-              <span class="job-detail-label">Started</span>
+              <span class="job-detail-label">{{ t.jobDetailStarted }}</span>
               <span class="job-detail-value">{{ selectedDetailJob.started_at || "—" }}</span>
             </div>
             <div class="job-detail-row">
-              <span class="job-detail-label">Finished</span>
+              <span class="job-detail-label">{{ t.jobDetailFinished }}</span>
               <span class="job-detail-value">{{ selectedDetailJob.finished_at || "—" }}</span>
             </div>
             <div class="job-detail-row">
-              <span class="job-detail-label">Report</span>
+              <span class="job-detail-label">{{ t.jobDetailReport }}</span>
               <span class="job-detail-value">
                 <a
                   v-if="selectedDetailJob.has_report"
                   class="report-link"
-                  :href="selectedDetailJob.report_url"
+                  :href="withLang(selectedDetailJob.report_url)"
                   target="_blank"
                 >
-                  Open Report
+                  {{ t.openReport }}
                 </a>
-                <span v-else>Not available</span>
+                <span v-else>{{ t.notAvailable }}</span>
               </span>
             </div>
             <div class="job-detail-row">
-              <span class="job-detail-label">Artifacts</span>
+              <span class="job-detail-label">{{ t.jobDetailArtifacts }}</span>
               <span class="job-detail-value">{{ selectedDetailArtifactsCount }}</span>
             </div>
           </div>
         </template>
         <p v-else class="job-detail-hint">
-          Select a job to inspect details.
+          {{ t.jobDetailHint }}
         </p>
       </div>
 
       <div v-if="comparisonError" class="error comparison-message">
-        <strong>Error:</strong>
+        <strong>{{ t.errorLabel }}:</strong>
         <span>{{ comparisonError }}</span>
       </div>
 
       <div v-if="comparisonUrl" class="comparison-message">
-        <strong>Comparison:</strong>
-        <a class="report-link" :href="comparisonUrl" target="_blank">
-          Open Comparison Report
+        <strong>{{ t.comparisonLabel }}:</strong>
+        <a class="report-link" :href="withLang(comparisonUrl)" target="_blank">
+          {{ t.openComparisonReport }}
         </a>
       </div>
     </section>
@@ -1099,6 +1276,40 @@ h1 {
   margin: 16px 0 24px;
   color: #475569;
   font-size: 16px;
+}
+
+.lang-switcher {
+  display: flex;
+  gap: 0;
+  margin-bottom: 20px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  overflow: hidden;
+  width: fit-content;
+}
+
+.lang-button {
+  padding: 6px 16px;
+  border: 0;
+  background: white;
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.lang-button:not(:last-child) {
+  border-right: 1px solid #cbd5e1;
+}
+
+.lang-button.active {
+  background: #0f172a;
+  color: white;
+}
+
+.lang-button:hover:not(.active) {
+  background: #f1f5f9;
 }
 
 .run-button {

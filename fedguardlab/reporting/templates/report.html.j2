@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ lang }}">
 <head>
   <meta charset="UTF-8" />
-  <title>FedGuardLab Report - {{ job_id }}</title>
+  <title>{{ labels.title }} - {{ job_id }}</title>
   <style>
     body {
       margin: 0;
@@ -184,90 +184,90 @@
 </head>
 <body>
   <div class="container">
-    <p class="report-kicker">FedGuardLab Experiment Report</p>
+    <p class="report-kicker">{{ labels.title }}</p>
     <h1>{{ experiment_name }}</h1>
 
-    <p><strong>Job ID:</strong> {{ job_id }}</p>
-    <p><strong>Status:</strong> {{ status }}</p>
+    <p><strong>{{ labels.job_id }}：</strong> {{ job_id }}</p>
+    <p><strong>{{ labels.status }}：</strong> {{ status }}</p>
 
     <div class="metric-grid">
       <div class="metric-card">
-        <span class="metric-label">Final Round</span>
+        <span class="metric-label">{{ labels.final_round }}</span>
         <strong class="metric-value">{{ final_metric.round }}</strong>
       </div>
 
       <div class="metric-card">
-        <span class="metric-label">Final Accuracy</span>
+        <span class="metric-label">{{ labels.final_accuracy }}</span>
         <strong class="metric-value">{{ final_metric.accuracy }}</strong>
       </div>
 
       <div class="metric-card">
-        <span class="metric-label">Final Loss</span>
+        <span class="metric-label">{{ labels.final_loss }}</span>
         <strong class="metric-value">{{ final_metric.loss }}</strong>
       </div>
 
       <div class="metric-card">
-        <span class="metric-label">Final ASR</span>
+        <span class="metric-label">{{ labels.final_asr }}</span>
         <strong class="metric-value">{{ final_metric.attack_success_rate }}</strong>
       </div>
     </div>
 
-    <h2>Experiment Overview</h2>
+    <h2>{{ labels.overview }}</h2>
 
     <table class="overview-table">
       <tbody>
         <tr>
-          <th>Trainer</th>
+          <th>{{ labels.trainer }}</th>
           <td>{{ final_metric.trainer }}</td>
         </tr>
         <tr>
-          <th>Mode</th>
+          <th>{{ labels.mode }}</th>
           <td>{{ final_metric.mode }}</td>
         </tr>
         <tr>
-          <th>Dataset</th>
+          <th>{{ labels.dataset }}</th>
           <td>{{ final_metric.dataset }}</td>
         </tr>
         <tr>
-          <th>Partition</th>
+          <th>{{ labels.partition }}</th>
           <td>{{ final_metric.partition }}</td>
         </tr>
         <tr>
-          <th>Clients</th>
+          <th>{{ labels.clients }}</th>
           <td>{{ final_metric.num_clients }}</td>
         </tr>
         <tr>
-          <th>Malicious Clients</th>
+          <th>{{ labels.malicious_clients }}</th>
           <td>{{ final_metric.malicious_clients }}</td>
         </tr>
         <tr>
-          <th>Aggregation</th>
+          <th>{{ labels.aggregation }}</th>
           <td>{{ final_metric.aggregation }}</td>
         </tr>
         <tr>
-          <th>Attack</th>
+          <th>{{ labels.attack }}</th>
           <td>{{ final_metric.attack }}</td>
         </tr>
         <tr>
-          <th>Defense</th>
+          <th>{{ labels.defense }}</th>
           <td>{{ final_metric.defense }}</td>
         </tr>
         <tr>
-          <th>Device</th>
+          <th>{{ labels.device }}</th>
           <td>{{ final_metric.device }}</td>
         </tr>
       </tbody>
     </table>
 
     {% if final_metric.client_label_summary is defined %}
-    <h2>Client Label Distribution</h2>
+    <h2>{{ labels.client_distribution }}</h2>
 
     <table class="metrics-table">
       <thead>
         <tr>
-          <th>Client ID</th>
-          <th>Samples</th>
-          <th>Label Counts</th>
+          <th>{{ labels.client_id }}</th>
+          <th>{{ labels.samples }}</th>
+          <th>{{ labels.label_counts }}</th>
         </tr>
       </thead>
       <tbody>
@@ -282,43 +282,43 @@
     </table>
     {% endif %}
 
-    <h2>Exported Files</h2>
+    <h2>{{ labels.exported_files }}</h2>
 
     <div class="export-grid">
       <div class="export-card">
         <strong>config.json</strong>
-        <span>Experiment configuration</span>
+        <span>{{ labels.export_config }}</span>
       </div>
 
       <div class="export-card">
         <strong>metrics.json</strong>
-        <span>Raw round-by-round metrics</span>
+        <span>{{ labels.export_metrics_json }}</span>
       </div>
 
       <div class="export-card">
         <strong>metrics.csv</strong>
-        <span>Spreadsheet-ready metrics</span>
+        <span>{{ labels.export_metrics_csv }}</span>
       </div>
 
       <div class="export-card">
         <strong>report.md</strong>
-        <span>Markdown experiment summary</span>
+        <span>{{ labels.export_report_md }}</span>
       </div>
     </div>
 
     <details class="config-details" open>
-      <summary>Experiment Configuration</summary>
+      <summary>{{ labels.config_details }}</summary>
       <pre>{{ config_json }}</pre>
     </details>
 
-    <h2>Metrics</h2>
+    <h2>{{ labels.metrics }}</h2>
     <table class="metrics-table">
       <thead>
         <tr>
-          <th>Round</th>
-          <th>Accuracy</th>
-          <th>Loss</th>
-          <th>Attack Success Rate</th>
+          <th>{{ labels.round }}</th>
+          <th>{{ labels.accuracy }}</th>
+          <th>{{ labels.loss }}</th>
+          <th>{{ labels.asr }}</th>
         </tr>
       </thead>
       <tbody>

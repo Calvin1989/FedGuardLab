@@ -1,8 +1,8 @@
-﻿<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="{{ lang }}">
 <head>
   <meta charset="UTF-8" />
-  <title>FedGuardLab Comparison Report - {{ comparison_id }}</title>
+  <title>{{ labels.title }} - {{ comparison_id }}</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -71,26 +71,26 @@
 </head>
 <body>
   <div class="container">
-    <p class="muted">FedGuardLab Comparison Report</p>
+    <p class="muted">{{ labels.title }}</p>
     <h1>{{ title }}</h1>
 
-    <p><strong>Comparison ID:</strong> {{ comparison_id }}</p>
-    <p><strong>Number of Experiments:</strong> {{ experiments | length }}</p>
+    <p><strong>{{ labels.comparison_id }}：</strong> {{ comparison_id }}</p>
+    <p><strong>{{ labels.num_experiments }}：</strong> {{ experiments | length }}</p>
 
-    <h2>Final Metrics</h2>
+    <h2>{{ labels.final_metrics }}</h2>
 
     <table>
       <thead>
         <tr>
-          <th>Experiment</th>
-          <th>Aggregation</th>
-          <th>Defense</th>
-          <th>Attack</th>
-          <th>Final Accuracy</th>
-          <th>Final Loss</th>
-          <th>Final ASR</th>
-          <th>Job ID</th>
-          <th>Report</th>
+          <th>{{ labels.experiment }}</th>
+          <th>{{ labels.aggregation }}</th>
+          <th>{{ labels.defense }}</th>
+          <th>{{ labels.attack }}</th>
+          <th>{{ labels.final_accuracy }}</th>
+          <th>{{ labels.final_loss }}</th>
+          <th>{{ labels.final_asr }}</th>
+          <th>{{ labels.job_id }}</th>
+          <th>{{ labels.report }}</th>
         </tr>
       </thead>
       <tbody>
@@ -105,8 +105,8 @@
           <td class="highlight">{{ item.final_asr }}</td>
           <td>{{ item.job_id }}</td>
           <td>
-            <a href="{{ api_base_url }}/reports/{{ item.job_id }}" target="_blank">
-              Open
+            <a href="{{ api_base_url }}/reports/{{ item.job_id }}?lang={{ lang }}" target="_blank">
+              {{ labels.open }}
             </a>
           </td>
         </tr>
@@ -115,10 +115,9 @@
     </table>
 
     <div class="note">
-      Lower ASR usually indicates stronger resistance to the configured target attack.
-      Current results are intended for lightweight demonstration, not formal benchmarking.
+      {{ labels.note }}
       <p>
-        Exported files: <code>comparison.json</code> and <code>comparison.csv</code>
+        {{ labels.exported_files }}：<code>comparison.json</code> {{ labels.and }} <code>comparison.csv</code>
       </p>
     </div>
   </div>
