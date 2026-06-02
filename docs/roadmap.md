@@ -1215,26 +1215,26 @@ Beta.1 验证重点：
 
 Checklist：
 
-- [ ] `ruff check .`
-- [ ] `python quick_test.py`
-- [ ] 前端构建检查：
+- [x] `python -m ruff check .`
+- [x] `python quick_test.py`
+- [x] 前端构建检查：
   - `cd web`
   - `npm run build`
   - `cd ..`
-- [ ] `python -m pytest tests/ -v`
-- [ ] `python api_smoke_test.py`
-- [ ] `docker compose config`
-- [ ] `docker compose build`
-- [ ] `docker compose up -d`
-- [ ] `python api_smoke_test.py --wait-finished --write-finished-job-id smoke_finished_job_id.txt`
-- [ ] `type smoke_finished_job_id.txt` — 确认 UUID 已写入
-- [ ] `docker compose restart backend`
-- [ ] `Start-Sleep -Seconds 10`
-- [ ] `python api_smoke_test.py --check-recovery <真实 finished job UUID>`
-- [ ] `docker compose down`
-- [ ] `Remove-Item smoke_finished_job_id.txt` — 清理临时文件
-- [ ] GitHub Actions CI passing
-- [ ] GitHub Actions Docker Smoke manual workflow passing
+- [x] `python -m pytest tests/ -v`
+- [x] `python api_smoke_test.py`
+- [x] `docker compose config`
+- [x] `docker compose build`
+- [x] `docker compose up -d`
+- [x] `python api_smoke_test.py --wait-finished --write-finished-job-id smoke_finished_job_id.txt`
+- [x] `$jobId = Get-Content smoke_finished_job_id.txt` — 读取 finished job UUID
+- [x] `docker compose restart backend`
+- [x] `Start-Sleep -Seconds 10`
+- [x] `python api_smoke_test.py --check-recovery $jobId`
+- [x] `docker compose down`
+- [x] `Remove-Item smoke_finished_job_id.txt` — 清理临时文件
+- [x] GitHub Actions CI passing
+- [x] GitHub Actions Docker Smoke manual workflow passing
 
 ### v1.8.0-beta.2
 
@@ -1291,29 +1291,29 @@ rc.1 最终验证重点：
 
 Checklist：
 
-- [ ] `ruff check .`
-- [ ] `python quick_test.py`
-- [ ] 前端构建检查：
+- [x] `python -m ruff check .`
+- [x] `python quick_test.py`
+- [x] 前端构建检查：
   - `cd web`
   - `npm run build`
   - `cd ..`
-- [ ] `python -m pytest tests/ -v`
-- [ ] `python api_smoke_test.py`
-- [ ] `docker compose config`
-- [ ] `docker compose build`
-- [ ] `docker compose up -d`
-- [ ] `python api_smoke_test.py --wait-finished --write-finished-job-id smoke_finished_job_id.txt`
-- [ ] `type smoke_finished_job_id.txt` — 确认 UUID 已写入
-- [ ] `docker compose restart backend`
-- [ ] `Start-Sleep -Seconds 10`
-- [ ] `python api_smoke_test.py --check-recovery <真实 finished job UUID>`
-- [ ] `docker compose down`
-- [ ] `Remove-Item smoke_finished_job_id.txt` — 清理临时文件
-- [ ] GitHub Actions CI passing on main
-- [ ] GitHub Actions Docker Smoke manual workflow passing on main
-- [ ] 手动检查中文 / English 首页
-- [ ] 手动检查实验报告页面
-- [ ] 手动检查对比报告页面
+- [x] `python -m pytest tests/ -v`
+- [x] `python api_smoke_test.py`
+- [x] `docker compose config`
+- [x] `docker compose build`
+- [x] `docker compose up -d`
+- [x] `python api_smoke_test.py --wait-finished --write-finished-job-id smoke_finished_job_id.txt`
+- [x] `$jobId = Get-Content smoke_finished_job_id.txt` — 读取 finished job UUID
+- [x] `docker compose restart backend`
+- [x] `Start-Sleep -Seconds 10`
+- [x] `python api_smoke_test.py --check-recovery $jobId`
+- [x] `docker compose down`
+- [x] `Remove-Item smoke_finished_job_id.txt` — 清理临时文件
+- [x] GitHub Actions CI passing on main
+- [x] GitHub Actions Docker Smoke manual workflow passing on main
+- [x] 手动检查中文 / English 首页
+- [x] 手动检查实验报告页面
+- [x] 手动检查对比报告页面
 
 ### v1.8.0 — completed
 
@@ -1351,24 +1351,24 @@ v1.8.0 已完成能力总结：
 
 Checklist：
 
-- [ ] `ruff check .`
-- [ ] `python quick_test.py`
-- [ ] 前端构建检查：
+- [x] `python -m ruff check .`
+- [x] `python quick_test.py`
+- [x] 前端构建检查：
   - `cd web`
   - `npm run build`
   - `cd ..`
-- [ ] `python -m pytest tests/ -v`
-- [ ] `python api_smoke_test.py`
-- [ ] `docker compose config`
-- [ ] `docker compose build`
-- [ ] `docker compose up -d`
-- [ ] `python api_smoke_test.py --wait-finished --write-finished-job-id smoke_finished_job_id.txt`
-- [ ] `type smoke_finished_job_id.txt` — 确认 UUID 已写入
-- [ ] `docker compose restart backend`
-- [ ] `Start-Sleep -Seconds 10`
-- [ ] `python api_smoke_test.py --check-recovery <真实 finished job UUID>`
-- [ ] `docker compose down`
-- [ ] `Remove-Item smoke_finished_job_id.txt` — 清理临时文件
-- [ ] GitHub Actions CI passing on main
-- [ ] GitHub Actions Docker Smoke manual workflow passing on main
-- [ ] Final tag 打在 main merge commit 上（PR 合并后）
+- [x] `python -m pytest tests/ -v`
+- [x] `python api_smoke_test.py`
+- [x] `docker compose config`
+- [x] `docker compose build`
+- [x] `docker compose up -d`
+- [x] `python api_smoke_test.py --wait-finished --write-finished-job-id smoke_finished_job_id.txt`
+- [x] `$jobId = Get-Content smoke_finished_job_id.txt` — 读取 finished job UUID
+- [x] `docker compose restart backend`
+- [x] `Start-Sleep -Seconds 10`
+- [x] `python api_smoke_test.py --check-recovery $jobId`
+- [x] `docker compose down`
+- [x] `Remove-Item smoke_finished_job_id.txt` — 清理临时文件
+- [x] GitHub Actions CI passing on main
+- [x] GitHub Actions Docker Smoke manual workflow passing on main
+- [x] Final tag 打在 main merge commit 上（PR 合并后）

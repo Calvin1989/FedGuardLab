@@ -34,3 +34,6 @@ data/
 
 # Comparison reports
 reports/comparisons/
+
+# Local smoke-test state
+smoke_finished_job_id.txt

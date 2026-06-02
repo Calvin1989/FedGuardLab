@@ -297,9 +297,21 @@ JobStore 现在会将 job 元数据和指标持久化到 `reports/jobs/index.jso
 
 每次 push 和 Pull Request 自动运行，覆盖：
 
-- `ruff check .`
-- `python quick_test.py`
-- `cd web && npm run build`
+```powershell
+python -m ruff check .
+python quick_test.py
+python -m pytest tests/ -v
+cd web
+npm ci
+npm run build
+```
+
+说明：
+
+- CI 使用 `python -m ruff check .` 执行代码质量检查。
+- `quick_test.py` 覆盖轻量端到端训练和报告生成路径。
+- `python -m pytest tests/ -v` 覆盖 report/artifact regression、job store persistence、event timeline、comparison insights 和 config preview。
+- 前端使用 `npm ci` 安装依赖，随后执行 `npm run build`。
 
 ### Docker Smoke（手动触发）
 
@@ -309,45 +321,76 @@ Docker Smoke workflow 文件：
 .github/workflows/docker-smoke.yml
 ```
 
-通过 GitHub Actions 页面手动运行（`workflow_dispatch`），不在 push / PR 时自动触发。
+通过 GitHub Actions 页面手动运行（`workflow_dispatch`），不在 push / PR 时自动触发。该 workflow 会验证：
+
+- `python -m pytest tests/ -v`。
+- `docker compose config`。
+- `docker compose build`。
+- `docker compose up -d`。
+- backend `/health` readiness。
+- `python api_smoke_test.py`。
+- `python api_smoke_test.py --wait-finished --write-finished-job-id smoke_finished_job_id.txt`。
+- `docker compose restart backend` 后的 recovery check。
+- `docker compose down` cleanup。
 
 ---
 
 ## 本地验证推荐顺序
 
-提交前建议按以下顺序在本地验证：
+提交前建议按以下顺序在本地验证。文档-only 修改也建议至少跑这一组轻量验证，确认没有误碰源码或配置。
 
-```bash
-# 1. Python 代码质量
-ruff check .
-
-# 2. 后端快速测试
+```powershell
+python -m ruff check .
 python quick_test.py
-
-# 3. 前端构建检查（如果当前在 web 目录里，先 cd ..）
-cd web && npm run build
+python -m pytest
+cd web
+npm run build
 cd ..
-
-# 4. Docker Compose 验证
-docker compose config
-docker compose build
-docker compose up -d
-
-# 5. 等待 backend healthy，然后运行 API smoke test
 python api_smoke_test.py
+```
 
-# 6. 等待 job 完成，同时将 finished job UUID 写入文件
-python api_smoke_test.py --wait-finished --write-finished-job-id smoke_finished_job_id.txt
+注意：`python api_smoke_test.py` 需要后端已经在本地或 Docker 中运行。如果没有启动后端，先执行：
 
-# 7. 重启 backend
-docker compose restart backend
+```powershell
+uvicorn api.main:app --reload
+```
 
-# 8. 用上一步得到的真实 UUID 做 recovery check
-#    注意替换 <finished job UUID> 为 smoke_finished_job_id.txt 中的实际值
-python api_smoke_test.py --check-recovery <finished job UUID>
+或使用 Docker Compose：
 
-# 9. 清理
+```powershell
+docker compose up -d
+python api_smoke_test.py
 docker compose down
 ```
 
-`smoke_finished_job_id.txt` 是临时文件，不应提交到版本控制。`.gitignore` 中已有 `*.txt` 相关规则的可以按需补充。
+---
+
+## Release / RC / Final Docker 全流程
+
+如果是 release、rc 或 final 验证，建议在轻量验证通过后，再跑完整 Docker 全流程：
+
+```powershell
+docker compose config
+docker compose build
+docker compose up -d
+python api_smoke_test.py --wait-finished --write-finished-job-id smoke_finished_job_id.txt
+$jobId = Get-Content smoke_finished_job_id.txt
+docker compose restart backend
+Start-Sleep -Seconds 10
+python api_smoke_test.py --check-recovery $jobId
+docker compose down
+Remove-Item smoke_finished_job_id.txt
+git status
+```
+
+该流程验证：
+
+- Docker Compose 配置有效。
+- backend / frontend image 可构建。
+- backend 容器启动后 API 可用。
+- 一个真实 smoke job 能完成并写出 finished job id。
+- backend restart 后，`reports/jobs/index.json` 能恢复 finished job。
+- artifact metadata 和 artifact 文件路径仍然可用。
+- 临时文件已清理，工作区状态可检查。
+
+`smoke_finished_job_id.txt` 是 Docker recovery smoke 的临时文件，不应提交到版本控制。

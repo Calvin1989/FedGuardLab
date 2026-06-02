@@ -241,18 +241,28 @@ reports/comparisons/<comparison_id>/
 当前稳定版本：
 
 ```text
-v1.5.0
+v1.8.0
 ```
 
-v1.5.0 重点改进：
+v1.8.0 重点改进：
 
-* 首页默认中文显示
-* 支持中文 / English 切换
-* 刷新后保留语言选择
-* 实验报告支持中文 / 英文显示
-* 对比报告支持中文 / 英文显示
-* 首页 Dashboard 视觉美化
-* 实验报告与对比报告视觉风格统一
+* Job event timeline：记录 created、started、round_progress、artifact_written、finished、failed、cancelled 等生命周期事件。
+* Runtime diagnostics：失败时暴露 failure reason 和 traceback summary，便于定位训练或配置问题。
+* Result insight cards：在 Dashboard 和 comparison report 中展示结果洞察。
+* Comparison highlights：高亮 best accuracy、lowest loss、lowest ASR，并给出 winner / trade-off / risk hint。
+* Config preview：运行实验前展示 dataset、aggregation、attack、defense、rounds、clients 等关键配置。
+* Config explainability：为关键配置字段提供中文 / English 说明、risk level 和 recommended use。
+* Dashboard density polish：压缩首页顶部区域和配置预览区域，减少首屏垂直占用。
+* Dashboard layout rebalance：优化 Dashboard 信息层级和布局比例。
+* Regression tests and CI smoke hardening：补强 report/artifact、event timeline、comparison insights、config preview、API smoke 和 Docker recovery 验证。
+
+兼容性说明：
+
+* 不新增运行时依赖。
+* 不改变已有 API 路径。
+* 不改变训练核心算法。
+* 不改变已有 report/artifact URL。
+* 继续保持中文 / English 双语支持。
 
 ---
 
