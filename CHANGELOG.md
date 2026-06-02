@@ -2,6 +2,46 @@
 
 ## Unreleased
 
+- Prepared v1.8.0-rc.1 release candidate documentation.
+  - No new feature, no API change, no training logic change, no new dependency.
+  - RC.1 阶段不新增功能、不新增依赖、不改变 API、不修改训练核心逻辑。
+  - v1.8 已完成能力总结：
+    - Job event timeline（job 生命周期事件记录）。
+    - Runtime diagnostics（运行时诊断）。
+    - Failure reason / traceback summary（失败原因与 traceback 摘要）。
+    - Comparison result insights（对比结果洞察）。
+    - Best accuracy / lowest loss / lowest ASR（最佳准确率 / 最低损失 / 最低 ASR）。
+    - Winner / trade-off / risk hint（推荐实验 / 权衡分析 / 风险提示）。
+    - Config preview（配置预览）。
+    - Config field explanation（配置字段解释）。
+    - Risk level / recommended use（风险级别 / 推荐用途）。
+    - Dashboard layout rebalance（首页布局再平衡）。
+    - 中文 / English 双语支持。
+    - Regression tests / CI 保持通过。
+  - RC.1 最终验证重点：
+    - `ruff check .`
+    - `python quick_test.py`
+    - `python -m pytest`
+    - `cd web && npm run build`
+    - `python api_smoke_test.py`
+    - `docker compose config` / `build` / `up` / `down`
+    - `--wait-finished` smoke run
+    - backend restart recovery check
+    - artifact download check
+    - 手动检查中文 / English 首页
+    - 手动检查实验报告页面
+    - 手动检查对比报告页面
+    - GitHub Actions CI check
+    - GitHub Actions Docker Smoke check
+  - Final release 前不再做结构性 UI 调整，除非发现阻塞问题。
+
+- Rebalanced dashboard layout for v1.8.0-beta.3.
+  - No new feature, no API change, no training logic change.
+  - 重新平衡首页布局，优化整体视觉层级。
+  - 保持中文 / English 双语。
+  - 保持 job event timeline、comparison insights、config preview 功能完整。
+  - 不新增依赖，不修改后端 API，不修改训练逻辑，不修改 report 模板。
+
 - Tightened dashboard top layout for v1.8.0-beta.2.
   - No new feature, no API change, no training logic change.
   - 压缩首页 hero/header 区域高度，减少首屏垂直占用。
