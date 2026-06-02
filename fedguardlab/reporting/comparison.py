@@ -56,6 +56,14 @@ COMPARISON_LABELS = {
         "finished_at": "完成时间",
         "report_link": "报告",
         "view_report": "查看报告",
+        "insights_title": "结果洞察",
+        "best_accuracy": "最佳准确率",
+        "lowest_loss": "最低损失",
+        "lowest_asr": "最低 ASR",
+        "recommended": "推荐实验",
+        "tradeoff": "权衡分析",
+        "risk_hint": "风险提示",
+        "no_insights": "暂无洞察数据",
     },
     "en": {
         "title": "FedGuardLab Comparison Report",
@@ -90,6 +98,14 @@ COMPARISON_LABELS = {
         "finished_at": "Finished At",
         "report_link": "Report",
         "view_report": "View Report",
+        "insights_title": "Result Insights",
+        "best_accuracy": "Best Accuracy",
+        "lowest_loss": "Lowest Loss",
+        "lowest_asr": "Lowest ASR",
+        "recommended": "Recommended",
+        "tradeoff": "Trade-off",
+        "risk_hint": "Risk Hint",
+        "no_insights": "No insights available",
     },
 }
 
@@ -98,6 +114,135 @@ def normalize_comparison_lang(lang):
     if lang in COMPARISON_LABELS:
         return lang
     return "zh"
+
+
+def compute_comparison_insights(
+    experiments: list[dict[str, Any]],
+    lang: str = "zh",
+) -> dict[str, Any]:
+    """Compute result insights from a list of experiment summaries.
+
+    Each experiment dict is expected to have: job_id, experiment_name,
+    final_accuracy, final_loss, final_asr.
+    Returns a dict with best_accuracy, lowest_loss, lowest_asr, winner,
+    tradeoff_summary, risk_hint.
+    """
+    if not experiments:
+        return {}
+
+    def _find_best(key: str, *, reverse: bool = True) -> dict[str, Any] | None:
+        """Find the experiment with the best value for *key*.
+
+        reverse=True means higher is better (accuracy);
+        reverse=False means lower is better (loss, asr).
+        """
+        valid = [
+            e for e in experiments
+            if e.get(key) is not None and e.get(key) != 0
+        ]
+        if not valid:
+            return None
+        best = sorted(valid, key=lambda e: e[key], reverse=reverse)[0]
+        return {
+            "job_id": best.get("job_id", ""),
+            "value": best.get(key, 0),
+            "experiment_name": best.get("experiment_name", ""),
+        }
+
+    best_acc = _find_best("final_accuracy", reverse=True)
+    lowest_loss = _find_best("final_loss", reverse=False)
+    lowest_asr = _find_best("final_asr", reverse=False)
+
+    # Winner: best accuracy; tie-break by lower loss.
+    winner = None
+    winner_reason = ""
+    if best_acc:
+        winner = best_acc.copy()
+        if lang == "zh":
+            winner_reason = (
+                f"准确率最高（{best_acc['value']:.4f}）"
+            )
+        else:
+            winner_reason = (
+                f"Highest accuracy ({best_acc['value']:.4f})"
+            )
+        # Tie-break: if another job has similar accuracy but lower loss
+        if lowest_loss and lowest_loss["job_id"] != best_acc["job_id"]:
+            acc_diff = abs(
+                best_acc["value"] - next(
+                    e["final_accuracy"]
+                    for e in experiments
+                    if e["job_id"] == lowest_loss["job_id"]
+                )
+            )
+            if acc_diff < 0.01:
+                winner = lowest_loss.copy()
+                if lang == "zh":
+                    winner_reason = (
+                        f"准确率与最高相近，损失更低"
+                        f"（{lowest_loss['value']:.4f}）"
+                    )
+                else:
+                    winner_reason = (
+                        f"Similar accuracy but lower loss "
+                        f"({lowest_loss['value']:.4f})"
+                    )
+
+    # Trade-off summary
+    tradeoff_summary = ""
+    if len(experiments) >= 2 and best_acc and lowest_loss:
+        if best_acc["job_id"] != lowest_loss["job_id"]:
+            if lang == "zh":
+                tradeoff_summary = (
+                    f"{best_acc['experiment_name']} 准确率最高，"
+                    f"{lowest_loss['experiment_name']} 损失最低。"
+                )
+            else:
+                tradeoff_summary = (
+                    f"{best_acc['experiment_name']} has the highest accuracy, "
+                    f"{lowest_loss['experiment_name']} has the lowest loss."
+                )
+        else:
+            if lang == "zh":
+                tradeoff_summary = (
+                    f"{best_acc['experiment_name']} 同时具有最高准确率和最低损失。"
+                )
+            else:
+                tradeoff_summary = (
+                    f"{best_acc['experiment_name']} has both the highest "
+                    f"accuracy and lowest loss."
+                )
+
+    # Risk hint: check for high ASR
+    risk_hint = ""
+    high_asr_jobs = [
+        e for e in experiments
+        if e.get("final_asr") is not None and e.get("final_asr", 0) > 0.5
+    ]
+    if high_asr_jobs:
+        names = ", ".join(
+            e.get("experiment_name", e.get("job_id", ""))
+            for e in high_asr_jobs
+        )
+        if lang == "zh":
+            risk_hint = (
+                f"以下实验 ASR 较高（>0.5），表明对目标攻击抵抗力较弱：{names}。"
+            )
+        else:
+            risk_hint = (
+                f"The following experiments have high ASR (>0.5), "
+                f"indicating weaker resistance to the target attack: {names}."
+            )
+
+    return {
+        "best_accuracy": best_acc,
+        "lowest_loss": lowest_loss,
+        "lowest_asr": lowest_asr,
+        "winner": winner,
+        "winner_reason": winner_reason,
+        "tradeoff_summary": tradeoff_summary,
+        "risk_hint": risk_hint,
+    }
 
 
 def generate_comparison_csv(
@@ -211,6 +356,7 @@ def generate_comparison_report(
 
     experiments = [load_job_summary(job_id) for job_id in job_ids]
     job_metadata = load_job_metadata(job_ids)
+    insights = compute_comparison_insights(experiments, lang=lang)
 
     compared_jobs = []
     for exp in experiments:
@@ -242,6 +388,7 @@ def generate_comparison_report(
         title=title,
         experiments=experiments,
         compared_jobs=compared_jobs,
+        insights=insights,
         api_base_url=api_base_url,
         artifact_urls=build_comparison_artifact_urls(comparison_id, api_base_url),
     )
@@ -258,6 +405,7 @@ def generate_comparison_report(
                 "job_ids": job_ids,
                 "experiments": experiments,
                 "compared_jobs": compared_jobs,
+                "insights": insights,
             },
             indent=2,
             ensure_ascii=False,

@@ -458,6 +458,18 @@ def create_comparison(request: ComparisonRequest):
 
         comparison_id = output_path.parent.name
 
+        # Read insights from the generated comparison.json.
+        insights = {}
+        comparison_json_path = output_path.parent / "comparison.json"
+        if comparison_json_path.exists():
+            try:
+                meta = json.loads(
+                    comparison_json_path.read_text(encoding="utf-8")
+                )
+                insights = meta.get("insights", {})
+            except (OSError, json.JSONDecodeError):
+                pass
+
         return {
             "comparison_id": comparison_id,
             "comparison_path": str(output_path),
@@ -471,6 +483,7 @@ def create_comparison(request: ComparisonRequest):
                     comparison_id, "comparison.json"
                 ),
             },
+            "insights": insights,
         }
 
     except Exception as exc:
