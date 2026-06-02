@@ -4271,4 +4271,344 @@ input {
   }
 }
 
+/* Dashboard comparison density polish: compact job details without touching runtime/report data flow */
+.comparison-card .job-detail-card {
+  margin-top: 14px;
+  padding: 16px;
+  border-radius: 16px;
+}
+
+.job-detail-panel {
+  display: grid;
+  gap: 12px;
+}
+
+.job-detail-header {
+  align-items: center;
+  margin-bottom: 0;
+}
+
+.job-detail-header h2 {
+  font-size: 20px;
+  line-height: 1.2;
+}
+
+.job-detail-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.job-detail-grid .detail-item-wide {
+  grid-column: span 2;
+}
+
+.detail-item {
+  min-height: 54px;
+  padding: 10px 12px;
+}
+
+.detail-item span {
+  margin-bottom: 3px;
+}
+
+.detail-item strong {
+  font-size: 13px;
+  line-height: 1.22;
+}
+
+.detail-exports {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 0;
+  padding: 12px;
+  border-radius: 14px;
+}
+
+.detail-exports-title {
+  flex: 0 0 auto;
+  margin: 0;
+}
+
+.detail-exports-grid {
+  gap: 8px;
+}
+
+.detail-export-item {
+  min-height: 32px;
+  padding: 0 12px;
+}
+
+.detail-events {
+  margin-top: 0;
+  padding-top: 12px;
+}
+
+.compact-events .detail-events-heading {
+  margin-bottom: 8px;
+}
+
+.compact-events .event-timeline {
+  gap: 8px;
+}
+
+.compact-events .event-item {
+  grid-template-columns: 20px 1fr;
+  gap: 8px;
+}
+
+.compact-events .event-icon {
+  width: 20px;
+  height: 20px;
+  font-size: 11px;
+}
+
+.compact-events .event-body {
+  padding-bottom: 8px;
+}
+
+.compact-events .event-message {
+  margin-top: 4px;
+  line-height: 1.45;
+}
+
+.round-log-panel {
+  margin-top: 8px;
+  border-radius: 14px;
+}
+
+.round-log-panel summary {
+  padding: 10px 12px;
+}
+
+.round-log-hint {
+  margin: 0 12px 8px;
+}
+
+.round-log-list {
+  max-height: 220px;
+  padding: 0 12px 12px;
+}
+
+.round-log-row {
+  padding: 8px 0;
+}
+
+.selected-jobs-preview {
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 16px;
+}
+
+.selected-jobs-header {
+  margin-bottom: 8px;
+}
+
+.selected-jobs-list {
+  gap: 6px;
+}
+
+.selected-job-chip {
+  grid-template-columns: 82px minmax(0, 1fr) auto auto;
+  min-height: 38px;
+  padding: 8px 10px;
+}
+
+@media (max-width: 1180px) {
+  .job-detail-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .job-detail-grid .detail-item-wide {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 720px) {
+  .job-detail-header,
+  .detail-exports,
+  .selected-jobs-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .detail-exports-title {
+    width: 100%;
+  }
+
+  .selected-job-chip {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Dashboard comparison density polish: compact job details without touching runtime/report data flow */
+.comparison-card .job-detail-card {
+  margin-top: 14px;
+  padding: 16px;
+  border-radius: 16px;
+}
+
+.job-detail-panel {
+  display: grid;
+  gap: 12px;
+}
+
+.job-detail-header {
+  align-items: center;
+  margin-bottom: 0;
+}
+
+.job-detail-header h2 {
+  font-size: 20px;
+  line-height: 1.2;
+}
+
+.job-detail-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.job-detail-grid .detail-item-wide {
+  grid-column: span 2;
+}
+
+.detail-item {
+  min-height: 54px;
+  padding: 10px 12px;
+}
+
+.detail-item span {
+  margin-bottom: 3px;
+}
+
+.detail-item strong {
+  font-size: 13px;
+  line-height: 1.22;
+}
+
+.detail-exports {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 0;
+  padding: 12px;
+  border-radius: 14px;
+}
+
+.detail-exports-title {
+  flex: 0 0 auto;
+  margin: 0;
+}
+
+.detail-exports-grid {
+  gap: 8px;
+}
+
+.detail-export-item {
+  min-height: 32px;
+  padding: 0 12px;
+}
+
+.detail-events {
+  margin-top: 0;
+  padding-top: 12px;
+}
+
+.compact-events .detail-events-heading {
+  margin-bottom: 8px;
+}
+
+.compact-events .event-timeline {
+  gap: 8px;
+}
+
+.compact-events .event-item {
+  grid-template-columns: 20px 1fr;
+  gap: 8px;
+}
+
+.compact-events .event-icon {
+  width: 20px;
+  height: 20px;
+  font-size: 11px;
+}
+
+.compact-events .event-body {
+  padding-bottom: 8px;
+}
+
+.compact-events .event-message {
+  margin-top: 4px;
+  line-height: 1.45;
+}
+
+.round-log-panel {
+  margin-top: 8px;
+  border-radius: 14px;
+}
+
+.round-log-panel summary {
+  padding: 10px 12px;
+}
+
+.round-log-hint {
+  margin: 0 12px 8px;
+}
+
+.round-log-list {
+  max-height: 220px;
+  padding: 0 12px 12px;
+}
+
+.round-log-row {
+  padding: 8px 0;
+}
+
+.selected-jobs-preview {
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 16px;
+}
+
+.selected-jobs-header {
+  margin-bottom: 8px;
+}
+
+.selected-jobs-list {
+  gap: 6px;
+}
+
+.selected-job-chip {
+  grid-template-columns: 82px minmax(0, 1fr) auto auto;
+  min-height: 38px;
+  padding: 8px 10px;
+}
+
+@media (max-width: 1180px) {
+  .job-detail-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .job-detail-grid .detail-item-wide {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 720px) {
+  .job-detail-header,
+  .detail-exports,
+  .selected-jobs-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .detail-exports-title {
+    width: 100%;
+  }
+
+  .selected-job-chip {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
 </style>
