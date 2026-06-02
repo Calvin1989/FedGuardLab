@@ -1248,13 +1248,22 @@ Focus: Dashboard density polish.
 - [x] 保持中文 / English 双语。
 - [x] 不新增功能、不新增依赖、不改 API、不改训练核心。
 
+### v1.8.0-beta.3
+
+Focus: Dashboard layout rebalance.
+
+- [x] 重新平衡首页布局，优化整体视觉层级。
+- [x] 保持中文 / English 双语。
+- [x] 保持 job event timeline、comparison insights、config preview 功能完整。
+- [x] 不新增功能、不新增依赖、不改 API、不改训练核心。
+
 ### v1.8.0-rc.1
 
 Focus: Release candidate readiness for v1.8.0.
 
 rc.1 阶段不新增功能、不新增依赖、不改变 API、不修改训练核心逻辑。重点是 final release candidate validation。
 
-v1.8.0-beta.1 已完成 beta readiness。alpha series 已完成 observability 和 insight 增强。
+v1.8.0-beta.3 已完成 dashboard layout rebalance。alpha series 已完成 observability 和 insight 增强。
 
 rc.1 最终验证重点：
 
@@ -1275,6 +1284,10 @@ rc.1 最终验证重点：
 - result insight 功能验证
 - config preview 功能验证
 - zh/en 双语验证
+- 手动检查中文 / English 首页
+- 手动检查实验报告页面
+- 手动检查对比报告页面
+- Final release 前不再做结构性 UI 调整，除非发现阻塞问题
 
 Checklist：
 
@@ -1298,6 +1311,9 @@ Checklist：
 - [ ] `Remove-Item smoke_finished_job_id.txt` — 清理临时文件
 - [ ] GitHub Actions CI passing on main
 - [ ] GitHub Actions Docker Smoke manual workflow passing on main
+- [ ] 手动检查中文 / English 首页
+- [ ] 手动检查实验报告页面
+- [ ] 手动检查对比报告页面
 
 ### v1.8.0
 
