@@ -34,6 +34,7 @@ const selectedConfig = ref("");
 
 const recentJobs = ref([]);
 const jobStatusFilter = ref("all");
+const jobArchiveFilter = ref("active");
 const recentJobsLimit = ref(20);
 const recentJobsSort = ref("created_at_desc");
 const selectedJobIds = ref([]);
@@ -100,6 +101,16 @@ const messages = {
     historyComparableJobs: "可对比",
     historySelectedJobs: "已选择",
     historyCurrentFilter: "当前筛选",
+    historyArchiveFilter: "归档",
+    archiveActive: "未归档",
+    archiveArchived: "已归档",
+    archiveAll: "全部",
+    archiveAction: "归档",
+    restoreAction: "恢复",
+    archivedBadge: "已归档",
+    archiveHint: "归档后将从默认历史列表隐藏，但报告文件仍保留。",
+    archiveFailed: "归档失败",
+    restoreFailed: "恢复失败",
     comparisonReady: "可对比",
     comparisonUnavailable: "不可对比",
     reportReady: "报告可用",
@@ -262,6 +273,16 @@ const messages = {
     historyComparableJobs: "Comparable",
     historySelectedJobs: "Selected",
     historyCurrentFilter: "Active filter",
+    historyArchiveFilter: "Archive",
+    archiveActive: "Active",
+    archiveArchived: "Archived",
+    archiveAll: "All",
+    archiveAction: "Archive",
+    restoreAction: "Restore",
+    archivedBadge: "Archived",
+    archiveHint: "Archived jobs are hidden from the default history list, but report files are preserved.",
+    archiveFailed: "Archive failed",
+    restoreFailed: "Restore failed",
     comparisonReady: "Comparable",
     comparisonUnavailable: "Not comparable",
     reportReady: "Report ready",
@@ -487,6 +508,8 @@ function formatConfigTag(tag) {
 }
 const comparisonStatus = ref("idle");
 const comparisonError = ref("");
+const historyActionError = ref("");
+const historyActionStatus = ref("idle");
 const comparisonUrl = ref("");
 const comparisonArtifacts = ref({});
 const comparisonInsights = ref({});
@@ -686,6 +709,7 @@ async function loadExperimentOptions() {
 
 function canSelectJobForComparison(job) {
   return (
+    job.archived !== true &&
     job.status === "finished" &&
     job.metrics_count > 0 &&
     job.has_report === true &&
@@ -710,6 +734,24 @@ const activeStatusFilterLabel = computed(() => {
 
   return t.value.statusValues[jobStatusFilter.value] || jobStatusFilter.value;
 });
+
+
+const activeArchiveFilterLabel = computed(() => {
+  if (jobArchiveFilter.value === "archived") {
+    return t.value.archiveArchived;
+  }
+
+  if (jobArchiveFilter.value === "all") {
+    return t.value.archiveAll;
+  }
+
+  return t.value.archiveActive;
+});
+
+
+const historyActiveFilterLabel = computed(() =>
+  `${activeStatusFilterLabel.value} · ${activeArchiveFilterLabel.value}`
+);
 
 
 function toggleJobSelection(jobId) {
@@ -951,6 +993,8 @@ function mapApiJobToRecentJob(job) {
     has_report: hasReport,
     artifacts,
     events: job.events || [],
+    archived: job.archived === true,
+    archived_at: job.archived_at || null,
   };
 }
 
@@ -960,6 +1004,7 @@ async function loadRecentJobsFromApi() {
   const params = new URLSearchParams();
   params.set("limit", String(recentJobsLimit.value));
   params.set("sort", recentJobsSort.value);
+  params.set("archived", jobArchiveFilter.value);
 
   if (filter !== "all" && filter !== "finished_report") {
     params.set("status", filter);
@@ -1145,7 +1190,43 @@ function toggleDetailJob(jobId) {
 }
 
 
-watch([jobStatusFilter, recentJobsLimit, recentJobsSort], () => {
+async function setJobArchived(job, archived) {
+  if (!job?.job_id) {
+    return;
+  }
+
+  historyActionError.value = "";
+  historyActionStatus.value = archived ? "archiving" : "restoring";
+
+  try {
+    const action = archived ? "archive" : "restore";
+    const response = await fetch(`${API_BASE}/jobs/${job.job_id}/${action}`, {
+      method: "POST",
+    });
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      const fallbackMessage = archived ? t.value.archiveFailed : t.value.restoreFailed;
+      throw new Error(data.detail || `${fallbackMessage}: ${response.status}`);
+    }
+
+    if (archived) {
+      selectedJobIds.value = selectedJobIds.value.filter((id) => id !== job.job_id);
+    }
+
+    await loadRecentJobsFromApi();
+
+    const stillVisible = recentJobs.value.some((item) => item.job_id === job.job_id);
+    selectedDetailJobId.value = stillVisible ? job.job_id : "";
+  } catch (error) {
+    historyActionError.value = error.message;
+  } finally {
+    historyActionStatus.value = "idle";
+  }
+}
+
+
+watch([jobStatusFilter, jobArchiveFilter, recentJobsLimit, recentJobsSort], () => {
   loadRecentJobsFromApi().catch((error) => {
     console.warn("Failed to reload jobs after filter change:", error);
   });
@@ -1627,6 +1708,15 @@ async function startExperiment() {
             </label>
 
             <label class="status-filter">
+              {{ t.historyArchiveFilter }}:
+              <select v-model="jobArchiveFilter">
+                <option value="active">{{ t.archiveActive }}</option>
+                <option value="archived">{{ t.archiveArchived }}</option>
+                <option value="all">{{ t.archiveAll }}</option>
+              </select>
+            </label>
+
+            <label class="status-filter">
               {{ t.limitFilter }}:
               <select v-model.number="recentJobsLimit">
                 <option :value="10">10</option>
@@ -1692,10 +1782,14 @@ async function startExperiment() {
             <small>{{ t.historySelectedJobs }}</small>
           </span>
           <span class="history-stat history-stat-wide">
-            <strong>{{ activeStatusFilterLabel }}</strong>
+            <strong>{{ historyActiveFilterLabel }}</strong>
             <small>{{ t.historyCurrentFilter }}</small>
           </span>
         </div>
+      </div>
+
+      <div v-if="historyActionError" class="comparison-feedback error-feedback history-action-error">
+        <span>{{ historyActionError }}</span>
       </div>
 
       <div v-if="recentJobs.length === 0" class="empty-state small comparison-empty-state">
@@ -1734,7 +1828,7 @@ async function startExperiment() {
             v-for="job in recentJobs"
             :key="job.job_id"
             class="job-row"
-            :class="{ 'job-row-selected': selectedDetailJobId === job.job_id, 'selected': selectedDetailJobId === job.job_id }"
+            :class="{ 'job-row-selected': selectedDetailJobId === job.job_id, 'selected': selectedDetailJobId === job.job_id, 'archived': job.archived }"
             @click="toggleDetailJob(job.job_id)"
           >
             <td class="job-select-cell">
@@ -1757,6 +1851,7 @@ async function startExperiment() {
             <td>{{ job.final_asr }}</td>
             <td>
               <div class="job-badges">
+                <span v-if="job.archived" class="job-badge archived">{{ t.archivedBadge }}</span>
                 <span v-if="job.has_report" class="job-badge success">{{ t.badgeReport }}</span>
                 <span v-if="hasArtifacts(job)" class="job-badge">{{ t.badgeArtifacts }}</span>
                 <span v-if="!job.has_report && !hasArtifacts(job)" class="job-badge muted">{{ t.badgeNoReport }}</span>
@@ -1791,6 +1886,12 @@ async function startExperiment() {
                   {{ canSelectJobForComparison(selectedDetailJob) ? t.comparisonReady : t.comparisonUnavailable }}
                 </span>
                 <span
+                  v-if="selectedDetailJob.archived"
+                  class="job-detail-meta-pill archived"
+                >
+                  {{ t.archivedBadge }}
+                </span>
+                <span
                   v-if="!selectedDetailJob.has_report"
                   class="job-detail-meta-pill"
                 >
@@ -1799,15 +1900,26 @@ async function startExperiment() {
               </div>
             </div>
 
-            <a
-              v-if="selectedDetailJob.has_report && selectedDetailJob.report_url"
-              class="report-link detail-report-link"
-              :href="withLang(selectedDetailJob.report_url)"
-              target="_blank"
-              rel="noreferrer"
-            >
-              {{ t.openReport }}
-            </a>
+            <div class="job-detail-actions">
+              <button
+                class="secondary-button detail-archive-button"
+                :disabled="historyActionStatus !== 'idle'"
+                :title="t.archiveHint"
+                @click="setJobArchived(selectedDetailJob, !selectedDetailJob.archived)"
+              >
+                {{ selectedDetailJob.archived ? t.restoreAction : t.archiveAction }}
+              </button>
+
+              <a
+                v-if="selectedDetailJob.has_report && selectedDetailJob.report_url"
+                class="report-link detail-report-link"
+                :href="withLang(selectedDetailJob.report_url)"
+                target="_blank"
+                rel="noreferrer"
+              >
+                {{ t.openReport }}
+              </a>
+            </div>
           </div>
 
           <div class="job-detail-grid">
@@ -4523,6 +4635,7 @@ input {
 
 @media (max-width: 720px) {
   .job-detail-header,
+  .job-detail-actions,
   .detail-exports,
   .selected-jobs-header {
     align-items: stretch;
@@ -4693,6 +4806,7 @@ input {
 
 @media (max-width: 720px) {
   .job-detail-header,
+  .job-detail-actions,
   .detail-exports,
   .selected-jobs-header {
     align-items: stretch;
@@ -4893,6 +5007,38 @@ input {
   border-color: rgba(187, 247, 208, 0.95);
   background: #dcfce7;
   color: #15803d;
+}
+
+.job-detail-meta-pill.archived,
+.job-badge.archived {
+  border-color: rgba(203, 213, 225, 0.95);
+  background: #e2e8f0;
+  color: #475569;
+}
+
+.job-detail-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.detail-archive-button {
+  min-height: 34px;
+  padding: 0 12px;
+}
+
+.history-action-error {
+  margin-top: 10px;
+}
+
+.job-row.archived {
+  opacity: 0.76;
+}
+
+.job-row.archived .job-label,
+.job-row.archived .job-id {
+  color: #64748b;
 }
 
 @media (max-width: 1024px) {
