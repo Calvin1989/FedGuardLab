@@ -2,6 +2,19 @@
 
 ## Unreleased
 
+- v1.8.0-alpha.3：Config preview and explainability polish。
+  - 为 config catalog 增加 preview / explanation 信息。
+  - 解析并展示 dataset、aggregation、attack、defense、rounds、clients 等关键参数。
+  - 增加 risk level（风险级别）和 recommended use（推荐用途）。
+  - 为聚合、防御、攻击、数据分布等字段提供简短中英文解释。
+  - 前端运行实验前新增 config preview card。
+  - risk level 按攻击类型和防御配置推断：none/low/medium/high。
+  - recommended use 按场景推断：baseline、attack demo、defense comparison 等。
+  - 缺失字段时友好降级。
+  - 保持中文 / English 双语。
+  - 扩展 regression tests（TestConfigPreview，10 个测试）。
+  - 不新增依赖，不修改训练核心算法，不改变 config yaml 结构。
+
 - v1.8.0-alpha.2：Result insight cards and comparison highlights。
   - 为 comparison 结果增加 insights / highlights 数据。
   - 识别 best accuracy、lowest loss、lowest ASR。

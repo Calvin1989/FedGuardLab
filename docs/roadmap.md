@@ -1162,12 +1162,12 @@ Focus: Result insight cards and comparison highlights.
 
 Focus: Config preview and explainability polish.
 
-- [ ] 运行实验前展示配置预览。
-- [ ] 展示 dataset、aggregation、attack、defense、rounds、clients 等关键参数。
-- [ ] 对关键配置字段给出简短中文/英文解释。
-- [ ] 降低用户误选配置的概率。
-- [ ] 不新增复杂配置编辑器。
-- [ ] 不新增依赖。
+- [x] 运行实验前展示配置预览。
+- [x] 展示 dataset、aggregation、attack、defense、rounds、clients 等关键参数。
+- [x] 对关键配置字段给出简短中文/英文解释。
+- [x] 降低用户误选配置的概率。
+- [x] 不新增复杂配置编辑器。
+- [x] 不新增依赖。
 
 ### v1.8.0-beta.1
 

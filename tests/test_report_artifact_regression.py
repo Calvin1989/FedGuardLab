@@ -19,6 +19,7 @@ from pathlib import Path
 import pytest
 
 from api.jobs import JobRecord, JobStore
+from api.main import compute_config_preview
 from fedguardlab.reporting.comparison import (
     compute_comparison_insights,
     generate_comparison_report,
@@ -850,3 +851,146 @@ class TestComparisonInsights:
         html = output_path.read_text(encoding="utf-8")
         assert "Result Insights" in html
         assert "Best Accuracy" in html
+
+
+# ---------------------------------------------------------------------------
+# Test 9 – Config preview
+# ---------------------------------------------------------------------------
+
+
+def _make_fedguard_config(
+    *,
+    aggregation: str = "fedavg",
+    attack: str = "none",
+    defense: str = "none",
+    partition: str = "iid",
+    alpha: float | None = None,
+    num_clients: int = 5,
+    malicious_clients: int = 0,
+    rounds: int = 10,
+    source_label: int | None = None,
+    target_label: int | None = None,
+):
+    """Build a FedGuardConfig for testing."""
+    from fedguardlab.config.schema import FedGuardConfig
+
+    raw: dict = {
+        "experiment": {"name": "test", "rounds": rounds},
+        "federated": {
+            "num_clients": num_clients,
+            "malicious_clients": malicious_clients,
+            "aggregation": aggregation,
+        },
+        "dataset": {"name": "mnist", "partition": partition},
+        "attack": {"type": attack},
+        "defense": {"type": defense},
+    }
+    if alpha is not None:
+        raw["dataset"]["alpha"] = alpha
+    if source_label is not None:
+        raw["attack"]["source_label"] = source_label
+    if target_label is not None:
+        raw["attack"]["target_label"] = target_label
+    if defense == "krum":
+        raw["defense"]["krum_malicious_clients"] = malicious_clients
+    return FedGuardConfig(**raw)
+
+
+class TestConfigPreview:
+    """compute_config_preview should derive correct preview data."""
+
+    def test_baseline_config(self) -> None:
+        config = _make_fedguard_config()
+        preview = compute_config_preview(config, lang="en")
+        assert preview["dataset"] == "MNIST"
+        assert preview["aggregation"] == "Fedavg"
+        assert preview["attack"] == "none"
+        assert preview["risk_level"] == "none"
+        assert "Baseline" in preview["recommended_use"]
+        assert preview["rounds"] == 10
+        assert preview["clients"] == 5
+        assert preview["malicious_clients"] == 0
+
+    def test_attack_config_label_flipping(self) -> None:
+        config = _make_fedguard_config(
+            attack="label_flipping",
+            source_label=1,
+            target_label=7,
+            malicious_clients=2,
+        )
+        preview = compute_config_preview(config, lang="en")
+        assert "Label Flipping" in preview["attack"]
+        assert "1" in preview["attack"]
+        assert "7" in preview["attack"]
+        assert preview["risk_level"] == "medium"
+        assert "Attack demo" in preview["recommended_use"]
+
+    def test_attack_with_defense(self) -> None:
+        config = _make_fedguard_config(
+            aggregation="krum",
+            attack="backdoor",
+            defense="krum",
+            target_label=7,
+            malicious_clients=2,
+            num_clients=7,
+        )
+        preview = compute_config_preview(config, lang="en")
+        assert preview["risk_level"] == "medium"
+        assert "Defense comparison" in preview["recommended_use"]
+
+    def test_backdoor_no_defense_high_risk(self) -> None:
+        config = _make_fedguard_config(
+            attack="backdoor",
+            target_label=7,
+        )
+        preview = compute_config_preview(config, lang="en")
+        assert preview["risk_level"] == "high"
+
+    def test_zh_labels(self) -> None:
+        config = _make_fedguard_config()
+        preview = compute_config_preview(config, lang="zh")
+        assert "基线实验" in preview["recommended_use"]
+        assert preview["risk_level"] == "none"
+
+    def test_has_explanations(self) -> None:
+        config = _make_fedguard_config()
+        preview = compute_config_preview(config, lang="en")
+        explanations = preview["explanations"]
+        assert "aggregation" in explanations
+        assert "attack" in explanations
+        assert "defense" in explanations
+        assert "partition" in explanations
+        assert len(explanations["aggregation"]) > 0
+
+    def test_dirichlet_partition(self) -> None:
+        config = _make_fedguard_config(
+            partition="dirichlet", alpha=0.5
+        )
+        preview = compute_config_preview(config, lang="en")
+        assert "Dirichlet" in preview["partition"]
+        assert "0.5" in preview["partition"]
+
+    def test_defense_display(self) -> None:
+        config = _make_fedguard_config(
+            aggregation="median", defense="median"
+        )
+        preview = compute_config_preview(config, lang="en")
+        assert preview["defense"] == "Median"
+
+    def test_none_defense_display(self) -> None:
+        config = _make_fedguard_config()
+        preview_en = compute_config_preview(config, lang="en")
+        preview_zh = compute_config_preview(config, lang="zh")
+        assert preview_en["defense"] == "None"
+        assert preview_zh["defense"] == "无"
+
+    def test_preview_fields_complete(self) -> None:
+        config = _make_fedguard_config()
+        preview = compute_config_preview(config, lang="en")
+        expected_keys = {
+            "dataset", "partition", "aggregation", "attack",
+            "defense", "rounds", "clients", "malicious_clients",
+            "local_epochs", "batch_size", "learning_rate",
+            "risk_level", "recommended_use", "explanations",
+        }
+        assert expected_keys <= set(preview.keys())
