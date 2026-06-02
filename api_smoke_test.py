@@ -83,6 +83,8 @@ EXPECTED_SUMMARY_FIELDS = {
     "final_loss",
     "final_asr",
     "has_report",
+    "archived",
+    "archived_at",
 }
 
 
@@ -142,6 +144,14 @@ def _assert_index_consistent(job_id: str, status_data: dict[str, Any]) -> None:
         f"metrics length mismatch: index={len(entry.get('metrics', []))} "
         f"status={status_data['metrics_count']}"
     )
+    assert entry.get("archived", False) == status_data.get("archived", False), (
+        f"archived mismatch: index={entry.get('archived')} "
+        f"status={status_data.get('archived')}"
+    )
+    assert entry.get("archived_at") == status_data.get("archived_at"), (
+        f"archived_at mismatch: index={entry.get('archived_at')} "
+        f"status={status_data.get('archived_at')}"
+    )
 
 
 def run_recovery_check(job_id: str) -> None:
@@ -179,6 +189,37 @@ def _get_with_status(path: str) -> tuple[int, Any]:
     except urllib.error.HTTPError as exc:
         return exc.code, None
 
+
+def _post_with_status(path: str) -> tuple[int, Any]:
+    url = f"{BASE}{path}"
+    req = urllib.request.Request(url, data=b"", method="POST")
+    try:
+        with urllib.request.urlopen(req) as resp:
+            return resp.status, json.loads(resp.read())
+    except urllib.error.HTTPError as exc:
+        try:
+            return exc.code, json.loads(exc.read())
+        except json.JSONDecodeError:
+            return exc.code, None
+
+
+def _post_json_with_status(path: str, payload: dict[str, Any]) -> tuple[int, Any]:
+    url = f"{BASE}{path}"
+    body = json.dumps(payload).encode("utf-8")
+    req = urllib.request.Request(
+        url,
+        data=body,
+        method="POST",
+        headers={"Content-Type": "application/json"},
+    )
+    try:
+        with urllib.request.urlopen(req) as resp:
+            return resp.status, json.loads(resp.read())
+    except urllib.error.HTTPError as exc:
+        try:
+            return exc.code, json.loads(exc.read())
+        except json.JSONDecodeError:
+            return exc.code, None
 
 
 def _get_raw_with_status(path: str) -> tuple[int, bytes]:
@@ -246,10 +287,35 @@ def _assert_jobs_query_params() -> None:
         )
     print("[OK]  GET /jobs?status=finished", flush=True)
 
+    print("[RUN] GET /jobs?archived=active", flush=True)
+    code, data = _get_with_status("/jobs?archived=active")
+    assert code == 200, f"expected 200, got {code}"
+    for job in data["jobs"]:
+        assert job.get("archived") is False, f"expected active job, got {job}"
+    print("[OK]  GET /jobs?archived=active", flush=True)
+
+    print("[RUN] GET /jobs?archived=archived", flush=True)
+    code, data = _get_with_status("/jobs?archived=archived")
+    assert code == 200, f"expected 200, got {code}"
+    for job in data["jobs"]:
+        assert job.get("archived") is True, f"expected archived job, got {job}"
+    print("[OK]  GET /jobs?archived=archived", flush=True)
+
+    print("[RUN] GET /jobs?archived=all", flush=True)
+    code, data = _get_with_status("/jobs?archived=all")
+    assert code == 200, f"expected 200, got {code}"
+    assert isinstance(data["jobs"], list), f"jobs not list: {data}"
+    print("[OK]  GET /jobs?archived=all", flush=True)
+
     print("[RUN] GET /jobs?status=unknown (expect 400)", flush=True)
     code, _ = _get_with_status("/jobs?status=unknown")
     assert code == 400, f"expected 400, got {code}"
     print("[OK]  GET /jobs?status=unknown -> 400", flush=True)
+
+    print("[RUN] GET /jobs?archived=unknown (expect 400)", flush=True)
+    code, _ = _get_with_status("/jobs?archived=unknown")
+    assert code == 400, f"expected 400, got {code}"
+    print("[OK]  GET /jobs?archived=unknown -> 400", flush=True)
 
     print("[RUN] GET /jobs?limit=0 (expect 400)", flush=True)
     code, _ = _get_with_status("/jobs?limit=0")
@@ -260,6 +326,56 @@ def _assert_jobs_query_params() -> None:
     code, _ = _get_with_status("/jobs?sort=unknown")
     assert code == 400, f"expected 400, got {code}"
     print("[OK]  GET /jobs?sort=unknown -> 400", flush=True)
+
+
+def _assert_archive_restore_flow(job_id: str) -> None:
+    print(f"[RUN] POST /jobs/{job_id}/archive", flush=True)
+    code, data = _post_with_status(f"/jobs/{job_id}/archive")
+    assert code == 200, f"expected 200, got {code}: {data}"
+    assert data["job_id"] == job_id, f"job_id mismatch: {data}"
+    assert data["archived"] is True, f"archived not True: {data}"
+    assert data["archived_at"], f"archived_at missing: {data}"
+    print(f"[OK]  POST /jobs/{job_id}/archive", flush=True)
+
+    print(f"[RUN] GET /status/{job_id} (after archive)", flush=True)
+    data = _get(f"/status/{job_id}")
+    assert data["archived"] is True, f"archived not True: {data}"
+    print(f"[OK]  GET /status/{job_id} -> archived", flush=True)
+
+    print("[RUN] GET /jobs?archived=active (archived job hidden)", flush=True)
+    data = _get("/jobs?archived=active")
+    assert job_id not in {j["job_id"] for j in data["jobs"]}, (
+        f"archived job still visible in active list: {job_id}"
+    )
+    print("[OK]  archived job hidden from active list", flush=True)
+
+    print("[RUN] GET /jobs?archived=archived (archived job visible)", flush=True)
+    data = _get("/jobs?archived=archived")
+    archived_jobs = {j["job_id"] for j in data["jobs"]}
+    assert job_id in archived_jobs, f"archived job not listed: {job_id}"
+    print("[OK]  archived job visible in archived list", flush=True)
+
+    print("[RUN] POST /comparisons with archived job (expect 400)", flush=True)
+    code, _ = _post_json_with_status(
+        "/comparisons",
+        {"job_ids": [job_id], "title": "Archived job comparison"},
+    )
+    assert code == 400, f"expected 400, got {code}"
+    print("[OK]  archived job rejected by comparison API", flush=True)
+
+    print(f"[RUN] POST /jobs/{job_id}/restore", flush=True)
+    code, data = _post_with_status(f"/jobs/{job_id}/restore")
+    assert code == 200, f"expected 200, got {code}: {data}"
+    assert data["archived"] is False, f"archived not False: {data}"
+    assert data["archived_at"] is None, f"archived_at not None: {data}"
+    print(f"[OK]  POST /jobs/{job_id}/restore", flush=True)
+
+    print("[RUN] GET /jobs?archived=active (restored job visible)", flush=True)
+    data = _get("/jobs?archived=active")
+    assert job_id in {j["job_id"] for j in data["jobs"]}, (
+        f"restored job not visible in active list: {job_id}"
+    )
+    print("[OK]  restored job visible in active list", flush=True)
 
 
 def run_default() -> None:
@@ -370,6 +486,9 @@ def main() -> None:
         _assert_events(data)
         _assert_index_consistent(job_id, data)
         _assert_report_artifact_downloads(job_id)
+        _assert_archive_restore_flow(job_id)
+        data = _get(f"/status/{job_id}")
+        _assert_index_consistent(job_id, data)
         round_progress_count = sum(
             1 for e in data.get("events", []) if e["type"] == "round_progress"
         )

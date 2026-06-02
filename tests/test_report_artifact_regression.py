@@ -396,6 +396,60 @@ class TestJobStorePersistence:
         for jid in ids:
             assert store2.get(jid) is not None
 
+    def test_archive_flags_persisted(self, tmp_path: Path) -> None:
+        index_path = tmp_path / "index.json"
+
+        store = JobStore(storage_path=index_path)
+        jid = str(uuid.uuid4())
+        store.create(
+            JobRecord(
+                job_id=jid,
+                config_path="configs/test.yaml",
+                config=_make_config(),
+                status="finished",
+                metrics=_make_metrics(1),
+            )
+        )
+
+        store.archive(jid)
+
+        store2 = JobStore(storage_path=index_path)
+        job = store2.get(jid)
+
+        assert job is not None
+        assert job.archived is True
+        assert job.archived_at is not None
+
+        store2.restore(jid)
+        store3 = JobStore(storage_path=index_path)
+        restored = store3.get(jid)
+
+        assert restored is not None
+        assert restored.archived is False
+        assert restored.archived_at is None
+
+    def test_legacy_jobs_default_to_not_archived(self, tmp_path: Path) -> None:
+        index_path = tmp_path / "index.json"
+        jid = str(uuid.uuid4())
+        legacy_entry = {
+            "job_id": jid,
+            "config_path": "configs/legacy.yaml",
+            "config": _make_config(),
+            "status": "finished",
+            "metrics": _make_metrics(1),
+        }
+        index_path.write_text(
+            json.dumps([legacy_entry], indent=2),
+            encoding="utf-8",
+        )
+
+        store = JobStore(storage_path=index_path)
+        job = store.get(jid)
+
+        assert job is not None
+        assert job.archived is False
+        assert job.archived_at is None
+
     def test_has_report_and_artifacts_persisted(self, tmp_path: Path) -> None:
         index_path = tmp_path / "index.json"
 
