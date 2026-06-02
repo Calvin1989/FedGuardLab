@@ -4,6 +4,23 @@
 
 - No unreleased changes.
 
+## v1.9.0-alpha.1
+
+- Started v1.9.0 Experiment Result Management with Dashboard history management UI.
+  - Renamed the comparison area to "历史实验与对比".
+  - Added history experiment summary stats: listed jobs, comparable jobs, selected jobs, and active filter.
+  - Clarified comparison readiness without adding new API endpoints.
+  - Reduced redundant status labels in job detail and selected job preview.
+  - Polished event timeline copy, icon placement, and Chinese display.
+  - Made round progress logs more compact.
+  - No API change, no training logic change, no report artifact URL change, no Docker runtime change, no test data structure change.
+  - Verified with:
+    - `python -m ruff check .`
+    - `python quick_test.py`
+    - `python -m pytest`
+    - `cd web && npm run build`
+    - `python api_smoke_test.py`
+
 ## v1.8.10
 
 - Polished Dashboard comparison completion state.

@@ -244,6 +244,22 @@ reports/comparisons/<comparison_id>/
 v1.8.10
 ```
 
+当前预览版本：
+
+```text
+v1.9.0-alpha.1
+```
+
+v1.9.0-alpha.1 重点改进：
+
+* History experiment management UI：将 Dashboard 下半部分整理为"历史实验与对比"，明确区分历史实验、可对比实验、已选择实验和当前筛选状态。
+* Experiment comparison readiness：增加列表实验数、可对比实验数、已选择实验数和筛选状态摘要。
+* Job detail polish：减少重复状态信息，只在必要时显示报告未就绪状态。
+* Event timeline polish：优化事件时间线文案、图标位置和中文展示。
+* Round log layout polish：训练轮次详情改为更紧凑的一行展示。
+
+---
+
 v1.8.10 重点改进：
 
 * Dashboard runtime summary UI polish：统一状态值与运行指标的视觉尺寸和层级。

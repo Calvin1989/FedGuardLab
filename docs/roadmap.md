@@ -1414,3 +1414,37 @@ Focus: Dashboard comparison completion state polish.
 - [x] 保持 v1.8.9 runtime summary 和任务详情行为不变。
 - [x] 完成 release 验证闭环：ruff、quick test、pytest、frontend build、API smoke、Docker full flow 和 backend restart recovery。
 - [x] 不修改 API、训练逻辑、report artifact URL、Docker runtime 或测试数据结构。
+
+---
+
+## v1.9.0 Roadmap
+
+v1.9.0 主题：Experiment Result Management.
+
+v1.9.0 目标：
+
+- 更清晰的历史实验管理。
+- 删除 / 归档旧 job。
+- 对比报告历史列表。
+- 报告页面入口统一。
+- 本地 reports 清理策略可视化。
+- 不破坏已有 API 行为，除非在 alpha 阶段明确新增。
+- 不修改训练核心逻辑。
+- 不破坏已有 report/artifact URL。
+
+### v1.9.0-alpha.1 — completed
+
+Focus: Dashboard history experiment management UI.
+
+- [x] 将 Dashboard 下半部分整理为"历史实验与对比"。
+- [x] 增加历史实验管理说明和统计条。
+- [x] 显示列表实验、可对比、已选择和当前筛选状态。
+- [x] 移除表格选择列中的重复"可对比 / 不可对比"文字。
+- [x] 减少任务详情中的重复状态信息。
+- [x] 优化事件时间线文案、图标位置和中文展示。
+- [x] 训练轮次详情改为更紧凑的一行展示。
+- [x] 不新增 API。
+- [x] 不修改训练逻辑。
+- [x] 不修改 report artifact URL。
+- [x] 不修改 Docker runtime。
+- [x] 不改变测试数据结构。
