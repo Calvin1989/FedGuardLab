@@ -2,6 +2,40 @@
 
 ## Unreleased
 
+- Prepared v1.8.0 final release documentation.
+  - No new feature, no API change, no training logic change, no new dependency.
+  - Final release 不新增功能、不新增依赖、不改变 API、不修改训练核心逻辑。
+  - v1.8.0 已完成能力总结：
+    - Job event timeline（job 生命周期事件记录）。
+    - Runtime diagnostics（运行时诊断）。
+    - Failure reason / traceback summary（失败原因与 traceback 摘要）。
+    - Result insight cards（结果洞察卡片）。
+    - Comparison highlights（对比高亮：best accuracy / lowest loss / lowest ASR）。
+    - Winner / trade-off / risk hint（推荐实验 / 权衡分析 / 风险提示）。
+    - Config preview（配置预览）。
+    - Config explainability（配置字段解释）。
+    - Risk level / recommended use（风险级别 / 推荐用途）。
+    - Dashboard density polish（首页密度优化）。
+    - Dashboard layout rebalance（首页布局再平衡）。
+    - 中文 / English 双语支持。
+    - Regression tests / CI smoke hardening。
+  - v1.8.0 不再新增功能，仅确认 final release readiness。
+  - Final release 验证范围：
+    - `ruff check .`
+    - `python quick_test.py`
+    - `python -m pytest`
+    - `cd web && npm run build`
+    - `python api_smoke_test.py`
+    - `docker compose config` / `build` / `up` / `down`
+    - `--wait-finished` smoke run
+    - backend restart recovery check
+    - artifact download check
+    - 手动检查中文 / English 首页
+    - 手动检查实验报告页面
+    - 手动检查对比报告页面
+    - GitHub Actions CI check
+    - GitHub Actions Docker Smoke check
+
 - Prepared v1.8.0-rc.1 release candidate documentation.
   - No new feature, no API change, no training logic change, no new dependency.
   - RC.1 阶段不新增功能、不新增依赖、不改变 API、不修改训练核心逻辑。

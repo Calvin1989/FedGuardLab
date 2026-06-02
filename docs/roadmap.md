@@ -1257,9 +1257,9 @@ Focus: Dashboard layout rebalance.
 - [x] 保持 job event timeline、comparison insights、config preview 功能完整。
 - [x] 不新增功能、不新增依赖、不改 API、不改训练核心。
 
-### v1.8.0-rc.1
+### v1.8.0-rc.1 — completed
 
-Focus: Release candidate readiness for v1.8.0.
+Focus: Release candidate readiness for v1.8.0. ✅ 已完成。
 
 rc.1 阶段不新增功能、不新增依赖、不改变 API、不修改训练核心逻辑。重点是 final release candidate validation。
 
@@ -1315,9 +1315,9 @@ Checklist：
 - [ ] 手动检查实验报告页面
 - [ ] 手动检查对比报告页面
 
-### v1.8.0
+### v1.8.0 — completed
 
-Focus: Stable observability and insight release.
+Focus: Stable observability and insight release. ✅ Final release。
 
 v1.8.0 不新增 runtime feature（除 observability / insight 增强外），重点是 Experiment Observability and Result Insight。
 
@@ -1326,10 +1326,28 @@ v1.8.0 release scope：
 - Job event timeline and runtime diagnostics。
 - Result insight cards and comparison highlights。
 - Config preview and explainability polish。
+- Dashboard density polish。
+- Dashboard layout rebalance。
 - Beta readiness documentation。
 - Release candidate readiness documentation。
 
 v1.8.0-rc.1 已完成 release candidate validation。
+
+v1.8.0 已完成能力总结：
+
+- Job event timeline（job 生命周期事件记录）。
+- Runtime diagnostics（运行时诊断）。
+- Failure reason / traceback summary（失败原因与 traceback 摘要）。
+- Result insight cards（结果洞察卡片）。
+- Comparison highlights（对比高亮：best accuracy / lowest loss / lowest ASR）。
+- Winner / trade-off / risk hint（推荐实验 / 权衡分析 / 风险提示）。
+- Config preview（配置预览）。
+- Config explainability（配置字段解释）。
+- Risk level / recommended use（风险级别 / 推荐用途）。
+- Dashboard density polish（首页密度优化）。
+- Dashboard layout rebalance（首页布局再平衡）。
+- 中文 / English 双语支持。
+- Regression tests / CI smoke hardening。
 
 Checklist：
 
