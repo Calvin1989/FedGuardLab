@@ -84,6 +84,7 @@ const messages = {
     errorLabel: "错误",
     reportLabel: "报告",
     openHtmlReport: "查看 HTML 报告",
+    openHtmlReportShort: "HTML 报告",
     round: "轮次",
     accuracy: "准确率",
     loss: "损失",
@@ -235,6 +236,7 @@ const messages = {
     errorLabel: "Error",
     reportLabel: "Report",
     openHtmlReport: "Open HTML Report",
+    openHtmlReportShort: "HTML report",
     round: "Round",
     accuracy: "Accuracy",
     loss: "Loss",
@@ -1487,11 +1489,7 @@ async function startExperiment() {
           <div class="runtime-row">
             <div class="runtime-item">
               <span class="runtime-label">{{ t.statusLabel }}</span>
-              <strong class="runtime-value runtime-status-value">
-                <span class="runtime-status-text" :class="'runtime-status-' + status">
-                  {{ t.statusValues[status] || status }}
-                </span>
-              </strong>
+              <strong class="runtime-value runtime-text-value">{{ t.statusValues[status] || status }}</strong>
             </div>
 
             <div v-if="jobId" class="runtime-item wide">
@@ -1515,12 +1513,17 @@ async function startExperiment() {
               <span class="runtime-label">{{ t.asr }}</span>
               <strong class="runtime-value">{{ latestMetric.attack_success_rate }}</strong>
             </div>
-            <div class="runtime-item runtime-action" :class="{ 'is-disabled': !reportUrl }">
+            <div v-if="jobId || reportUrl" class="runtime-item runtime-action" :class="{ 'is-disabled': !reportUrl }">
               <span class="runtime-label">{{ t.reportLabel }}</span>
-              <a v-if="reportUrl" class="runtime-value runtime-report-link" :href="withLang(reportUrl)" target="_blank">
-                {{ t.openHtmlReport }}
+              <a
+                v-if="reportUrl"
+                class="runtime-value runtime-text-value runtime-report-link runtime-report-value"
+                :href="withLang(reportUrl)"
+                target="_blank"
+              >
+                {{ t.openHtmlReportShort || t.openHtmlReport }}
               </a>
-              <span v-else class="runtime-value runtime-muted-value">{{ t.notReady }}</span>
+              <strong v-else class="runtime-value runtime-text-value runtime-report-value">{{ t.notReady }}</strong>
             </div>
           </div>
 
@@ -4074,6 +4077,166 @@ input {
   .runtime-item.wide .runtime-value,
   .runtime-action .runtime-report-link {
     font-size: 14px;
+  }
+}
+
+
+/* v1.8.8 runtime value parity and deferred report card */
+.runtime-row {
+  grid-template-columns:
+    minmax(112px, 0.72fr)
+    minmax(260px, 1.65fr)
+    repeat(4, minmax(108px, 1fr))
+    minmax(150px, 0.95fr);
+}
+
+.runtime-value,
+.runtime-muted-value,
+.runtime-action .runtime-report-link {
+  min-height: 30px;
+  align-items: center;
+  color: #111827;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.runtime-muted-value {
+  color: #64748b;
+}
+
+.runtime-action .runtime-report-link {
+  display: inline-flex;
+  width: auto;
+  max-width: 100%;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  justify-content: flex-start;
+  text-decoration: none;
+  transform: none;
+}
+
+.runtime-action .runtime-report-link:hover {
+  background: transparent;
+  box-shadow: none;
+  color: #1d4ed8;
+  text-decoration: underline;
+  transform: none;
+}
+
+.runtime-status-idle,
+.runtime-status-running,
+.runtime-status-creating,
+.runtime-status-finished,
+.runtime-status-cancelled,
+.runtime-status-disconnected,
+.runtime-status-failed,
+.runtime-status-error {
+  color: inherit;
+}
+
+@media (max-width: 980px) {
+  .runtime-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .runtime-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+
+/* v1.8.8 final runtime report value consistency */
+.runtime-row .runtime-action .runtime-report-value {
+  display: flex;
+  min-height: 30px;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: #111827;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  text-decoration: none;
+  transform: none;
+}
+
+.runtime-row .runtime-action .runtime-report-link.runtime-report-value {
+  width: 100%;
+  max-width: 100%;
+  justify-content: flex-start;
+}
+
+.runtime-row .runtime-action .runtime-report-link.runtime-report-value:hover {
+  color: #1d4ed8;
+  text-decoration: underline;
+}
+
+.runtime-row .runtime-action.is-disabled .runtime-report-value {
+  color: #111827;
+}
+
+@media (max-width: 680px) {
+  .runtime-row .runtime-action .runtime-report-value {
+    font-size: 20px;
+  }
+}
+
+
+/* v1.8.8 final text-value balance for runtime summary */
+.runtime-row .runtime-text-value {
+  display: flex;
+  min-height: 30px;
+  align-items: center;
+  max-width: 100%;
+  margin: 0;
+  color: #111827;
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.012em;
+  line-height: 1.15;
+  white-space: nowrap;
+}
+
+.runtime-row .runtime-action .runtime-report-link.runtime-text-value {
+  width: auto;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  color: #2563eb;
+  justify-content: flex-start;
+  text-decoration: underline;
+  text-decoration-color: rgba(37, 99, 235, 0.42);
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 3px;
+  text-overflow: ellipsis;
+}
+
+.runtime-row .runtime-action .runtime-report-link.runtime-text-value:hover {
+  color: #1d4ed8;
+  text-decoration-color: currentColor;
+}
+
+.runtime-row .runtime-action.is-disabled .runtime-text-value {
+  color: #111827;
+}
+
+@media (max-width: 680px) {
+  .runtime-row .runtime-text-value {
+    font-size: 17px;
   }
 }
 
