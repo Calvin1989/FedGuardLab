@@ -1769,10 +1769,10 @@ async function startExperiment() {
                   {{ canSelectJobForComparison(selectedDetailJob) ? t.comparisonReady : t.comparisonUnavailable }}
                 </span>
                 <span
+                  v-if="!selectedDetailJob.has_report"
                   class="job-detail-meta-pill"
-                  :class="{ ready: selectedDetailJob.has_report }"
                 >
-                  {{ selectedDetailJob.has_report ? t.reportReady : t.reportUnavailable }}
+                  {{ t.reportUnavailable }}
                 </span>
               </div>
             </div>
@@ -1956,9 +1956,6 @@ async function startExperiment() {
       <div v-if="selectedJobIds.length > 0" class="selected-jobs-preview">
         <div class="selected-jobs-header">
           <p class="section-kicker">{{ t.selectedJobsTitle }}</p>
-          <span class="selected-jobs-count">
-            {{ t.selectedJobsCount.replace('{count}', selectedJobIds.length) }}
-          </span>
         </div>
 
         <div class="selected-jobs-list">
