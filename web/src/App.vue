@@ -1993,7 +1993,7 @@ async function startExperiment() {
         <span>{{ comparisonError }}</span>
       </div>
 
-      <div v-if="selectedJobIds.length < 2 && selectedJobIds.length > 0" class="comparison-hint">
+      <div v-if="selectedJobIds.length < 2 && selectedJobIds.length > 0 && comparisonStatus !== 'finished'" class="comparison-hint">
         {{ t.selectedJobsHint }}
       </div>
     </section>
@@ -4608,6 +4608,87 @@ input {
 
   .selected-job-chip {
     grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+
+/* v1.8.9 follow-up comparison completion polish
+   Keep generated comparison results stable and reduce lower-panel vertical load. */
+.comparison-card .selected-jobs-preview,
+.comparison-card .comparison-feedback,
+.comparison-card .insight-section,
+.comparison-card .comparison-hint {
+  margin-top: 12px;
+}
+
+.comparison-card .comparison-result-card {
+  padding: 12px 14px;
+  border-radius: 16px;
+}
+
+.comparison-result-card .comparison-export-item {
+  min-width: 86px;
+  min-height: 32px;
+  padding: 0 12px;
+}
+
+.comparison-card .insight-section {
+  padding: 12px;
+  border-radius: 16px;
+}
+
+.insight-section-title {
+  margin-bottom: 8px;
+}
+
+.insight-cards-grid,
+.insight-extra-cards {
+  gap: 8px;
+}
+
+.insight-extra-cards {
+  margin-top: 8px;
+}
+
+.comparison-card .insight-metric-card,
+.comparison-card .insight-extra-card {
+  padding: 12px;
+  border-radius: 14px;
+}
+
+.comparison-card .insight-metric-value {
+  font-size: 20px;
+  line-height: 1.05;
+}
+
+.compact-events .lifecycle-timeline {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 10px;
+}
+
+.compact-events .lifecycle-timeline .event-item {
+  align-items: stretch;
+}
+
+.compact-events .lifecycle-timeline .event-body {
+  min-height: 58px;
+  padding: 7px 9px;
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  border-radius: 12px;
+  background: #ffffff;
+}
+
+.compact-events .lifecycle-timeline .event-header {
+  gap: 6px;
+}
+
+.compact-events .lifecycle-timeline .event-message {
+  margin-top: 3px;
+}
+
+@media (max-width: 760px) {
+  .compact-events .lifecycle-timeline {
+    grid-template-columns: 1fr;
   }
 }
 
