@@ -1,4 +1,4 @@
-﻿# Roadmap
+# Roadmap
 
 FedGuardLab 的目标是逐步构建一个轻量、可视化、可复现的联邦学习安全实验平台。
 
@@ -1372,3 +1372,30 @@ Checklist：
 - [x] GitHub Actions CI passing on main
 - [x] GitHub Actions Docker Smoke manual workflow passing on main
 - [x] Final tag 打在 main merge commit 上（PR 合并后）
+
+---
+
+## v1.8.8 / v1.8.9 Maintenance Updates
+
+### v1.8.8 — completed
+
+Focus: Dashboard runtime summary UI polish.
+
+- [x] 统一状态值和运行指标的视觉尺寸与层级。
+- [x] 未启动实验时隐藏报告卡片。
+- [x] 实验启动后报告状态显示“未就绪”。
+- [x] 报告生成后显示“HTML 报告 / HTML report”。
+- [x] 优化运行摘要行、训练轮次详情箭头、配置预览中文化、Attack / Defense i18n、空状态和下拉框宽度。
+- [x] 不修改 API、训练逻辑、report artifact URL、Docker runtime 或测试数据结构。
+
+### v1.8.9 — completed
+
+Focus: Dashboard job detail and comparison density polish.
+
+- [x] 压缩任务详情卡片 spacing、字段网格、导出文件区域、事件时间线、训练轮次详情和已选择实验区域。
+- [x] 降低 Dashboard 下半部分 comparison / job detail 区域的信息负载。
+- [x] 保持 v1.8.8 runtime summary 行为不变。
+- [x] 更新 README 中的当前稳定版本说明。
+- [x] 刷新 Dashboard、单实验报告和对比报告截图。
+- [x] 完成 v1.8.9 验证闭环：ruff、quick test、pytest、frontend build、API smoke、Docker full flow 和 backend restart recovery。
+- [x] 不修改 API、训练逻辑、report artifact URL、Docker runtime 或测试数据结构。

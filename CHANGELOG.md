@@ -2,7 +2,37 @@
 
 ## Unreleased
 
-- No unreleased changes.
+- Synced project documentation after the v1.8.9 stable release.
+  - Updated README current version status to v1.8.9.
+  - Refreshed Dashboard, experiment report, and comparison report screenshots.
+  - Prepared CHANGELOG and roadmap entries for the v1.8.8 / v1.8.9 UI polish sequence.
+  - Documentation-only update; no API change, no training logic change, no report artifact URL change, no Docker runtime change.
+
+## v1.8.9
+
+- Polished Dashboard job detail and comparison density.
+  - Compacted job detail card spacing, field grid, exports area, event timeline, round detail log, and selected job chips.
+  - Reduced visual load in the lower Dashboard comparison area.
+  - Kept the runtime summary behavior from v1.8.8 unchanged.
+  - Only modified Dashboard UI styling in `web/src/App.vue`.
+  - No API change, no training logic change, no report artifact URL change, no Docker runtime change, no test data structure change.
+  - Verified with:
+    - `python -m ruff check .`
+    - `python quick_test.py`
+    - `python -m pytest`
+    - `cd web && npm run build`
+    - `python api_smoke_test.py`
+    - Docker full flow: compose config/build/up, wait-finished smoke run, backend restart recovery, compose down.
+
+## v1.8.8
+
+- Polished Dashboard runtime summary UI.
+  - Normalized status values and runtime metric values for visual parity.
+  - Hid the report card before experiment start.
+  - Displayed report as not ready after experiment start and before report generation.
+  - Displayed “HTML 报告 / HTML report” after report generation.
+  - Polished runtime summary row, training round detail arrow, config preview localization, Attack / Defense i18n, empty states, and dropdown width.
+  - No API change, no training logic change, no report artifact URL change, no Docker runtime change.
 
 ## v1.8.0
 
