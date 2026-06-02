@@ -142,6 +142,10 @@ const messages = {
     selectedJobsHint: "至少需要选择 2 个实验才能生成对比报告。",
     comparisonCreating: "正在生成对比报告…",
     comparisonSuccess: "对比报告已生成。",
+    comparisonSuccessDescription: "已生成 HTML、CSV、JSON 三种导出文件，可用于分享、归档或继续分析。",
+    comparisonHtmlShort: "HTML 报告",
+    comparisonCsvShort: "CSV",
+    comparisonJsonShort: "JSON",
     comparisonFailed: "对比报告生成失败。",
     comparisonExportsTitle: "对比导出",
     insightsTitle: "结果洞察",
@@ -285,6 +289,10 @@ const messages = {
     selectedJobsHint: "Select at least 2 experiments to generate a comparison report.",
     comparisonCreating: "Generating comparison report…",
     comparisonSuccess: "Comparison report generated.",
+    comparisonSuccessDescription: "HTML, CSV, and JSON artifacts are ready for sharing, archiving, or follow-up analysis.",
+    comparisonHtmlShort: "HTML Report",
+    comparisonCsvShort: "CSV",
+    comparisonJsonShort: "JSON",
     comparisonFailed: "Failed to generate comparison report.",
     comparisonExportsTitle: "Comparison Exports",
     insightsTitle: "Result Insights",
@@ -1712,17 +1720,19 @@ async function startExperiment() {
         {{ t.comparisonCreating }}
       </div>
 
-      <div v-if="comparisonStatus === 'finished' && comparisonUrl" class="comparison-feedback success">
-        <strong>{{ t.comparisonSuccess }}</strong>
-        <div class="comparison-exports">
+      <div v-if="comparisonStatus === 'finished' && comparisonUrl" class="comparison-feedback success comparison-result-card">
+        <div class="comparison-result-copy">
+          <strong>{{ t.comparisonSuccess }}</strong>
+          <span>{{ t.comparisonSuccessDescription }}</span>
+        </div>
+        <div class="comparison-exports" :aria-label="t.comparisonExportsTitle">
           <a
             class="comparison-export-item"
             :href="withLang(comparisonArtifactUrl('comparison_html_url'))"
             target="_blank"
             rel="noreferrer"
           >
-            <span class="detail-export-icon">📊</span>
-            <span class="detail-export-label">{{ t.comparisonHtmlReport }}</span>
+            <span class="detail-export-label">{{ t.comparisonHtmlShort }}</span>
           </a>
           <a
             v-if="comparisonArtifactUrl('comparison_csv_url')"
@@ -1731,12 +1741,10 @@ async function startExperiment() {
             target="_blank"
             rel="noreferrer"
           >
-            <span class="detail-export-icon">📄</span>
-            <span class="detail-export-label">{{ t.comparisonCsv }}</span>
+            <span class="detail-export-label">{{ t.comparisonCsvShort }}</span>
           </a>
           <span v-else class="comparison-export-item disabled">
-            <span class="detail-export-icon">📄</span>
-            <span class="detail-export-label">{{ t.comparisonCsv }}</span>
+            <span class="detail-export-label">{{ t.comparisonCsvShort }}</span>
           </span>
           <a
             v-if="comparisonArtifactUrl('comparison_json_url')"
@@ -1745,12 +1753,10 @@ async function startExperiment() {
             target="_blank"
             rel="noreferrer"
           >
-            <span class="detail-export-icon">📋</span>
-            <span class="detail-export-label">{{ t.comparisonJson }}</span>
+            <span class="detail-export-label">{{ t.comparisonJsonShort }}</span>
           </a>
           <span v-else class="comparison-export-item disabled">
-            <span class="detail-export-icon">📋</span>
-            <span class="detail-export-label">{{ t.comparisonJson }}</span>
+            <span class="detail-export-label">{{ t.comparisonJsonShort }}</span>
           </span>
         </div>
       </div>
@@ -3233,6 +3239,280 @@ input {
   .insight-cards-grid,
   .insight-extra-cards {
     grid-template-columns: 1fr;
+  }
+}
+
+
+/* v1.8.4 final UI polish: typography, alignment, motion, and export layout */
+:global(html) {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+.page {
+  font-family:
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    "PingFang SC",
+    "Microsoft YaHei",
+    "Noto Sans CJK SC",
+    sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+
+.topbar-brand {
+  font-weight: 800;
+  letter-spacing: 0.13em;
+}
+
+.lang-switcher {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  height: 34px;
+  padding: 3px;
+  gap: 3px;
+  border-color: rgba(148, 163, 184, 0.26);
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.08);
+}
+
+.lang-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 74px;
+  height: 28px;
+  min-height: 28px;
+  padding: 0 12px;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1;
+  transform: none;
+  transition:
+    background-color 0.18s ease,
+    color 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.lang-button.active {
+  transform: none;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.16);
+}
+
+.command-copy h1 {
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 1.08;
+}
+
+.section-header h2,
+.job-detail-header h2 {
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.field-control > span:first-child,
+.field-label,
+.preview-label,
+.runtime-label,
+.detail-label,
+.insight-metric-label,
+.insight-extra-label {
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.subtitle,
+.section-header p,
+.preview-description,
+.detail-value,
+.round-log-metrics,
+.insight-extra-body,
+.insight-extra-reason,
+.comparison-result-copy span {
+  line-height: 1.65;
+}
+
+.run-button,
+.secondary-button,
+.report-link,
+.detail-report-link,
+.detail-export-item,
+.comparison-export-item,
+.status-badge,
+.selected-job-status,
+.risk-badge {
+  min-height: 34px;
+  line-height: 1;
+  align-items: center;
+  font-weight: 800;
+}
+
+.status-badge,
+.selected-job-status,
+.risk-badge {
+  display: inline-flex;
+  justify-content: center;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.command-card,
+.monitor-card,
+.comparison-card,
+.job-detail-card,
+.insight-section,
+.selected-jobs-preview {
+  animation: cardFadeIn 0.28s ease-out both;
+}
+
+.comparison-feedback.success,
+.comparison-feedback.creating,
+.error-feedback {
+  animation: cardFadeIn 0.22s ease-out both;
+}
+
+.run-button,
+.secondary-button,
+.report-link,
+.detail-report-link,
+.detail-export-item,
+.comparison-export-item,
+.job-row,
+.lang-button {
+  transition:
+    transform 0.16s ease,
+    border-color 0.16s ease,
+    background-color 0.16s ease,
+    color 0.16s ease,
+    box-shadow 0.16s ease;
+}
+
+.run-button:not(:disabled):hover,
+.secondary-button:not(:disabled):hover,
+.report-link:not(.disabled):hover,
+.detail-report-link:hover,
+.detail-export-item:not(.disabled):hover,
+.comparison-export-item:not(.disabled):hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(37, 99, 235, 0.12);
+}
+
+.comparison-result-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 16px 18px;
+}
+
+.comparison-result-copy {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.comparison-result-copy strong {
+  color: #14532d;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.comparison-result-copy span {
+  color: #3f684d;
+  font-size: 12px;
+}
+
+.comparison-result-card .comparison-exports {
+  display: flex;
+  flex: 0 0 auto;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.comparison-result-card .comparison-export-item {
+  min-width: 92px;
+  min-height: 34px;
+  padding: 0 14px;
+  border-radius: 10px;
+  background: #ffffff;
+}
+
+.job-detail-card {
+  margin-top: 18px;
+}
+
+.job-detail-grid {
+  gap: 10px;
+}
+
+.detail-item {
+  border-color: rgba(226, 232, 240, 0.9);
+  background: #ffffff;
+}
+
+.insight-extra-card,
+.insight-metric-card {
+  padding: 16px;
+}
+
+.insight-extra-body,
+.insight-extra-reason {
+  margin-bottom: 0;
+}
+
+@keyframes cardFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 760px) {
+  .comparison-result-card {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .comparison-result-card .comparison-exports {
+    justify-content: flex-start;
+    width: 100%;
+  }
+}
+
+@media (max-width: 560px) {
+  .lang-switcher {
+    height: 32px;
+  }
+
+  .lang-button {
+    width: 62px;
+    height: 26px;
+    min-height: 26px;
+    font-size: 10px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
   }
 }
 
