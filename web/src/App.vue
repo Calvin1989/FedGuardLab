@@ -351,6 +351,74 @@ const messages = {
 
 const t = computed(() => messages[language.value] || messages.zh);
 
+
+const CONFIG_DISPLAY_TEXT = {
+  zh: {
+    label_flip_demo: {
+      name: "标签翻转演示",
+      description: "使用 FedAvg 的模拟标签翻转攻击实验",
+    },
+    mnist_fedavg_demo: {
+      name: "MNIST FedAvg 基线实验",
+      description: "使用 MNIST 与 FedAvg 的基线训练实验，无攻击",
+    },
+    mnist_fedavg_dirichlet_demo: {
+      name: "MNIST FedAvg 非 IID 实验",
+      description: "使用 Dirichlet 数据划分的 MNIST FedAvg 非 IID 训练实验",
+    },
+    mnist_fedavg_backdoor_demo: {
+      name: "MNIST FedAvg 后门攻击",
+      description: "使用 MNIST 与 FedAvg 的后门攻击实验，无防御",
+    },
+    mnist_fedavg_label_flip_demo: {
+      name: "MNIST FedAvg 标签翻转",
+      description: "使用 MNIST 与 FedAvg 的标签翻转攻击实验，无防御",
+    },
+    mnist_krum_backdoor_demo: {
+      name: "MNIST Krum 后门防御",
+      description: "使用 Krum 聚合防御后门攻击的 MNIST 实验",
+    },
+    mnist_krum_label_flip_demo: {
+      name: "MNIST Krum 标签翻转防御",
+      description: "使用 Krum 聚合防御标签翻转攻击的 MNIST 实验",
+    },
+    mnist_median_backdoor_demo: {
+      name: "MNIST Median 后门防御",
+      description: "使用 Median 聚合防御后门攻击的 MNIST 实验",
+    },
+    mnist_median_label_flip_demo: {
+      name: "MNIST Median 标签翻转防御",
+      description: "使用 Median 聚合防御标签翻转攻击的 MNIST 实验",
+    },
+    mnist_trimmed_mean_backdoor_demo: {
+      name: "MNIST Trimmed Mean 后门防御",
+      description: "使用 Trimmed Mean 聚合防御后门攻击的 MNIST 实验",
+    },
+    mnist_trimmed_mean_label_flip_demo: {
+      name: "MNIST Trimmed Mean 标签翻转防御",
+      description: "使用 Trimmed Mean 聚合防御标签翻转攻击的 MNIST 实验",
+    },
+  },
+};
+
+const TAG_DISPLAY_TEXT = {
+  zh: {
+    simulated: "模拟",
+    label_flipping: "标签翻转",
+    fedavg: "FedAvg",
+    mnist: "MNIST",
+    backdoor: "后门",
+    baseline: "基线",
+    attack: "攻击",
+    defense: "防御",
+    dirichlet: "Dirichlet",
+    "non-iid": "非 IID",
+    krum: "Krum",
+    median: "Median",
+    trimmed_mean: "Trimmed Mean",
+  },
+};
+
 function setLanguage(lang) {
   language.value = lang;
   window.localStorage.setItem(LANGUAGE_STORAGE_KEY, lang);
@@ -360,6 +428,40 @@ function withLang(url) {
   if (!url) return url;
   const sep = url.includes("?") ? "&" : "?";
   return `${url}${sep}lang=${language.value}`;
+}
+
+
+function getConfigKey(option) {
+  if (!option) {
+    return "";
+  }
+
+  const rawValue = option.value || option.path || option.label || "";
+  const normalized = String(rawValue)
+    .replace(/\\/g, "/")
+    .split("/")
+    .pop()
+    .replace(/\.ya?ml$/i, "");
+
+  return option.experiment?.name || option.metadata?.name_key || normalized;
+}
+
+function getLocalizedConfigDisplay(option) {
+  const key = getConfigKey(option);
+  const localized = CONFIG_DISPLAY_TEXT[language.value]?.[key];
+
+  return {
+    name: localized?.name || option?.metadata?.name || option?.label || key,
+    description:
+      localized?.description ||
+      option?.metadata?.description ||
+      option?.description ||
+      "",
+  };
+}
+
+function formatConfigTag(tag) {
+  return TAG_DISPLAY_TEXT[language.value]?.[tag] || tag;
 }
 const comparisonStatus = ref("idle");
 const comparisonError = ref("");
@@ -450,7 +552,7 @@ const selectedConfigOption = computed(() =>
 
 
 const selectedExperimentDescription = computed(() => {
-  return selectedConfigOption.value?.description || "";
+  return getLocalizedConfigDisplay(selectedConfigOption.value).description;
 });
 
 
@@ -490,12 +592,13 @@ const selectedConfigMetadata = computed(() => {
   }
 
   const meta = option.metadata;
+  const display = getLocalizedConfigDisplay(option);
 
   return {
-    name: meta.name || option.label || selectedConfig.value,
-    description: meta.description || "",
+    name: display.name,
+    description: display.description,
     category: meta.category || "",
-    tags: Array.isArray(meta.tags) ? meta.tags : [],
+    tags: Array.isArray(meta.tags) ? meta.tags.map(formatConfigTag) : [],
   };
 });
 
@@ -535,7 +638,7 @@ function getSelectedExperimentLabel() {
     (item) => item.value === selectedConfig.value
   );
 
-  return option ? option.label : selectedConfig.value;
+  return option ? getLocalizedConfigDisplay(option).name : selectedConfig.value;
 }
 
 
@@ -1384,8 +1487,8 @@ async function startExperiment() {
           <div class="runtime-row">
             <div class="runtime-item">
               <span class="runtime-label">{{ t.statusLabel }}</span>
-              <strong class="runtime-value">
-                <span class="status-badge" :class="'status-' + status">
+              <strong class="runtime-value runtime-status-value">
+                <span class="runtime-status-text" :class="'runtime-status-' + status">
                   {{ t.statusValues[status] || status }}
                 </span>
               </strong>
@@ -1401,7 +1504,7 @@ async function startExperiment() {
               <a v-if="reportUrl" class="report-link runtime-report-link" :href="withLang(reportUrl)" target="_blank">
                 {{ t.openHtmlReport }}
               </a>
-              <span v-else class="report-link runtime-report-link disabled">{{ t.notReady }}</span>
+              <span v-else class="runtime-muted-value">{{ t.notReady }}</span>
             </div>
 
             <div v-if="latestMetric" class="hero-metric-item">
@@ -3722,6 +3825,103 @@ input {
     animation-iteration-count: 1 !important;
     scroll-behavior: auto !important;
     transition-duration: 0.01ms !important;
+  }
+}
+
+
+/* v1.8.6 dashboard alignment and config preview i18n polish */
+.command-controls {
+  grid-template-columns: 180px minmax(280px, 460px) auto;
+}
+
+.command-controls .field-control:nth-child(2) {
+  width: min(460px, 100%);
+  max-width: 460px;
+}
+
+.command-controls .field-control:nth-child(2) .experiment-select {
+  max-width: 460px;
+}
+
+.selected-config-copy strong,
+.selected-config-copy p {
+  text-wrap: pretty;
+}
+
+.selected-config-tags {
+  align-items: center;
+}
+
+.runtime-item,
+.hero-metric-item {
+  padding: 12px 14px;
+}
+
+.runtime-label {
+  margin-bottom: 0;
+  line-height: 1.1;
+}
+
+.runtime-value,
+.runtime-status-value,
+.runtime-muted-value {
+  display: flex;
+  min-height: 28px;
+  align-items: center;
+  margin: 0;
+  color: #111827;
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.runtime-status-text,
+.runtime-muted-value {
+  display: inline-flex;
+  min-height: 28px;
+  align-items: center;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.runtime-status-idle,
+.runtime-muted-value {
+  color: #64748b;
+}
+
+.runtime-status-running,
+.runtime-status-creating {
+  color: #1d4ed8;
+}
+
+.runtime-status-finished {
+  color: #047857;
+}
+
+.runtime-status-cancelled,
+.runtime-status-disconnected,
+.runtime-status-failed,
+.runtime-status-error {
+  color: #b91c1c;
+}
+
+.runtime-action .runtime-report-link {
+  align-self: flex-start;
+  min-width: auto;
+  min-height: 28px;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 9px;
+  font-size: 12px;
+  line-height: 1;
+}
+
+@media (max-width: 860px) {
+  .command-controls,
+  .command-controls .field-control:nth-child(2),
+  .command-controls .field-control:nth-child(2) .experiment-select {
+    width: 100%;
+    max-width: none;
   }
 }
 
