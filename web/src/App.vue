@@ -187,6 +187,24 @@ const messages = {
     comparisonHistoryLowestAsr: "最低 ASR",
     comparisonHistoryExports: "报告入口",
     comparisonHistoryUntitled: "未命名对比",
+    reportsCleanupTitle: "本地 reports 清理策略",
+    reportsCleanupHint: "只读预览当前 reports 占用和可清理候选，不会删除任何文件。",
+    reportsCleanupRefresh: "刷新统计",
+    reportsCleanupLoading: "正在加载 reports 统计…",
+    reportsCleanupFailed: "reports 统计加载失败",
+    reportsCleanupDryRun: "只读预览",
+    reportsCleanupSafeMode: "不会删除文件",
+    reportsCleanupTotalSize: "总大小",
+    reportsCleanupJobReports: "实验报告",
+    reportsCleanupComparisonReports: "对比报告",
+    reportsCleanupCandidates: "候选项",
+    reportsCleanupCandidateSize: "候选大小",
+    reportsCleanupKeepLatest: "每类保留",
+    reportsCleanupOldest: "最早修改",
+    reportsCleanupLatest: "最新修改",
+    reportsCleanupCandidatePreview: "候选预览",
+    reportsCleanupNoCandidates: "暂无清理候选",
+    reportsCleanupPath: "路径",
     insightsTitle: "结果洞察",
     bestAccuracy: "最佳准确率",
     lowestLoss: "最低损失",
@@ -376,6 +394,24 @@ const messages = {
     comparisonHistoryLowestAsr: "Lowest ASR",
     comparisonHistoryExports: "Report Links",
     comparisonHistoryUntitled: "Untitled comparison",
+    reportsCleanupTitle: "Local reports cleanup strategy",
+    reportsCleanupHint: "Read-only preview of current reports storage and cleanup candidates. No files are deleted.",
+    reportsCleanupRefresh: "Refresh stats",
+    reportsCleanupLoading: "Loading reports stats…",
+    reportsCleanupFailed: "Failed to load reports stats",
+    reportsCleanupDryRun: "Dry-run preview",
+    reportsCleanupSafeMode: "No files deleted",
+    reportsCleanupTotalSize: "Total size",
+    reportsCleanupJobReports: "Job reports",
+    reportsCleanupComparisonReports: "Comparison reports",
+    reportsCleanupCandidates: "Candidates",
+    reportsCleanupCandidateSize: "Candidate size",
+    reportsCleanupKeepLatest: "Keep per kind",
+    reportsCleanupOldest: "Oldest modified",
+    reportsCleanupLatest: "Latest modified",
+    reportsCleanupCandidatePreview: "Candidate preview",
+    reportsCleanupNoCandidates: "No cleanup candidates",
+    reportsCleanupPath: "Path",
     insightsTitle: "Result Insights",
     bestAccuracy: "Best Accuracy",
     lowestLoss: "Lowest Loss",
@@ -550,6 +586,9 @@ const comparisonInsights = ref({});
 const comparisonHistory = ref([]);
 const comparisonHistoryStatus = ref("idle");
 const comparisonHistoryError = ref("");
+const reportsCleanupSummary = ref(null);
+const reportsCleanupStatus = ref("idle");
+const reportsCleanupError = ref("");
 
 const experimentOptions = ref([]);
 const selectedCategory = ref("all");
@@ -630,6 +669,12 @@ onMounted(async () => {
     await loadComparisonHistory();
   } catch (error) {
     console.warn("Failed to load comparison history:", error);
+  }
+
+  try {
+    await loadReportsCleanupSummary();
+  } catch (error) {
+    console.warn("Failed to load reports cleanup summary:", error);
   }
 });
 
@@ -1255,6 +1300,73 @@ async function loadComparisonHistory() {
   } catch (error) {
     comparisonHistoryError.value = error.message;
     comparisonHistoryStatus.value = "error";
+    throw error;
+  }
+}
+
+function formatStorageBytes(value) {
+  const bytes = Number(value || 0);
+
+  if (!Number.isFinite(bytes) || bytes <= 0) {
+    return "0 B";
+  }
+
+  const units = ["B", "KB", "MB", "GB", "TB"];
+  let size = bytes;
+  let unitIndex = 0;
+
+  while (size >= 1024 && unitIndex < units.length - 1) {
+    size /= 1024;
+    unitIndex += 1;
+  }
+
+  const digits = unitIndex === 0 ? 0 : size >= 10 ? 1 : 2;
+  return `${size.toFixed(digits)} ${units[unitIndex]}`;
+}
+
+
+function mapReportsCleanupSummary(data) {
+  const preview = data.cleanup_preview || {};
+
+  return {
+    dry_run: Boolean(data.dry_run),
+    deletes_files: Boolean(data.deletes_files),
+    reports_root: data.reports_root || "",
+    keep_latest_per_kind: data.keep_latest_per_kind ?? 20,
+    total_size_bytes: data.total_size_bytes || 0,
+    jobs: data.jobs || {},
+    comparisons: data.comparisons || {},
+    cleanup_preview: {
+      candidate_count: preview.candidate_count || 0,
+      candidate_size_bytes: preview.candidate_size_bytes || 0,
+      candidates: Array.isArray(preview.candidates) ? preview.candidates : [],
+    },
+  };
+}
+
+
+async function loadReportsCleanupSummary() {
+  reportsCleanupStatus.value = "loading";
+  reportsCleanupError.value = "";
+
+  try {
+    const params = new URLSearchParams();
+    params.set("keep_latest", "20");
+
+    const response = await fetch(
+      `${API_BASE}/reports/cleanup/summary?${params.toString()}`
+    );
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.detail || t.value.reportsCleanupFailed);
+    }
+
+    reportsCleanupSummary.value = mapReportsCleanupSummary(data);
+    reportsCleanupStatus.value = "idle";
+  } catch (error) {
+    reportsCleanupError.value = error.message;
+    reportsCleanupStatus.value = "error";
     throw error;
   }
 }
@@ -2455,6 +2567,113 @@ async function startExperiment() {
 
       <div v-if="selectedJobIds.length < 2 && selectedJobIds.length > 0 && comparisonStatus !== 'finished'" class="comparison-hint">
         {{ t.selectedJobsHint }}
+      <section class="reports-cleanup-panel">
+        <div class="detail-section-heading reports-cleanup-heading">
+          <div>
+            <span class="detail-section-title">{{ t.reportsCleanupTitle }}</span>
+            <span class="detail-section-subtitle">{{ t.reportsCleanupHint }}</span>
+          </div>
+          <button
+            class="secondary-button comparison-history-refresh"
+            :disabled="reportsCleanupStatus === 'loading'"
+            @click="loadReportsCleanupSummary"
+          >
+            {{ t.reportsCleanupRefresh }}
+          </button>
+        </div>
+
+        <div v-if="reportsCleanupStatus === 'loading'" class="empty-state small reports-cleanup-empty">
+          {{ t.reportsCleanupLoading }}
+        </div>
+
+        <div v-else-if="reportsCleanupError" class="comparison-feedback error-feedback reports-cleanup-error">
+          <strong>{{ t.reportsCleanupFailed }}</strong>
+          <span>{{ reportsCleanupError }}</span>
+        </div>
+
+        <div v-else-if="reportsCleanupSummary" class="reports-cleanup-content">
+          <div class="reports-cleanup-mode-row">
+            <span class="reports-cleanup-mode-pill safe">
+              {{ t.reportsCleanupDryRun }}
+            </span>
+            <span class="reports-cleanup-mode-pill muted">
+              {{ t.reportsCleanupSafeMode }}
+            </span>
+            <span class="reports-cleanup-root" :title="reportsCleanupSummary.reports_root">
+              {{ reportsCleanupSummary.reports_root }}
+            </span>
+          </div>
+
+          <div class="reports-cleanup-stats">
+            <span class="history-stat">
+              <strong>{{ formatStorageBytes(reportsCleanupSummary.total_size_bytes) }}</strong>
+              <small>{{ t.reportsCleanupTotalSize }}</small>
+            </span>
+            <span class="history-stat">
+              <strong>{{ reportsCleanupSummary.jobs.count || 0 }}</strong>
+              <small>{{ t.reportsCleanupJobReports }}</small>
+            </span>
+            <span class="history-stat">
+              <strong>{{ reportsCleanupSummary.comparisons.count || 0 }}</strong>
+              <small>{{ t.reportsCleanupComparisonReports }}</small>
+            </span>
+            <span class="history-stat">
+              <strong>{{ reportsCleanupSummary.cleanup_preview.candidate_count }}</strong>
+              <small>{{ t.reportsCleanupCandidates }}</small>
+            </span>
+            <span class="history-stat">
+              <strong>{{ formatStorageBytes(reportsCleanupSummary.cleanup_preview.candidate_size_bytes) }}</strong>
+              <small>{{ t.reportsCleanupCandidateSize }}</small>
+            </span>
+            <span class="history-stat">
+              <strong>{{ reportsCleanupSummary.keep_latest_per_kind }}</strong>
+              <small>{{ t.reportsCleanupKeepLatest }}</small>
+            </span>
+          </div>
+
+          <div class="reports-cleanup-meta">
+            <span>
+              <strong>{{ t.reportsCleanupOldest }}</strong>
+              {{ formatEventTime(reportsCleanupSummary.jobs.oldest_modified_at || reportsCleanupSummary.comparisons.oldest_modified_at) }}
+            </span>
+            <span>
+              <strong>{{ t.reportsCleanupLatest }}</strong>
+              {{ formatEventTime(reportsCleanupSummary.jobs.latest_modified_at || reportsCleanupSummary.comparisons.latest_modified_at) }}
+            </span>
+          </div>
+
+          <div class="reports-cleanup-candidates">
+            <div class="reports-cleanup-candidates-heading">
+              <strong>{{ t.reportsCleanupCandidatePreview }}</strong>
+              <span>{{ reportsCleanupSummary.cleanup_preview.candidate_count }}</span>
+            </div>
+
+            <div
+              v-if="reportsCleanupSummary.cleanup_preview.candidates.length === 0"
+              class="empty-state small reports-cleanup-empty"
+            >
+              {{ t.reportsCleanupNoCandidates }}
+            </div>
+
+            <div v-else class="reports-cleanup-candidate-list">
+              <div
+                v-for="item in reportsCleanupSummary.cleanup_preview.candidates.slice(0, 5)"
+                :key="`${item.kind}:${item.id}`"
+                class="reports-cleanup-candidate"
+              >
+                <div>
+                  <strong>{{ item.id }}</strong>
+                  <span>{{ item.kind }}</span>
+                </div>
+                <div class="reports-cleanup-candidate-meta">
+                  <span>{{ formatStorageBytes(item.size_bytes) }}</span>
+                  <span>{{ formatEventTime(item.modified_at) }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
       </div>
     </section>
   </main>
@@ -5556,5 +5775,165 @@ input {
   min-width: 16px;
   justify-content: center;
   font-size: 12px;
+}
+
+/* Reports cleanup summary */
+.reports-cleanup-panel {
+  margin-top: 16px;
+  padding: 14px;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.reports-cleanup-heading {
+  margin-bottom: 12px;
+}
+
+.reports-cleanup-empty,
+.reports-cleanup-error {
+  margin-top: 10px;
+}
+
+.reports-cleanup-content {
+  display: grid;
+  gap: 12px;
+}
+
+.reports-cleanup-mode-row {
+  display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.reports-cleanup-mode-pill {
+  display: inline-flex;
+  min-height: 26px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+}
+
+.reports-cleanup-mode-pill.safe {
+  border: 1px solid rgba(34, 197, 94, 0.28);
+  background: rgba(240, 253, 244, 0.92);
+  color: #15803d;
+}
+
+.reports-cleanup-mode-pill.muted {
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  background: rgba(248, 250, 252, 0.92);
+  color: #64748b;
+}
+
+.reports-cleanup-root {
+  min-width: 0;
+  overflow: hidden;
+  color: #64748b;
+  font-size: 12px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.reports-cleanup-stats {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.reports-cleanup-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  color: #64748b;
+  font-size: 12px;
+}
+
+.reports-cleanup-meta strong {
+  margin-right: 6px;
+  color: #334155;
+}
+
+.reports-cleanup-candidates {
+  display: grid;
+  gap: 8px;
+  padding-top: 2px;
+}
+
+.reports-cleanup-candidates-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  color: #0f172a;
+  font-size: 13px;
+}
+
+.reports-cleanup-candidates-heading span {
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.reports-cleanup-candidate-list {
+  display: grid;
+  gap: 6px;
+}
+
+.reports-cleanup-candidate {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  padding: 8px 10px;
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  border-radius: 12px;
+  background: rgba(248, 250, 252, 0.82);
+}
+
+.reports-cleanup-candidate strong {
+  display: block;
+  overflow: hidden;
+  color: #0f172a;
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.reports-cleanup-candidate span {
+  color: #64748b;
+  font-size: 11px;
+}
+
+.reports-cleanup-candidate-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  white-space: nowrap;
+}
+
+@media (max-width: 1024px) {
+  .reports-cleanup-stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .reports-cleanup-stats,
+  .reports-cleanup-candidate {
+    grid-template-columns: 1fr;
+  }
+
+  .reports-cleanup-candidate-meta {
+    align-items: flex-start;
+  }
 }
 </style>
