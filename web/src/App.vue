@@ -1305,11 +1305,12 @@ async function startExperiment() {
               <strong>{{ jobId }}</strong>
             </div>
 
-            <div v-if="reportUrl" class="runtime-item runtime-action">
+            <div class="runtime-item runtime-action" :class="{ 'is-disabled': !reportUrl }">
               <span>{{ t.reportLabel }}</span>
-              <a class="report-link" :href="withLang(reportUrl)" target="_blank">
+              <a v-if="reportUrl" class="report-link" :href="withLang(reportUrl)" target="_blank">
                 {{ t.openHtmlReport }}
               </a>
+              <span v-else class="report-link disabled">{{ t.notReady }}</span>
             </div>
 
             <div v-if="latestMetric" class="hero-metric-item">
@@ -2942,4 +2943,297 @@ input:focus {
     grid-template-columns: 1fr;
   }
 }
+
+
+/* v1.8.3 unified product UI polish */
+:global(html) {
+  background:
+    radial-gradient(circle at 8% 0%, rgba(37, 99, 235, 0.08), transparent 28%),
+    radial-gradient(circle at 92% 2%, rgba(14, 165, 233, 0.09), transparent 30%),
+    linear-gradient(135deg, #f8fafc 0%, #f6f8fb 46%, #f7f5fb 100%);
+}
+
+.page {
+  padding: 22px 24px 64px;
+}
+
+.page > *,
+.global-toolbar,
+.dashboard-shell,
+.comparison-card {
+  width: min(1200px, calc(100vw - 48px));
+}
+
+.global-toolbar {
+  min-height: 36px;
+  margin-bottom: 14px;
+}
+
+.topbar-brand {
+  color: #172554;
+  font-size: 12px;
+  letter-spacing: 0.16em;
+}
+
+.lang-switcher {
+  height: 36px;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+}
+
+.command-card,
+.monitor-card,
+.comparison-card {
+  border-color: rgba(148, 163, 184, 0.22);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 18px 48px rgba(15, 23, 42, 0.07);
+}
+
+.command-card::after,
+.monitor-card::after {
+  display: none;
+}
+
+.command-card {
+  padding: 24px 26px 20px;
+}
+
+.command-main {
+  margin-bottom: 16px;
+}
+
+.command-copy h1 {
+  max-width: 680px;
+  font-size: clamp(30px, 3.1vw, 42px);
+  letter-spacing: -0.045em;
+}
+
+.subtitle {
+  margin-top: 8px;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.command-controls {
+  grid-template-columns: 190px minmax(300px, 1fr) auto;
+  gap: 12px;
+  align-items: end;
+}
+
+.experiment-select,
+.status-filter select,
+select,
+input {
+  min-height: 36px;
+  border-radius: 10px;
+  background: #ffffff;
+}
+
+.run-button,
+.secondary-button,
+.report-link,
+.detail-report-link,
+.detail-export-item,
+.comparison-export-item {
+  min-height: 36px;
+  border-radius: 10px;
+  box-shadow: none;
+}
+
+.run-button {
+  background: #1d4ed8;
+}
+
+.secondary-button,
+.report-link,
+.detail-report-link,
+.detail-export-item,
+.comparison-export-item {
+  background: #eff6ff;
+}
+
+.report-link.disabled,
+.runtime-action.is-disabled .report-link {
+  border-color: rgba(148, 163, 184, 0.28);
+  background: #f8fafc;
+  color: #94a3b8;
+  cursor: not-allowed;
+}
+
+.selected-config-summary,
+.preview-item,
+.runtime-item,
+.hero-metric-item,
+.detail-item,
+.insight-metric-card,
+.insight-extra-card,
+.job-detail-card,
+.selected-jobs-preview,
+.comparison-feedback,
+.insight-section,
+.comparison-hint {
+  border-color: rgba(148, 163, 184, 0.22);
+  background: #ffffff;
+  box-shadow: none;
+}
+
+.selected-config-summary {
+  margin-top: 14px;
+}
+
+.preview-grid.compact {
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+.preview-item {
+  min-height: 58px;
+}
+
+.monitor-card {
+  padding: 18px;
+  gap: 12px;
+}
+
+.runtime-row {
+  grid-template-columns: minmax(108px, 0.7fr) minmax(230px, 1.7fr) minmax(130px, 0.8fr) repeat(4, minmax(96px, 1fr));
+  gap: 10px;
+}
+
+.runtime-item,
+.hero-metric-item {
+  min-height: 62px;
+}
+
+.runtime-action .report-link {
+  max-width: none;
+}
+
+.chart-card {
+  height: 270px;
+  min-height: 270px;
+  border-radius: 18px;
+  background: #ffffff;
+}
+
+.comparison-card {
+  padding: 24px 26px;
+}
+
+.section-header {
+  align-items: flex-start;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.86);
+}
+
+.section-header h2,
+.job-detail-header h2 {
+  font-size: 22px;
+}
+
+.job-filters {
+  margin-top: 12px;
+}
+
+.section-actions {
+  align-items: flex-end;
+}
+
+.jobs-table {
+  border-radius: 14px;
+  background: #ffffff;
+}
+
+.jobs-table th,
+.jobs-table td {
+  padding: 11px 12px;
+}
+
+.jobs-table th {
+  background: #f8fafc;
+  color: #334155;
+}
+
+.job-row:hover,
+.job-row-selected,
+.job-row.selected {
+  background: #f8fbff;
+}
+
+.jobs-table input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+}
+
+.job-detail-card {
+  border-radius: 18px;
+}
+
+.detail-exports,
+.round-log-panel {
+  border-color: rgba(148, 163, 184, 0.22);
+  background: #f8fafc;
+}
+
+.detail-export-icon {
+  display: none;
+}
+
+.selected-job-chip {
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  border-radius: 12px;
+}
+
+.comparison-feedback.success {
+  border-color: rgba(34, 197, 94, 0.26);
+  background: #f0fdf4;
+}
+
+.insight-cards-grid,
+.insight-extra-cards {
+  gap: 12px;
+}
+
+.insight-metric-value {
+  font-size: 24px;
+}
+
+@media (max-width: 1180px) {
+  .runtime-row {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 860px) {
+  .page > *,
+  .global-toolbar,
+  .dashboard-shell,
+  .comparison-card {
+    width: min(100%, calc(100vw - 28px));
+  }
+
+  .command-controls {
+    grid-template-columns: 1fr;
+  }
+
+  .preview-grid.compact,
+  .preview-detail-grid,
+  .runtime-row,
+  .job-detail-grid,
+  .insight-cards-grid,
+  .insight-extra-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .preview-grid.compact,
+  .preview-detail-grid,
+  .runtime-row,
+  .job-detail-grid,
+  .insight-cards-grid,
+  .insight-extra-cards {
+    grid-template-columns: 1fr;
+  }
+}
+
 </style>

@@ -544,6 +544,223 @@
       td { padding: 11px 12px; }
       h1 { font-size: clamp(30px, 10vw, 42px); }
     }
+
+
+    /* v1.8.3 unified product report polish */
+    :root {
+      --surface: rgba(255, 255, 255, 0.94);
+      --surface-strong: #ffffff;
+      --border: rgba(148, 163, 184, 0.24);
+      --text: #101828;
+      --muted: #667085;
+      --muted-strong: #475467;
+      --primary: #1d4ed8;
+      --primary-strong: #1d4ed8;
+      --primary-soft: #eff6ff;
+      --shadow: 0 18px 48px rgba(15, 23, 42, 0.07);
+      --shadow-soft: 0 12px 32px rgba(15, 23, 42, 0.06);
+      --radius-xl: 24px;
+      --radius-lg: 16px;
+      --radius-md: 10px;
+    }
+
+    html {
+      background:
+        radial-gradient(circle at 8% 0%, rgba(37, 99, 235, 0.08), transparent 28%),
+        radial-gradient(circle at 92% 2%, rgba(14, 165, 233, 0.09), transparent 30%),
+        linear-gradient(135deg, #f8fafc 0%, #f6f8fb 46%, #f7f5fb 100%);
+    }
+
+    body {
+      padding: 28px 20px 56px;
+      font-size: 14px;
+    }
+
+    .page-shell {
+      max-width: 1120px;
+    }
+
+    .hero,
+    .section {
+      border-color: var(--border);
+      background: var(--surface);
+      box-shadow: var(--shadow);
+      backdrop-filter: none;
+    }
+
+    .hero {
+      padding: 30px 34px;
+    }
+
+    .hero::before {
+      right: -170px;
+      bottom: -210px;
+      width: 360px;
+      height: 360px;
+      opacity: 0.65;
+    }
+
+    .hero::after {
+      display: none;
+    }
+
+    .top-row {
+      grid-template-columns: minmax(0, 1fr) minmax(260px, 320px);
+      gap: 24px;
+      align-items: start;
+    }
+
+    .kicker {
+      margin-bottom: 8px;
+      font-size: 11px;
+      letter-spacing: 0.15em;
+    }
+
+    h1 {
+      font-size: clamp(32px, 3.4vw, 46px);
+      letter-spacing: -0.045em;
+    }
+
+    .subtitle {
+      margin-top: 10px;
+      font-size: 14px;
+      line-height: 1.62;
+    }
+
+    .meta-grid {
+      gap: 12px;
+    }
+
+    .meta-card,
+    .metric-card,
+    .export-card,
+    .insight-card,
+    .insight-extra-card {
+      border-color: var(--border);
+      background: #ffffff;
+      box-shadow: none;
+      backdrop-filter: none;
+    }
+
+    .meta-card {
+      padding: 16px;
+    }
+
+    .meta-card strong {
+      font-size: 18px;
+      line-height: 1.25;
+      letter-spacing: -0.025em;
+    }
+
+    .section {
+      margin-top: 18px;
+      padding: 24px;
+    }
+
+    .section h2 {
+      margin-bottom: 14px;
+      font-size: 21px;
+    }
+
+    .insight-grid {
+      gap: 12px;
+    }
+
+    .insight-card {
+      padding: 16px;
+      border-radius: 16px;
+    }
+
+    .insight-value {
+      margin-top: 8px;
+      font-size: clamp(22px, 2.4vw, 28px);
+    }
+
+    .insight-extra-grid {
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .insight-extra-card {
+      padding: 16px;
+      border-radius: 16px;
+    }
+
+    .table-wrap {
+      border-radius: 16px;
+      background: #ffffff;
+    }
+
+    table {
+      font-size: 13px;
+    }
+
+    th,
+    td {
+      padding: 12px 14px;
+    }
+
+    th {
+      background: #f8fafc;
+    }
+
+    .job-id {
+      max-width: 180px;
+      font-size: 11px;
+      line-height: 1.45;
+    }
+
+    code {
+      display: inline-block;
+      max-width: 260px;
+      overflow-wrap: anywhere;
+      white-space: normal;
+    }
+
+    .note {
+      margin-top: 16px;
+      padding: 14px 16px;
+      border-radius: 14px;
+      background: #f8fafc;
+      line-height: 1.65;
+    }
+
+    .export-grid {
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+    }
+
+    .export-card {
+      padding: 14px 16px;
+      border-radius: 14px;
+      text-decoration: none;
+    }
+
+    .export-card:hover {
+      border-color: rgba(37, 99, 235, 0.35);
+      background: #f8fbff;
+    }
+
+    .action-link {
+      border-radius: 10px;
+      box-shadow: none;
+    }
+
+    @media (max-width: 900px) {
+      body { padding: 22px 14px 44px; }
+      .top-row { grid-template-columns: 1fr; }
+      .insight-grid,
+      .export-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 640px) {
+      .hero,
+      .section { padding: 20px; border-radius: 20px; }
+      .insight-grid,
+      .export-grid { grid-template-columns: 1fr; }
+      h1 { font-size: clamp(30px, 10vw, 40px); }
+    }
+
   </style>
 </head>
 <body>
@@ -571,6 +788,70 @@
         </div>
       </div>
     </section>
+
+    {% if insights %}
+    <section class="section">
+      <h2>{{ L.insights_title|default("结果洞察") }}</h2>
+
+      <div class="insight-grid">
+        <div class="insight-card">
+          <span class="insight-label">{{ L.best_accuracy|default("最佳准确率") }}</span>
+          <span class="insight-value">
+            {% if insights.best_accuracy %}{{ "%.4f"|format(insights.best_accuracy.value) }}{% else %}-{% endif %}
+          </span>
+          {% if insights.best_accuracy %}
+          <span class="insight-experiment">{{ insights.best_accuracy.experiment_name }}</span>
+          {% endif %}
+        </div>
+
+        <div class="insight-card">
+          <span class="insight-label">{{ L.lowest_loss|default("最低损失") }}</span>
+          <span class="insight-value">
+            {% if insights.lowest_loss %}{{ "%.4f"|format(insights.lowest_loss.value) }}{% else %}-{% endif %}
+          </span>
+          {% if insights.lowest_loss %}
+          <span class="insight-experiment">{{ insights.lowest_loss.experiment_name }}</span>
+          {% endif %}
+        </div>
+
+        <div class="insight-card">
+          <span class="insight-label">{{ L.lowest_asr|default("最低 ASR") }}</span>
+          <span class="insight-value">
+            {% if insights.lowest_asr %}{{ "%.4f"|format(insights.lowest_asr.value) }}{% else %}-{% endif %}
+          </span>
+          {% if insights.lowest_asr %}
+          <span class="insight-experiment">{{ insights.lowest_asr.experiment_name }}</span>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="insight-extra-grid">
+        {% if insights.winner %}
+        <div class="insight-extra-card winner">
+          <span class="insight-extra-title">{{ L.recommended|default("推荐实验") }}</span>
+          <div class="insight-extra-body">
+            <strong>{{ insights.winner.experiment_name }}</strong>
+            {% if insights.winner_reason %}<br>{{ insights.winner_reason }}{% endif %}
+          </div>
+        </div>
+        {% endif %}
+
+        {% if insights.tradeoff_summary %}
+        <div class="insight-extra-card">
+          <span class="insight-extra-title">{{ L.tradeoff|default("权衡分析") }}</span>
+          <div class="insight-extra-body">{{ insights.tradeoff_summary }}</div>
+        </div>
+        {% endif %}
+
+        {% if insights.risk_hint %}
+        <div class="insight-extra-card risk">
+          <span class="insight-extra-title">{{ L.risk_hint|default("风险提示") }}</span>
+          <div class="insight-extra-body">{{ insights.risk_hint }}</div>
+        </div>
+        {% endif %}
+      </div>
+    </section>
+    {% endif %}
 
     {% if compared_jobs %}
     <section class="section">
@@ -675,70 +956,6 @@
         {{ L.comparison_note|default("较低的 ASR 通常表示对当前目标攻击具有更强抵抗能力。当前结果用于轻量演示和快速比较，不应直接视为正式 benchmark。") }}
       </div>
     </section>
-
-    {% if insights %}
-    <section class="section">
-      <h2>{{ L.insights_title|default("结果洞察") }}</h2>
-
-      <div class="insight-grid">
-        <div class="insight-card">
-          <span class="insight-label">{{ L.best_accuracy|default("最佳准确率") }}</span>
-          <span class="insight-value">
-            {% if insights.best_accuracy %}{{ "%.4f"|format(insights.best_accuracy.value) }}{% else %}-{% endif %}
-          </span>
-          {% if insights.best_accuracy %}
-          <span class="insight-experiment">{{ insights.best_accuracy.experiment_name }}</span>
-          {% endif %}
-        </div>
-
-        <div class="insight-card">
-          <span class="insight-label">{{ L.lowest_loss|default("最低损失") }}</span>
-          <span class="insight-value">
-            {% if insights.lowest_loss %}{{ "%.4f"|format(insights.lowest_loss.value) }}{% else %}-{% endif %}
-          </span>
-          {% if insights.lowest_loss %}
-          <span class="insight-experiment">{{ insights.lowest_loss.experiment_name }}</span>
-          {% endif %}
-        </div>
-
-        <div class="insight-card">
-          <span class="insight-label">{{ L.lowest_asr|default("最低 ASR") }}</span>
-          <span class="insight-value">
-            {% if insights.lowest_asr %}{{ "%.4f"|format(insights.lowest_asr.value) }}{% else %}-{% endif %}
-          </span>
-          {% if insights.lowest_asr %}
-          <span class="insight-experiment">{{ insights.lowest_asr.experiment_name }}</span>
-          {% endif %}
-        </div>
-      </div>
-
-      <div class="insight-extra-grid">
-        {% if insights.winner %}
-        <div class="insight-extra-card winner">
-          <span class="insight-extra-title">{{ L.recommended|default("推荐实验") }}</span>
-          <div class="insight-extra-body">
-            <strong>{{ insights.winner.experiment_name }}</strong>
-            {% if insights.winner_reason %}<br>{{ insights.winner_reason }}{% endif %}
-          </div>
-        </div>
-        {% endif %}
-
-        {% if insights.tradeoff_summary %}
-        <div class="insight-extra-card">
-          <span class="insight-extra-title">{{ L.tradeoff|default("权衡分析") }}</span>
-          <div class="insight-extra-body">{{ insights.tradeoff_summary }}</div>
-        </div>
-        {% endif %}
-
-        {% if insights.risk_hint %}
-        <div class="insight-extra-card risk">
-          <span class="insight-extra-title">{{ L.risk_hint|default("风险提示") }}</span>
-          <div class="insight-extra-body">{{ insights.risk_hint }}</div>
-        </div>
-        {% endif %}
-      </div>
-    </section>
-    {% endif %}
 
     <section class="section">
       <h2>{{ L.exported_files|default("导出文件") }}</h2>
