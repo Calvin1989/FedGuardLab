@@ -84,7 +84,7 @@ const messages = {
     jobLabel: "任务 ID",
     errorLabel: "错误",
     reportLabel: "报告",
-    openHtmlReport: "查看 HTML 报告",
+    openHtmlReport: "HTML 报告",
     openHtmlReportShort: "HTML 报告",
     round: "轮次",
     accuracy: "准确率",
@@ -168,14 +168,14 @@ const messages = {
     selectedJobsHint: "当前只选择了 1 个可对比实验，请继续勾选另一个已完成报告后再生成对比报告",
     comparisonCreating: "正在生成对比报告…",
     comparisonSuccess: "对比报告已生成",
-    comparisonSuccessDescription: "已生成 HTML、CSV、JSON 三种导出文件，可用于分享、归档或继续分析",
+    comparisonSuccessDescription: "报告与导出文件已就绪，可用于分享、归档或继续分析",
     comparisonHtmlShort: "HTML 报告",
     comparisonCsvShort: "CSV",
     comparisonJsonShort: "JSON",
     comparisonFailed: "对比报告生成失败",
     comparisonExportsTitle: "对比导出",
     comparisonHistoryTitle: "对比报告历史",
-    comparisonHistoryHint: "最近生成的对比报告会保留在这里，可直接打开 HTML 报告或下载 CSV / JSON。",
+    comparisonHistoryHint: "最近生成的对比报告会保留在这里，可直接打开或下载。",
     comparisonHistoryRefresh: "刷新历史",
     comparisonHistoryLoading: "正在加载对比报告历史…",
     comparisonHistoryEmpty: "暂无对比报告历史",
@@ -197,11 +197,13 @@ const messages = {
     noInsights: "暂无洞察数据",
     exportsTitle: "导出文件",
     exportHtmlReport: "HTML 报告",
-    exportCsvMetrics: "CSV 指标",
-    exportMarkdownReport: "Markdown 报告",
-    comparisonHtmlReport: "对比 HTML 报告",
-    comparisonCsv: "对比 CSV",
-    comparisonJson: "对比 JSON",
+    exportCsvMetrics: "CSV",
+    exportMarkdownReport: "Markdown",
+    exportMetricsJson: "指标 JSON",
+    exportConfigJson: "配置 JSON",
+    comparisonHtmlReport: "HTML 报告",
+    comparisonCsv: "CSV",
+    comparisonJson: "JSON",
     eventTimeline: "事件时间线",
     lifecycleEvents: "创建、启动、产物与完成记录",
     trainingRoundsTitle: "训练轮次详情",
@@ -271,8 +273,8 @@ const messages = {
     jobLabel: "Job ID",
     errorLabel: "Error",
     reportLabel: "Report",
-    openHtmlReport: "Open HTML Report",
-    openHtmlReportShort: "HTML report",
+    openHtmlReport: "HTML Report",
+    openHtmlReportShort: "HTML Report",
     round: "Round",
     accuracy: "Accuracy",
     loss: "Loss",
@@ -355,14 +357,14 @@ const messages = {
     selectedJobsHint: "Only 1 comparable experiment is selected; choose another finished report before generating a comparison",
     comparisonCreating: "Generating comparison report…",
     comparisonSuccess: "Comparison report generated",
-    comparisonSuccessDescription: "HTML, CSV, and JSON artifacts are ready for sharing, archiving, or follow-up analysis",
+    comparisonSuccessDescription: "Report and export artifacts are ready for sharing, archiving, or follow-up analysis",
     comparisonHtmlShort: "HTML Report",
     comparisonCsvShort: "CSV",
     comparisonJsonShort: "JSON",
     comparisonFailed: "Failed to generate comparison report",
     comparisonExportsTitle: "Comparison Exports",
     comparisonHistoryTitle: "Comparison Report History",
-    comparisonHistoryHint: "Recently generated comparison reports stay here with direct HTML, CSV, and JSON access.",
+    comparisonHistoryHint: "Recently generated comparison reports stay here for direct access or download.",
     comparisonHistoryRefresh: "Refresh history",
     comparisonHistoryLoading: "Loading comparison report history…",
     comparisonHistoryEmpty: "No comparison reports yet",
@@ -384,11 +386,13 @@ const messages = {
     noInsights: "No insights available",
     exportsTitle: "Exports",
     exportHtmlReport: "HTML Report",
-    exportCsvMetrics: "CSV Metrics",
-    exportMarkdownReport: "Markdown Report",
-    comparisonHtmlReport: "Comparison HTML Report",
-    comparisonCsv: "Comparison CSV",
-    comparisonJson: "Comparison JSON",
+    exportCsvMetrics: "CSV",
+    exportMarkdownReport: "Markdown",
+    exportMetricsJson: "Metrics JSON",
+    exportConfigJson: "Config JSON",
+    comparisonHtmlReport: "HTML Report",
+    comparisonCsv: "CSV",
+    comparisonJson: "JSON",
     eventTimeline: "Event Timeline",
     lifecycleEvents: "Created, started, artifacts, and completion",
     trainingRoundsTitle: "Training Round Details",
@@ -2138,6 +2142,36 @@ async function startExperiment() {
               <span v-else class="detail-export-item disabled">
                 <span class="detail-export-icon">📝</span>
                 <span class="detail-export-label">{{ t.exportMarkdownReport }}</span>
+              </span>
+
+              <a
+                v-if="jobArtifactUrl(selectedDetailJob, 'metrics_json')"
+                class="detail-export-item"
+                :href="jobArtifactUrl(selectedDetailJob, 'metrics_json')"
+                target="_blank"
+                rel="noreferrer"
+              >
+                <span class="detail-export-icon">{ }</span>
+                <span class="detail-export-label">{{ t.exportMetricsJson }}</span>
+              </a>
+              <span v-else class="detail-export-item disabled">
+                <span class="detail-export-icon">{ }</span>
+                <span class="detail-export-label">{{ t.exportMetricsJson }}</span>
+              </span>
+
+              <a
+                v-if="jobArtifactUrl(selectedDetailJob, 'config_json')"
+                class="detail-export-item"
+                :href="jobArtifactUrl(selectedDetailJob, 'config_json')"
+                target="_blank"
+                rel="noreferrer"
+              >
+                <span class="detail-export-icon">⚙</span>
+                <span class="detail-export-label">{{ t.exportConfigJson }}</span>
+              </a>
+              <span v-else class="detail-export-item disabled">
+                <span class="detail-export-icon">⚙</span>
+                <span class="detail-export-label">{{ t.exportConfigJson }}</span>
               </span>
             </div>
           </div>
@@ -5464,4 +5498,63 @@ input {
   }
 }
 
+
+/* Unified report and artifact entry system */
+.report-link,
+.detail-report-link,
+.detail-export-item,
+.comparison-export-item,
+.comparison-history-links .report-link {
+  min-height: 32px;
+  padding: 0 12px;
+  border-radius: 9px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  gap: 6px;
+}
+
+.jobs-table .report-link,
+.comparison-history-links .report-link {
+  min-height: 28px;
+  padding: 0 10px;
+  font-size: 12px;
+}
+
+.detail-exports-grid {
+  grid-template-columns: repeat(auto-fit, minmax(128px, 1fr));
+}
+
+.detail-exports-grid .detail-export-item,
+.comparison-exports .comparison-export-item {
+  justify-content: center;
+  min-width: 0;
+}
+
+.comparison-history-links {
+  gap: 6px;
+}
+
+.comparison-history-links .secondary-link,
+.comparison-export-item:not(:first-child),
+.detail-export-item:not(:first-child) {
+  border-color: rgba(148, 163, 184, 0.34);
+  background: rgba(248, 250, 252, 0.94);
+  color: #334155;
+}
+
+.comparison-history-links .secondary-link:hover,
+.comparison-export-item:not(:first-child):not(.disabled):hover,
+.detail-export-item:not(:first-child):not(.disabled):hover {
+  border-color: rgba(96, 165, 250, 0.46);
+  background: rgba(239, 246, 255, 0.96);
+  color: #1d4ed8;
+}
+
+.detail-export-icon {
+  display: inline-flex;
+  min-width: 16px;
+  justify-content: center;
+  font-size: 12px;
+}
 </style>
