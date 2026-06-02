@@ -92,8 +92,18 @@ const messages = {
     chartTitle: "实时联邦学习指标",
     emptyChart: "启动实验后可查看实时指标，完成任务会进入对比历史",
     heroEmptyHint: "选择配置并运行实验，实时指标会在这里更新",
-    comparisonTitle: "实验对比",
-    comparisonHint: "选择至少两个已完成的实验，生成对比报告",
+    comparisonTitle: "历史实验与对比",
+    comparisonHint: "管理已完成、运行中和异常实验，选择可对比实验生成对比报告",
+    historyManagementTitle: "历史实验管理",
+    historyManagementDescription: "当前列表来自后端任务记录；只有已完成、含指标并生成报告的实验可加入对比。",
+    historyTotalJobs: "列表实验",
+    historyComparableJobs: "可对比",
+    historySelectedJobs: "已选择",
+    historyCurrentFilter: "当前筛选",
+    comparisonReady: "可对比",
+    comparisonUnavailable: "不可对比",
+    reportReady: "报告可用",
+    reportUnavailable: "报告未就绪",
     statusFilter: "状态",
     allStatuses: "全部状态",
     finishedWithReport: "已完成（报告）",
@@ -111,7 +121,7 @@ const messages = {
     emptyAllHint: "切换状态筛选或运行新的实验后再查看",
     emptyFilteredHint: "可以切换状态筛选或稍后刷新历史记录",
     emptyFiltered: "没有找到{status}任务",
-    tableSelect: "选择",
+    tableSelect: "对比",
     tableExperiment: "实验",
     tableAggregation: "聚合",
     tableDefense: "防御",
@@ -138,13 +148,13 @@ const messages = {
     openReport: "查看报告",
     notAvailable: "暂无",
     available: "可用",
-    jobDetailHint: "选择任务后查看详情",
+    jobDetailHint: "选择一条历史实验查看详情、导出文件和事件时间线",
     comparisonLabel: "对比",
     openComparisonReport: "查看对比报告",
     selectAtLeastTwo: "请至少选择两个已完成的实验",
     selectedJobsTitle: "已选择实验",
     selectedJobsCount: "已选择 {count} 个实验",
-    selectedJobsHint: "至少需要选择 2 个实验才能生成对比报告",
+    selectedJobsHint: "当前只选择了 1 个可对比实验，请继续勾选另一个已完成报告后再生成对比报告",
     comparisonCreating: "正在生成对比报告…",
     comparisonSuccess: "对比报告已生成",
     comparisonSuccessDescription: "已生成 HTML、CSV、JSON 三种导出文件，可用于分享、归档或继续分析",
@@ -244,8 +254,18 @@ const messages = {
     chartTitle: "Live Federated Learning Metrics",
     emptyChart: "Start an experiment to see live metrics; finished jobs appear in comparison history",
     heroEmptyHint: "Choose a config and run an experiment; live metrics will update here",
-    comparisonTitle: "Experiment Comparison",
-    comparisonHint: "Select at least two finished experiments and generate a comparison report",
+    comparisonTitle: "Experiment History & Comparison",
+    comparisonHint: "Manage finished, running, and failed jobs; select comparable jobs to generate a comparison report",
+    historyManagementTitle: "Experiment history management",
+    historyManagementDescription: "This list comes from backend job records; only finished jobs with metrics and reports can be selected for comparison.",
+    historyTotalJobs: "Listed jobs",
+    historyComparableJobs: "Comparable",
+    historySelectedJobs: "Selected",
+    historyCurrentFilter: "Active filter",
+    comparisonReady: "Comparable",
+    comparisonUnavailable: "Not comparable",
+    reportReady: "Report ready",
+    reportUnavailable: "Report not ready",
     statusFilter: "Status",
     allStatuses: "All statuses",
     finishedWithReport: "Finished with report",
@@ -263,7 +283,7 @@ const messages = {
     emptyAllHint: "Change the status filter or run another experiment",
     emptyFilteredHint: "Change the status filter or refresh the history later",
     emptyFiltered: "No {status} jobs found",
-    tableSelect: "Select",
+    tableSelect: "Compare",
     tableExperiment: "Experiment",
     tableAggregation: "Aggregation",
     tableDefense: "Defense",
@@ -290,13 +310,13 @@ const messages = {
     openReport: "Open Report",
     notAvailable: "Not available",
     available: "Available",
-    jobDetailHint: "Select a job to inspect details",
+    jobDetailHint: "Select a historical job to inspect details, exports, and event timeline",
     comparisonLabel: "Comparison",
     openComparisonReport: "Open Comparison Report",
     selectAtLeastTwo: "Please select at least two finished experiments",
     selectedJobsTitle: "Selected Jobs",
     selectedJobsCount: "{count} job(s) selected",
-    selectedJobsHint: "Select at least 2 experiments to generate a comparison report",
+    selectedJobsHint: "Only 1 comparable experiment is selected; choose another finished report before generating a comparison",
     comparisonCreating: "Generating comparison report…",
     comparisonSuccess: "Comparison report generated",
     comparisonSuccessDescription: "HTML, CSV, and JSON artifacts are ready for sharing, archiving, or follow-up analysis",
@@ -672,6 +692,24 @@ function canSelectJobForComparison(job) {
     Boolean(job.report_url)
   );
 }
+
+
+const comparableJobsCount = computed(() =>
+  recentJobs.value.filter((job) => canSelectJobForComparison(job)).length
+);
+
+
+const activeStatusFilterLabel = computed(() => {
+  if (jobStatusFilter.value === "finished_report") {
+    return t.value.finishedWithReport;
+  }
+
+  if (jobStatusFilter.value === "all") {
+    return t.value.allStatuses;
+  }
+
+  return t.value.statusValues[jobStatusFilter.value] || jobStatusFilter.value;
+});
 
 
 function toggleJobSelection(jobId) {
@@ -1583,6 +1621,31 @@ async function startExperiment() {
               </select>
             </label>
           </div>
+
+          <div class="history-management-strip">
+            <div class="history-management-copy">
+              <strong>{{ t.historyManagementTitle }}</strong>
+              <span>{{ t.historyManagementDescription }}</span>
+            </div>
+            <div class="history-management-stats">
+              <span class="history-stat">
+                <strong>{{ recentJobs.length }}</strong>
+                <small>{{ t.historyTotalJobs }}</small>
+              </span>
+              <span class="history-stat">
+                <strong>{{ comparableJobsCount }}</strong>
+                <small>{{ t.historyComparableJobs }}</small>
+              </span>
+              <span class="history-stat">
+                <strong>{{ selectedJobIds.length }}</strong>
+                <small>{{ t.historySelectedJobs }}</small>
+              </span>
+              <span class="history-stat history-stat-wide">
+                <strong>{{ activeStatusFilterLabel }}</strong>
+                <small>{{ t.historyCurrentFilter }}</small>
+              </span>
+            </div>
+          </div>
         </div>
 
         <div class="section-actions">
@@ -1651,13 +1714,19 @@ async function startExperiment() {
             :class="{ 'job-row-selected': selectedDetailJobId === job.job_id, 'selected': selectedDetailJobId === job.job_id }"
             @click="toggleDetailJob(job.job_id)"
           >
-            <td>
+            <td class="job-select-cell">
               <input
                 type="checkbox"
                 :checked="selectedJobIds.includes(job.job_id)"
                 :disabled="!canSelectJobForComparison(job)"
                 @change="toggleJobSelection(job.job_id)"
               />
+              <span
+                class="job-select-note"
+                :class="{ ready: canSelectJobForComparison(job) }"
+              >
+                {{ canSelectJobForComparison(job) ? t.comparisonReady : t.comparisonUnavailable }}
+              </span>
             </td>
             <td>
               <div class="job-label">{{ job.label }}</div>
@@ -1697,6 +1766,20 @@ async function startExperiment() {
             <div>
               <p class="section-kicker">{{ t.jobDetailTitle }}</p>
               <h2>{{ selectedDetailJob.label || selectedDetailJob.experiment_name || selectedDetailJob.config_path || "—" }}</h2>
+              <div class="job-detail-meta">
+                <span
+                  class="job-detail-meta-pill"
+                  :class="{ ready: canSelectJobForComparison(selectedDetailJob) }"
+                >
+                  {{ canSelectJobForComparison(selectedDetailJob) ? t.comparisonReady : t.comparisonUnavailable }}
+                </span>
+                <span
+                  class="job-detail-meta-pill"
+                  :class="{ ready: selectedDetailJob.has_report }"
+                >
+                  {{ selectedDetailJob.has_report ? t.reportReady : t.reportUnavailable }}
+                </span>
+              </div>
             </div>
 
             <a
@@ -4689,6 +4772,128 @@ input {
 @media (max-width: 760px) {
   .compact-events .lifecycle-timeline {
     grid-template-columns: 1fr;
+  }
+}
+
+
+
+/* v1.9.0-alpha.1 experiment history management clarity */
+.history-management-strip {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(360px, 0.9fr);
+  gap: 12px;
+  align-items: stretch;
+  margin-top: 12px;
+  padding: 12px;
+  border: 1px solid rgba(191, 219, 254, 0.9);
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(239, 246, 255, 0.92), rgba(248, 250, 252, 0.96));
+}
+
+.history-management-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.history-management-copy strong {
+  color: #0f172a;
+  font-size: 13px;
+}
+
+.history-management-copy span {
+  color: #64748b;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.history-management-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.history-stat {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  min-width: 0;
+  padding: 8px 10px;
+  border: 1px solid rgba(226, 232, 240, 0.95);
+  border-radius: 12px;
+  background: #ffffff;
+}
+
+.history-stat strong {
+  overflow: hidden;
+  color: #0f172a;
+  font-size: 14px;
+  line-height: 1.15;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.history-stat small {
+  color: #64748b;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.job-select-cell {
+  min-width: 72px;
+}
+
+.job-select-note {
+  display: block;
+  margin-top: 5px;
+  color: #94a3b8;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+
+.job-select-note.ready {
+  color: #15803d;
+}
+
+.job-detail-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.job-detail-meta-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  padding: 0 8px;
+  border: 1px solid rgba(226, 232, 240, 0.95);
+  border-radius: 999px;
+  background: #f8fafc;
+  color: #64748b;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.job-detail-meta-pill.ready {
+  border-color: rgba(187, 247, 208, 0.95);
+  background: #dcfce7;
+  color: #15803d;
+}
+
+@media (max-width: 1024px) {
+  .history-management-strip {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .history-management-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
