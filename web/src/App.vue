@@ -1622,30 +1622,6 @@ async function startExperiment() {
             </label>
           </div>
 
-          <div class="history-management-strip">
-            <div class="history-management-copy">
-              <strong>{{ t.historyManagementTitle }}</strong>
-              <span>{{ t.historyManagementDescription }}</span>
-            </div>
-            <div class="history-management-stats">
-              <span class="history-stat">
-                <strong>{{ recentJobs.length }}</strong>
-                <small>{{ t.historyTotalJobs }}</small>
-              </span>
-              <span class="history-stat">
-                <strong>{{ comparableJobsCount }}</strong>
-                <small>{{ t.historyComparableJobs }}</small>
-              </span>
-              <span class="history-stat">
-                <strong>{{ selectedJobIds.length }}</strong>
-                <small>{{ t.historySelectedJobs }}</small>
-              </span>
-              <span class="history-stat history-stat-wide">
-                <strong>{{ activeStatusFilterLabel }}</strong>
-                <small>{{ t.historyCurrentFilter }}</small>
-              </span>
-            </div>
-          </div>
         </div>
 
         <div class="section-actions">
@@ -1672,6 +1648,31 @@ async function startExperiment() {
           >
             {{ comparisonStatus === "creating" ? t.generating : t.generateReport }}
           </button>
+        </div>
+      </div>
+
+      <div class="history-management-strip">
+        <div class="history-management-copy">
+          <strong>{{ t.historyManagementTitle }}</strong>
+          <span>{{ t.historyManagementDescription }}</span>
+        </div>
+        <div class="history-management-stats">
+          <span class="history-stat">
+            <strong>{{ recentJobs.length }}</strong>
+            <small>{{ t.historyTotalJobs }}</small>
+          </span>
+          <span class="history-stat">
+            <strong>{{ comparableJobsCount }}</strong>
+            <small>{{ t.historyComparableJobs }}</small>
+          </span>
+          <span class="history-stat">
+            <strong>{{ selectedJobIds.length }}</strong>
+            <small>{{ t.historySelectedJobs }}</small>
+          </span>
+          <span class="history-stat history-stat-wide">
+            <strong>{{ activeStatusFilterLabel }}</strong>
+            <small>{{ t.historyCurrentFilter }}</small>
+          </span>
         </div>
       </div>
 
@@ -1721,12 +1722,6 @@ async function startExperiment() {
                 :disabled="!canSelectJobForComparison(job)"
                 @change="toggleJobSelection(job.job_id)"
               />
-              <span
-                class="job-select-note"
-                :class="{ ready: canSelectJobForComparison(job) }"
-              >
-                {{ canSelectJobForComparison(job) ? t.comparisonReady : t.comparisonUnavailable }}
-              </span>
             </td>
             <td>
               <div class="job-label">{{ job.label }}</div>
@@ -4780,10 +4775,11 @@ input {
 /* v1.9.0-alpha.1 experiment history management clarity */
 .history-management-strip {
   display: grid;
-  grid-template-columns: minmax(0, 1.3fr) minmax(360px, 0.9fr);
+  grid-template-columns: minmax(0, 1.15fr) minmax(420px, 0.85fr);
   gap: 12px;
   align-items: stretch;
-  margin-top: 12px;
+  width: 100%;
+  margin: -2px 0 14px;
   padding: 12px;
   border: 1px solid rgba(191, 219, 254, 0.9);
   border-radius: 16px;
@@ -4842,21 +4838,16 @@ input {
 }
 
 .job-select-cell {
-  min-width: 72px;
+  min-width: 46px;
 }
 
-.job-select-note {
-  display: block;
-  margin-top: 5px;
-  color: #94a3b8;
-  font-size: 10px;
-  font-weight: 800;
-  line-height: 1.1;
-  white-space: nowrap;
+.job-select-cell input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
 }
 
-.job-select-note.ready {
-  color: #15803d;
+.job-select-cell input[type="checkbox"]:disabled {
+  cursor: not-allowed;
 }
 
 .job-detail-meta {
@@ -4888,6 +4879,7 @@ input {
 @media (max-width: 1024px) {
   .history-management-strip {
     grid-template-columns: 1fr;
+    margin-top: 0;
   }
 }
 
