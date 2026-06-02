@@ -205,6 +205,8 @@ const messages = {
       finished: "已完成",
       failed: "失败",
       cancelled: "已取消",
+      archived: "已归档",
+      restored: "已恢复",
     },
     statusValues: {
       idle: "空闲",
@@ -377,6 +379,8 @@ const messages = {
       finished: "Finished",
       failed: "Failed",
       cancelled: "Cancelled",
+      archived: "Archived",
+      restored: "Restored",
     },
     statusValues: {
       idle: "idle",
@@ -1045,6 +1049,8 @@ function eventIcon(type) {
     finished: "✅",
     failed: "❌",
     cancelled: "⛔",
+    archived: "📌",
+    restored: "↩️",
   };
   return icons[type] || "📌";
 }
@@ -1065,6 +1071,8 @@ function formatEventMessage(ev) {
     finished: "任务已完成",
     failed: "任务失败",
     cancelled: "任务已取消",
+    archived: "任务已归档",
+    restored: "任务已恢复",
     round_progress: "训练进度已更新",
   };
 
@@ -1875,9 +1883,9 @@ async function startExperiment() {
       <div v-if="recentJobs.length > 0" class="job-detail-card">
         <div v-if="selectedDetailJob" class="job-detail-panel">
           <div class="job-detail-header">
-            <div>
-              <p class="section-kicker">{{ t.jobDetailTitle }}</p>
-              <h2>{{ selectedDetailJob.label || selectedDetailJob.experiment_name || selectedDetailJob.config_path || "—" }}</h2>
+            <div class="job-detail-title-stack">
+              <p class="detail-section-title">{{ t.jobDetailTitle }}</p>
+              <h2 class="detail-section-main-title">{{ selectedDetailJob.label || selectedDetailJob.experiment_name || selectedDetailJob.config_path || "—" }}</h2>
               <div class="job-detail-meta">
                 <span
                   class="job-detail-meta-pill"
@@ -2016,9 +2024,9 @@ async function startExperiment() {
 
           <div class="detail-events compact-events">
             <div class="detail-events-heading">
-              <div>
-                <h3 class="detail-events-title">{{ t.eventTimeline }}</h3>
-                <p class="detail-events-subtitle">{{ t.lifecycleEvents }}</p>
+              <div class="detail-section-heading">
+                <h3 class="detail-section-title detail-events-title">{{ t.eventTimeline }}</h3>
+                <p class="detail-section-subtitle detail-events-subtitle">{{ t.lifecycleEvents }}</p>
               </div>
               <span v-if="selectedRoundEvents.length > 0" class="round-count-pill">
                 {{ t.trainingRoundsCount.replace('{count}', selectedRoundEvents.length) }}
@@ -2037,8 +2045,8 @@ async function startExperiment() {
                     <span class="event-icon" aria-hidden="true">{{ eventIcon(ev.type) }}</span>
                     <span class="event-badge" :class="'badge-' + ev.type">{{ t.eventType[ev.type] || ev.type }}</span>
                     <span class="event-time">{{ formatEventTime(ev.created_at) }}</span>
+                    <span class="event-message">{{ formatEventMessage(ev) }}</span>
                   </div>
-                  <p class="event-message">{{ formatEventMessage(ev) }}</p>
                   <div v-if="ev.type === 'failed' && ev.details" class="event-failure">
                     <p><strong>{{ t.eventFailureReason }}:</strong> {{ ev.details.error }}</p>
                     <pre v-if="ev.details.traceback_summary" class="event-traceback">{{ ev.details.traceback_summary }}</pre>
@@ -2049,10 +2057,12 @@ async function startExperiment() {
 
             <details v-if="selectedRoundEvents.length > 0" class="round-log-panel">
               <summary>
-                <span>{{ t.trainingRoundsTitle }}</span>
+                <div class="detail-section-heading">
+                  <span class="detail-section-title">{{ t.trainingRoundsTitle }}</span>
+                  <span class="detail-section-subtitle">{{ t.trainingRoundsHint }}</span>
+                </div>
                 <strong>{{ t.trainingRoundsCount.replace('{count}', selectedRoundEvents.length) }}</strong>
               </summary>
-              <p class="round-log-hint">{{ t.trainingRoundsHint }}</p>
               <div class="round-log-list">
                 <div
                   v-for="(ev, idx) in selectedRoundEvents"
@@ -5114,6 +5124,223 @@ input {
 @media (max-width: 760px) {
   .compact-events .lifecycle-timeline {
     grid-template-columns: 1fr;
+  }
+}
+
+
+/* v1.9.0-alpha.2 event timeline and detail section unification polish */
+.job-detail-header,
+.detail-events-heading,
+.round-log-panel summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.job-detail-header .section-kicker,
+.detail-events-title,
+.round-log-panel summary span {
+  margin: 0;
+  color: #0f172a;
+  font-size: 14px;
+  font-weight: 900;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+  text-transform: none;
+}
+
+.job-detail-header h2,
+.detail-events-subtitle,
+.round-log-panel summary strong {
+  margin: 4px 0 0;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1.45;
+}
+
+.job-detail-header h2 {
+  color: #111827;
+  font-size: 20px;
+  font-weight: 900;
+  line-height: 1.2;
+}
+
+.compact-events .event-header {
+  gap: 6px 8px;
+  white-space: normal;
+}
+
+.compact-events .event-message {
+  display: inline-flex;
+  align-items: center;
+  margin: 0;
+  color: #475569;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.compact-events .event-time::after {
+  content: "·";
+  margin-left: 8px;
+  color: #cbd5e1;
+}
+
+.round-log-panel summary {
+  padding: 10px 12px;
+}
+
+.round-log-panel summary strong {
+  margin: 0;
+  color: #0f172a;
+  font-size: 14px;
+  font-weight: 900;
+}
+
+
+/* v1.9.0-alpha.2 timeline section polish v2 */
+.job-detail-title-stack,
+.detail-section-heading {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+}
+
+.job-detail-title-stack .detail-section-title,
+.detail-section-title,
+.detail-events-title,
+.round-log-panel summary .detail-section-title {
+  margin: 0;
+  color: #0f172a;
+  font-size: 14px;
+  font-weight: 900;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+  text-transform: none;
+}
+
+.detail-section-main-title {
+  margin: 0;
+  color: #111827;
+  font-size: 20px;
+  font-weight: 900;
+  line-height: 1.2;
+}
+
+.detail-section-subtitle,
+.detail-events-subtitle,
+.round-log-panel summary .detail-section-subtitle {
+  margin: 0;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1.45;
+}
+
+.detail-events-heading {
+  align-items: flex-start;
+}
+
+.compact-events .lifecycle-timeline {
+  gap: 6px 8px;
+}
+
+.compact-events .lifecycle-timeline .event-item {
+  display: block;
+}
+
+.compact-events .lifecycle-timeline .event-body {
+  min-height: 0;
+  padding: 6px 9px;
+  border: 1px solid rgba(226, 232, 240, 0.92);
+  border-radius: 10px;
+  background: #ffffff;
+}
+
+.compact-events .lifecycle-timeline .event-header {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  min-width: 0;
+  overflow: hidden;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.compact-events .lifecycle-timeline .event-icon {
+  flex: 0 0 auto;
+  width: auto;
+  height: auto;
+  border-radius: 0;
+  background: transparent;
+  font-family: inherit;
+  font-size: 12px;
+  line-height: 1;
+}
+
+.compact-events .lifecycle-timeline .event-badge {
+  flex: 0 0 auto;
+  min-height: 0;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #334155;
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 1.2;
+}
+
+.compact-events .lifecycle-timeline .event-time {
+  flex: 0 0 auto;
+  color: #94a3b8;
+  font-size: 11px;
+  line-height: 1.2;
+}
+
+.compact-events .lifecycle-timeline .event-time::after {
+  content: "·";
+  margin-left: 6px;
+  color: #cbd5e1;
+}
+
+.compact-events .lifecycle-timeline .event-message {
+  min-width: 0;
+  overflow: hidden;
+  color: #475569;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.round-log-panel summary {
+  align-items: flex-start;
+}
+
+.round-log-panel summary strong {
+  flex: 0 0 auto;
+  margin: 0;
+  color: #0f172a;
+  font-size: 14px;
+  font-weight: 900;
+  line-height: 1.2;
+}
+
+@media (max-width: 760px) {
+  .compact-events .lifecycle-timeline .event-header {
+    flex-wrap: wrap;
+    white-space: normal;
+  }
+
+  .compact-events .lifecycle-timeline .event-message {
+    white-space: normal;
   }
 }
 
