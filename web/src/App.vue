@@ -121,6 +121,14 @@ const messages = {
     comparisonSuccess: "对比报告已生成。",
     comparisonFailed: "对比报告生成失败。",
     comparisonExportsTitle: "对比导出",
+    insightsTitle: "结果洞察",
+    bestAccuracy: "最佳准确率",
+    lowestLoss: "最低损失",
+    lowestAsr: "最低 ASR",
+    recommended: "推荐实验",
+    tradeoff: "权衡分析",
+    riskHint: "风险提示",
+    noInsights: "暂无洞察数据",
     exportsTitle: "导出文件",
     exportHtmlReport: "HTML 报告",
     exportCsvMetrics: "CSV 指标",
@@ -229,6 +237,14 @@ const messages = {
     comparisonSuccess: "Comparison report generated.",
     comparisonFailed: "Failed to generate comparison report.",
     comparisonExportsTitle: "Comparison Exports",
+    insightsTitle: "Result Insights",
+    bestAccuracy: "Best Accuracy",
+    lowestLoss: "Lowest Loss",
+    lowestAsr: "Lowest ASR",
+    recommended: "Recommended",
+    tradeoff: "Trade-off",
+    riskHint: "Risk Hint",
+    noInsights: "No insights available",
     exportsTitle: "Exports",
     exportHtmlReport: "HTML Report",
     exportCsvMetrics: "CSV Metrics",
@@ -279,6 +295,7 @@ const comparisonStatus = ref("idle");
 const comparisonError = ref("");
 const comparisonUrl = ref("");
 const comparisonArtifacts = ref({});
+const comparisonInsights = ref({});
 
 const experimentOptions = ref([]);
 const selectedCategory = ref("all");
@@ -469,6 +486,7 @@ async function createComparisonReport() {
   comparisonError.value = "";
   comparisonUrl.value = "";
   comparisonArtifacts.value = {};
+  comparisonInsights.value = {};
 
   if (selectedJobIds.value.length < 2) {
     comparisonError.value = t.value.selectAtLeastTwo;
@@ -497,6 +515,7 @@ async function createComparisonReport() {
 
     comparisonUrl.value = data.comparison_url;
     comparisonArtifacts.value = data.artifacts || {};
+    comparisonInsights.value = data.insights || {};
     comparisonStatus.value = "finished";
   } catch (error) {
     comparisonError.value = error.message;
@@ -1559,6 +1578,42 @@ async function startExperiment() {
         </div>
       </div>
 
+      <div v-if="comparisonStatus === 'finished' && comparisonInsights && (comparisonInsights.best_accuracy || comparisonInsights.winner)" class="insight-section">
+        <h3 class="insight-section-title">{{ t.insightsTitle }}</h3>
+        <div class="insight-cards-grid">
+          <div v-if="comparisonInsights.best_accuracy" class="insight-metric-card">
+            <span class="insight-metric-label">{{ t.bestAccuracy }}</span>
+            <span class="insight-metric-value">{{ comparisonInsights.best_accuracy.value?.toFixed(4) || '—' }}</span>
+            <span class="insight-metric-exp">{{ comparisonInsights.best_accuracy.experiment_name || '' }}</span>
+          </div>
+          <div v-if="comparisonInsights.lowest_loss" class="insight-metric-card">
+            <span class="insight-metric-label">{{ t.lowestLoss }}</span>
+            <span class="insight-metric-value">{{ comparisonInsights.lowest_loss.value?.toFixed(4) || '—' }}</span>
+            <span class="insight-metric-exp">{{ comparisonInsights.lowest_loss.experiment_name || '' }}</span>
+          </div>
+          <div v-if="comparisonInsights.lowest_asr" class="insight-metric-card">
+            <span class="insight-metric-label">{{ t.lowestAsr }}</span>
+            <span class="insight-metric-value">{{ comparisonInsights.lowest_asr.value?.toFixed(4) || '—' }}</span>
+            <span class="insight-metric-exp">{{ comparisonInsights.lowest_asr.experiment_name || '' }}</span>
+          </div>
+        </div>
+        <div class="insight-extra-cards">
+          <div v-if="comparisonInsights.winner" class="insight-extra-card insight-winner">
+            <span class="insight-extra-label">{{ t.recommended }}</span>
+            <p class="insight-extra-body"><strong>{{ comparisonInsights.winner.experiment_name }}</strong></p>
+            <p v-if="comparisonInsights.winner_reason" class="insight-extra-reason">{{ comparisonInsights.winner_reason }}</p>
+          </div>
+          <div v-if="comparisonInsights.tradeoff_summary" class="insight-extra-card insight-tradeoff">
+            <span class="insight-extra-label">{{ t.tradeoff }}</span>
+            <p class="insight-extra-body">{{ comparisonInsights.tradeoff_summary }}</p>
+          </div>
+          <div v-if="comparisonInsights.risk_hint" class="insight-extra-card insight-risk">
+            <span class="insight-extra-label">{{ t.riskHint }}</span>
+            <p class="insight-extra-body">{{ comparisonInsights.risk_hint }}</p>
+          </div>
+        </div>
+      </div>
+
       <div v-if="comparisonStatus === 'error' && comparisonError" class="comparison-feedback error-feedback">
         <strong>{{ t.comparisonFailed }}</strong>
         <span>{{ comparisonError }}</span>
@@ -2412,6 +2467,116 @@ button:disabled,
   border: 1px solid rgba(148, 163, 184, 0.2);
   border-radius: 12px;
   background: rgba(248, 250, 252, 0.7);
+  color: #64748b;
+  font-size: 12px;
+}
+
+/* ---------------- Insight Cards ---------------- */
+
+.insight-section {
+  margin-top: 18px;
+  padding: 18px;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(248, 250, 252, 0.74), rgba(255, 255, 255, 0.92));
+}
+
+.insight-section-title {
+  margin: 0 0 14px;
+  color: #1f2a44;
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.insight-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.insight-metric-card {
+  padding: 14px;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.insight-metric-label {
+  display: block;
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.insight-metric-value {
+  display: block;
+  margin-top: 6px;
+  color: #0f172a;
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+}
+
+.insight-metric-exp {
+  display: block;
+  margin-top: 4px;
+  color: #2563eb;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.insight-extra-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.insight-extra-card {
+  flex: 1 1 280px;
+  padding: 14px;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.insight-extra-card.insight-winner {
+  border-color: rgba(34, 197, 94, 0.4);
+  background: linear-gradient(180deg, rgba(240, 253, 244, 0.8), rgba(220, 252, 231, 0.6));
+}
+
+.insight-extra-card.insight-risk {
+  border-color: rgba(239, 68, 68, 0.3);
+  background: linear-gradient(180deg, rgba(254, 242, 242, 0.8), rgba(254, 226, 226, 0.6));
+}
+
+.insight-extra-label {
+  display: block;
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 6px;
+}
+
+.insight-extra-body {
+  margin: 0;
+  color: #475569;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.insight-extra-body strong {
+  color: #0f172a;
+}
+
+.insight-extra-reason {
+  margin: 4px 0 0;
   color: #64748b;
   font-size: 12px;
 }

@@ -2,6 +2,21 @@
 
 ## Unreleased
 
+- v1.8.0-alpha.2：Result insight cards and comparison highlights。
+  - 为 comparison 结果增加 insights / highlights 数据。
+  - 识别 best accuracy、lowest loss、lowest ASR。
+  - 增加 winner / recommended job 和推荐原因。
+  - 增加 trade-off summary（权衡分析）。
+  - 增加 risk hint（风险提示），高 ASR 实验会被标记。
+  - comparison report（comparison.html.j2）新增结果洞察 section。
+  - 首页 comparison UX 新增 result insight cards。
+  - insights 写入 comparison.json，持久化可用。
+  - POST /comparisons API 返回 insights。
+  - 缺失指标时友好降级，不报错。
+  - 保持中文 / English 双语。
+  - 扩展 regression tests（TestComparisonInsights，12 个测试）。
+  - 不新增依赖，不修改训练核心算法，不破坏已有 comparison JSON 字段。
+
 - v1.8.0-alpha.1：Job event timeline and runtime diagnostics。
   - 为 job 增加轻量 events 字段，记录生命周期事件。
   - 事件类型：created、started、round_progress、artifact_written、finished、failed、cancelled。

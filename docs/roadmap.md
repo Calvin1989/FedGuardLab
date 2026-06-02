@@ -1150,13 +1150,13 @@ Focus: Job event timeline and runtime diagnostics.
 
 Focus: Result insight cards and comparison highlights.
 
-- [ ] 首页增加结果洞察卡片。
-- [ ] comparison report 增加结果洞察卡片。
-- [ ] 高亮最佳 accuracy、最低 loss、最低 ASR。
-- [ ] 对比不同实验时给出简短中文/英文摘要。
-- [ ] comparison report 中显示 winner / trade-off / risk hint。
-- [ ] 不改变现有 comparison artifact 路径。
-- [ ] 不新增依赖。
+- [x] 首页增加结果洞察卡片。
+- [x] comparison report 增加结果洞察卡片。
+- [x] 高亮最佳 accuracy、最低 loss、最低 ASR。
+- [x] 对比不同实验时给出简短中文/英文摘要。
+- [x] comparison report 中显示 winner / trade-off / risk hint。
+- [x] 不改变现有 comparison artifact 路径。
+- [x] 不新增依赖。
 
 ### v1.8.0-alpha.3
 

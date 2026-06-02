@@ -20,6 +20,7 @@ import pytest
 
 from api.jobs import JobRecord, JobStore
 from fedguardlab.reporting.comparison import (
+    compute_comparison_insights,
     generate_comparison_report,
     load_job_summary,
 )
@@ -678,3 +679,174 @@ class TestJobEventTimeline:
         assert rp["metrics"]["accuracy"] == pytest.approx(0.55)
         assert rp["metrics"]["loss"] == pytest.approx(1.2)
         assert rp["metrics"]["attack_success_rate"] == pytest.approx(0.7)
+
+
+# ---------------------------------------------------------------------------
+# Test 8 – Comparison insights
+# ---------------------------------------------------------------------------
+
+
+class TestComparisonInsights:
+    """compute_comparison_insights should derive correct highlights."""
+
+    def _make_experiments(self) -> list[dict]:
+        return [
+            {
+                "job_id": "aaa",
+                "experiment_name": "exp_fedavg",
+                "aggregation": "fedavg",
+                "defense": "none",
+                "attack": "label_flipping",
+                "final_accuracy": 0.90,
+                "final_loss": 0.25,
+                "final_asr": 0.40,
+            },
+            {
+                "job_id": "bbb",
+                "experiment_name": "exp_median",
+                "aggregation": "median",
+                "defense": "median",
+                "attack": "label_flipping",
+                "final_accuracy": 0.88,
+                "final_loss": 0.18,
+                "final_asr": 0.12,
+            },
+            {
+                "job_id": "ccc",
+                "experiment_name": "exp_krum",
+                "aggregation": "krum",
+                "defense": "krum",
+                "attack": "label_flipping",
+                "final_accuracy": 0.85,
+                "final_loss": 0.30,
+                "final_asr": 0.08,
+            },
+        ]
+
+    def test_best_accuracy(self) -> None:
+        experiments = self._make_experiments()
+        insights = compute_comparison_insights(experiments, lang="en")
+        assert insights["best_accuracy"]["job_id"] == "aaa"
+        assert insights["best_accuracy"]["value"] == pytest.approx(0.90)
+
+    def test_lowest_loss(self) -> None:
+        experiments = self._make_experiments()
+        insights = compute_comparison_insights(experiments, lang="en")
+        assert insights["lowest_loss"]["job_id"] == "bbb"
+        assert insights["lowest_loss"]["value"] == pytest.approx(0.18)
+
+    def test_lowest_asr(self) -> None:
+        experiments = self._make_experiments()
+        insights = compute_comparison_insights(experiments, lang="en")
+        assert insights["lowest_asr"]["job_id"] == "ccc"
+        assert insights["lowest_asr"]["value"] == pytest.approx(0.08)
+
+    def test_winner_identified(self) -> None:
+        experiments = self._make_experiments()
+        insights = compute_comparison_insights(experiments, lang="en")
+        assert insights["winner"] is not None
+        assert insights["winner"]["job_id"] == "aaa"
+        assert "Highest accuracy" in insights["winner_reason"]
+
+    def test_tradeoff_summary(self) -> None:
+        experiments = self._make_experiments()
+        insights = compute_comparison_insights(experiments, lang="en")
+        assert "highest accuracy" in insights["tradeoff_summary"].lower() or \
+               "lowest loss" in insights["tradeoff_summary"].lower()
+
+    def test_risk_hint_high_asr(self) -> None:
+        experiments = self._make_experiments()
+        # exp_fedavg has ASR 0.40, not > 0.5, so no risk hint
+        insights = compute_comparison_insights(experiments, lang="en")
+        # None of the experiments have ASR > 0.5
+        assert insights["risk_hint"] == ""
+
+    def test_risk_hint_triggered(self) -> None:
+        experiments = self._make_experiments()
+        experiments[0]["final_asr"] = 0.75  # High ASR
+        insights = compute_comparison_insights(experiments, lang="en")
+        assert "exp_fedavg" in insights["risk_hint"]
+        assert "high ASR" in insights["risk_hint"]
+
+    def test_zh_labels(self) -> None:
+        experiments = self._make_experiments()
+        insights = compute_comparison_insights(experiments, lang="zh")
+        assert "准确率最高" in insights["winner_reason"]
+
+    def test_single_experiment(self) -> None:
+        experiments = [self._make_experiments()[0]]
+        insights = compute_comparison_insights(experiments, lang="en")
+        assert insights["best_accuracy"]["job_id"] == "aaa"
+        assert insights["winner"]["job_id"] == "aaa"
+        # Trade-off needs 2+ experiments
+        assert insights["tradeoff_summary"] == ""
+
+    def test_empty_experiments(self) -> None:
+        insights = compute_comparison_insights([], lang="en")
+        assert insights == {}
+
+    def test_missing_asr_all_zero(self) -> None:
+        experiments = self._make_experiments()
+        for e in experiments:
+            e["final_asr"] = 0
+        insights = compute_comparison_insights(experiments, lang="en")
+        # All ASR are 0, so lowest_asr should be None
+        assert insights["lowest_asr"] is None
+
+    def test_insights_in_comparison_json(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Generated comparison.json should include insights."""
+        job_ids = []
+        for i in range(2):
+            jid = str(uuid.uuid4())
+            config = _make_config(name=f"insight_{i}")
+            metrics = _make_metrics(2)
+            _seed_job_dir(tmp_path / jid, config, metrics)
+            job_ids.append(jid)
+
+        monkeypatch.setattr(
+            "fedguardlab.reporting.comparison.JOBS_DIR", tmp_path
+        )
+        comp_dir = tmp_path / "comparisons"
+        monkeypatch.setattr(
+            "fedguardlab.reporting.comparison.COMPARISONS_DIR", comp_dir
+        )
+
+        output_path = generate_comparison_report(
+            job_ids=job_ids, title="Insight Test", lang="en"
+        )
+        meta = json.loads(
+            (output_path.parent / "comparison.json").read_text(encoding="utf-8")
+        )
+        assert "insights" in meta
+        assert "best_accuracy" in meta["insights"]
+        assert "lowest_loss" in meta["insights"]
+        assert "winner" in meta["insights"]
+
+    def test_insights_in_comparison_html(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Generated comparison.html should contain insight section."""
+        job_ids = []
+        for i in range(2):
+            jid = str(uuid.uuid4())
+            config = _make_config(name=f"html_insight_{i}")
+            metrics = _make_metrics(2)
+            _seed_job_dir(tmp_path / jid, config, metrics)
+            job_ids.append(jid)
+
+        monkeypatch.setattr(
+            "fedguardlab.reporting.comparison.JOBS_DIR", tmp_path
+        )
+        comp_dir = tmp_path / "comparisons"
+        monkeypatch.setattr(
+            "fedguardlab.reporting.comparison.COMPARISONS_DIR", comp_dir
+        )
+
+        output_path = generate_comparison_report(
+            job_ids=job_ids, title="HTML Insight Test", lang="en"
+        )
+        html = output_path.read_text(encoding="utf-8")
+        assert "Result Insights" in html
+        assert "Best Accuracy" in html
