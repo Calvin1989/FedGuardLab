@@ -1291,6 +1291,15 @@ const selectedDetailArtifactsCount = computed(() => {
 });
 
 
+const selectedJobsForPreview = computed(() =>
+  selectedJobIds.value
+    .map((selectedJobId) =>
+      recentJobs.value.find((job) => job.job_id === selectedJobId)
+    )
+    .filter(Boolean)
+);
+
+
 const selectedLifecycleEvents = computed(() => {
   const events = selectedDetailJob.value?.events || [];
   return events.filter((event) => event.type !== "round_progress");
@@ -1983,7 +1992,7 @@ async function startExperiment() {
                 :href="withLang(job.report_url)"
                 target="_blank"
               >
-                {{ t.open }}
+                {{ t.openHtmlReportShort || t.openHtmlReport }}
               </a>
               <span v-else>{{ t.notReady }}</span>
             </td>
@@ -2036,7 +2045,7 @@ async function startExperiment() {
                 target="_blank"
                 rel="noreferrer"
               >
-                {{ t.openReport }}
+                {{ t.openHtmlReportShort || t.openHtmlReport }}
               </a>
             </div>
           </div>
@@ -2215,22 +2224,22 @@ async function startExperiment() {
 
         <div class="selected-jobs-list">
           <div
-            v-for="jobId in selectedJobIds"
-            :key="jobId"
+            v-for="job in selectedJobsForPreview"
+            :key="job.job_id"
             class="selected-job-chip"
           >
-            <span class="selected-job-id">{{ jobId.slice(0, 8) }}</span>
+            <span class="selected-job-id">{{ job.job_id.slice(0, 8) }}</span>
             <span class="selected-job-name">
-              {{ (recentJobs.find(j => j.job_id === jobId) || {}).experiment_name || (recentJobs.find(j => j.job_id === jobId) || {}).config_path || '—' }}
+              {{ job.experiment_name || job.config_path || "—" }}
             </span>
             <span
               class="selected-job-status"
-              :class="'status-' + ((recentJobs.find(j => j.job_id === jobId) || {}).status || '')"
+              :class="'status-' + (job.status || '')"
             >
-              {{ t.statusValues[(recentJobs.find(j => j.job_id === jobId) || {}).status] || (recentJobs.find(j => j.job_id === jobId) || {}).status || '—' }}
+              {{ t.statusValues[job.status] || job.status || "—" }}
             </span>
             <span class="selected-job-time">
-              {{ (recentJobs.find(j => j.job_id === jobId) || {}).finished_at || (recentJobs.find(j => j.job_id === jobId) || {}).created_at || '—' }}
+              {{ job.finished_at || job.created_at || "—" }}
             </span>
           </div>
         </div>
@@ -2346,7 +2355,8 @@ async function startExperiment() {
           {{ t.comparisonHistoryEmpty }}
         </div>
 
-        <table v-else class="jobs-table comparison-history-table">
+        <div v-else class="comparison-history-scroll">
+          <table class="jobs-table comparison-history-table">
           <thead>
             <tr>
               <th>{{ t.comparisonHistoryCreated }}</th>
@@ -2400,7 +2410,8 @@ async function startExperiment() {
               </td>
             </tr>
           </tbody>
-        </table>
+          </table>
+        </div>
       </section>
 
       <div v-if="comparisonStatus === 'error' && comparisonError" class="comparison-feedback error-feedback">
@@ -5601,6 +5612,65 @@ input {
 .comparison-history-links .secondary-link {
   background: rgba(239, 246, 255, 0.92);
   color: #1d4ed8;
+}
+
+
+/* v1.9.0-alpha.4 report entry and history list cleanup */
+.comparison-history-scroll {
+  max-height: 460px;
+  overflow: auto;
+  border: 1px solid rgba(226, 232, 240, 0.92);
+  border-radius: 14px;
+  background: #ffffff;
+}
+
+.comparison-history-scroll .comparison-history-table {
+  margin-top: 0;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.comparison-history-scroll .comparison-history-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: #f8fafc;
+}
+
+.comparison-history-scroll .comparison-history-table tr:last-child td {
+  border-bottom: 0;
+}
+
+.comparison-history-links .report-link,
+.job-detail-actions .detail-report-link,
+.jobs-table .report-link {
+  min-height: 30px;
+  padding: 0 11px;
+  border-radius: 9px;
+  font-size: 11px;
+}
+
+.detail-exports-grid .detail-export-item,
+.comparison-exports .comparison-export-item {
+  min-height: 32px;
+  padding: 0 12px;
+  border-radius: 9px;
+}
+
+.selected-jobs-list {
+  gap: 8px;
+}
+
+.selected-job-chip {
+  min-height: 42px;
+  padding: 8px 10px;
+}
+
+@media (max-width: 760px) {
+  .comparison-history-scroll {
+    max-height: 360px;
+  }
 }
 
 </style>
