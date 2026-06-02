@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+- Tightened dashboard top layout for v1.8.0-beta.2.
+  - No new feature, no API change, no training logic change.
+  - 压缩首页 hero/header 区域高度，减少首屏垂直占用。
+  - 语言切换按钮移至 header 右上角，与标题同行。
+  - 缩短顶部标题和副标题文案。
+  - Config preview 改为紧凑摘要（7 个核心字段），默认折叠详细解释。
+  - 详细参数说明、recommended use、explanations 收入可展开详情区域。
+  - 减少 control-panel、config-metadata、preview-item 的 padding 和间距。
+  - 保持中文 / English 双语。
+  - 保持 job event timeline、comparison insights、config preview 功能完整。
+  - 不新增依赖，不修改后端 API，不修改训练逻辑，不修改 report 模板。
+
 - Prepared v1.8.0-beta.1 readiness documentation.
   - No new runtime feature, no new dependency, no API change, no training logic change.
   - Beta.1 阶段不新增功能、不新增依赖、不改变 API、不修改训练核心逻辑。
