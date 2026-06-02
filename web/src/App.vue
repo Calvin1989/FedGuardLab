@@ -179,7 +179,7 @@ const messages = {
     comparisonCsv: "对比 CSV",
     comparisonJson: "对比 JSON",
     eventTimeline: "事件时间线",
-    lifecycleEvents: "生命周期",
+    lifecycleEvents: "创建、启动、产物与完成记录",
     trainingRoundsTitle: "训练轮次详情",
     trainingRoundsCount: "{count} 条轮次记录",
     trainingRoundsHint: "默认收起轮次日志，展开后在固定高度区域滚动查看，避免页面过长",
@@ -341,7 +341,7 @@ const messages = {
     comparisonCsv: "Comparison CSV",
     comparisonJson: "Comparison JSON",
     eventTimeline: "Event Timeline",
-    lifecycleEvents: "Lifecycle",
+    lifecycleEvents: "Created, started, artifacts, and completion",
     trainingRoundsTitle: "Training Round Details",
     trainingRoundsCount: "{count} round records",
     trainingRoundsHint: "Round logs are collapsed by default and scroll inside a fixed-height panel to keep the page compact",
@@ -1002,6 +1002,28 @@ function eventIcon(type) {
     cancelled: "⛔",
   };
   return icons[type] || "📌";
+}
+
+function formatEventMessage(ev) {
+  if (!ev) {
+    return "";
+  }
+
+  if (language.value !== "zh") {
+    return ev.message || "";
+  }
+
+  const messages = {
+    created: "任务已创建",
+    started: "任务已启动",
+    artifact_written: "实验产物已保存",
+    finished: "任务已完成",
+    failed: "任务失败",
+    cancelled: "任务已取消",
+    round_progress: "训练进度已更新",
+  };
+
+  return messages[ev.type] || ev.message || "";
 }
 
 function formatEventTime(ts) {
@@ -1769,10 +1791,10 @@ async function startExperiment() {
                   {{ canSelectJobForComparison(selectedDetailJob) ? t.comparisonReady : t.comparisonUnavailable }}
                 </span>
                 <span
+                  v-if="!selectedDetailJob.has_report"
                   class="job-detail-meta-pill"
-                  :class="{ ready: selectedDetailJob.has_report }"
                 >
-                  {{ selectedDetailJob.has_report ? t.reportReady : t.reportUnavailable }}
+                  {{ t.reportUnavailable }}
                 </span>
               </div>
             </div>
@@ -1898,13 +1920,13 @@ async function startExperiment() {
                 class="event-item"
                 :class="'event-' + ev.type"
               >
-                <span class="event-icon">{{ eventIcon(ev.type) }}</span>
                 <div class="event-body">
                   <div class="event-header">
+                    <span class="event-icon" aria-hidden="true">{{ eventIcon(ev.type) }}</span>
                     <span class="event-badge" :class="'badge-' + ev.type">{{ t.eventType[ev.type] || ev.type }}</span>
                     <span class="event-time">{{ formatEventTime(ev.created_at) }}</span>
                   </div>
-                  <p class="event-message">{{ ev.message }}</p>
+                  <p class="event-message">{{ formatEventMessage(ev) }}</p>
                   <div v-if="ev.type === 'failed' && ev.details" class="event-failure">
                     <p><strong>{{ t.eventFailureReason }}:</strong> {{ ev.details.error }}</p>
                     <pre v-if="ev.details.traceback_summary" class="event-traceback">{{ ev.details.traceback_summary }}</pre>
@@ -1956,9 +1978,6 @@ async function startExperiment() {
       <div v-if="selectedJobIds.length > 0" class="selected-jobs-preview">
         <div class="selected-jobs-header">
           <p class="section-kicker">{{ t.selectedJobsTitle }}</p>
-          <span class="selected-jobs-count">
-            {{ t.selectedJobsCount.replace('{count}', selectedJobIds.length) }}
-          </span>
         </div>
 
         <div class="selected-jobs-list">
@@ -4886,6 +4905,69 @@ input {
 @media (max-width: 760px) {
   .history-management-stats {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+
+/* v1.9.0-alpha.1 history timeline typography and event alignment polish */
+.detail-events-subtitle {
+  color: #475569;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+.compact-events .lifecycle-timeline {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 10px;
+}
+
+.compact-events .event-item {
+  display: block;
+}
+
+.compact-events .event-body {
+  min-height: 58px;
+  padding: 7px 9px;
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  border-radius: 12px;
+  background: #ffffff;
+}
+
+.compact-events .event-header {
+  flex-wrap: nowrap;
+  gap: 6px;
+}
+
+.compact-events .event-icon {
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+  font-family: inherit;
+  font-size: 10px;
+  line-height: 1;
+}
+
+.round-log-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+}
+
+.round-log-main,
+.round-log-metrics {
+  display: contents;
+}
+
+.round-log-metrics {
+  margin-top: 0;
+}
+
+@media (max-width: 760px) {
+  .compact-events .lifecycle-timeline {
+    grid-template-columns: 1fr;
   }
 }
 
