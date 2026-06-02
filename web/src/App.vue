@@ -174,6 +174,19 @@ const messages = {
     comparisonJsonShort: "JSON",
     comparisonFailed: "对比报告生成失败",
     comparisonExportsTitle: "对比导出",
+    comparisonHistoryTitle: "对比报告历史",
+    comparisonHistoryHint: "最近生成的对比报告会保留在这里，可直接打开 HTML 报告或下载 CSV / JSON。",
+    comparisonHistoryRefresh: "刷新历史",
+    comparisonHistoryLoading: "正在加载对比报告历史…",
+    comparisonHistoryEmpty: "暂无对比报告历史",
+    comparisonHistoryFailed: "对比报告历史加载失败",
+    comparisonHistoryCreated: "创建时间",
+    comparisonHistoryJobs: "实验数",
+    comparisonHistoryBestAccuracy: "最佳准确率",
+    comparisonHistoryLowestLoss: "最低损失",
+    comparisonHistoryLowestAsr: "最低 ASR",
+    comparisonHistoryExports: "报告入口",
+    comparisonHistoryUntitled: "未命名对比",
     insightsTitle: "结果洞察",
     bestAccuracy: "最佳准确率",
     lowestLoss: "最低损失",
@@ -348,6 +361,19 @@ const messages = {
     comparisonJsonShort: "JSON",
     comparisonFailed: "Failed to generate comparison report",
     comparisonExportsTitle: "Comparison Exports",
+    comparisonHistoryTitle: "Comparison Report History",
+    comparisonHistoryHint: "Recently generated comparison reports stay here with direct HTML, CSV, and JSON access.",
+    comparisonHistoryRefresh: "Refresh history",
+    comparisonHistoryLoading: "Loading comparison report history…",
+    comparisonHistoryEmpty: "No comparison reports yet",
+    comparisonHistoryFailed: "Failed to load comparison history",
+    comparisonHistoryCreated: "Created",
+    comparisonHistoryJobs: "Jobs",
+    comparisonHistoryBestAccuracy: "Best Accuracy",
+    comparisonHistoryLowestLoss: "Lowest Loss",
+    comparisonHistoryLowestAsr: "Lowest ASR",
+    comparisonHistoryExports: "Report Links",
+    comparisonHistoryUntitled: "Untitled comparison",
     insightsTitle: "Result Insights",
     bestAccuracy: "Best Accuracy",
     lowestLoss: "Lowest Loss",
@@ -517,6 +543,9 @@ const historyActionStatus = ref("idle");
 const comparisonUrl = ref("");
 const comparisonArtifacts = ref({});
 const comparisonInsights = ref({});
+const comparisonHistory = ref([]);
+const comparisonHistoryStatus = ref("idle");
+const comparisonHistoryError = ref("");
 
 const experimentOptions = ref([]);
 const selectedCategory = ref("all");
@@ -591,6 +620,12 @@ onMounted(async () => {
     await loadRecentJobsFromApi();
   } catch (error) {
     loadRecentJobs();
+  }
+
+  try {
+    await loadComparisonHistory();
+  } catch (error) {
+    console.warn("Failed to load comparison history:", error);
   }
 });
 
@@ -803,6 +838,9 @@ async function createComparisonReport() {
     comparisonArtifacts.value = data.artifacts || {};
     comparisonInsights.value = data.insights || {};
     comparisonStatus.value = "finished";
+    loadComparisonHistory().catch((error) => {
+      console.warn("Failed to refresh comparison history:", error);
+    });
   } catch (error) {
     comparisonError.value = error.message;
     comparisonStatus.value = "error";
@@ -1142,6 +1180,79 @@ function comparisonArtifactUrl(key) {
   };
 
   return fallbackUrls[key] || "";
+}
+
+
+function comparisonHistoryArtifactUrl(item, key) {
+  const artifacts = item?.artifacts || {};
+
+  if (artifacts[key]) {
+    return artifacts[key];
+  }
+
+  if (!item?.comparison_id) {
+    return "";
+  }
+
+  const baseUrl = `${API_BASE}/comparisons/${item.comparison_id}`;
+  const fallbackUrls = {
+    comparison_html_url: baseUrl,
+    comparison_csv_url: `${baseUrl}/comparison.csv`,
+    comparison_json_url: `${baseUrl}/comparison.json`,
+  };
+
+  return fallbackUrls[key] || "";
+}
+
+
+function formatComparisonMetric(value) {
+  const rawValue = typeof value === "object" && value !== null ? value.value : value;
+  return formatMetricValue(rawValue);
+}
+
+
+function mapComparisonHistoryItem(item) {
+  const artifacts = item.artifacts || {};
+  return {
+    comparison_id: item.comparison_id || "",
+    title: item.title || t.value.comparisonHistoryUntitled,
+    created_at: item.created_at || "",
+    job_ids: Array.isArray(item.job_ids) ? item.job_ids : [],
+    job_count: item.job_count ?? (Array.isArray(item.job_ids) ? item.job_ids.length : 0),
+    best_accuracy: formatComparisonMetric(item.best_accuracy),
+    lowest_loss: formatComparisonMetric(item.lowest_loss),
+    lowest_asr: formatComparisonMetric(item.lowest_asr),
+    has_report: item.has_report !== false,
+    artifacts,
+  };
+}
+
+
+async function loadComparisonHistory() {
+  comparisonHistoryStatus.value = "loading";
+  comparisonHistoryError.value = "";
+
+  try {
+    const params = new URLSearchParams();
+    params.set("limit", "10");
+    params.set("sort", "created_at_desc");
+
+    const response = await fetch(`${API_BASE}/comparisons?${params.toString()}`);
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.detail || t.value.comparisonHistoryFailed);
+    }
+
+    comparisonHistory.value = Array.isArray(data.comparisons)
+      ? data.comparisons.map(mapComparisonHistoryItem)
+      : [];
+    comparisonHistoryStatus.value = "idle";
+  } catch (error) {
+    comparisonHistoryError.value = error.message;
+    comparisonHistoryStatus.value = "error";
+    throw error;
+  }
 }
 
 
@@ -2206,6 +2317,91 @@ async function startExperiment() {
           </div>
         </div>
       </div>
+
+      <section class="comparison-history-panel">
+        <div class="detail-section-heading comparison-history-heading">
+          <div>
+            <span class="detail-section-title">{{ t.comparisonHistoryTitle }}</span>
+            <span class="detail-section-subtitle">{{ t.comparisonHistoryHint }}</span>
+          </div>
+          <button
+            class="secondary-button comparison-history-refresh"
+            :disabled="comparisonHistoryStatus === 'loading'"
+            @click="loadComparisonHistory"
+          >
+            {{ t.comparisonHistoryRefresh }}
+          </button>
+        </div>
+
+        <div v-if="comparisonHistoryStatus === 'loading'" class="empty-state small comparison-history-empty">
+          {{ t.comparisonHistoryLoading }}
+        </div>
+
+        <div v-else-if="comparisonHistoryError" class="comparison-feedback error-feedback comparison-history-error">
+          <strong>{{ t.comparisonHistoryFailed }}</strong>
+          <span>{{ comparisonHistoryError }}</span>
+        </div>
+
+        <div v-else-if="comparisonHistory.length === 0" class="empty-state small comparison-history-empty">
+          {{ t.comparisonHistoryEmpty }}
+        </div>
+
+        <table v-else class="jobs-table comparison-history-table">
+          <thead>
+            <tr>
+              <th>{{ t.comparisonHistoryCreated }}</th>
+              <th>{{ t.comparisonHistoryJobs }}</th>
+              <th>{{ t.comparisonHistoryBestAccuracy }}</th>
+              <th>{{ t.comparisonHistoryLowestLoss }}</th>
+              <th>{{ t.comparisonHistoryLowestAsr }}</th>
+              <th>{{ t.comparisonHistoryExports }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="item in comparisonHistory" :key="item.comparison_id">
+              <td>
+                <div class="comparison-history-title">{{ item.title }}</div>
+                <div class="job-id">{{ formatEventTime(item.created_at) }}</div>
+              </td>
+              <td>{{ item.job_count }}</td>
+              <td>{{ item.best_accuracy }}</td>
+              <td>{{ item.lowest_loss }}</td>
+              <td>{{ item.lowest_asr }}</td>
+              <td>
+                <div class="comparison-history-links">
+                  <a
+                    v-if="comparisonHistoryArtifactUrl(item, 'comparison_html_url')"
+                    class="report-link"
+                    :href="withLang(comparisonHistoryArtifactUrl(item, 'comparison_html_url'))"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    {{ t.comparisonHtmlShort }}
+                  </a>
+                  <a
+                    v-if="comparisonHistoryArtifactUrl(item, 'comparison_csv_url')"
+                    class="report-link secondary-link"
+                    :href="comparisonHistoryArtifactUrl(item, 'comparison_csv_url')"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    {{ t.comparisonCsvShort }}
+                  </a>
+                  <a
+                    v-if="comparisonHistoryArtifactUrl(item, 'comparison_json_url')"
+                    class="report-link secondary-link"
+                    :href="comparisonHistoryArtifactUrl(item, 'comparison_json_url')"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    {{ t.comparisonJsonShort }}
+                  </a>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
 
       <div v-if="comparisonStatus === 'error' && comparisonError" class="comparison-feedback error-feedback">
         <strong>{{ t.comparisonFailed }}</strong>
@@ -5342,6 +5538,69 @@ input {
   .compact-events .lifecycle-timeline .event-message {
     white-space: normal;
   }
+}
+
+
+/* v1.9.0-alpha.3 comparison history list */
+.comparison-history-panel {
+  margin-top: 16px;
+  padding: 14px;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.68);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
+}
+
+.comparison-history-heading {
+  margin-bottom: 12px;
+}
+
+.comparison-history-refresh {
+  min-height: 34px;
+  padding: 8px 12px;
+  white-space: nowrap;
+}
+
+.comparison-history-empty,
+.comparison-history-error {
+  margin-top: 10px;
+}
+
+.comparison-history-table {
+  margin-top: 10px;
+  box-shadow: none;
+}
+
+.comparison-history-table th,
+.comparison-history-table td {
+  padding-top: 11px;
+  padding-bottom: 11px;
+}
+
+.comparison-history-title {
+  max-width: 320px;
+  overflow: hidden;
+  color: #0f172a;
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.comparison-history-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.comparison-history-links .report-link {
+  min-width: auto;
+  padding: 7px 10px;
+  font-size: 12px;
+}
+
+.comparison-history-links .secondary-link {
+  background: rgba(239, 246, 255, 0.92);
+  color: #1d4ed8;
 }
 
 </style>
