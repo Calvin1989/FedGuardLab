@@ -21,8 +21,10 @@ import pytest
 from api.jobs import JobRecord, JobStore
 from api.main import compute_config_preview
 from fedguardlab.reporting.comparison import (
+    build_comparison_summary,
     compute_comparison_insights,
     generate_comparison_report,
+    list_comparison_summaries,
     load_job_summary,
 )
 from fedguardlab.reporting.generator import generate_html_report
@@ -317,6 +319,110 @@ class TestComparisonArtifactFiles:
             assert "final_accuracy" in exp
             assert "final_loss" in exp
             assert "final_asr" in exp
+
+    def test_comparison_json_has_created_at(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        output_path, _ = self._generate(tmp_path, monkeypatch)
+
+        meta = json.loads(
+            (output_path.parent / "comparison.json").read_text(encoding="utf-8")
+        )
+
+        assert isinstance(meta.get("created_at"), str)
+        assert meta["created_at"]
+
+    def test_build_comparison_summary(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        output_path, job_ids = self._generate(tmp_path, monkeypatch)
+        metadata_path = output_path.parent / "comparison.json"
+        meta = json.loads(metadata_path.read_text(encoding="utf-8"))
+
+        summary = build_comparison_summary(
+            output_path.parent.name,
+            meta,
+            metadata_path,
+        )
+
+        assert summary["comparison_id"] == output_path.parent.name
+        assert summary["title"] == "Artifact Test"
+        assert summary["job_count"] == len(job_ids)
+        assert summary["created_at"] == meta["created_at"]
+        assert summary["has_report"] is True
+        assert summary["artifacts"]["comparison_html"].endswith(
+            "comparison.html"
+        )
+        assert summary["artifacts"]["comparison_html_url"].endswith(
+            f"/comparisons/{output_path.parent.name}"
+        )
+        assert isinstance(summary["insights"], dict)
+
+    def test_list_comparison_summaries_sorted_and_limited(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        monkeypatch.setattr(
+            "fedguardlab.reporting.comparison.JOBS_DIR", tmp_path
+        )
+        comp_dir = tmp_path / "comparisons"
+        monkeypatch.setattr(
+            "fedguardlab.reporting.comparison.COMPARISONS_DIR", comp_dir
+        )
+
+        first_job_ids = []
+        second_job_ids = []
+        for prefix, target in (("first", first_job_ids), ("second", second_job_ids)):
+            jid = str(uuid.uuid4())
+            _seed_job_dir(
+                tmp_path / jid,
+                _make_config(name=f"{prefix}_job"),
+                _make_metrics(2),
+            )
+            target.append(jid)
+
+        first = generate_comparison_report(
+            job_ids=first_job_ids,
+            title="First",
+        )
+        second = generate_comparison_report(
+            job_ids=second_job_ids,
+            title="Second",
+        )
+
+        summaries = list_comparison_summaries(sort="created_at_desc")
+        ids = [item["comparison_id"] for item in summaries]
+        assert second.parent.name in ids
+        assert first.parent.name in ids
+
+        limited = list_comparison_summaries(limit=1, sort="created_at_desc")
+        assert len(limited) == 1
+
+    def test_legacy_comparison_summary_falls_back_to_file_mtime(
+        self, tmp_path: Path
+    ) -> None:
+        comparison_id = str(uuid.uuid4())
+        comparison_dir = tmp_path / comparison_id
+        comparison_dir.mkdir(parents=True)
+        metadata_path = comparison_dir / "comparison.json"
+        metadata = {
+            "comparison_id": comparison_id,
+            "title": "Legacy",
+            "job_ids": [],
+            "experiments": [],
+            "insights": {},
+        }
+        metadata_path.write_text(
+            json.dumps(metadata, indent=2),
+            encoding="utf-8",
+        )
+
+        summary = build_comparison_summary(
+            comparison_id,
+            metadata,
+            metadata_path,
+        )
+
+        assert summary["created_at"]
 
     def test_comparison_csv_has_rows(
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch

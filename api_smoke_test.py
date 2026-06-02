@@ -328,6 +328,38 @@ def _assert_jobs_query_params() -> None:
     print("[OK]  GET /jobs?sort=unknown -> 400", flush=True)
 
 
+def _assert_comparison_history_query_params() -> None:
+    print("[RUN] GET /comparisons", flush=True)
+    code, data = _get_with_status("/comparisons")
+    assert code == 200, f"expected 200, got {code}"
+    assert isinstance(data["comparisons"], list), f"comparisons not list: {data}"
+    print("[OK]  GET /comparisons", flush=True)
+
+    print("[RUN] GET /comparisons?limit=1", flush=True)
+    code, data = _get_with_status("/comparisons?limit=1")
+    assert code == 200, f"expected 200, got {code}"
+    assert len(data["comparisons"]) <= 1, (
+        f"expected <=1 comparison, got {len(data['comparisons'])}"
+    )
+    print("[OK]  GET /comparisons?limit=1", flush=True)
+
+    print("[RUN] GET /comparisons?sort=created_at_asc", flush=True)
+    code, data = _get_with_status("/comparisons?sort=created_at_asc")
+    assert code == 200, f"expected 200, got {code}"
+    assert isinstance(data["comparisons"], list), f"comparisons not list: {data}"
+    print("[OK]  GET /comparisons?sort=created_at_asc", flush=True)
+
+    print("[RUN] GET /comparisons?limit=0 (expect 400)", flush=True)
+    code, _ = _get_with_status("/comparisons?limit=0")
+    assert code == 400, f"expected 400, got {code}"
+    print("[OK]  GET /comparisons?limit=0 -> 400", flush=True)
+
+    print("[RUN] GET /comparisons?sort=unknown (expect 400)", flush=True)
+    code, _ = _get_with_status("/comparisons?sort=unknown")
+    assert code == 400, f"expected 400, got {code}"
+    print("[OK]  GET /comparisons?sort=unknown -> 400", flush=True)
+
+
 def _assert_archive_restore_flow(job_id: str) -> None:
     print(f"[RUN] POST /jobs/{job_id}/archive", flush=True)
     code, data = _post_with_status(f"/jobs/{job_id}/archive")
@@ -393,6 +425,9 @@ def run_default() -> None:
 
     # GET /jobs query params
     _assert_jobs_query_params()
+
+    # GET /comparisons query params
+    _assert_comparison_history_query_params()
 
     # POST /run
     print("[RUN] POST /run", flush=True)

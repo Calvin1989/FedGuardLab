@@ -1,6 +1,7 @@
 ﻿import csv
 import json
 import uuid
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, Dict, List
 
@@ -22,6 +23,124 @@ def build_comparison_artifact_urls(
         "comparison_csv_url": f"{comparison_url}/comparison.csv",
         "comparison_json_url": f"{comparison_url}/comparison.json",
     }
+
+
+def build_comparison_artifacts(
+    comparison_id: str,
+    comparison_dir: Path | None = None,
+    api_base_url: str = "http://127.0.0.1:8000",
+) -> dict[str, str]:
+    """Return local artifact paths and public URLs for a comparison."""
+    if comparison_dir is None:
+        comparison_dir = COMPARISONS_DIR / comparison_id
+
+    return {
+        "comparison_html": str(comparison_dir / "comparison.html"),
+        "comparison_csv": str(comparison_dir / "comparison.csv"),
+        "comparison_json": str(comparison_dir / "comparison.json"),
+        **build_comparison_artifact_urls(comparison_id, api_base_url),
+    }
+
+
+def _comparison_created_at(
+    metadata: dict[str, Any],
+    metadata_path: Path,
+) -> str:
+    created_at = metadata.get("created_at")
+    if isinstance(created_at, str) and created_at:
+        return created_at
+
+    try:
+        return datetime.fromtimestamp(
+            metadata_path.stat().st_mtime,
+            UTC,
+        ).isoformat()
+    except OSError:
+        return ""
+
+
+def _insight_value(insights: dict[str, Any], key: str) -> Any:
+    value = insights.get(key)
+    if isinstance(value, dict):
+        return value.get("value")
+    return None
+
+
+def build_comparison_summary(
+    comparison_id: str,
+    metadata: dict[str, Any],
+    metadata_path: Path,
+    api_base_url: str = "http://127.0.0.1:8000",
+) -> dict[str, Any]:
+    """Build a compact summary for comparison history views."""
+    comparison_dir = metadata_path.parent
+    experiments = metadata.get("experiments", [])
+    if not isinstance(experiments, list):
+        experiments = []
+    job_ids = metadata.get("job_ids", [])
+    if not isinstance(job_ids, list):
+        job_ids = []
+    insights = metadata.get("insights", {})
+    if not isinstance(insights, dict):
+        insights = {}
+
+    return {
+        "comparison_id": comparison_id,
+        "title": metadata.get("title", ""),
+        "created_at": _comparison_created_at(metadata, metadata_path),
+        "job_ids": job_ids,
+        "job_count": len(job_ids) if job_ids else len(experiments),
+        "best_accuracy": _insight_value(insights, "best_accuracy"),
+        "lowest_loss": _insight_value(insights, "lowest_loss"),
+        "lowest_asr": _insight_value(insights, "lowest_asr"),
+        "has_report": (comparison_dir / "comparison.html").exists(),
+        "artifacts": build_comparison_artifacts(
+            comparison_id,
+            comparison_dir,
+            api_base_url,
+        ),
+        "insights": insights,
+    }
+
+
+def list_comparison_summaries(
+    *,
+    limit: int | None = None,
+    sort: str = "created_at_desc",
+    api_base_url: str = "http://127.0.0.1:8000",
+) -> list[dict[str, Any]]:
+    """Load comparison history from reports/comparisons."""
+    if not COMPARISONS_DIR.exists():
+        return []
+
+    summaries: list[dict[str, Any]] = []
+    for metadata_path in COMPARISONS_DIR.glob("*/comparison.json"):
+        comparison_id = metadata_path.parent.name
+        try:
+            metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            continue
+        if not isinstance(metadata, dict):
+            continue
+        summaries.append(
+            build_comparison_summary(
+                comparison_id,
+                metadata,
+                metadata_path,
+                api_base_url,
+            )
+        )
+
+    reverse = sort == "created_at_desc"
+    summaries.sort(
+        key=lambda item: item.get("created_at") or "",
+        reverse=reverse,
+    )
+
+    if limit is not None:
+        summaries = summaries[:limit]
+
+    return summaries
 
 
 COMPARISON_LABELS = {
@@ -431,6 +550,7 @@ def generate_comparison_report(
             {
                 "comparison_id": comparison_id,
                 "title": title,
+                "created_at": datetime.now(UTC).isoformat(),
                 "job_ids": job_ids,
                 "experiments": experiments,
                 "compared_jobs": compared_jobs,

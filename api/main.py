@@ -26,6 +26,7 @@ from fedguardlab.reporting.comparison import (
     COMPARISON_LABELS,
     COMPARISONS_DIR,
     generate_comparison_report,
+    list_comparison_summaries,
     normalize_comparison_lang,
 )
 from fedguardlab.reporting.generator import (
@@ -552,6 +553,7 @@ def get_status(job_id: str):
 
 VALID_JOB_STATUSES = {"queued", "running", "finished", "failed", "cancelled"}
 VALID_SORT_OPTIONS = {"created_at_desc", "created_at_asc"}
+VALID_COMPARISON_SORT_OPTIONS = {"created_at_desc", "created_at_asc"}
 VALID_ARCHIVED_FILTERS = {"active", "archived", "all"}
 ARCHIVABLE_JOB_STATUSES = {"finished", "failed", "cancelled"}
 
@@ -764,6 +766,33 @@ def _ensure_comparison_jobs_available(job_ids: list[str]) -> None:
                 status_code=400,
                 detail=f"cannot compare archived job: {job_id}",
             )
+
+
+@app.get("/comparisons")
+def list_comparisons(
+    limit: int | None = None,
+    sort: str = "created_at_desc",
+):
+    if sort not in VALID_COMPARISON_SORT_OPTIONS:
+        raise HTTPException(
+            status_code=400,
+            detail=f"invalid sort: {sort}",
+        )
+
+    if limit is not None and limit <= 0:
+        raise HTTPException(
+            status_code=400,
+            detail="limit must be greater than 0",
+        )
+
+    effective_limit = min(limit, 100) if limit is not None else None
+    comparisons = list_comparison_summaries(
+        limit=effective_limit,
+        sort=sort,
+        api_base_url="http://127.0.0.1:8000",
+    )
+
+    return {"comparisons": comparisons}
 
 
 @app.post("/comparisons")
