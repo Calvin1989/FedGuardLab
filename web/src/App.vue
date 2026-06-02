@@ -1499,14 +1499,6 @@ async function startExperiment() {
               <strong class="runtime-value">{{ jobId }}</strong>
             </div>
 
-            <div class="runtime-item runtime-action" :class="{ 'is-disabled': !reportUrl }">
-              <span class="runtime-label">{{ t.reportLabel }}</span>
-              <a v-if="reportUrl" class="report-link runtime-report-link" :href="withLang(reportUrl)" target="_blank">
-                {{ t.openHtmlReport }}
-              </a>
-              <span v-else class="runtime-muted-value">{{ t.notReady }}</span>
-            </div>
-
             <div v-if="latestMetric" class="hero-metric-item">
               <span class="runtime-label">{{ t.round }}</span>
               <strong class="runtime-value">{{ latestMetric.round }}</strong>
@@ -1522,6 +1514,13 @@ async function startExperiment() {
             <div v-if="latestMetric" class="hero-metric-item">
               <span class="runtime-label">{{ t.asr }}</span>
               <strong class="runtime-value">{{ latestMetric.attack_success_rate }}</strong>
+            </div>
+            <div class="runtime-item runtime-action" :class="{ 'is-disabled': !reportUrl }">
+              <span class="runtime-label">{{ t.reportLabel }}</span>
+              <a v-if="reportUrl" class="runtime-value runtime-report-link" :href="withLang(reportUrl)" target="_blank">
+                {{ t.openHtmlReport }}
+              </a>
+              <span v-else class="runtime-value runtime-muted-value">{{ t.notReady }}</span>
             </div>
           </div>
 
@@ -3922,6 +3921,159 @@ input {
   .command-controls .field-control:nth-child(2) .experiment-select {
     width: 100%;
     max-width: none;
+  }
+}
+
+
+/* v1.8.7 runtime summary alignment and disclosure affordance polish */
+.runtime-row {
+  grid-template-columns:
+    minmax(112px, 0.72fr)
+    minmax(260px, 1.65fr)
+    repeat(4, minmax(108px, 1fr))
+    minmax(150px, 0.95fr);
+}
+
+.runtime-action {
+  grid-column: -2 / -1;
+}
+
+.runtime-item,
+.hero-metric-item {
+  justify-content: center;
+  gap: 7px;
+  min-height: 68px;
+  padding: 13px 15px;
+}
+
+.runtime-label {
+  margin: 0;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+}
+
+.runtime-value,
+.runtime-status-value,
+.runtime-muted-value,
+.runtime-status-text {
+  min-height: 30px;
+  margin: 0;
+  align-items: center;
+  color: #111827;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.runtime-value,
+.runtime-status-value,
+.runtime-muted-value {
+  display: flex;
+}
+
+.runtime-status-text {
+  display: inline-flex;
+  white-space: nowrap;
+}
+
+.runtime-item.wide .runtime-value {
+  min-height: 30px;
+  align-items: center;
+  font-size: 15px;
+  letter-spacing: -0.015em;
+  line-height: 1.25;
+}
+
+.runtime-action .runtime-report-link {
+  width: 100%;
+  max-width: none;
+  min-height: 30px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: #2563eb;
+  font-size: 14px;
+  font-weight: 800;
+  justify-content: flex-start;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  transform: none;
+}
+
+.runtime-action .runtime-report-link:hover {
+  background: transparent;
+  box-shadow: none;
+  color: #1d4ed8;
+  text-decoration: underline;
+  transform: none;
+}
+
+.runtime-action .runtime-muted-value {
+  color: #64748b;
+}
+
+.round-log-panel summary {
+  justify-content: flex-start;
+  padding-right: 16px;
+}
+
+.round-log-panel summary::-webkit-details-marker {
+  display: none;
+}
+
+.round-log-panel summary::marker {
+  content: "";
+}
+
+.round-log-panel summary strong {
+  margin-left: auto;
+  margin-right: 14px;
+}
+
+.round-log-panel summary::after {
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid #64748b;
+  border-bottom: 2px solid #64748b;
+  content: "";
+  flex: 0 0 auto;
+  transform: rotate(45deg);
+  transform-origin: center;
+  transition: transform 0.16s ease, border-color 0.16s ease;
+}
+
+.round-log-panel[open] summary::after {
+  transform: rotate(225deg);
+}
+
+.round-log-panel summary:hover::after {
+  border-color: #1d4ed8;
+}
+
+@media (max-width: 1180px) {
+  .runtime-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .runtime-action {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 680px) {
+  .runtime-row {
+    grid-template-columns: 1fr;
+  }
+
+  .runtime-item.wide .runtime-value,
+  .runtime-action .runtime-report-link {
+    font-size: 14px;
   }
 }
 
