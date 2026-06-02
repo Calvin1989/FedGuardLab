@@ -4240,4 +4240,35 @@ input {
   }
 }
 
+/* v1.8.8 final report text sizing parity */
+.runtime-row .runtime-action .runtime-report-value,
+.runtime-row .runtime-action .runtime-report-link.runtime-report-value {
+  min-height: 30px;
+  align-items: center;
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.012em;
+  line-height: 1.15;
+  white-space: nowrap;
+}
+
+.runtime-row .runtime-action .runtime-report-link.runtime-report-value {
+  color: #2563eb;
+  text-decoration: underline;
+  text-decoration-color: rgba(37, 99, 235, 0.42);
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 3px;
+}
+
+.runtime-row .runtime-action.is-disabled .runtime-report-value {
+  color: #111827;
+}
+
+@media (max-width: 680px) {
+  .runtime-row .runtime-action .runtime-report-value,
+  .runtime-row .runtime-action .runtime-report-link.runtime-report-value {
+    font-size: 17px;
+  }
+}
+
 </style>
