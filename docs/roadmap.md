@@ -1175,19 +1175,25 @@ Focus: Beta readiness validation for v1.8.
 
 Beta.1 阶段不新增功能、不新增依赖、不改变 API、不修改训练核心逻辑。重点是稳定性验证和 release readiness。
 
-v1.8 alpha series 已完成（待 alpha 完成后更新）：
+v1.8 alpha series 已完成：
 
 - v1.8.0-alpha.1：Job event timeline and runtime diagnostics。
 - v1.8.0-alpha.2：Result insight cards and comparison highlights。
 - v1.8.0-alpha.3：Config preview and explainability polish。
 
-v1.8 当前已完成能力（待 alpha 完成后更新）：
+v1.8 当前已完成能力：
 
-- Job event timeline。
-- Runtime diagnostics / failure reason 展示。
-- Result insight cards。
-- Comparison highlights（winner / trade-off / risk hint）。
-- Config preview and explainability。
+- Job event timeline（job 生命周期事件记录）。
+- Runtime diagnostics（运行时诊断）。
+- Failure reason / traceback summary（失败原因与 traceback 摘要）。
+- Comparison result insights（对比结果洞察）。
+- Best accuracy / lowest loss / lowest ASR（最佳准确率 / 最低损失 / 最低 ASR）。
+- Winner / trade-off / risk hint（推荐实验 / 权衡分析 / 风险提示）。
+- Config preview（配置预览）。
+- Config explanations（配置参数解释）。
+- Risk level / recommended use（风险级别 / 推荐用途）。
+- 中文 / English 双语支持。
+- Regression coverage（回归测试覆盖，44 个测试）。
 
 Beta.1 验证重点：
 
@@ -1203,6 +1209,9 @@ Beta.1 验证重点：
 - event timeline 功能验证
 - result insight 功能验证
 - config preview 功能验证
+- zh/en 双语验证
+- GitHub Actions CI check
+- GitHub Actions Docker Smoke check
 
 Checklist：
 
