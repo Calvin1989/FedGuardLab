@@ -130,28 +130,57 @@ def compute_comparison_insights(
     if not experiments:
         return {}
 
-    def _find_best(key: str, *, reverse: bool = True) -> dict[str, Any] | None:
+    def _coerce_metric_value(value: Any) -> float | None:
+        """Return a numeric metric value, or None when it is missing."""
+        if value is None:
+            return None
+        try:
+            return float(value)
+        except (TypeError, ValueError):
+            return None
+
+    def _find_best(
+        key: str,
+        *,
+        reverse: bool = True,
+        allow_zero: bool = False,
+    ) -> dict[str, Any] | None:
         """Find the experiment with the best value for *key*.
 
         reverse=True means higher is better (accuracy);
         reverse=False means lower is better (loss, asr).
+
+        Some legacy summaries used 0 as a fallback for missing metrics,
+        so zero values remain ignored by default. ASR is different: a
+        recorded ASR of 0 is a valid and important result, so callers can
+        opt in with allow_zero=True.
         """
-        valid = [
-            e for e in experiments
-            if e.get(key) is not None and e.get(key) != 0
-        ]
+        valid: list[tuple[dict[str, Any], float]] = []
+        for experiment in experiments:
+            value = _coerce_metric_value(experiment.get(key))
+            if value is None:
+                continue
+            if not allow_zero and value == 0:
+                continue
+            valid.append((experiment, value))
+
         if not valid:
             return None
-        best = sorted(valid, key=lambda e: e[key], reverse=reverse)[0]
+
+        best, value = sorted(
+            valid, key=lambda item: item[1], reverse=reverse
+        )[0]
         return {
             "job_id": best.get("job_id", ""),
-            "value": best.get(key, 0),
+            "value": value,
             "experiment_name": best.get("experiment_name", ""),
         }
 
     best_acc = _find_best("final_accuracy", reverse=True)
     lowest_loss = _find_best("final_loss", reverse=False)
-    lowest_asr = _find_best("final_asr", reverse=False)
+    lowest_asr = _find_best(
+        "final_asr", reverse=False, allow_zero=True
+    )
 
     # Winner: best accuracy; tie-break by lower loss.
     winner = None
@@ -304,7 +333,7 @@ def load_job_summary(job_id: str) -> Dict[str, Any]:
         "attack": config["attack"]["type"],
         "final_accuracy": final_metric.get("accuracy", 0),
         "final_loss": final_metric.get("loss", 0),
-        "final_asr": final_metric.get("attack_success_rate", 0),
+        "final_asr": final_metric.get("attack_success_rate"),
     }
 
 
