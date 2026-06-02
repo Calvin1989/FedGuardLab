@@ -89,6 +89,7 @@ const messages = {
     asr: "攻击成功率",
     chartTitle: "实时联邦学习指标",
     emptyChart: "启动新实验以查看实时指标。已完成的实验将保存在下方的对比历史中。",
+    heroEmptyHint: "选择配置并运行实验，实时指标会在这里更新。",
     comparisonTitle: "实验对比",
     comparisonHint: "选择至少两个已完成的实验，生成对比报告。",
     statusFilter: "状态",
@@ -159,6 +160,10 @@ const messages = {
     comparisonCsv: "对比 CSV",
     comparisonJson: "对比 JSON",
     eventTimeline: "事件时间线",
+    lifecycleEvents: "生命周期",
+    trainingRoundsTitle: "训练轮次详情",
+    trainingRoundsCount: "{count} 条轮次记录",
+    trainingRoundsHint: "默认收起轮次日志，展开后在固定高度区域滚动查看，避免页面过长。",
     eventRound: "轮次",
     eventFailureReason: "失败原因",
     noEvents: "暂无事件记录",
@@ -227,6 +232,7 @@ const messages = {
     asr: "Attack Success Rate",
     chartTitle: "Live Federated Learning Metrics",
     emptyChart: "Start a new experiment to see live metrics here. Finished experiments are saved in the comparison history below.",
+    heroEmptyHint: "Choose a config and run an experiment; live metrics will update here.",
     comparisonTitle: "Experiment Comparison",
     comparisonHint: "Select at least two finished experiments and generate a comparison report.",
     statusFilter: "Status",
@@ -297,6 +303,10 @@ const messages = {
     comparisonCsv: "Comparison CSV",
     comparisonJson: "Comparison JSON",
     eventTimeline: "Event Timeline",
+    lifecycleEvents: "Lifecycle",
+    trainingRoundsTitle: "Training Round Details",
+    trainingRoundsCount: "{count} round records",
+    trainingRoundsHint: "Round logs are collapsed by default and scroll inside a fixed-height panel to keep the page compact.",
     eventRound: "Round",
     eventFailureReason: "Failure Reason",
     noEvents: "No events recorded",
@@ -861,6 +871,18 @@ const selectedDetailArtifactsCount = computed(() => {
 });
 
 
+const selectedLifecycleEvents = computed(() => {
+  const events = selectedDetailJob.value?.events || [];
+  return events.filter((event) => event.type !== "round_progress");
+});
+
+
+const selectedRoundEvents = computed(() => {
+  const events = selectedDetailJob.value?.events || [];
+  return events.filter((event) => event.type === "round_progress");
+});
+
+
 function toggleDetailJob(jobId) {
   selectedDetailJobId.value =
     selectedDetailJobId.value === jobId ? "" : jobId;
@@ -1072,101 +1094,116 @@ async function startExperiment() {
 
 <template>
   <main class="page">
-    <section class="hero">
-      <div class="hero-header">
-        <div class="hero-text">
-          <div class="hero-title-row">
-            <p class="eyebrow">{{ t.eyebrow }}</p>
-            <div class="lang-switcher">
-              <button
-                class="lang-button"
-                :class="{ active: language === 'zh' }"
-                @click="setLanguage('zh')"
-              >
-                中文
-              </button>
-              <button
-                class="lang-button"
-                :class="{ active: language === 'en' }"
-                @click="setLanguage('en')"
-              >
-                English
-              </button>
-            </div>
-          </div>
-          <h1>{{ t.heroTitle }}</h1>
-          <p class="subtitle">{{ t.heroSubtitle }}</p>
-        </div>
+    <div class="global-toolbar" aria-label="Global toolbar">
+      <div class="topbar-brand">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span>FedGuardLab</span>
       </div>
 
-      <div class="control-panel">
-        <label class="field-label" for="category-filter">
-          {{ t.categoryLabel }}
-        </label>
-
-        <select
-          id="category-filter"
-          v-model="selectedCategory"
-          class="experiment-select"
-          :disabled="status === 'creating' || status === 'running'"
+      <div class="lang-switcher" aria-label="Language switcher">
+        <button
+          class="lang-button"
+          :class="{ active: language === 'zh' }"
+          @click="setLanguage('zh')"
         >
-          <option value="all">{{ t.allCategories }}</option>
-          <option
-            v-for="cat in configCategories"
-            :key="cat"
-            :value="cat"
-          >
-            {{ cat }}
-          </option>
-        </select>
-
-        <label class="field-label" for="experiment-select">
-          {{ t.experimentLabel }}
-        </label>
-
-        <select
-          v-if="filteredExperimentOptions.length > 0"
-          id="experiment-select"
-          v-model="selectedConfig"
-          class="experiment-select"
-          :disabled="status === 'creating' || status === 'running'"
+          中文
+        </button>
+        <button
+          class="lang-button"
+          :class="{ active: language === 'en' }"
+          @click="setLanguage('en')"
         >
-          <option
-            v-for="option in filteredExperimentOptions"
-            :key="option.value"
-            :value="option.value"
-          >
-            {{ option.label }}
-          </option>
-        </select>
+          English
+        </button>
+      </div>
+    </div>
 
-        <p v-else class="config-empty-filter">
-          {{ t.noConfigsForCategory }}
-        </p>
+    <section class="dashboard-shell dashboard-shell-v7">
+      <section class="command-card">
+        <div class="command-main">
+          <div class="command-copy">
+            <h1>{{ t.heroTitle }}</h1>
+            <p class="subtitle">{{ t.heroSubtitle }}</p>
+          </div>
+        </div>
 
-        <p class="option-description">
-          {{ selectedExperimentDescription }}
-        </p>
+        <div class="command-controls">
+          <label class="field-control" for="category-filter">
+            <span>{{ t.categoryLabel }}</span>
+            <select
+              id="category-filter"
+              v-model="selectedCategory"
+              class="experiment-select"
+              :disabled="status === 'creating' || status === 'running'"
+            >
+              <option value="all">{{ t.allCategories }}</option>
+              <option
+                v-for="cat in configCategories"
+                :key="cat"
+                :value="cat"
+              >
+                {{ cat }}
+              </option>
+            </select>
+          </label>
 
-        <div v-if="selectedConfigMetadata" class="config-metadata">
-          <div class="config-metadata-name">
-            {{ selectedConfigMetadata.name }}
+          <label class="field-control field-control-wide" for="experiment-select">
+            <span>{{ t.experimentLabel }}</span>
+            <select
+              v-if="filteredExperimentOptions.length > 0"
+              id="experiment-select"
+              v-model="selectedConfig"
+              class="experiment-select"
+              :disabled="status === 'creating' || status === 'running'"
+            >
+              <option
+                v-for="option in filteredExperimentOptions"
+                :key="option.value"
+                :value="option.value"
+              >
+                {{ option.label }}
+              </option>
+            </select>
+            <span v-else class="config-empty-filter">
+              {{ t.noConfigsForCategory }}
+            </span>
+          </label>
+
+          <div class="command-run-group">
+            <button
+              class="run-button"
+              :disabled="
+                status === 'creating' ||
+                status === 'running' ||
+                filteredExperimentOptions.length === 0
+              "
+              @click="startExperiment"
+            >
+              {{ status === "running" ? t.running : t.runExperiment }}
+            </button>
+
+            <button
+              v-if="status === 'creating' || status === 'running'"
+              class="secondary-button"
+              @click="cancelCurrentJob"
+            >
+              {{ t.cancelExperiment }}
+            </button>
           </div>
-          <div
-            v-if="selectedConfigMetadata.description"
-            class="config-metadata-description"
-          >
-            {{ selectedConfigMetadata.description }}
+        </div>
+
+        <div v-if="selectedConfigMetadata" class="selected-config-summary">
+          <div class="selected-config-copy">
+            <span class="selected-config-kicker">{{ t.configPreview }}</span>
+            <strong>{{ selectedConfigMetadata.name || getSelectedExperimentLabel() }}</strong>
+            <p>
+              {{ selectedConfigMetadata.description || selectedExperimentDescription }}
+            </p>
           </div>
-          <div
-            v-if="selectedConfigMetadata.category"
-            class="config-metadata-category"
-          >
-            {{ selectedConfigMetadata.category }}
-          </div>
+
           <div
             v-if="selectedConfigMetadata.tags.length > 0"
-            class="config-metadata-tags"
+            class="selected-config-tags"
           >
             <span
               v-for="tag in selectedConfigMetadata.tags"
@@ -1178,8 +1215,8 @@ async function startExperiment() {
           </div>
         </div>
 
-        <div v-if="selectedConfigPreview" class="config-preview">
-          <div class="preview-grid">
+        <div v-if="selectedConfigPreview" class="config-preview compact config-preview-line">
+          <div class="preview-grid compact">
             <div class="preview-item">
               <span class="preview-label">{{ t.previewDataset }}</span>
               <strong>{{ selectedConfigPreview.dataset }}</strong>
@@ -1204,7 +1241,7 @@ async function startExperiment() {
               <span class="preview-label">{{ t.previewClients }}</span>
               <strong>{{ selectedConfigPreview.clients }}</strong>
             </div>
-            <div class="preview-item">
+            <div class="preview-item risk-preview">
               <span class="preview-label">{{ t.previewRiskLevel }}</span>
               <strong>
                 <span class="risk-badge" :class="'risk-' + selectedConfigPreview.risk_level">
@@ -1249,87 +1286,68 @@ async function startExperiment() {
             </div>
           </details>
         </div>
+      </section>
 
-        <div class="button-row">
-          <button
-            class="run-button"
-            :disabled="
-              status === 'creating' ||
-              status === 'running' ||
-              filteredExperimentOptions.length === 0
-            "
-            @click="startExperiment"
-          >
-            {{ status === "running" ? t.running : t.runExperiment }}
-          </button>
+      <section class="monitor-card">
+        <div class="runtime-panel">
+          <div class="runtime-row">
+            <div class="runtime-item">
+              <span>{{ t.statusLabel }}</span>
+              <strong>
+                <span class="status-badge" :class="'status-' + status">
+                  {{ t.statusValues[status] || status }}
+                </span>
+              </strong>
+            </div>
 
-          <button
-            v-if="status === 'creating' || status === 'running'"
-            class="secondary-button"
-            @click="cancelCurrentJob"
-          >
-            {{ t.cancelExperiment }}
-          </button>
+            <div v-if="jobId" class="runtime-item wide">
+              <span>{{ t.jobLabel }}</span>
+              <strong>{{ jobId }}</strong>
+            </div>
+
+            <div v-if="reportUrl" class="runtime-item runtime-action">
+              <span>{{ t.reportLabel }}</span>
+              <a class="report-link" :href="withLang(reportUrl)" target="_blank">
+                {{ t.openHtmlReport }}
+              </a>
+            </div>
+
+            <div v-if="latestMetric" class="hero-metric-item">
+              <span>{{ t.round }}</span>
+              <strong>{{ latestMetric.round }}</strong>
+            </div>
+            <div v-if="latestMetric" class="hero-metric-item">
+              <span>{{ t.accuracy }}</span>
+              <strong>{{ latestMetric.accuracy }}</strong>
+            </div>
+            <div v-if="latestMetric" class="hero-metric-item">
+              <span>{{ t.loss }}</span>
+              <strong>{{ latestMetric.loss }}</strong>
+            </div>
+            <div v-if="latestMetric" class="hero-metric-item">
+              <span>{{ t.asr }}</span>
+              <strong>{{ latestMetric.attack_success_rate }}</strong>
+            </div>
+          </div>
+
+          <div v-if="errorMessage" class="runtime-error">
+            <strong>{{ t.errorLabel }}:</strong>
+            <span>{{ errorMessage }}</span>
+          </div>
         </div>
-      </div>
-    </section>
 
-    <section class="status-card">
-      <div>
-        <strong>{{ t.statusLabel }}:</strong>
-        <span class="status-badge" :class="'status-' + status">{{ t.statusValues[status] || status }}</span>
-      </div>
+        <section class="chart-card" :class="{ 'is-empty': metrics.length === 0 }">
+          <Line
+            v-if="metrics.length > 0"
+            :data="chartData"
+            :options="chartOptions"
+          />
 
-      <div v-if="jobId">
-        <strong>{{ t.jobLabel }}:</strong>
-        <span>{{ jobId }}</span>
-      </div>
-
-      <div v-if="errorMessage" class="error">
-        <strong>{{ t.errorLabel }}:</strong>
-        <span>{{ errorMessage }}</span>
-      </div>
-
-      <div v-if="reportUrl">
-        <strong>{{ t.reportLabel }}:</strong>
-        <a class="report-link" :href="withLang(reportUrl)" target="_blank">
-          {{ t.openHtmlReport }}
-        </a>
-      </div>
-    </section>
-
-    <section v-if="latestMetric" class="metric-grid">
-      <div class="metric-card">
-        <span>{{ t.round }}</span>
-        <strong>{{ latestMetric.round }}</strong>
-      </div>
-
-      <div class="metric-card">
-        <span>{{ t.accuracy }}</span>
-        <strong>{{ latestMetric.accuracy }}</strong>
-      </div>
-
-      <div class="metric-card">
-        <span>{{ t.loss }}</span>
-        <strong>{{ latestMetric.loss }}</strong>
-      </div>
-
-      <div class="metric-card">
-        <span>{{ t.asr }}</span>
-        <strong>{{ latestMetric.attack_success_rate }}</strong>
-      </div>
-    </section>
-
-    <section class="chart-card">
-      <Line
-        v-if="metrics.length > 0"
-        :data="chartData"
-        :options="chartOptions"
-      />
-
-      <div v-else class="empty-state">
-        {{ t.emptyChart }}
-      </div>
+          <div v-else class="empty-state">
+            {{ t.emptyChart }}
+          </div>
+        </section>
+      </section>
     </section>
 
     <section class="comparison-card">
@@ -1584,11 +1602,20 @@ async function startExperiment() {
             </div>
           </div>
 
-          <div class="detail-events">
-            <h3 class="detail-events-title">{{ t.eventTimeline }}</h3>
-            <div v-if="selectedDetailJob.events && selectedDetailJob.events.length > 0" class="event-timeline">
+          <div class="detail-events compact-events">
+            <div class="detail-events-heading">
+              <div>
+                <h3 class="detail-events-title">{{ t.eventTimeline }}</h3>
+                <p class="detail-events-subtitle">{{ t.lifecycleEvents }}</p>
+              </div>
+              <span v-if="selectedRoundEvents.length > 0" class="round-count-pill">
+                {{ t.trainingRoundsCount.replace('{count}', selectedRoundEvents.length) }}
+              </span>
+            </div>
+
+            <div v-if="selectedLifecycleEvents.length > 0" class="event-timeline lifecycle-timeline">
               <div
-                v-for="(ev, idx) in selectedDetailJob.events"
+                v-for="(ev, idx) in selectedLifecycleEvents"
                 :key="idx"
                 class="event-item"
                 :class="'event-' + ev.type"
@@ -1600,12 +1627,6 @@ async function startExperiment() {
                     <span class="event-time">{{ formatEventTime(ev.created_at) }}</span>
                   </div>
                   <p class="event-message">{{ ev.message }}</p>
-                  <div v-if="ev.type === 'round_progress' && ev.metrics" class="event-metrics">
-                    <span>{{ t.eventRound }} {{ ev.round }}/{{ ev.total_rounds }}</span>
-                    <span>{{ t.accuracy }}: {{ ev.metrics.accuracy }}</span>
-                    <span>{{ t.loss }}: {{ ev.metrics.loss }}</span>
-                    <span>{{ t.asr }}: {{ ev.metrics.attack_success_rate }}</span>
-                  </div>
                   <div v-if="ev.type === 'failed' && ev.details" class="event-failure">
                     <p><strong>{{ t.eventFailureReason }}:</strong> {{ ev.details.error }}</p>
                     <pre v-if="ev.details.traceback_summary" class="event-traceback">{{ ev.details.traceback_summary }}</pre>
@@ -1613,7 +1634,37 @@ async function startExperiment() {
                 </div>
               </div>
             </div>
-            <div v-else class="empty-state small">
+
+            <details v-if="selectedRoundEvents.length > 0" class="round-log-panel">
+              <summary>
+                <span>{{ t.trainingRoundsTitle }}</span>
+                <strong>{{ t.trainingRoundsCount.replace('{count}', selectedRoundEvents.length) }}</strong>
+              </summary>
+              <p class="round-log-hint">{{ t.trainingRoundsHint }}</p>
+              <div class="round-log-list">
+                <div
+                  v-for="(ev, idx) in selectedRoundEvents"
+                  :key="idx"
+                  class="round-log-row"
+                >
+                  <div class="round-log-main">
+                    <span class="event-badge badge-round_progress">{{ t.eventType.round_progress }}</span>
+                    <strong>{{ t.eventRound }} {{ ev.round }}/{{ ev.total_rounds }}</strong>
+                    <span>{{ formatEventTime(ev.created_at) }}</span>
+                  </div>
+                  <div v-if="ev.metrics" class="round-log-metrics">
+                    <span>{{ t.accuracy }}: {{ ev.metrics.accuracy }}</span>
+                    <span>{{ t.loss }}: {{ ev.metrics.loss }}</span>
+                    <span>{{ t.asr }}: {{ ev.metrics.attack_success_rate }}</span>
+                  </div>
+                </div>
+              </div>
+            </details>
+
+            <div
+              v-if="selectedLifecycleEvents.length === 0 && selectedRoundEvents.length === 0"
+              class="empty-state small"
+            >
               <p>{{ t.noEvents }}</p>
             </div>
           </div>
@@ -1759,9 +1810,9 @@ async function startExperiment() {
 :global(html) {
   min-height: 100%;
   background:
-    radial-gradient(circle at 12% 0%, rgba(99, 102, 241, 0.16), transparent 28%),
-    radial-gradient(circle at 90% 8%, rgba(56, 189, 248, 0.18), transparent 30%),
-    linear-gradient(135deg, #f6f7ff 0%, #f8fbff 48%, #f6f2ff 100%);
+    radial-gradient(circle at 10% 0%, rgba(99, 102, 241, 0.16), transparent 30%),
+    radial-gradient(circle at 90% 4%, rgba(56, 189, 248, 0.18), transparent 32%),
+    linear-gradient(135deg, #f7f8ff 0%, #f8fbff 50%, #f7f3ff 100%);
 }
 
 :global(body) {
@@ -1771,177 +1822,172 @@ async function startExperiment() {
 
 .page {
   min-height: 100vh;
-  padding: 36px 24px 64px;
-  color: #111827;
+  padding: 28px 24px 72px;
+  color: #101828;
   font-family:
     Inter, "Microsoft YaHei", "PingFang SC", "Noto Sans CJK SC", system-ui,
     -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
-.page > * {
-  width: min(100%, 1120px);
+.page > *,
+.global-toolbar,
+.dashboard-shell,
+.comparison-card {
+  width: min(1180px, calc(100vw - 48px));
   margin-left: auto;
   margin-right: auto;
 }
 
-/* ---------------- Hero ---------------- */
-
-.hero {
-  position: relative;
-  overflow: hidden;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 360px;
-  grid-template-areas: "intro controls";
-  align-items: start;
-  gap: 28px;
-  min-height: 0;
-  margin-bottom: 18px;
-  padding: 28px 32px 24px;
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  border-radius: 28px;
-  background:
-    radial-gradient(circle at 96% 85%, rgba(59, 130, 246, 0.14), transparent 24%),
-    linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(249, 251, 255, 0.9));
-  box-shadow:
-    0 24px 60px rgba(79, 70, 229, 0.10),
-    0 14px 32px rgba(15, 23, 42, 0.07);
-}
-
-.hero::before {
-  content: "";
-  position: absolute;
-  right: -138px;
-  bottom: -172px;
-  width: 410px;
-  height: 410px;
-  border-radius: 999px;
-  background: linear-gradient(135deg, rgba(96, 165, 250, 0.22), rgba(168, 85, 247, 0.09));
-  pointer-events: none;
-}
-
-.hero::after {
-  content: "";
-  position: absolute;
-  top: -150px;
-  left: 38%;
-  width: 330px;
-  height: 330px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.62);
-  filter: blur(16px);
-  pointer-events: none;
-}
-
-.hero > * {
-  position: relative;
-  z-index: 1;
-}
-
-.hero-header {
-  grid-area: intro;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: flex-start;
-  min-width: 0;
-  padding-right: 12px;
-}
-
-.hero-title-row {
+/* Top bar */
+.global-toolbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  width: 100%;
-  gap: 12px;
-  margin-bottom: 6px;
+  gap: 16px;
+  min-height: 42px;
+  margin-bottom: 18px;
 }
 
-.hero-text {
-  max-width: 620px;
-}
-
-.eyebrow,
-.section-kicker {
-  margin: 0;
-  color: #2563eb;
-  font-size: 11px;
+.topbar-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: #1e3a8a;
+  font-size: 13px;
   font-weight: 900;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
 }
 
-h1 {
-  max-width: 620px;
-  margin: 0;
-  color: #0f172a;
-  font-size: clamp(26px, 3.2vw, 38px);
-  line-height: 1.12;
-  letter-spacing: -0.04em;
-}
-
-.subtitle {
-  max-width: 620px;
-  margin: 8px 0 0;
-  color: #5f6f87;
-  font-size: 13px;
-  line-height: 1.5;
+.brand-mark {
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #22c55e, #2563eb);
+  box-shadow:
+    0 0 0 5px rgba(59, 130, 246, 0.10),
+    0 8px 20px rgba(37, 99, 235, 0.20);
 }
 
 .lang-switcher {
-  position: static;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  margin-top: 0;
-  padding: 3px;
-  border: 1px solid rgba(148, 163, 184, 0.34);
+  display: grid;
+  grid-template-columns: 76px 76px;
+  width: 160px;
+  height: 40px;
+  padding: 4px;
+  border: 1px solid rgba(148, 163, 184, 0.32);
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.86);
-  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.06);
+  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.10);
   backdrop-filter: blur(14px);
-  flex-shrink: 0;
 }
 
 .lang-button {
-  min-height: 28px;
-  padding: 5px 12px;
+  width: 76px;
+  height: 32px;
+  padding: 0;
   border: 0;
   border-radius: 999px;
   background: transparent;
   color: #334155;
   font-size: 11px;
   font-weight: 900;
+  line-height: 32px;
+  white-space: nowrap;
   cursor: pointer;
 }
 
 .lang-button.active {
-  background: #111827;
+  background: #0f172a;
   color: #ffffff;
   box-shadow: 0 8px 18px rgba(15, 23, 42, 0.18);
 }
 
-/* ---------------- Control panel ---------------- */
-
-.control-panel {
-  grid-area: controls;
-  align-self: start;
-  width: 100%;
+/* Shared cards */
+.dashboard-shell {
   display: grid;
-  gap: 7px;
-  padding: 14px;
-  border: 1px solid rgba(148, 163, 184, 0.24);
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.9);
-  box-shadow:
-    0 18px 40px rgba(15, 23, 42, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(16px);
+  grid-template-columns: 1fr;
+  gap: 18px;
+  margin-bottom: 26px;
 }
 
+.command-card,
+.monitor-card,
+.comparison-card {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 26px;
+  background:
+    radial-gradient(circle at 96% 96%, rgba(59, 130, 246, 0.12), transparent 28%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.94), rgba(248, 251, 255, 0.86));
+  box-shadow:
+    0 22px 70px rgba(15, 23, 42, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.86);
+}
+
+.command-card::after,
+.monitor-card::after {
+  content: "";
+  position: absolute;
+  right: -120px;
+  bottom: -180px;
+  width: 340px;
+  height: 340px;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.13), transparent 68%);
+  pointer-events: none;
+}
+
+.command-card > *,
+.monitor-card > *,
+.comparison-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Command card */
+.command-card {
+  padding: 28px 30px 24px;
+}
+
+.command-main {
+  margin-bottom: 20px;
+}
+
+.command-copy h1 {
+  max-width: 720px;
+  margin: 0;
+  color: #0f172a;
+  font-size: clamp(32px, 4.1vw, 50px);
+  line-height: 1.04;
+  letter-spacing: -0.055em;
+}
+
+.subtitle {
+  max-width: 620px;
+  margin: 10px 0 0;
+  color: #5f6f87;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.command-controls {
+  display: grid;
+  grid-template-columns: 180px minmax(280px, 420px) auto;
+  align-items: end;
+  gap: 12px;
+}
+
+.field-control {
+  display: grid;
+  min-width: 0;
+  gap: 6px;
+}
+
+.field-control > span:first-child,
 .field-label {
-  display: block;
-  margin-bottom: 4px;
-  color: #1f2a44;
+  color: #172033;
   font-size: 12px;
   font-weight: 900;
 }
@@ -1951,13 +1997,13 @@ h1 {
 select,
 input {
   width: 100%;
-  min-height: 34px;
-  padding: 6px 10px;
+  min-height: 38px;
+  padding: 7px 12px;
   border: 1px solid rgba(148, 163, 184, 0.46);
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.96);
+  border-radius: 13px;
+  background: rgba(255, 255, 255, 0.94);
   color: #172033;
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.35;
   outline: none;
   transition: border-color 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
@@ -1969,326 +2015,296 @@ select:focus,
 input:focus {
   border-color: rgba(37, 99, 235, 0.78);
   background: #ffffff;
-  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
-}
-
-.option-description {
-  margin: 4px 0 0;
-  color: #64748b;
-  font-size: 12px;
-  line-height: 1.55;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.10);
 }
 
 .config-empty-filter {
-  margin: 0;
-  color: #64748b;
-  font-size: 12px;
-}
-
-.config-metadata {
-  display: grid;
-  gap: 3px;
-  margin-top: 4px;
-  padding: 10px;
-  border: 1px solid rgba(148, 163, 184, 0.24);
-  border-radius: 12px;
-  background: linear-gradient(135deg, rgba(248, 250, 252, 0.9), rgba(255, 255, 255, 0.92));
-  color: #475569;
-  font-size: 11px;
-  line-height: 1.4;
-}
-
-.config-metadata-name {
-  color: #172033;
-  font-weight: 900;
-}
-
-.config-metadata-description,
-.config-metadata-category {
-  color: #64748b;
-}
-
-.config-metadata-tags,
-.job-badges {
+  min-height: 38px;
   display: flex;
-  flex-wrap: wrap;
-  gap: 7px;
-}
-
-.config-tag,
-.job-badge {
-  display: inline-flex;
   align-items: center;
-  min-height: 22px;
-  padding: 4px 9px;
-  border-radius: 999px;
-  background: #eef2ff;
-  color: #334155;
-  font-size: 11px;
-  font-weight: 800;
-  white-space: nowrap;
-}
-
-.job-badge.success {
-  background: #dcfce7;
-  color: #166534;
-}
-
-.job-badge.muted {
-  background: #eef2ff;
+  padding: 0 12px;
+  border: 1px dashed rgba(148, 163, 184, 0.46);
+  border-radius: 13px;
   color: #64748b;
-}
-
-/* ---------------- Config Preview ---------------- */
-
-.config-preview {
-  margin-top: 8px;
-  padding: 10px;
-  border: 1px solid rgba(148, 163, 184, 0.2);
-  border-radius: 12px;
-  background: linear-gradient(
-    180deg,
-    rgba(248, 250, 252, 0.74),
-    rgba(255, 255, 255, 0.92)
-  );
-}
-
-.preview-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 6px;
-}
-
-.preview-detail-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 6px;
-  margin-top: 8px;
-}
-
-.preview-item {
-  padding: 6px 8px;
-  border: 1px solid rgba(148, 163, 184, 0.15);
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.8);
-}
-
-.preview-label {
-  display: block;
-  color: #64748b;
-  font-size: 9px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.preview-item strong {
-  display: block;
-  margin-top: 1px;
-  color: #0f172a;
-  font-size: 12px;
-  font-weight: 800;
-}
-
-.risk-badge {
-  display: inline-block;
-  padding: 2px 8px;
-  border-radius: 999px;
-  font-size: 11px;
-  font-weight: 800;
-}
-
-.risk-none {
-  background: #dcfce7;
-  color: #166534;
-}
-
-.risk-low {
-  background: #dbeafe;
-  color: #1d4ed8;
-}
-
-.risk-medium {
-  background: #fef9c3;
-  color: #a16207;
-}
-
-.risk-high {
-  background: #fee2e2;
-  color: #dc2626;
-}
-
-.preview-details {
-  margin-top: 6px;
-}
-
-.preview-details summary {
-  cursor: pointer;
-  color: #64748b;
-  font-size: 11px;
-  font-weight: 700;
-  padding: 4px 0;
-}
-
-.preview-recommended {
-  margin-top: 8px;
-  padding: 6px 8px;
-  border: 1px solid rgba(148, 163, 184, 0.15);
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.8);
-}
-
-.preview-recommended p {
-  margin: 2px 0 0;
-  color: #475569;
   font-size: 12px;
 }
 
-.explanation-list {
-  margin-top: 8px;
-  padding: 8px;
-  border: 1px solid rgba(148, 163, 184, 0.15);
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.8);
-}
-
-.explanation-list p {
-  margin: 3px 0;
-  color: #475569;
-  font-size: 11px;
-  line-height: 1.4;
-}
-
-.explanation-list strong {
-  color: #334155;
-}
-
-/* ---------------- Buttons ---------------- */
-
-.button-row,
-.section-actions {
+.command-run-group {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
   gap: 10px;
 }
 
-.button-row {
-  margin-top: 6px;
-}
-
-button,
 .run-button,
-.secondary-button {
+.secondary-button,
+.report-link,
+.detail-report-link,
+.detail-export-item,
+.comparison-export-item {
+  appearance: none;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 36px;
-  padding: 9px 15px;
-  border-radius: 12px;
+  gap: 6px;
+  min-height: 38px;
+  padding: 0 16px;
+  border-radius: 13px;
   font-size: 12px;
   font-weight: 900;
   line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+  word-break: keep-all;
   cursor: pointer;
-  transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease, background 0.16s ease, color 0.16s ease, opacity 0.16s ease;
-}
-
-button:hover:not(:disabled),
-.run-button:hover:not(:disabled),
-.secondary-button:hover:not(:disabled) {
-  transform: translateY(-1px);
-}
-
-button:disabled,
-.run-button:disabled,
-.secondary-button:disabled {
-  cursor: not-allowed;
-  opacity: 0.55;
-  transform: none;
-  box-shadow: none;
 }
 
 .run-button {
-  border: 1px solid rgba(15, 23, 42, 0.08);
-  background: linear-gradient(135deg, #0f2a66, #1d4ed8);
+  border: 1px solid #1d4ed8;
+  background: linear-gradient(135deg, #1d4ed8, #1e40af);
   color: #ffffff;
-  box-shadow: 0 14px 28px rgba(29, 78, 216, 0.22);
+  box-shadow: 0 10px 20px rgba(37, 99, 235, 0.18);
 }
 
-.secondary-button {
-  border: 1px solid rgba(147, 197, 253, 0.55);
-  background: #eff6ff;
-  color: #1d4ed8;
+.run-button:disabled,
+.secondary-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
-.secondary-button:hover:not(:disabled) {
-  background: #dbeafe;
-  box-shadow: 0 12px 26px rgba(37, 99, 235, 0.12);
+.secondary-button,
+.report-link,
+.detail-report-link,
+.detail-export-item,
+.comparison-export-item {
+  border: 1px solid rgba(96, 165, 250, 0.48);
+  background: rgba(239, 246, 255, 0.78);
+  color: #2563eb;
 }
 
-/* ---------------- Cards ---------------- */
-
-.status-card,
-.chart-card,
-.comparison-card,
-.metric-card,
-.job-detail-card {
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  background: rgba(255, 255, 255, 0.92);
-  box-shadow: 0 18px 44px rgba(15, 23, 42, 0.07);
-  backdrop-filter: blur(14px);
-}
-
-.status-card,
-.chart-card,
-.comparison-card {
-  margin-bottom: 24px;
-  border-radius: 26px;
-}
-
-.status-card {
+.selected-config-summary {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr) auto;
   gap: 14px;
-  padding: 20px 24px;
-}
-
-.status-card > div {
-  min-height: 52px;
-  padding: 10px 12px;
-  border: 1px solid rgba(148, 163, 184, 0.18);
+  align-items: center;
+  margin-top: 16px;
+  padding: 12px 14px;
+  border: 1px solid rgba(148, 163, 184, 0.20);
   border-radius: 16px;
-  background: linear-gradient(180deg, rgba(248, 250, 252, 0.74), rgba(255, 255, 255, 0.82));
+  background: rgba(255, 255, 255, 0.62);
 }
 
-.status-card strong {
+.selected-config-copy {
+  min-width: 0;
+}
+
+.selected-config-kicker {
   display: block;
-  margin-bottom: 7px;
-  color: #1f2a44;
+  margin-bottom: 3px;
+  color: #2563eb;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.selected-config-copy strong {
+  display: block;
+  color: #111827;
+  font-size: 14px;
+  line-height: 1.25;
+}
+
+.selected-config-copy p {
+  margin: 4px 0 0;
+  color: #64748b;
   font-size: 12px;
+  line-height: 1.45;
+}
+
+.selected-config-tags {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 6px;
+  max-width: 360px;
+}
+
+.config-tag,
+.job-badge,
+.status-badge,
+.risk-badge,
+.selected-job-status,
+.event-badge,
+.round-count-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 22px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: #edf2ff;
+  color: #334155;
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.config-preview-line {
+  margin-top: 12px;
+}
+
+.preview-grid.compact {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.preview-item,
+.runtime-item,
+.hero-metric-item,
+.detail-item,
+.insight-metric-card,
+.insight-extra-card {
+  min-width: 0;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.70);
+}
+
+.preview-item {
+  min-height: 52px;
+  padding: 9px 10px;
+}
+
+.preview-label,
+.runtime-item span,
+.hero-metric-item span,
+.detail-item span,
+.insight-metric-label,
+.insight-extra-label {
+  display: block;
+  margin-bottom: 4px;
+  color: #64748b;
+  font-size: 11px;
   font-weight: 900;
 }
 
-.status-card span {
-  color: #475569;
-  font-size: 12px;
+.preview-item strong,
+.detail-item strong {
+  display: block;
+  color: #111827;
+  font-size: 14px;
+  line-height: 1.25;
   overflow-wrap: anywhere;
 }
 
-.status-badge {
-  display: inline-flex;
-  align-items: center;
-  min-height: 24px;
-  padding: 4px 10px;
-  border-radius: 999px;
-  background: #eef2ff;
-  color: #334155;
+.risk-badge {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.risk-low {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.risk-high {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.preview-details {
+  margin-top: 10px;
+  color: #475569;
+  font-size: 12px;
+}
+
+.preview-details summary {
+  width: max-content;
+  cursor: pointer;
+  color: #64748b;
   font-weight: 900;
 }
 
-.status-running,
-.status-creating,
+.preview-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.preview-recommended,
+.explanation-list {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: rgba(248, 250, 252, 0.80);
+}
+
+.preview-recommended p,
+.explanation-list p {
+  margin: 4px 0 0;
+  color: #475569;
+  line-height: 1.55;
+}
+
+/* Runtime monitor */
+.monitor-card {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+  padding: 20px;
+}
+
+.runtime-panel {
+  min-width: 0;
+}
+
+.runtime-row {
+  display: grid;
+  grid-template-columns: minmax(112px, 0.75fr) minmax(220px, 1.6fr) minmax(130px, 0.9fr) repeat(4, minmax(100px, 1fr));
+  align-items: stretch;
+  gap: 10px;
+}
+
+.runtime-item,
+.hero-metric-item {
+  min-height: 64px;
+  padding: 10px 12px;
+}
+
+.runtime-item.wide strong {
+  display: block;
+  color: #111827;
+  font-size: 11px;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.runtime-item strong,
+.hero-metric-item strong {
+  display: block;
+  color: #111827;
+  font-size: 20px;
+  line-height: 1.05;
+}
+
+.runtime-action .report-link {
+  width: 100%;
+  max-width: 150px;
+  min-height: 34px;
+  padding: 0 10px;
+}
+
+.status-idle,
 .status-queued {
+  background: #eef2ff;
+  color: #475569;
+}
+
+.status-running,
+.status-creating {
   background: #dbeafe;
   color: #1d4ed8;
 }
@@ -2307,111 +2323,115 @@ button:disabled,
 .status-error,
 .status-disconnected {
   background: #fee2e2;
-  color: #b91c1c;
+  color: #991b1b;
 }
 
-.error {
-  color: #b91c1c;
-}
-
-.metric-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 16px;
-  margin-bottom: 24px;
-}
-
-.metric-card {
-  display: grid;
-  gap: 8px;
-  min-height: 104px;
-  padding: 20px;
-  border-radius: 22px;
-}
-
-.metric-card span {
-  color: #64748b;
+.runtime-error {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: #fff1f2;
+  color: #9f1239;
   font-size: 12px;
-  font-weight: 900;
-}
-
-.metric-card strong {
-  color: #0f172a;
-  font-size: 30px;
-  line-height: 1;
-  letter-spacing: -0.04em;
 }
 
 .chart-card {
-  min-height: 230px;
-  padding: 24px;
+  width: 100%;
+  min-height: 300px;
+  height: 300px;
+  padding: 16px 18px;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.74);
+}
+
+.chart-card > div,
+.chart-card canvas {
+  width: 100% !important;
+  height: 100% !important;
+  max-height: none !important;
+}
+
+.chart-card.is-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .empty-state {
-  display: grid;
-  place-items: center;
-  min-height: 160px;
-  padding: 24px;
-  border: 1px solid rgba(148, 163, 184, 0.22);
+  width: 100%;
+  min-height: 82px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  border: 1px dashed rgba(148, 163, 184, 0.34);
   border-radius: 18px;
   color: #64748b;
-  font-size: 14px;
-  line-height: 1.7;
   text-align: center;
-  background: rgba(248, 250, 252, 0.58);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.chart-card .empty-state {
+  height: 100%;
+  min-height: 100%;
 }
 
 .empty-state.small {
-  min-height: 72px;
-  padding: 16px;
-  font-size: 13px;
+  min-height: 70px;
+  margin-top: 16px;
 }
 
-/* ---------------- Comparison / Jobs ---------------- */
-
+/* Comparison */
 .comparison-card {
-  padding: 26px;
+  padding: 26px 28px;
 }
 
 .section-header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 20px;
-  margin-bottom: 20px;
+  gap: 18px;
+  margin-bottom: 18px;
 }
 
-.section-header h2 {
-  margin: 0 0 6px;
-  color: #111827;
+.section-header h2,
+.job-detail-header h2 {
+  margin: 0;
+  color: #0f172a;
   font-size: 24px;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.035em;
 }
 
 .section-header p {
-  margin: 0;
+  margin: 6px 0 0;
   color: #64748b;
   font-size: 13px;
-  line-height: 1.6;
 }
 
+.section-actions,
 .job-filters {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  margin-top: 16px;
+}
+
+.section-actions {
+  justify-content: flex-end;
+}
+
+.job-filters {
+  margin-top: 14px;
 }
 
 .status-filter {
   display: grid;
-  gap: 6px;
-  color: #1f2a44;
+  gap: 5px;
+  min-width: 170px;
+  color: #172033;
   font-size: 12px;
   font-weight: 900;
-}
-
-.status-filter select {
-  min-width: 170px;
 }
 
 .jobs-table {
@@ -2419,25 +2439,25 @@ button:disabled,
   border-collapse: separate;
   border-spacing: 0;
   overflow: hidden;
-  border: 1px solid rgba(148, 163, 184, 0.2);
+  border: 1px solid rgba(148, 163, 184, 0.24);
   border-radius: 18px;
-  background: #ffffff;
+  background: rgba(255, 255, 255, 0.82);
   font-size: 12px;
 }
 
 .jobs-table th,
 .jobs-table td {
-  padding: 13px 14px;
-  border-bottom: 1px solid rgba(226, 232, 240, 0.82);
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.88);
   text-align: left;
   vertical-align: middle;
 }
 
 .jobs-table th {
+  background: rgba(248, 250, 252, 0.90);
   color: #334155;
-  background: linear-gradient(180deg, #f8fafc, #f1f5f9);
+  font-size: 12px;
   font-weight: 900;
-  white-space: nowrap;
 }
 
 .jobs-table tr:last-child td {
@@ -2446,65 +2466,57 @@ button:disabled,
 
 .job-row {
   cursor: pointer;
-  transition: background 0.16s ease, box-shadow 0.16s ease;
 }
 
-.job-row:hover {
-  background: rgba(37, 99, 235, 0.04);
-}
-
+.job-row:hover,
 .job-row-selected,
 .job-row.selected {
-  background: linear-gradient(90deg, rgba(37, 99, 235, 0.12), rgba(219, 234, 254, 0.36));
-  box-shadow: inset 4px 0 0 #2563eb;
-}
-
-.job-label {
-  color: #172033;
-  font-weight: 900;
-}
-
-.job-id {
-  margin-top: 3px;
-  color: #64748b;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 11px;
-  line-height: 1.35;
-  overflow-wrap: anywhere;
+  background: rgba(239, 246, 255, 0.72);
 }
 
 .jobs-table input[type="checkbox"] {
   width: 22px;
   height: 22px;
-  min-height: 22px;
-  accent-color: #2563eb;
+  min-height: 0;
+  padding: 0;
+  border-radius: 5px;
+  cursor: pointer;
 }
 
-.report-link,
-.detail-report-link {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 30px;
-  padding: 7px 12px;
-  border: 1px solid rgba(147, 197, 253, 0.58);
-  border-radius: 999px;
-  background: #eff6ff;
-  color: #1d4ed8;
-  font-size: 12px;
+.job-label {
+  color: #111827;
   font-weight: 900;
-  text-decoration: none;
 }
 
-.report-link:hover,
-.detail-report-link:hover {
-  background: #dbeafe;
+.job-id {
+  margin-top: 2px;
+  color: #64748b;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 10px;
+}
+
+.job-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.job-badge.success {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.job-badge.muted {
+  background: #f1f5f9;
+  color: #64748b;
 }
 
 .job-detail-card {
-  margin-top: 22px;
-  padding: 22px;
+  margin-top: 18px;
+  padding: 20px;
+  border: 1px solid rgba(148, 163, 184, 0.20);
   border-radius: 22px;
+  background: rgba(255, 255, 255, 0.72);
 }
 
 .job-detail-header {
@@ -2512,87 +2524,210 @@ button:disabled,
   align-items: flex-start;
   justify-content: space-between;
   gap: 16px;
-  margin-bottom: 18px;
+  margin-bottom: 16px;
 }
 
-.job-detail-header h2 {
-  margin: 0;
-  color: #111827;
-  font-size: 23px;
-  letter-spacing: -0.03em;
+.section-kicker {
+  margin: 0 0 4px;
+  color: #2563eb;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 
 .job-detail-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
+  gap: 10px;
 }
 
 .detail-item {
-  min-width: 0;
-  padding: 15px;
-  border: 1px solid rgba(148, 163, 184, 0.2);
-  border-radius: 16px;
-  background: linear-gradient(180deg, rgba(248, 250, 252, 0.74), rgba(255, 255, 255, 0.92));
+  padding: 12px 14px;
 }
 
 .detail-item-wide {
   grid-column: 1 / -1;
 }
 
-.detail-item span {
-  display: block;
-  margin-bottom: 7px;
-  color: #64748b;
-  font-size: 12px;
-  font-weight: 900;
-}
-
-.detail-item strong {
-  display: block;
-  color: #111827;
-  font-size: 13px;
-  line-height: 1.5;
-  overflow-wrap: anywhere;
-}
-
-.comparison-message {
-  margin-top: 18px;
-  padding: 14px 16px;
-  border: 1px solid rgba(148, 163, 184, 0.2);
-  border-radius: 16px;
-  background: rgba(248, 250, 252, 0.72);
-  color: #334155;
-}
-
-.muted {
-  color: #64748b;
-}
-
-/* ---------------- Selected Jobs Preview ---------------- */
-
-.selected-jobs-preview {
-  margin-top: 20px;
-  padding: 18px 20px;
-  border: 1px solid rgba(37, 99, 235, 0.2);
+.detail-exports {
+  margin-top: 16px;
+  padding: 14px;
+  border: 1px solid rgba(148, 163, 184, 0.18);
   border-radius: 18px;
-  background: linear-gradient(135deg, rgba(219, 234, 254, 0.3), rgba(255, 255, 255, 0.92));
+  background: rgba(248, 250, 252, 0.70);
 }
 
+.detail-exports-title,
+.detail-events-title,
+.insight-section-title {
+  margin: 0 0 10px;
+  color: #0f172a;
+  font-size: 14px;
+}
+
+.detail-exports-grid,
+.comparison-exports {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.detail-export-item.disabled,
+.comparison-export-item.disabled {
+  opacity: 0.52;
+  cursor: not-allowed;
+}
+
+.detail-events {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(226, 232, 240, 0.90);
+}
+
+.detail-events-heading,
 .selected-jobs-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 14px;
+  gap: 12px;
+  margin-bottom: 12px;
 }
 
-.selected-jobs-header .section-kicker {
+.detail-events-subtitle {
   margin: 0;
+  color: #64748b;
+  font-size: 12px;
+}
+
+.event-timeline {
+  display: grid;
+  gap: 10px;
+}
+
+.event-item {
+  display: grid;
+  grid-template-columns: 24px 1fr;
+  gap: 10px;
+}
+
+.event-icon {
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: #eef2ff;
+  font-size: 12px;
+}
+
+.event-body {
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.80);
+}
+
+.event-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.event-time {
+  color: #94a3b8;
+  font-size: 11px;
+}
+
+.event-message {
+  margin: 5px 0 0;
+  color: #475569;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.event-failure,
+.event-traceback,
+.round-log-panel {
+  margin-top: 10px;
+}
+
+.event-traceback {
+  overflow: auto;
+  max-height: 140px;
+  padding: 10px;
+  border-radius: 12px;
+  background: #0f172a;
+  color: #e2e8f0;
+  font-size: 11px;
+}
+
+.round-log-panel {
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 16px;
+  background: rgba(248, 250, 252, 0.72);
+}
+
+.round-log-panel summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  cursor: pointer;
+  color: #0f172a;
+  font-weight: 900;
+}
+
+.round-log-hint {
+  margin: 0 14px 10px;
+  color: #64748b;
+  font-size: 12px;
+}
+
+.round-log-list {
+  max-height: 260px;
+  overflow: auto;
+  padding: 0 14px 14px;
+}
+
+.round-log-row {
+  padding: 10px 0;
+  border-top: 1px solid rgba(226, 232, 240, 0.90);
+}
+
+.round-log-main,
+.round-log-metrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  color: #475569;
+  font-size: 12px;
+}
+
+.round-log-main strong {
+  color: #111827;
+}
+
+.round-log-metrics {
+  margin-top: 6px;
+}
+
+.selected-jobs-preview,
+.comparison-feedback,
+.insight-section,
+.comparison-hint {
+  margin-top: 16px;
+  padding: 14px;
+  border: 1px solid rgba(148, 163, 184, 0.20);
+  border-radius: 18px;
+  background: rgba(248, 250, 252, 0.72);
 }
 
 .selected-jobs-count {
   color: #2563eb;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 900;
 }
 
@@ -2603,536 +2738,109 @@ button:disabled,
 
 .selected-job-chip {
   display: grid;
-  grid-template-columns: 72px minmax(0, 1fr) auto auto;
+  grid-template-columns: 90px minmax(0, 1fr) auto auto;
+  gap: 10px;
   align-items: center;
-  gap: 12px;
-  padding: 10px 14px;
-  border: 1px solid rgba(148, 163, 184, 0.18);
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.86);
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: #ffffff;
+  color: #334155;
   font-size: 12px;
 }
 
 .selected-job-id {
   color: #64748b;
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 11px;
 }
 
 .selected-job-name {
-  color: #172033;
-  font-weight: 700;
+  min-width: 0;
   overflow: hidden;
+  color: #111827;
+  font-weight: 900;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.selected-job-status {
-  display: inline-flex;
-  align-items: center;
-  min-height: 22px;
-  padding: 3px 9px;
-  border-radius: 999px;
-  font-size: 11px;
-  font-weight: 800;
-  background: #eef2ff;
-  color: #334155;
-}
-
-.selected-job-status.status-finished {
-  background: #dcfce7;
+.comparison-feedback.success {
+  background: #f0fdf4;
   color: #166534;
-}
-
-.selected-job-status.status-running {
-  background: #dbeafe;
-  color: #1d4ed8;
-}
-
-.selected-job-status.status-failed {
-  background: #fee2e2;
-  color: #b91c1c;
-}
-
-.selected-job-status.status-cancelled {
-  background: #f1f5f9;
-  color: #475569;
-}
-
-.selected-job-time {
-  color: #64748b;
-  font-size: 11px;
-  white-space: nowrap;
-}
-
-/* ---------------- Comparison Feedback ---------------- */
-
-.comparison-feedback {
-  margin-top: 18px;
-  padding: 14px 18px;
-  border-radius: 16px;
-  font-size: 13px;
-  line-height: 1.6;
 }
 
 .comparison-feedback.creating {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  border: 1px solid rgba(37, 99, 235, 0.24);
-  background: rgba(219, 234, 254, 0.4);
-  color: #1d4ed8;
+  color: #2563eb;
 }
 
-.comparison-feedback.success {
-  border: 1px solid rgba(22, 163, 74, 0.24);
-  background: rgba(220, 252, 231, 0.4);
-  color: #166534;
-}
-
-.comparison-feedback.success strong {
-  display: block;
-  margin-bottom: 8px;
-}
-
-.comparison-feedback.error-feedback {
-  border: 1px solid rgba(220, 38, 38, 0.24);
-  background: rgba(254, 226, 226, 0.4);
-  color: #b91c1c;
-}
-
-.comparison-feedback.error-feedback strong {
-  display: block;
-  margin-bottom: 4px;
+.error-feedback {
+  background: #fff1f2;
+  color: #9f1239;
 }
 
 .feedback-spinner {
-  display: inline-block;
   width: 16px;
   height: 16px;
-  border: 2px solid rgba(29, 78, 216, 0.3);
-  border-top-color: #1d4ed8;
-  border-radius: 50%;
+  display: inline-flex;
+  margin-right: 8px;
+  border: 2px solid rgba(37, 99, 235, 0.22);
+  border-top-color: #2563eb;
+  border-radius: 999px;
   animation: spin 0.8s linear infinite;
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
-.comparison-hint {
-  margin-top: 12px;
-  padding: 10px 14px;
-  border: 1px solid rgba(148, 163, 184, 0.2);
-  border-radius: 12px;
-  background: rgba(248, 250, 252, 0.7);
-  color: #64748b;
-  font-size: 12px;
-}
-
-/* ---------------- Insight Cards ---------------- */
-
-.insight-section {
-  margin-top: 18px;
-  padding: 18px;
-  border: 1px solid rgba(148, 163, 184, 0.2);
-  border-radius: 16px;
-  background: linear-gradient(180deg, rgba(248, 250, 252, 0.74), rgba(255, 255, 255, 0.92));
-}
-
-.insight-section-title {
-  margin: 0 0 14px;
-  color: #1f2a44;
-  font-size: 12px;
-  font-weight: 900;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
+.insight-cards-grid,
+.insight-extra-cards {
+  display: grid;
+  gap: 10px;
 }
 
 .insight-cards-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  margin-bottom: 14px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
-.insight-metric-card {
-  padding: 14px;
-  border: 1px solid rgba(148, 163, 184, 0.2);
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.9);
+.insight-extra-cards {
+  margin-top: 10px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
-.insight-metric-label {
-  display: block;
-  color: #64748b;
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+.insight-metric-card,
+.insight-extra-card {
+  padding: 12px 14px;
 }
 
 .insight-metric-value {
   display: block;
-  margin-top: 6px;
   color: #0f172a;
   font-size: 22px;
   font-weight: 900;
-  letter-spacing: -0.03em;
 }
 
-.insight-metric-exp {
-  display: block;
-  margin-top: 4px;
-  color: #2563eb;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.insight-extra-cards {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-
-.insight-extra-card {
-  flex: 1 1 280px;
-  padding: 14px;
-  border: 1px solid rgba(148, 163, 184, 0.2);
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.9);
-}
-
-.insight-extra-card.insight-winner {
-  border-color: rgba(34, 197, 94, 0.4);
-  background: linear-gradient(180deg, rgba(240, 253, 244, 0.8), rgba(220, 252, 231, 0.6));
-}
-
-.insight-extra-card.insight-risk {
-  border-color: rgba(239, 68, 68, 0.3);
-  background: linear-gradient(180deg, rgba(254, 242, 242, 0.8), rgba(254, 226, 226, 0.6));
-}
-
-.insight-extra-label {
-  display: block;
-  color: #64748b;
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  margin-bottom: 6px;
-}
-
+.insight-metric-exp,
+.insight-extra-reason,
 .insight-extra-body {
-  margin: 0;
-  color: #475569;
-  font-size: 13px;
-  line-height: 1.5;
-}
-
-.insight-extra-body strong {
-  color: #0f172a;
-}
-
-.insight-extra-reason {
   margin: 4px 0 0;
   color: #64748b;
   font-size: 12px;
+  line-height: 1.5;
 }
 
-/* ---------------- Detail Exports ---------------- */
-
-.detail-exports {
-  margin-top: 18px;
-  padding: 18px;
-  border: 1px solid rgba(148, 163, 184, 0.2);
-  border-radius: 16px;
-  background: linear-gradient(180deg, rgba(248, 250, 252, 0.74), rgba(255, 255, 255, 0.92));
-}
-
-.detail-exports-title {
-  margin: 0 0 12px;
-  color: #1f2a44;
-  font-size: 12px;
-  font-weight: 900;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-
-.detail-exports-grid,
-.comparison-exports {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-.detail-export-item,
-.comparison-export-item {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  min-height: 38px;
-  padding: 9px 14px;
-  border: 1px solid rgba(147, 197, 253, 0.5);
-  border-radius: 12px;
-  background: #eff6ff;
-  color: #1d4ed8;
-  font-size: 12px;
-  font-weight: 900;
-  text-decoration: none;
-  cursor: pointer;
-  transition: transform 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
-}
-
-.detail-export-item:hover,
-.comparison-export-item:hover {
-  transform: translateY(-1px);
-  background: #dbeafe;
-  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.12);
-}
-
-.detail-export-item.disabled,
-.comparison-export-item.disabled {
-  border-color: rgba(148, 163, 184, 0.3);
-  background: rgba(248, 250, 252, 0.6);
-  color: #94a3b8;
-  cursor: default;
-  pointer-events: none;
-}
-
-.detail-export-icon {
-  font-size: 15px;
-  line-height: 1;
-}
-
-.detail-export-label {
-  white-space: nowrap;
-}
-
-/* ---------------- Event Timeline ---------------- */
-
-.detail-events {
-  margin-top: 20px;
-  padding-top: 18px;
-  border-top: 1px solid rgba(148, 163, 184, 0.2);
-}
-
-.detail-events-title {
-  font-size: 14px;
-  font-weight: 700;
-  color: #475569;
-  margin-bottom: 14px;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.event-timeline {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-  position: relative;
-  padding-left: 28px;
-}
-
-.event-timeline::before {
-  content: "";
-  position: absolute;
-  left: 10px;
-  top: 8px;
-  bottom: 8px;
-  width: 2px;
-  background: rgba(148, 163, 184, 0.3);
-  border-radius: 1px;
-}
-
-.event-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  padding: 10px 0;
-  position: relative;
-}
-
-.event-icon {
-  position: absolute;
-  left: -28px;
-  top: 10px;
-  width: 20px;
-  height: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  background: #f8fafc;
-  border-radius: 50%;
-  z-index: 1;
-}
-
-.event-body {
-  flex: 1;
-  min-width: 0;
-}
-
-.event-header {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 4px;
-}
-
-.event-badge {
-  display: inline-block;
-  padding: 2px 8px;
-  border-radius: 10px;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-}
-
-.badge-created {
-  background: rgba(99, 102, 241, 0.12);
-  color: #4f46e5;
-}
-
-.badge-started {
-  background: rgba(59, 130, 246, 0.12);
-  color: #2563eb;
-}
-
-.badge-round_progress {
-  background: rgba(14, 165, 233, 0.12);
-  color: #0284c7;
-}
-
-.badge-artifact_written {
-  background: rgba(139, 92, 246, 0.12);
-  color: #7c3aed;
-}
-
-.badge-finished {
-  background: rgba(34, 197, 94, 0.12);
-  color: #16a34a;
-}
-
-.badge-failed {
-  background: rgba(239, 68, 68, 0.12);
-  color: #dc2626;
-}
-
-.badge-cancelled {
-  background: rgba(148, 163, 184, 0.15);
-  color: #64748b;
-}
-
-.event-time {
-  font-size: 11px;
-  color: #94a3b8;
-}
-
-.event-message {
-  font-size: 13px;
-  color: #475569;
-  margin: 0;
-}
-
-.event-metrics {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 6px;
-  font-size: 12px;
-  color: #64748b;
-}
-
-.event-metrics span {
-  background: rgba(148, 163, 184, 0.1);
-  padding: 2px 6px;
-  border-radius: 6px;
-}
-
-.event-failure {
-  margin-top: 6px;
-  font-size: 12px;
-  color: #dc2626;
-}
-
-.event-failure p {
-  margin: 0;
-}
-
-.event-traceback {
-  margin-top: 4px;
-  padding: 8px;
-  background: rgba(239, 68, 68, 0.06);
-  border-radius: 8px;
-  font-size: 11px;
-  color: #991b1b;
-  overflow-x: auto;
-  white-space: pre-wrap;
-  word-break: break-all;
-}
-
-/* ---------------- Responsive ---------------- */
-
-@media (max-width: 980px) {
-  .hero {
-    grid-template-columns: 1fr;
-    grid-template-areas:
-      "intro"
-      "controls";
-    min-height: 0;
+/* Responsive */
+@media (max-width: 1180px) {
+  .preview-grid.compact {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
-  .control-panel {
-    max-width: 540px;
+  .runtime-row {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
-  .preview-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .status-card,
-  .metric-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .section-header {
-    flex-direction: column;
-  }
-}
-
-@media (max-width: 720px) {
-  .page {
-    padding: 18px 12px 36px;
-  }
-
-  .hero,
-  .comparison-card,
-  .chart-card,
-  .status-card {
-    border-radius: 20px;
-  }
-
-  .hero {
-    padding: 20px 16px;
-  }
-
-  .hero-title-row {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 6px;
-  }
-
-  h1 {
-    font-size: clamp(22px, 8vw, 32px);
-  }
-
-  .status-card,
-  .metric-grid,
-  .job-detail-grid,
-  .preview-grid,
-  .preview-detail-grid {
-    grid-template-columns: 1fr;
+  .runtime-item.wide {
+    grid-column: span 2;
   }
 
   .jobs-table {
@@ -3140,32 +2848,98 @@ button:disabled,
     overflow-x: auto;
     white-space: nowrap;
   }
+}
 
-  .section-actions,
-  .job-filters {
-    width: 100%;
+@media (max-width: 860px) {
+  .page {
+    padding: 18px 14px 56px;
   }
 
-  .section-actions > *,
-  .job-filters > * {
-    flex: 1 1 100%;
+  .page > *,
+  .global-toolbar,
+  .dashboard-shell,
+  .comparison-card {
+    width: min(100%, calc(100vw - 28px));
   }
 
-  .lang-switcher {
-    margin-top: 22px;
+  .global-toolbar {
+    align-items: flex-start;
+  }
+
+  .command-card,
+  .monitor-card,
+  .comparison-card {
+    border-radius: 22px;
+  }
+
+  .command-card {
+    padding: 22px 16px 18px;
+  }
+
+  .command-controls,
+  .selected-config-summary,
+  .section-header,
+  .job-detail-header {
+    grid-template-columns: 1fr;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .selected-config-tags,
+  .section-actions {
+    justify-content: flex-start;
+  }
+
+  .command-copy h1 {
+    font-size: clamp(30px, 9vw, 42px);
+  }
+
+  .preview-grid.compact,
+  .preview-detail-grid,
+  .runtime-row,
+  .job-detail-grid,
+  .insight-cards-grid,
+  .insight-extra-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .runtime-item.wide,
+  .detail-item-wide {
+    grid-column: 1 / -1;
+  }
+
+  .chart-card {
+    height: 240px;
+    min-height: 240px;
   }
 
   .selected-job-chip {
-    grid-template-columns: 1fr 1fr;
-    gap: 6px 12px;
+    grid-template-columns: 80px minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 560px) {
+  .topbar-brand {
+    font-size: 11px;
   }
 
-  .selected-job-id {
-    grid-column: 1 / -1;
+  .lang-switcher {
+    grid-template-columns: 58px 58px;
+    width: 124px;
   }
 
-  .selected-job-name {
-    grid-column: 1 / -1;
+  .lang-button {
+    width: 58px;
+    font-size: 10px;
+  }
+
+  .preview-grid.compact,
+  .preview-detail-grid,
+  .runtime-row,
+  .job-detail-grid,
+  .insight-cards-grid,
+  .insight-extra-cards {
+    grid-template-columns: 1fr;
   }
 }
 </style>
