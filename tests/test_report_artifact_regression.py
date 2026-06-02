@@ -499,6 +499,25 @@ class TestSummaryFieldComputation:
         assert summary["final_loss"] == pytest.approx(0.8)
         assert summary["final_asr"] == pytest.approx(0.2)
 
+    def test_load_job_summary_missing_asr_stays_none(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Missing ASR should not be converted to a synthetic zero."""
+        jid = str(uuid.uuid4())
+        config = _make_config(attack="none")
+        metrics = _make_metrics(2)
+        for metric in metrics:
+            metric.pop("attack_success_rate")
+        _seed_job_dir(tmp_path / jid, config, metrics)
+
+        monkeypatch.setattr(
+            "fedguardlab.reporting.comparison.JOBS_DIR", tmp_path
+        )
+
+        summary = load_job_summary(jid)
+
+        assert summary["final_asr"] is None
+
 
 # ---------------------------------------------------------------------------
 # Test 7 – Job event timeline
@@ -786,12 +805,20 @@ class TestComparisonInsights:
         insights = compute_comparison_insights([], lang="en")
         assert insights == {}
 
-    def test_missing_asr_all_zero(self) -> None:
+    def test_lowest_asr_accepts_zero(self) -> None:
         experiments = self._make_experiments()
         for e in experiments:
             e["final_asr"] = 0
         insights = compute_comparison_insights(experiments, lang="en")
-        # All ASR are 0, so lowest_asr should be None
+        assert insights["lowest_asr"] is not None
+        assert insights["lowest_asr"]["job_id"] == "aaa"
+        assert insights["lowest_asr"]["value"] == pytest.approx(0)
+
+    def test_missing_asr_is_not_treated_as_zero(self) -> None:
+        experiments = self._make_experiments()
+        for e in experiments:
+            e.pop("final_asr")
+        insights = compute_comparison_insights(experiments, lang="en")
         assert insights["lowest_asr"] is None
 
     def test_insights_in_comparison_json(
