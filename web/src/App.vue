@@ -53,6 +53,27 @@ const messages = {
     allCategories: "全部分类",
     experimentLabel: "实验",
     noConfigsForCategory: "当前分类没有可用配置。",
+    configPreview: "配置预览",
+    previewDataset: "数据集",
+    previewPartition: "数据分布",
+    previewAggregation: "聚合方式",
+    previewAttack: "攻击",
+    previewDefense: "防御",
+    previewRounds: "训练轮数",
+    previewClients: "客户端数",
+    previewMalicious: "恶意客户端",
+    previewLocalEpochs: "本地 Epoch",
+    previewBatchSize: "批大小",
+    previewLearningRate: "学习率",
+    previewRiskLevel: "风险级别",
+    previewRecommendedUse: "推荐用途",
+    previewExplanation: "参数说明",
+    riskLevels: {
+      none: "无风险",
+      low: "低",
+      medium: "中",
+      high: "高",
+    },
     runExperiment: "运行实验",
     running: "运行中...",
     cancelExperiment: "取消实验",
@@ -169,6 +190,27 @@ const messages = {
     allCategories: "All categories",
     experimentLabel: "Experiment",
     noConfigsForCategory: "No configs available for this category.",
+    configPreview: "Config Preview",
+    previewDataset: "Dataset",
+    previewPartition: "Partition",
+    previewAggregation: "Aggregation",
+    previewAttack: "Attack",
+    previewDefense: "Defense",
+    previewRounds: "Rounds",
+    previewClients: "Clients",
+    previewMalicious: "Malicious Clients",
+    previewLocalEpochs: "Local Epochs",
+    previewBatchSize: "Batch Size",
+    previewLearningRate: "Learning Rate",
+    previewRiskLevel: "Risk Level",
+    previewRecommendedUse: "Recommended Use",
+    previewExplanation: "Parameter Explanations",
+    riskLevels: {
+      none: "None",
+      low: "Low",
+      medium: "Medium",
+      high: "High",
+    },
     runExperiment: "Run Experiment",
     running: "Running...",
     cancelExperiment: "Cancel Experiment",
@@ -380,6 +422,14 @@ const selectedExperimentDescription = computed(() => {
   );
 
   return option?.description || "";
+});
+
+
+const selectedConfigPreview = computed(() => {
+  const option = experimentOptions.value.find(
+    (item) => item.value === selectedConfig.value
+  );
+  return option?.preview || null;
 });
 
 
@@ -1123,6 +1173,79 @@ async function startExperiment() {
               {{ tag }}
             </span>
           </div>
+        </div>
+
+        <div v-if="selectedConfigPreview" class="config-preview">
+          <div class="config-preview-title">{{ t.configPreview }}</div>
+
+          <div class="preview-grid">
+            <div class="preview-item">
+              <span class="preview-label">{{ t.previewDataset }}</span>
+              <strong>{{ selectedConfigPreview.dataset }}</strong>
+            </div>
+            <div class="preview-item">
+              <span class="preview-label">{{ t.previewPartition }}</span>
+              <strong>{{ selectedConfigPreview.partition }}</strong>
+            </div>
+            <div class="preview-item">
+              <span class="preview-label">{{ t.previewAggregation }}</span>
+              <strong>{{ selectedConfigPreview.aggregation }}</strong>
+            </div>
+            <div class="preview-item">
+              <span class="preview-label">{{ t.previewAttack }}</span>
+              <strong>{{ selectedConfigPreview.attack }}</strong>
+            </div>
+            <div class="preview-item">
+              <span class="preview-label">{{ t.previewDefense }}</span>
+              <strong>{{ selectedConfigPreview.defense }}</strong>
+            </div>
+            <div class="preview-item">
+              <span class="preview-label">{{ t.previewRounds }}</span>
+              <strong>{{ selectedConfigPreview.rounds }}</strong>
+            </div>
+            <div class="preview-item">
+              <span class="preview-label">{{ t.previewClients }}</span>
+              <strong>{{ selectedConfigPreview.clients }}</strong>
+            </div>
+            <div class="preview-item">
+              <span class="preview-label">{{ t.previewMalicious }}</span>
+              <strong>{{ selectedConfigPreview.malicious_clients }}</strong>
+            </div>
+            <div class="preview-item">
+              <span class="preview-label">{{ t.previewLocalEpochs }}</span>
+              <strong>{{ selectedConfigPreview.local_epochs }}</strong>
+            </div>
+            <div class="preview-item">
+              <span class="preview-label">{{ t.previewBatchSize }}</span>
+              <strong>{{ selectedConfigPreview.batch_size }}</strong>
+            </div>
+            <div class="preview-item">
+              <span class="preview-label">{{ t.previewLearningRate }}</span>
+              <strong>{{ selectedConfigPreview.learning_rate }}</strong>
+            </div>
+            <div class="preview-item">
+              <span class="preview-label">{{ t.previewRiskLevel }}</span>
+              <strong>
+                <span class="risk-badge" :class="'risk-' + selectedConfigPreview.risk_level">
+                  {{ t.riskLevels[selectedConfigPreview.risk_level] || selectedConfigPreview.risk_level }}
+                </span>
+              </strong>
+            </div>
+          </div>
+
+          <div v-if="selectedConfigPreview.recommended_use" class="preview-recommended">
+            <span class="preview-label">{{ t.previewRecommendedUse }}</span>
+            <p>{{ selectedConfigPreview.recommended_use }}</p>
+          </div>
+
+          <details v-if="selectedConfigPreview.explanations" class="preview-explanations">
+            <summary>{{ t.previewExplanation }}</summary>
+            <div class="explanation-list">
+              <p v-for="(val, key) in selectedConfigPreview.explanations" :key="key">
+                <strong>{{ key }}:</strong> {{ val }}
+              </p>
+            </div>
+          </details>
         </div>
 
         <div class="button-row">
@@ -1902,6 +2025,131 @@ input:focus {
 .job-badge.muted {
   background: #eef2ff;
   color: #64748b;
+}
+
+/* ---------------- Config Preview ---------------- */
+
+.config-preview {
+  margin-top: 14px;
+  padding: 14px;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 14px;
+  background: linear-gradient(
+    180deg,
+    rgba(248, 250, 252, 0.74),
+    rgba(255, 255, 255, 0.92)
+  );
+}
+
+.config-preview-title {
+  margin-bottom: 10px;
+  color: #1f2a44;
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.preview-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.preview-item {
+  padding: 8px 10px;
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.preview-label {
+  display: block;
+  color: #64748b;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.preview-item strong {
+  display: block;
+  margin-top: 2px;
+  color: #0f172a;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.risk-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.risk-none {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.risk-low {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.risk-medium {
+  background: #fef9c3;
+  color: #a16207;
+}
+
+.risk-high {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.preview-recommended {
+  margin-top: 10px;
+  padding: 8px 10px;
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.preview-recommended p {
+  margin: 2px 0 0;
+  color: #475569;
+  font-size: 13px;
+}
+
+.preview-explanations {
+  margin-top: 10px;
+}
+
+.preview-explanations summary {
+  cursor: pointer;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.explanation-list {
+  margin-top: 6px;
+  padding: 10px;
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.explanation-list p {
+  margin: 4px 0;
+  color: #475569;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.explanation-list strong {
+  color: #334155;
 }
 
 /* ---------------- Buttons ---------------- */
@@ -2860,7 +3108,8 @@ button:disabled,
 
   .status-card,
   .metric-grid,
-  .job-detail-grid {
+  .job-detail-grid,
+  .preview-grid {
     grid-template-columns: 1fr;
   }
 

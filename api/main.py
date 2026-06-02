@@ -21,6 +21,7 @@ from pydantic import BaseModel
 from api.jobs import JobRecord, JobStore
 from api.runner import JobEventHub, run_job
 from fedguardlab.config.loader import load_config
+from fedguardlab.config.schema import FedGuardConfig
 from fedguardlab.reporting.comparison import (
     COMPARISON_LABELS,
     COMPARISONS_DIR,
@@ -138,6 +139,244 @@ def _read_config_metadata(config_path: Path) -> Dict[str, Any]:
     }
 
 
+_AGGREGATION_EXPLANATIONS = {
+    "zh": {
+        "fedavg": (
+            "FedAvg：标准联邦平均，对各客户端模型权重取加权平均。"
+        ),
+        "median": (
+            "Median：中位数聚合，对每个参数取中位数，"
+            "抗异常值能力较强。"
+        ),
+        "trimmed_mean": (
+            "Trimmed Mean：截断均值聚合，"
+            "去除两端极值后取均值。"
+        ),
+        "krum": (
+            "Krum：选择距离最近的模型更新，"
+            "对恶意更新有较强鲁棒性。"
+        ),
+    },
+    "en": {
+        "fedavg": (
+            "FedAvg: standard federated averaging "
+            "of client model weights."
+        ),
+        "median": (
+            "Median: takes the element-wise median "
+            "across clients, robust to outliers."
+        ),
+        "trimmed_mean": (
+            "Trimmed Mean: trims extreme values "
+            "before averaging."
+        ),
+        "krum": (
+            "Krum: selects the model update with "
+            "the smallest neighbor distance, "
+            "robust to malicious updates."
+        ),
+    },
+}
+
+_ATTACK_EXPLANATIONS = {
+    "zh": {
+        "none": "无攻击：正常联邦学习训练。",
+        "label_flipping": (
+            "标签翻转攻击：恶意客户端将源标签替换为目标标签，"
+            "破坏模型分类能力。"
+        ),
+        "backdoor": (
+            "后门攻击：恶意客户端在训练数据中注入触发模式，"
+            "使模型对特定输入产生错误输出。"
+        ),
+    },
+    "en": {
+        "none": "No attack: standard FL training.",
+        "label_flipping": (
+            "Label Flipping: malicious clients replace "
+            "source labels with target labels, "
+            "degrading classification."
+        ),
+        "backdoor": (
+            "Backdoor: malicious clients inject trigger "
+            "patterns into training data, causing "
+            "misclassification on specific inputs."
+        ),
+    },
+}
+
+_DEFENSE_EXPLANATIONS = {
+    "zh": {
+        "none": "无防御：不使用鲁棒聚合防御。",
+        "median": "Median 防御：使用中位数聚合抵御异常更新。",
+        "trimmed_mean": (
+            "Trimmed Mean 防御：使用截断均值聚合抵御异常更新。"
+        ),
+        "krum": (
+            "Krum 防御：使用 Krum 算法选择最安全的模型更新。"
+        ),
+    },
+    "en": {
+        "none": "No defense: no robust aggregation defense.",
+        "median": (
+            "Median defense: uses median aggregation "
+            "to resist anomalous updates."
+        ),
+        "trimmed_mean": (
+            "Trimmed Mean defense: uses trimmed mean "
+            "aggregation to resist anomalous updates."
+        ),
+        "krum": (
+            "Krum defense: uses the Krum algorithm "
+            "to select the safest model update."
+        ),
+    },
+}
+
+_PARTITION_EXPLANATIONS = {
+    "zh": {
+        "iid": (
+            "IID：数据在各客户端间均匀分布（独立同分布）。"
+        ),
+        "dirichlet": (
+            "Dirichlet：数据按 Dirichlet 分布划分，"
+            "模拟非独立同分布场景。"
+        ),
+    },
+    "en": {
+        "iid": (
+            "IID: data is uniformly distributed across "
+            "clients (independent and identically "
+            "distributed)."
+        ),
+        "dirichlet": (
+            "Dirichlet: data is partitioned using a "
+            "Dirichlet distribution, simulating "
+            "non-IID scenarios."
+        ),
+    },
+}
+
+
+def _compute_risk_level(config: FedGuardConfig) -> str:
+    attack = config.attack.type
+    defense = config.defense.type
+
+    if attack == "none":
+        return "none"
+    if attack == "label_flipping":
+        return "low" if defense != "none" else "medium"
+    if attack == "backdoor":
+        return "medium" if defense != "none" else "high"
+    return "none"
+
+
+def _compute_recommended_use(config: FedGuardConfig, lang: str = "zh") -> str:
+    attack = config.attack.type
+    defense = config.defense.type
+
+    if attack == "none" and defense == "none":
+        return {
+            "zh": "基线实验：验证联邦学习基本流程",
+            "en": "Baseline: validate basic federated learning workflow",
+        }[lang]
+    if attack != "none" and defense == "none":
+        return {
+            "zh": "攻击演示：展示攻击对联邦学习的影响",
+            "en": "Attack demo: demonstrate the impact of attacks on FL",
+        }[lang]
+    if attack != "none" and defense != "none":
+        return {
+            "zh": "防御对比：对比攻防效果",
+            "en": "Defense comparison: compare attack-defense outcomes",
+        }[lang]
+    return {
+        "zh": "鲁棒聚合演示：展示防御聚合方法",
+        "en": "Robust aggregation demo: demonstrate defense aggregation methods",
+    }[lang]
+
+
+def _get_explanation(
+    group: Dict[str, Dict[str, str]], lang: str, key: str
+) -> str:
+    lang_map = group.get(lang, group.get("zh", {}))
+    return lang_map.get(key, key)
+
+
+def compute_config_preview(
+    config: FedGuardConfig, lang: str = "zh"
+) -> Dict[str, Any]:
+    """Compute a lightweight preview/explanation for a config."""
+    agg = config.federated.aggregation
+    attack = config.attack.type
+    defense = config.defense.type
+    partition = config.dataset.partition
+
+    attack_desc = attack
+    if attack == "label_flipping":
+        src = config.attack.source_label
+        tgt = config.attack.target_label
+        src_str = str(src) if src is not None else "?"
+        tgt_str = str(tgt) if tgt is not None else "?"
+        if lang == "zh":
+            attack_desc = f"标签翻转 ({src_str}→{tgt_str})"
+        else:
+            attack_desc = (
+                f"Label Flipping ({src_str}→{tgt_str})"
+            )
+    elif attack == "backdoor":
+        tgt = config.attack.target_label
+        if lang == "zh":
+            attack_desc = f"后门攻击 (目标标签={tgt})"
+        else:
+            attack_desc = f"Backdoor (target={tgt})"
+
+    partition_desc = partition
+    if partition == "dirichlet" and config.dataset.alpha is not None:
+        partition_desc = f"Dirichlet (α={config.dataset.alpha})"
+
+    explanations = {
+        "aggregation": _get_explanation(
+            _AGGREGATION_EXPLANATIONS, lang, agg
+        ),
+        "attack": _get_explanation(
+            _ATTACK_EXPLANATIONS, lang, attack
+        ),
+        "defense": _get_explanation(
+            _DEFENSE_EXPLANATIONS, lang, defense
+        ),
+        "partition": _get_explanation(
+            _PARTITION_EXPLANATIONS, lang, partition
+        ),
+    }
+
+    none_label = "无" if lang == "zh" else "None"
+    defense_display = (
+        defense.replace("_", " ").title()
+        if defense != "none"
+        else none_label
+    )
+
+    return {
+        "dataset": config.dataset.name.upper(),
+        "partition": partition_desc,
+        "aggregation": agg.replace("_", " ").title(),
+        "attack": attack_desc,
+        "defense": defense_display,
+        "rounds": config.experiment.rounds,
+        "clients": config.federated.num_clients,
+        "malicious_clients": config.federated.malicious_clients,
+        "local_epochs": config.training.local_epochs,
+        "batch_size": config.training.batch_size,
+        "learning_rate": config.training.learning_rate,
+        "risk_level": _compute_risk_level(config),
+        "recommended_use": _compute_recommended_use(
+            config, lang
+        ),
+        "explanations": explanations,
+    }
+
+
 def validate_job_id(job_id: str) -> None:
     if not JOB_ID_PATTERN.fullmatch(job_id):
         raise HTTPException(status_code=400, detail="invalid job_id")
@@ -239,6 +478,8 @@ def list_configs():
 
         metadata = _read_config_metadata(config_path)
 
+        preview = compute_config_preview(config, lang="zh")
+
         configs.append(
             {
                 "label": config.experiment.name,
@@ -257,6 +498,7 @@ def list_configs():
                 "attack": config.attack.model_dump(),
                 "defense": config.defense.model_dump(),
                 "metadata": metadata,
+                "preview": preview,
             }
         )
 
