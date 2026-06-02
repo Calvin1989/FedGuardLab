@@ -48,11 +48,11 @@ const messages = {
   zh: {
     eyebrow: "FedGuardLab",
     heroTitle: "联邦学习安全实验平台",
-    heroSubtitle: "运行 FL 安全实验，实时查看指标，对比攻防效果。",
+    heroSubtitle: "运行 FL 安全实验，实时查看指标，对比攻防效果",
     categoryLabel: "分类",
     allCategories: "全部分类",
-    experimentLabel: "实验",
-    noConfigsForCategory: "当前分类没有可用配置。",
+    experimentLabel: "实验配置",
+    noConfigsForCategory: "当前分类没有可用配置",
     configPreview: "配置预览",
     previewDataset: "数据集",
     previewPartition: "数据分布",
@@ -75,6 +75,7 @@ const messages = {
       medium: "中",
       high: "高",
     },
+    noneValue: "无",
     runExperiment: "运行实验",
     running: "运行中...",
     cancelExperiment: "取消实验",
@@ -88,10 +89,10 @@ const messages = {
     loss: "损失",
     asr: "攻击成功率",
     chartTitle: "实时联邦学习指标",
-    emptyChart: "启动新实验以查看实时指标。已完成的实验将保存在下方的对比历史中。",
-    heroEmptyHint: "选择配置并运行实验，实时指标会在这里更新。",
+    emptyChart: "启动实验后可查看实时指标，完成任务会进入对比历史",
+    heroEmptyHint: "选择配置并运行实验，实时指标会在这里更新",
     comparisonTitle: "实验对比",
-    comparisonHint: "选择至少两个已完成的实验，生成对比报告。",
+    comparisonHint: "选择至少两个已完成的实验，生成对比报告",
     statusFilter: "状态",
     allStatuses: "全部状态",
     finishedWithReport: "已完成（报告）",
@@ -103,9 +104,12 @@ const messages = {
     clearHistory: "清空历史",
     generateReport: "生成对比报告",
     generating: "生成中...",
-    emptyAll: "已完成且有报告的实验将显示在这里。",
-    emptyAllStatuses: "暂无任务记录。",
-    emptyFiltered: "没有找到{status}的任务。",
+    emptyAll: "已完成且有报告的实验会显示在这里",
+    emptyAllStatuses: "暂无任务记录",
+    emptyAllStatusesHint: "运行一次实验后，完成的任务会显示在这里",
+    emptyAllHint: "切换状态筛选或运行新的实验后再查看",
+    emptyFilteredHint: "可以切换状态筛选或稍后刷新历史记录",
+    emptyFiltered: "没有找到{status}任务",
     tableSelect: "选择",
     tableExperiment: "实验",
     tableAggregation: "聚合",
@@ -133,20 +137,20 @@ const messages = {
     openReport: "查看报告",
     notAvailable: "暂无",
     available: "可用",
-    jobDetailHint: "点击任务行查看详情。",
+    jobDetailHint: "选择任务后查看详情",
     comparisonLabel: "对比",
     openComparisonReport: "查看对比报告",
-    selectAtLeastTwo: "请至少选择两个已完成的实验。",
+    selectAtLeastTwo: "请至少选择两个已完成的实验",
     selectedJobsTitle: "已选择实验",
     selectedJobsCount: "已选择 {count} 个实验",
-    selectedJobsHint: "至少需要选择 2 个实验才能生成对比报告。",
+    selectedJobsHint: "至少需要选择 2 个实验才能生成对比报告",
     comparisonCreating: "正在生成对比报告…",
-    comparisonSuccess: "对比报告已生成。",
-    comparisonSuccessDescription: "已生成 HTML、CSV、JSON 三种导出文件，可用于分享、归档或继续分析。",
+    comparisonSuccess: "对比报告已生成",
+    comparisonSuccessDescription: "已生成 HTML、CSV、JSON 三种导出文件，可用于分享、归档或继续分析",
     comparisonHtmlShort: "HTML 报告",
     comparisonCsvShort: "CSV",
     comparisonJsonShort: "JSON",
-    comparisonFailed: "对比报告生成失败。",
+    comparisonFailed: "对比报告生成失败",
     comparisonExportsTitle: "对比导出",
     insightsTitle: "结果洞察",
     bestAccuracy: "最佳准确率",
@@ -167,7 +171,7 @@ const messages = {
     lifecycleEvents: "生命周期",
     trainingRoundsTitle: "训练轮次详情",
     trainingRoundsCount: "{count} 条轮次记录",
-    trainingRoundsHint: "默认收起轮次日志，展开后在固定高度区域滚动查看，避免页面过长。",
+    trainingRoundsHint: "默认收起轮次日志，展开后在固定高度区域滚动查看，避免页面过长",
     eventRound: "轮次",
     eventFailureReason: "失败原因",
     noEvents: "暂无事件记录",
@@ -195,11 +199,11 @@ const messages = {
   en: {
     eyebrow: "FedGuardLab",
     heroTitle: "Interactive FL Security Playground",
-    heroSubtitle: "Run FL security experiments, stream live metrics, compare outcomes.",
+    heroSubtitle: "Run FL security experiments, stream live metrics, compare outcomes",
     categoryLabel: "Category",
     allCategories: "All categories",
-    experimentLabel: "Experiment",
-    noConfigsForCategory: "No configs available for this category.",
+    experimentLabel: "Experiment config",
+    noConfigsForCategory: "No configs available for this category",
     configPreview: "Config Preview",
     previewDataset: "Dataset",
     previewPartition: "Partition",
@@ -222,6 +226,7 @@ const messages = {
       medium: "Medium",
       high: "High",
     },
+    noneValue: "None",
     runExperiment: "Run Experiment",
     running: "Running...",
     cancelExperiment: "Cancel Experiment",
@@ -235,10 +240,10 @@ const messages = {
     loss: "Loss",
     asr: "Attack Success Rate",
     chartTitle: "Live Federated Learning Metrics",
-    emptyChart: "Start a new experiment to see live metrics here. Finished experiments are saved in the comparison history below.",
-    heroEmptyHint: "Choose a config and run an experiment; live metrics will update here.",
+    emptyChart: "Start an experiment to see live metrics; finished jobs appear in comparison history",
+    heroEmptyHint: "Choose a config and run an experiment; live metrics will update here",
     comparisonTitle: "Experiment Comparison",
-    comparisonHint: "Select at least two finished experiments and generate a comparison report.",
+    comparisonHint: "Select at least two finished experiments and generate a comparison report",
     statusFilter: "Status",
     allStatuses: "All statuses",
     finishedWithReport: "Finished with report",
@@ -250,9 +255,12 @@ const messages = {
     clearHistory: "Clear History",
     generateReport: "Generate Comparison Report",
     generating: "Generating...",
-    emptyAll: "Finished experiments with reports will appear here.",
-    emptyAllStatuses: "No jobs recorded yet.",
-    emptyFiltered: "No {status} jobs found.",
+    emptyAll: "Finished experiments with reports will appear here",
+    emptyAllStatuses: "No jobs recorded yet",
+    emptyAllStatusesHint: "Run an experiment and completed jobs will appear here",
+    emptyAllHint: "Change the status filter or run another experiment",
+    emptyFilteredHint: "Change the status filter or refresh the history later",
+    emptyFiltered: "No {status} jobs found",
     tableSelect: "Select",
     tableExperiment: "Experiment",
     tableAggregation: "Aggregation",
@@ -280,20 +288,20 @@ const messages = {
     openReport: "Open Report",
     notAvailable: "Not available",
     available: "Available",
-    jobDetailHint: "Select a job to inspect details.",
+    jobDetailHint: "Select a job to inspect details",
     comparisonLabel: "Comparison",
     openComparisonReport: "Open Comparison Report",
-    selectAtLeastTwo: "Please select at least two finished experiments.",
+    selectAtLeastTwo: "Please select at least two finished experiments",
     selectedJobsTitle: "Selected Jobs",
     selectedJobsCount: "{count} job(s) selected",
-    selectedJobsHint: "Select at least 2 experiments to generate a comparison report.",
+    selectedJobsHint: "Select at least 2 experiments to generate a comparison report",
     comparisonCreating: "Generating comparison report…",
-    comparisonSuccess: "Comparison report generated.",
-    comparisonSuccessDescription: "HTML, CSV, and JSON artifacts are ready for sharing, archiving, or follow-up analysis.",
+    comparisonSuccess: "Comparison report generated",
+    comparisonSuccessDescription: "HTML, CSV, and JSON artifacts are ready for sharing, archiving, or follow-up analysis",
     comparisonHtmlShort: "HTML Report",
     comparisonCsvShort: "CSV",
     comparisonJsonShort: "JSON",
-    comparisonFailed: "Failed to generate comparison report.",
+    comparisonFailed: "Failed to generate comparison report",
     comparisonExportsTitle: "Comparison Exports",
     insightsTitle: "Result Insights",
     bestAccuracy: "Best Accuracy",
@@ -314,7 +322,7 @@ const messages = {
     lifecycleEvents: "Lifecycle",
     trainingRoundsTitle: "Training Round Details",
     trainingRoundsCount: "{count} round records",
-    trainingRoundsHint: "Round logs are collapsed by default and scroll inside a fixed-height panel to keep the page compact.",
+    trainingRoundsHint: "Round logs are collapsed by default and scroll inside a fixed-height panel to keep the page compact",
     eventRound: "Round",
     eventFailureReason: "Failure Reason",
     noEvents: "No events recorded",
@@ -436,20 +444,39 @@ onMounted(async () => {
 });
 
 
-const selectedExperimentDescription = computed(() => {
-  const option = experimentOptions.value.find(
-    (item) => item.value === selectedConfig.value
-  );
+const selectedConfigOption = computed(() =>
+  experimentOptions.value.find((item) => item.value === selectedConfig.value)
+);
 
-  return option?.description || "";
+
+const selectedExperimentDescription = computed(() => {
+  return selectedConfigOption.value?.description || "";
 });
 
 
 const selectedConfigPreview = computed(() => {
-  const option = experimentOptions.value.find(
-    (item) => item.value === selectedConfig.value
-  );
-  return option?.preview || null;
+  return selectedConfigOption.value?.preview || null;
+});
+
+
+const displayConfigPreview = computed(() => {
+  const preview = selectedConfigPreview.value;
+
+  if (!preview) {
+    return null;
+  }
+
+  return {
+    ...preview,
+    attack: formatAttackDisplay(
+      selectedConfigOption.value?.attack,
+      preview.attack
+    ),
+    defense: formatDefenseDisplay(
+      selectedConfigOption.value?.defense,
+      preview.defense
+    ),
+  };
 });
 
 
@@ -665,6 +692,62 @@ function loadRecentJobs() {
     console.warn("Failed to load recent jobs from localStorage:", error);
     window.localStorage.removeItem(RECENT_JOBS_STORAGE_KEY);
   }
+}
+
+
+function titleizeDisplayValue(value) {
+  if (!value) {
+    return "—";
+  }
+
+  return String(value)
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, (char) => char.toUpperCase());
+}
+
+
+function formatAttackDisplay(attackConfig, fallbackValue = "") {
+  const type = attackConfig?.type || fallbackValue;
+
+  if (!type || type === "—") {
+    return "—";
+  }
+
+  if (type === "none") {
+    return t.value.noneValue;
+  }
+
+  if (type === "label_flipping") {
+    const source = attackConfig?.source_label ?? "?";
+    const target = attackConfig?.target_label ?? "?";
+    return language.value === "zh"
+      ? `标签翻转 · ${source}→${target}`
+      : `Label flip · ${source}→${target}`;
+  }
+
+  if (type === "backdoor") {
+    const target = attackConfig?.target_label ?? "?";
+    return language.value === "zh"
+      ? `后门攻击 · 目标 ${target}`
+      : `Backdoor · target ${target}`;
+  }
+
+  return titleizeDisplayValue(type);
+}
+
+
+function formatDefenseDisplay(defenseConfig, fallbackValue = "") {
+  const type = defenseConfig?.type || fallbackValue;
+
+  if (!type || type === "—") {
+    return "—";
+  }
+
+  if (type === "none") {
+    return t.value.noneValue;
+  }
+
+  return titleizeDisplayValue(type);
 }
 
 
@@ -1223,37 +1306,37 @@ async function startExperiment() {
           </div>
         </div>
 
-        <div v-if="selectedConfigPreview" class="config-preview compact config-preview-line">
+        <div v-if="displayConfigPreview" class="config-preview compact config-preview-line">
           <div class="preview-grid compact">
             <div class="preview-item">
               <span class="preview-label">{{ t.previewDataset }}</span>
-              <strong>{{ selectedConfigPreview.dataset }}</strong>
+              <strong>{{ displayConfigPreview.dataset }}</strong>
             </div>
             <div class="preview-item">
               <span class="preview-label">{{ t.previewAggregation }}</span>
-              <strong>{{ selectedConfigPreview.aggregation }}</strong>
+              <strong>{{ displayConfigPreview.aggregation }}</strong>
             </div>
             <div class="preview-item">
               <span class="preview-label">{{ t.previewAttack }}</span>
-              <strong>{{ selectedConfigPreview.attack }}</strong>
+              <strong class="preview-value" :title="displayConfigPreview.attack">{{ displayConfigPreview.attack }}</strong>
             </div>
             <div class="preview-item">
               <span class="preview-label">{{ t.previewDefense }}</span>
-              <strong>{{ selectedConfigPreview.defense }}</strong>
+              <strong class="preview-value" :title="displayConfigPreview.defense">{{ displayConfigPreview.defense }}</strong>
             </div>
             <div class="preview-item">
               <span class="preview-label">{{ t.previewRounds }}</span>
-              <strong>{{ selectedConfigPreview.rounds }}</strong>
+              <strong>{{ displayConfigPreview.rounds }}</strong>
             </div>
             <div class="preview-item">
               <span class="preview-label">{{ t.previewClients }}</span>
-              <strong>{{ selectedConfigPreview.clients }}</strong>
+              <strong>{{ displayConfigPreview.clients }}</strong>
             </div>
             <div class="preview-item risk-preview">
               <span class="preview-label">{{ t.previewRiskLevel }}</span>
               <strong>
-                <span class="risk-badge" :class="'risk-' + selectedConfigPreview.risk_level">
-                  {{ t.riskLevels[selectedConfigPreview.risk_level] || selectedConfigPreview.risk_level }}
+                <span class="risk-badge" :class="'risk-' + displayConfigPreview.risk_level">
+                  {{ t.riskLevels[displayConfigPreview.risk_level] || displayConfigPreview.risk_level }}
                 </span>
               </strong>
             </div>
@@ -1264,31 +1347,31 @@ async function startExperiment() {
             <div class="preview-detail-grid">
               <div class="preview-item">
                 <span class="preview-label">{{ t.previewPartition }}</span>
-                <strong>{{ selectedConfigPreview.partition }}</strong>
+                <strong>{{ displayConfigPreview.partition }}</strong>
               </div>
               <div class="preview-item">
                 <span class="preview-label">{{ t.previewMalicious }}</span>
-                <strong>{{ selectedConfigPreview.malicious_clients }}</strong>
+                <strong>{{ displayConfigPreview.malicious_clients }}</strong>
               </div>
               <div class="preview-item">
                 <span class="preview-label">{{ t.previewLocalEpochs }}</span>
-                <strong>{{ selectedConfigPreview.local_epochs }}</strong>
+                <strong>{{ displayConfigPreview.local_epochs }}</strong>
               </div>
               <div class="preview-item">
                 <span class="preview-label">{{ t.previewBatchSize }}</span>
-                <strong>{{ selectedConfigPreview.batch_size }}</strong>
+                <strong>{{ displayConfigPreview.batch_size }}</strong>
               </div>
               <div class="preview-item">
                 <span class="preview-label">{{ t.previewLearningRate }}</span>
-                <strong>{{ selectedConfigPreview.learning_rate }}</strong>
+                <strong>{{ displayConfigPreview.learning_rate }}</strong>
               </div>
             </div>
-            <div v-if="selectedConfigPreview.recommended_use" class="preview-recommended">
+            <div v-if="displayConfigPreview.recommended_use" class="preview-recommended">
               <span class="preview-label">{{ t.previewRecommendedUse }}</span>
-              <p>{{ selectedConfigPreview.recommended_use }}</p>
+              <p>{{ displayConfigPreview.recommended_use }}</p>
             </div>
-            <div v-if="selectedConfigPreview.explanations" class="explanation-list">
-              <p v-for="(val, key) in selectedConfigPreview.explanations" :key="key">
+            <div v-if="displayConfigPreview.explanations" class="explanation-list">
+              <p v-for="(val, key) in displayConfigPreview.explanations" :key="key">
                 <strong>{{ key }}:</strong> {{ val }}
               </p>
             </div>
@@ -1300,8 +1383,8 @@ async function startExperiment() {
         <div class="runtime-panel">
           <div class="runtime-row">
             <div class="runtime-item">
-              <span>{{ t.statusLabel }}</span>
-              <strong>
+              <span class="runtime-label">{{ t.statusLabel }}</span>
+              <strong class="runtime-value">
                 <span class="status-badge" :class="'status-' + status">
                   {{ t.statusValues[status] || status }}
                 </span>
@@ -1309,33 +1392,33 @@ async function startExperiment() {
             </div>
 
             <div v-if="jobId" class="runtime-item wide">
-              <span>{{ t.jobLabel }}</span>
-              <strong>{{ jobId }}</strong>
+              <span class="runtime-label">{{ t.jobLabel }}</span>
+              <strong class="runtime-value">{{ jobId }}</strong>
             </div>
 
             <div class="runtime-item runtime-action" :class="{ 'is-disabled': !reportUrl }">
-              <span>{{ t.reportLabel }}</span>
-              <a v-if="reportUrl" class="report-link" :href="withLang(reportUrl)" target="_blank">
+              <span class="runtime-label">{{ t.reportLabel }}</span>
+              <a v-if="reportUrl" class="report-link runtime-report-link" :href="withLang(reportUrl)" target="_blank">
                 {{ t.openHtmlReport }}
               </a>
-              <span v-else class="report-link disabled">{{ t.notReady }}</span>
+              <span v-else class="report-link runtime-report-link disabled">{{ t.notReady }}</span>
             </div>
 
             <div v-if="latestMetric" class="hero-metric-item">
-              <span>{{ t.round }}</span>
-              <strong>{{ latestMetric.round }}</strong>
+              <span class="runtime-label">{{ t.round }}</span>
+              <strong class="runtime-value">{{ latestMetric.round }}</strong>
             </div>
             <div v-if="latestMetric" class="hero-metric-item">
-              <span>{{ t.accuracy }}</span>
-              <strong>{{ latestMetric.accuracy }}</strong>
+              <span class="runtime-label">{{ t.accuracy }}</span>
+              <strong class="runtime-value">{{ latestMetric.accuracy }}</strong>
             </div>
             <div v-if="latestMetric" class="hero-metric-item">
-              <span>{{ t.loss }}</span>
-              <strong>{{ latestMetric.loss }}</strong>
+              <span class="runtime-label">{{ t.loss }}</span>
+              <strong class="runtime-value">{{ latestMetric.loss }}</strong>
             </div>
             <div v-if="latestMetric" class="hero-metric-item">
-              <span>{{ t.asr }}</span>
-              <strong>{{ latestMetric.attack_success_rate }}</strong>
+              <span class="runtime-label">{{ t.asr }}</span>
+              <strong class="runtime-value">{{ latestMetric.attack_success_rate }}</strong>
             </div>
           </div>
 
@@ -1424,15 +1507,18 @@ async function startExperiment() {
         </div>
       </div>
 
-      <div v-if="recentJobs.length === 0" class="empty-state small">
+      <div v-if="recentJobs.length === 0" class="empty-state small comparison-empty-state">
         <template v-if="jobStatusFilter === 'all'">
-          {{ t.emptyAllStatuses }}
+          <strong>{{ t.emptyAllStatuses }}</strong>
+          <span>{{ t.emptyAllStatusesHint }}</span>
         </template>
         <template v-else-if="jobStatusFilter === 'finished_report'">
-          {{ t.emptyAll }}
+          <strong>{{ t.emptyAll }}</strong>
+          <span>{{ t.emptyAllHint }}</span>
         </template>
         <template v-else>
-          {{ t.emptyFiltered.replace('{status}', t.statusValues[jobStatusFilter] || jobStatusFilter) }}
+          <strong>{{ t.emptyFiltered.replace('{status}', t.statusValues[jobStatusFilter] || jobStatusFilter) }}</strong>
+          <span>{{ t.emptyFilteredHint }}</span>
         </template>
       </div>
 
@@ -1500,7 +1586,7 @@ async function startExperiment() {
         </tbody>
       </table>
 
-      <div class="job-detail-card">
+      <div v-if="recentJobs.length > 0" class="job-detail-card">
         <div v-if="selectedDetailJob" class="job-detail-panel">
           <div class="job-detail-header">
             <div>
@@ -3502,6 +3588,129 @@ input {
     height: 26px;
     min-height: 26px;
     font-size: 10px;
+  }
+}
+
+
+/* v1.8.5 dashboard microcopy, empty-state, and alignment polish */
+.command-controls {
+  grid-template-columns: 180px minmax(300px, 560px) auto;
+  justify-content: start;
+}
+
+.command-controls .field-control:nth-child(2),
+.experiment-select {
+  max-width: 560px;
+}
+
+.preview-value {
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: keep-all;
+}
+
+.runtime-item,
+.hero-metric-item {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+}
+
+.runtime-label {
+  display: block;
+  margin: 0;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.runtime-value {
+  display: flex;
+  align-items: center;
+  min-height: 30px;
+  margin: 0;
+  line-height: 1.15;
+}
+
+.runtime-item.wide .runtime-value {
+  min-height: auto;
+  align-items: flex-start;
+  line-height: 1.35;
+}
+
+.runtime-action {
+  gap: 6px;
+}
+
+.runtime-action .runtime-report-link {
+  align-self: flex-start;
+  width: auto;
+  min-width: 88px;
+  height: 30px;
+  min-height: 30px;
+  max-width: 100%;
+  padding: 0 12px;
+  border-radius: 999px;
+}
+
+.status-badge {
+  height: 30px;
+  min-height: 30px;
+  padding: 0 13px;
+  font-size: 12px;
+  line-height: 1;
+}
+
+.report-link.disabled,
+.runtime-action.is-disabled .runtime-report-link {
+  border-color: rgba(148, 163, 184, 0.26);
+  background: #f8fafc;
+  color: #94a3b8;
+  box-shadow: none;
+}
+
+.comparison-empty-state {
+  min-height: 112px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 22px 24px;
+  text-align: center;
+}
+
+.comparison-empty-state strong {
+  display: block;
+  color: #475569;
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.comparison-empty-state span {
+  display: block;
+  color: #94a3b8;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.section-actions .secondary-button:disabled,
+.section-actions .run-button:disabled {
+  opacity: 0.48;
+  transform: none;
+  box-shadow: none;
+}
+
+@media (max-width: 860px) {
+  .command-controls,
+  .command-controls .field-control:nth-child(2),
+  .experiment-select {
+    max-width: none;
   }
 }
 
