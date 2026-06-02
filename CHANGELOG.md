@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- No unreleased changes.
+
+## v1.8.0
+
 - Prepared v1.8.0 final release documentation.
   - No new feature, no API change, no training logic change, no new dependency.
   - Final release 不新增功能、不新增依赖、不改变 API、不修改训练核心逻辑。
