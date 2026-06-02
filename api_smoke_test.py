@@ -154,6 +154,37 @@ def _assert_index_consistent(job_id: str, status_data: dict[str, Any]) -> None:
     )
 
 
+
+def _assert_reports_cleanup_summary() -> None:
+    print("[RUN] GET /reports/cleanup/summary", flush=True)
+    data = _get("/reports/cleanup/summary")
+    assert data.get("dry_run") is True, f"dry_run not true: {data}"
+    assert data.get("deletes_files") is False, f"deletes_files not false: {data}"
+    assert isinstance(data.get("total_size_bytes"), int), (
+        f"total_size_bytes not int: {data}"
+    )
+
+    for key in ("jobs", "comparisons"):
+        section = data.get(key)
+        assert isinstance(section, dict), f"{key} section not dict: {data}"
+        assert isinstance(section.get("count"), int), f"{key}.count not int: {data}"
+        assert isinstance(section.get("size_bytes"), int), (
+            f"{key}.size_bytes not int: {data}"
+        )
+
+    preview = data.get("cleanup_preview")
+    assert isinstance(preview, dict), f"cleanup_preview not dict: {data}"
+    assert isinstance(preview.get("candidate_count"), int), (
+        f"candidate_count not int: {data}"
+    )
+    assert isinstance(preview.get("candidate_size_bytes"), int), (
+        f"candidate_size_bytes not int: {data}"
+    )
+    assert isinstance(preview.get("candidates"), list), (
+        f"candidates not list: {data}"
+    )
+    print("[OK]  GET /reports/cleanup/summary", flush=True)
+
 def run_recovery_check(job_id: str) -> None:
     print("[RUN] GET /jobs (recovery check)", flush=True)
     data = _get("/jobs")
@@ -430,6 +461,8 @@ def run_default() -> None:
     _assert_comparison_history_query_params()
 
     # POST /run
+    _assert_reports_cleanup_summary()
+
     print("[RUN] POST /run", flush=True)
     data = _post("/run?config_path=configs/label_flip_demo.yaml")
     job_id = data["job_id"]

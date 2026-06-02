@@ -2,6 +2,7 @@ import asyncio
 import json
 import re
 import uuid
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List
 
@@ -445,6 +446,113 @@ def _job_summary(job: JobRecord) -> dict[str, Any]:
     }
 
 
+
+def _format_report_timestamp(timestamp: float | None) -> str | None:
+    if timestamp is None:
+        return None
+    return datetime.fromtimestamp(timestamp, tz=timezone.utc).isoformat()
+
+
+def _directory_size_bytes(path: Path) -> int:
+    if not path.exists():
+        return 0
+
+    if path.is_file():
+        return path.stat().st_size
+
+    total = 0
+    for child in path.rglob("*"):
+        if child.is_file():
+            total += child.stat().st_size
+    return total
+
+
+def _report_directory_entries(base_dir: Path, kind: str) -> list[dict[str, Any]]:
+    if not base_dir.exists():
+        return []
+
+    entries = []
+    for child in sorted(base_dir.iterdir(), key=lambda item: item.name):
+        if not child.is_dir():
+            continue
+
+        stat = child.stat()
+        entries.append(
+            {
+                "id": child.name,
+                "kind": kind,
+                "path": child.as_posix(),
+                "size_bytes": _directory_size_bytes(child),
+                "modified_at": _format_report_timestamp(stat.st_mtime),
+                "_mtime": stat.st_mtime,
+            }
+        )
+
+    return sorted(entries, key=lambda item: item["_mtime"], reverse=True)
+
+
+def _summarize_report_directory(
+    base_dir: Path,
+    kind: str,
+) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+    entries = _report_directory_entries(base_dir, kind)
+    size_bytes = sum(entry["size_bytes"] for entry in entries)
+    timestamps = [entry["_mtime"] for entry in entries]
+
+    summary = {
+        "directory": base_dir.as_posix(),
+        "count": len(entries),
+        "size_bytes": size_bytes,
+        "oldest_modified_at": (
+            _format_report_timestamp(min(timestamps)) if timestamps else None
+        ),
+        "latest_modified_at": (
+            _format_report_timestamp(max(timestamps)) if timestamps else None
+        ),
+    }
+
+    public_entries = [
+        {key: value for key, value in entry.items() if key != "_mtime"}
+        for entry in entries
+    ]
+    return summary, public_entries
+
+
+def build_reports_cleanup_summary(keep_latest: int = 20) -> dict[str, Any]:
+    jobs_summary, job_entries = _summarize_report_directory(REPORTS_DIR, "job")
+    comparisons_summary, comparison_entries = _summarize_report_directory(
+        COMPARISONS_DIR,
+        "comparison",
+    )
+
+    cleanup_candidates = [
+        *job_entries[keep_latest:],
+        *comparison_entries[keep_latest:],
+    ]
+    cleanup_candidates = sorted(
+        cleanup_candidates,
+        key=lambda item: item["modified_at"] or "",
+        reverse=True,
+    )
+
+    return {
+        "dry_run": True,
+        "deletes_files": False,
+        "reports_root": REPORTS_DIR.parent.as_posix(),
+        "keep_latest_per_kind": keep_latest,
+        "total_size_bytes": (
+            jobs_summary["size_bytes"] + comparisons_summary["size_bytes"]
+        ),
+        "jobs": jobs_summary,
+        "comparisons": comparisons_summary,
+        "cleanup_preview": {
+            "candidate_count": len(cleanup_candidates),
+            "candidate_size_bytes": sum(
+                item["size_bytes"] for item in cleanup_candidates
+            ),
+            "candidates": cleanup_candidates[:50],
+        },
+    }
 def _download_file(path: Path, filename: str) -> FileResponse:
     if not path.exists() or not path.is_file():
         raise HTTPException(status_code=404, detail="artifact not found")
@@ -461,6 +569,12 @@ def health():
     return {"status": "ok", "service": "fedguardlab-api"}
 
 
+
+@app.get("/reports/cleanup/summary")
+def reports_cleanup_summary(
+    keep_latest: int = Query(20, ge=0, le=1000),
+):
+    return build_reports_cleanup_summary(keep_latest=keep_latest)
 @app.get("/configs")
 def list_configs():
     configs = []
