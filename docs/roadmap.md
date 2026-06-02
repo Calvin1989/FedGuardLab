@@ -1399,3 +1399,18 @@ Focus: Dashboard job detail and comparison density polish.
 - [x] 刷新 Dashboard、单实验报告和对比报告截图。
 - [x] 完成 v1.8.9 验证闭环：ruff、quick test、pytest、frontend build、API smoke、Docker full flow 和 backend restart recovery。
 - [x] 不修改 API、训练逻辑、report artifact URL、Docker runtime 或测试数据结构。
+
+---
+
+## v1.8.10 Maintenance Update
+
+### v1.8.10 — completed
+
+Focus: Dashboard comparison completion state polish.
+
+- [x] 对比报告已生成后，不再显示"至少需要选择 2 个实验才能生成对比报告"的提示。
+- [x] 压缩 comparison success feedback、结果洞察卡片、导出按钮和生命周期事件区域。
+- [x] 桌面端事件时间线使用更紧凑的两列布局。
+- [x] 保持 v1.8.9 runtime summary 和任务详情行为不变。
+- [x] 完成 release 验证闭环：ruff、quick test、pytest、frontend build、API smoke、Docker full flow 和 backend restart recovery。
+- [x] 不修改 API、训练逻辑、report artifact URL、Docker runtime 或测试数据结构。

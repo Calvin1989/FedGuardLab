@@ -2,11 +2,22 @@
 
 ## Unreleased
 
-- Synced project documentation after the v1.8.9 stable release.
-  - Updated README current version status to v1.8.9.
-  - Refreshed Dashboard, experiment report, and comparison report screenshots.
-  - Prepared CHANGELOG and roadmap entries for the v1.8.8 / v1.8.9 UI polish sequence.
-  - Documentation-only update; no API change, no training logic change, no report artifact URL change, no Docker runtime change.
+- No unreleased changes.
+
+## v1.8.10
+
+- Polished Dashboard comparison completion state.
+  - Hide the "at least 2 experiments" comparison hint after a comparison report has already been generated.
+  - Reduced spacing for comparison success feedback, insight cards, export actions, and lifecycle events.
+  - Made the lifecycle event timeline more compact on desktop.
+  - No API change, no training logic change, no report artifact URL change, no Docker runtime change, no test data structure change.
+  - Verified with:
+    - `python -m ruff check .`
+    - `python quick_test.py`
+    - `python -m pytest`
+    - `cd web && npm run build`
+    - `python api_smoke_test.py`
+    - Docker full flow: compose config/build/up, wait-finished smoke run, backend restart recovery, compose down.
 
 ## v1.8.9
 

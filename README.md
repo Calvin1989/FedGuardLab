@@ -241,17 +241,18 @@ reports/comparisons/<comparison_id>/
 当前稳定版本：
 
 ```text
-v1.8.9
+v1.8.10
 ```
 
-v1.8.9 重点改进：
+v1.8.10 重点改进：
 
 * Dashboard runtime summary UI polish：统一状态值与运行指标的视觉尺寸和层级。
 * Deferred report card：未启动实验时隐藏报告卡片，实验启动后显示“未就绪”，报告生成后显示“HTML 报告 / HTML report”。
 * Dashboard job detail density polish：压缩任务详情、导出文件、事件时间线、训练轮次详情和已选择实验区域的垂直空间。
 * Config preview i18n polish：优化配置预览中文化、Attack / Defense 文案、空状态和下拉框宽度。
 * Documentation sync：同步 README、CHANGELOG、roadmap 和 Dashboard / report 截图，使文档与 v1.8.9 当前稳定状态一致。
-* Verification hardening：v1.8.9 已通过 ruff、quick test、pytest、frontend build、API smoke 和 Docker recovery 全流程验证。
+* Comparison completion polish：对比报告生成后不再显示"至少需要选择 2 个实验才能生成对比报告"的提示，并压缩对比完成态、结果洞察和事件时间线区域。
+* Verification hardening：v1.8.10 已通过 ruff、quick test、pytest、frontend build、API smoke 和 Docker recovery 全流程验证。
 
 兼容性说明：
 
