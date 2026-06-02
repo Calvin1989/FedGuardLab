@@ -31,6 +31,8 @@ class JobRecord:
     has_report: bool = False
     artifacts: dict[str, Any] = field(default_factory=dict)
     events: list[dict[str, Any]] = field(default_factory=list)
+    archived: bool = False
+    archived_at: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -47,6 +49,8 @@ class JobRecord:
             "has_report": self.has_report,
             "artifacts": self.artifacts,
             "events": self.events,
+            "archived": self.archived,
+            "archived_at": self.archived_at,
         }
 
 
@@ -88,6 +92,8 @@ class JobStore:
                 has_report=entry.get("has_report", False),
                 artifacts=entry.get("artifacts", {}),
                 events=entry.get("events", []),
+                archived=entry.get("archived", False),
+                archived_at=entry.get("archived_at"),
             )
             self._jobs[job.job_id] = job
 
@@ -141,6 +147,20 @@ class JobStore:
         self._jobs[job_id].metrics.append(metric)
         self._save()
 
+    def archive(self, job_id: str) -> None:
+        job = self._jobs[job_id]
+        if not job.archived:
+            job.archived = True
+            job.archived_at = datetime.now(UTC).isoformat()
+            self._save()
+
+    def restore(self, job_id: str) -> None:
+        job = self._jobs[job_id]
+        if job.archived or job.archived_at is not None:
+            job.archived = False
+            job.archived_at = None
+            self._save()
+
     def set_artifacts(self, job_id: str, has_report: bool, artifacts: dict) -> None:
         job = self._jobs.get(job_id)
         if job is None:
@@ -172,4 +192,6 @@ class JobStore:
             "finished_at": job.finished_at,
             "cancel_requested": job.cancel_requested,
             "events": job.events,
+            "archived": job.archived,
+            "archived_at": job.archived_at,
         }

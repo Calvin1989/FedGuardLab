@@ -439,6 +439,8 @@ def _job_summary(job: JobRecord) -> dict[str, Any]:
         "has_report": artifacts_info["has_report"],
         "artifacts": artifacts_info["artifacts"],
         "events": job.events,
+        "archived": job.archived,
+        "archived_at": job.archived_at,
     }
 
 
@@ -550,6 +552,8 @@ def get_status(job_id: str):
 
 VALID_JOB_STATUSES = {"queued", "running", "finished", "failed", "cancelled"}
 VALID_SORT_OPTIONS = {"created_at_desc", "created_at_asc"}
+VALID_ARCHIVED_FILTERS = {"active", "archived", "all"}
+ARCHIVABLE_JOB_STATUSES = {"finished", "failed", "cancelled"}
 
 
 @app.get("/jobs")
@@ -557,6 +561,7 @@ def list_jobs(
     status: str | None = None,
     limit: int | None = None,
     sort: str = "created_at_desc",
+    archived: str = "active",
 ):
     if status is not None and status not in VALID_JOB_STATUSES:
         raise HTTPException(
@@ -570,6 +575,12 @@ def list_jobs(
             detail=f"invalid sort: {sort}",
         )
 
+    if archived not in VALID_ARCHIVED_FILTERS:
+        raise HTTPException(
+            status_code=400,
+            detail=f"invalid archived filter: {archived}",
+        )
+
     if limit is not None and limit <= 0:
         raise HTTPException(
             status_code=400,
@@ -577,6 +588,11 @@ def list_jobs(
         )
 
     jobs = JOB_STORE.list()
+
+    if archived == "active":
+        jobs = [j for j in jobs if not j.archived]
+    elif archived == "archived":
+        jobs = [j for j in jobs if j.archived]
 
     if status is not None:
         jobs = [j for j in jobs if j.status == status]
@@ -616,6 +632,56 @@ async def cancel_job(job_id: str):
         "job_id": job_id,
         "status": "cancelled",
     }
+
+
+@app.post("/jobs/{job_id}/archive")
+def archive_job(job_id: str):
+    validate_job_id(job_id)
+
+    job = JOB_STORE.get(job_id)
+
+    if job is None:
+        raise HTTPException(status_code=404, detail="job not found")
+
+    if job.status not in ARCHIVABLE_JOB_STATUSES:
+        raise HTTPException(
+            status_code=400,
+            detail=f"cannot archive job with status {job.status}",
+        )
+
+    was_archived = job.archived
+    JOB_STORE.archive(job_id)
+    if not was_archived:
+        JOB_STORE.add_event(
+            job_id,
+            {"type": "archived", "message": "Job archived"},
+        )
+
+    updated = JOB_STORE.get(job_id)
+    assert updated is not None
+    return _job_summary(updated)
+
+
+@app.post("/jobs/{job_id}/restore")
+def restore_job(job_id: str):
+    validate_job_id(job_id)
+
+    job = JOB_STORE.get(job_id)
+
+    if job is None:
+        raise HTTPException(status_code=404, detail="job not found")
+
+    was_archived = job.archived or job.archived_at is not None
+    JOB_STORE.restore(job_id)
+    if was_archived:
+        JOB_STORE.add_event(
+            job_id,
+            {"type": "restored", "message": "Job restored"},
+        )
+
+    updated = JOB_STORE.get(job_id)
+    assert updated is not None
+    return _job_summary(updated)
 
 
 @app.get("/results/{job_id}")
@@ -689,8 +755,21 @@ def get_report_artifact(job_id: str, filename: str):
     return _download_file(REPORTS_DIR / job_id / filename, filename)
 
 
+def _ensure_comparison_jobs_available(job_ids: list[str]) -> None:
+    for job_id in job_ids:
+        validate_job_id(job_id)
+        job = JOB_STORE.get(job_id)
+        if job is not None and job.archived:
+            raise HTTPException(
+                status_code=400,
+                detail=f"cannot compare archived job: {job_id}",
+            )
+
+
 @app.post("/comparisons")
 def create_comparison(request: ComparisonRequest):
+    _ensure_comparison_jobs_available(request.job_ids)
+
     try:
         output_path = generate_comparison_report(
             job_ids=request.job_ids,
