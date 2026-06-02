@@ -1236,6 +1236,18 @@ Checklist：
 - [ ] GitHub Actions CI passing
 - [ ] GitHub Actions Docker Smoke manual workflow passing
 
+### v1.8.0-beta.2
+
+Focus: Dashboard density polish.
+
+- [x] 压缩首页 hero/header 区域高度。
+- [x] 语言切换按钮移至 header 右上角，与标题同行。
+- [x] 缩短顶部标题和副标题文案。
+- [x] Config preview 改为紧凑摘要，默认折叠详细解释。
+- [x] 减少 control-panel、config-metadata、preview-item 的 padding 和间距。
+- [x] 保持中文 / English 双语。
+- [x] 不新增功能、不新增依赖、不改 API、不改训练核心。
+
 ### v1.8.0-rc.1
 
 Focus: Release candidate readiness for v1.8.0.

@@ -48,7 +48,7 @@ const messages = {
   zh: {
     eyebrow: "FedGuardLab",
     heroTitle: "联邦学习安全实验平台",
-    heroSubtitle: "运行模拟或真实联邦学习安全实验，实时查看训练指标，在一个面板中对比攻防效果。",
+    heroSubtitle: "运行 FL 安全实验，实时查看指标，对比攻防效果。",
     categoryLabel: "分类",
     allCategories: "全部分类",
     experimentLabel: "实验",
@@ -68,6 +68,7 @@ const messages = {
     previewRiskLevel: "风险级别",
     previewRecommendedUse: "推荐用途",
     previewExplanation: "参数说明",
+    previewDetails: "展开详情",
     riskLevels: {
       none: "无风险",
       low: "低",
@@ -185,7 +186,7 @@ const messages = {
   en: {
     eyebrow: "FedGuardLab",
     heroTitle: "Interactive FL Security Playground",
-    heroSubtitle: "Run simulated or real federated learning security experiments, stream live metrics, and compare attack-defense outcomes in one dashboard.",
+    heroSubtitle: "Run FL security experiments, stream live metrics, compare outcomes.",
     categoryLabel: "Category",
     allCategories: "All categories",
     experimentLabel: "Experiment",
@@ -205,6 +206,7 @@ const messages = {
     previewRiskLevel: "Risk Level",
     previewRecommendedUse: "Recommended Use",
     previewExplanation: "Parameter Explanations",
+    previewDetails: "Show details",
     riskLevels: {
       none: "None",
       low: "Low",
@@ -1073,26 +1075,27 @@ async function startExperiment() {
     <section class="hero">
       <div class="hero-header">
         <div class="hero-text">
-          <p class="eyebrow">{{ t.eyebrow }}</p>
+          <div class="hero-title-row">
+            <p class="eyebrow">{{ t.eyebrow }}</p>
+            <div class="lang-switcher">
+              <button
+                class="lang-button"
+                :class="{ active: language === 'zh' }"
+                @click="setLanguage('zh')"
+              >
+                中文
+              </button>
+              <button
+                class="lang-button"
+                :class="{ active: language === 'en' }"
+                @click="setLanguage('en')"
+              >
+                English
+              </button>
+            </div>
+          </div>
           <h1>{{ t.heroTitle }}</h1>
           <p class="subtitle">{{ t.heroSubtitle }}</p>
-        </div>
-
-        <div class="lang-switcher">
-          <button
-            class="lang-button"
-            :class="{ active: language === 'zh' }"
-            @click="setLanguage('zh')"
-          >
-            中文
-          </button>
-          <button
-            class="lang-button"
-            :class="{ active: language === 'en' }"
-            @click="setLanguage('en')"
-          >
-            English
-          </button>
         </div>
       </div>
 
@@ -1176,16 +1179,10 @@ async function startExperiment() {
         </div>
 
         <div v-if="selectedConfigPreview" class="config-preview">
-          <div class="config-preview-title">{{ t.configPreview }}</div>
-
           <div class="preview-grid">
             <div class="preview-item">
               <span class="preview-label">{{ t.previewDataset }}</span>
               <strong>{{ selectedConfigPreview.dataset }}</strong>
-            </div>
-            <div class="preview-item">
-              <span class="preview-label">{{ t.previewPartition }}</span>
-              <strong>{{ selectedConfigPreview.partition }}</strong>
             </div>
             <div class="preview-item">
               <span class="preview-label">{{ t.previewAggregation }}</span>
@@ -1208,22 +1205,6 @@ async function startExperiment() {
               <strong>{{ selectedConfigPreview.clients }}</strong>
             </div>
             <div class="preview-item">
-              <span class="preview-label">{{ t.previewMalicious }}</span>
-              <strong>{{ selectedConfigPreview.malicious_clients }}</strong>
-            </div>
-            <div class="preview-item">
-              <span class="preview-label">{{ t.previewLocalEpochs }}</span>
-              <strong>{{ selectedConfigPreview.local_epochs }}</strong>
-            </div>
-            <div class="preview-item">
-              <span class="preview-label">{{ t.previewBatchSize }}</span>
-              <strong>{{ selectedConfigPreview.batch_size }}</strong>
-            </div>
-            <div class="preview-item">
-              <span class="preview-label">{{ t.previewLearningRate }}</span>
-              <strong>{{ selectedConfigPreview.learning_rate }}</strong>
-            </div>
-            <div class="preview-item">
               <span class="preview-label">{{ t.previewRiskLevel }}</span>
               <strong>
                 <span class="risk-badge" :class="'risk-' + selectedConfigPreview.risk_level">
@@ -1233,14 +1214,35 @@ async function startExperiment() {
             </div>
           </div>
 
-          <div v-if="selectedConfigPreview.recommended_use" class="preview-recommended">
-            <span class="preview-label">{{ t.previewRecommendedUse }}</span>
-            <p>{{ selectedConfigPreview.recommended_use }}</p>
-          </div>
-
-          <details v-if="selectedConfigPreview.explanations" class="preview-explanations">
-            <summary>{{ t.previewExplanation }}</summary>
-            <div class="explanation-list">
+          <details class="preview-details">
+            <summary>{{ t.previewDetails }}</summary>
+            <div class="preview-detail-grid">
+              <div class="preview-item">
+                <span class="preview-label">{{ t.previewPartition }}</span>
+                <strong>{{ selectedConfigPreview.partition }}</strong>
+              </div>
+              <div class="preview-item">
+                <span class="preview-label">{{ t.previewMalicious }}</span>
+                <strong>{{ selectedConfigPreview.malicious_clients }}</strong>
+              </div>
+              <div class="preview-item">
+                <span class="preview-label">{{ t.previewLocalEpochs }}</span>
+                <strong>{{ selectedConfigPreview.local_epochs }}</strong>
+              </div>
+              <div class="preview-item">
+                <span class="preview-label">{{ t.previewBatchSize }}</span>
+                <strong>{{ selectedConfigPreview.batch_size }}</strong>
+              </div>
+              <div class="preview-item">
+                <span class="preview-label">{{ t.previewLearningRate }}</span>
+                <strong>{{ selectedConfigPreview.learning_rate }}</strong>
+              </div>
+            </div>
+            <div v-if="selectedConfigPreview.recommended_use" class="preview-recommended">
+              <span class="preview-label">{{ t.previewRecommendedUse }}</span>
+              <p>{{ selectedConfigPreview.recommended_use }}</p>
+            </div>
+            <div v-if="selectedConfigPreview.explanations" class="explanation-list">
               <p v-for="(val, key) in selectedConfigPreview.explanations" :key="key">
                 <strong>{{ key }}:</strong> {{ val }}
               </p>
@@ -1790,19 +1792,19 @@ async function startExperiment() {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 360px;
   grid-template-areas: "intro controls";
-  align-items: center;
-  gap: 36px;
-  min-height: 390px;
-  margin-bottom: 24px;
-  padding: 44px 44px 42px;
+  align-items: start;
+  gap: 28px;
+  min-height: 0;
+  margin-bottom: 18px;
+  padding: 28px 32px 24px;
   border: 1px solid rgba(148, 163, 184, 0.22);
-  border-radius: 32px;
+  border-radius: 28px;
   background:
     radial-gradient(circle at 96% 85%, rgba(59, 130, 246, 0.14), transparent 24%),
     linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(249, 251, 255, 0.9));
   box-shadow:
-    0 32px 90px rgba(79, 70, 229, 0.12),
-    0 18px 44px rgba(15, 23, 42, 0.08);
+    0 24px 60px rgba(79, 70, 229, 0.10),
+    0 14px 32px rgba(15, 23, 42, 0.07);
 }
 
 .hero::before {
@@ -1840,9 +1842,18 @@ async function startExperiment() {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  justify-content: center;
+  justify-content: flex-start;
   min-width: 0;
   padding-right: 12px;
+}
+
+.hero-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 12px;
+  margin-bottom: 6px;
 }
 
 .hero-text {
@@ -1851,11 +1862,11 @@ async function startExperiment() {
 
 .eyebrow,
 .section-kicker {
-  margin: 0 0 10px;
+  margin: 0;
   color: #2563eb;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 900;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
 }
 
@@ -1863,41 +1874,42 @@ h1 {
   max-width: 620px;
   margin: 0;
   color: #0f172a;
-  font-size: clamp(34px, 4.1vw, 52px);
-  line-height: 1.08;
-  letter-spacing: -0.052em;
+  font-size: clamp(26px, 3.2vw, 38px);
+  line-height: 1.12;
+  letter-spacing: -0.04em;
 }
 
 .subtitle {
   max-width: 620px;
-  margin: 18px 0 0;
+  margin: 8px 0 0;
   color: #5f6f87;
-  font-size: 15px;
-  line-height: 1.78;
+  font-size: 13px;
+  line-height: 1.5;
 }
 
 .lang-switcher {
   position: static;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  margin-top: 28px;
-  padding: 5px;
+  gap: 4px;
+  margin-top: 0;
+  padding: 3px;
   border: 1px solid rgba(148, 163, 184, 0.34);
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.86);
-  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.06);
   backdrop-filter: blur(14px);
+  flex-shrink: 0;
 }
 
 .lang-button {
-  min-height: 32px;
-  padding: 7px 14px;
+  min-height: 28px;
+  padding: 5px 12px;
   border: 0;
   border-radius: 999px;
   background: transparent;
   color: #334155;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 900;
   cursor: pointer;
 }
@@ -1912,16 +1924,16 @@ h1 {
 
 .control-panel {
   grid-area: controls;
-  align-self: center;
+  align-self: start;
   width: 100%;
   display: grid;
-  gap: 9px;
-  padding: 20px;
+  gap: 7px;
+  padding: 14px;
   border: 1px solid rgba(148, 163, 184, 0.24);
-  border-radius: 24px;
+  border-radius: 20px;
   background: rgba(255, 255, 255, 0.9);
   box-shadow:
-    0 24px 56px rgba(15, 23, 42, 0.1),
+    0 18px 40px rgba(15, 23, 42, 0.08),
     inset 0 1px 0 rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(16px);
 }
@@ -1975,15 +1987,15 @@ input:focus {
 
 .config-metadata {
   display: grid;
-  gap: 5px;
+  gap: 3px;
   margin-top: 4px;
-  padding: 14px;
+  padding: 10px;
   border: 1px solid rgba(148, 163, 184, 0.24);
-  border-radius: 16px;
+  border-radius: 12px;
   background: linear-gradient(135deg, rgba(248, 250, 252, 0.9), rgba(255, 255, 255, 0.92));
   color: #475569;
-  font-size: 12px;
-  line-height: 1.55;
+  font-size: 11px;
+  line-height: 1.4;
 }
 
 .config-metadata-name {
@@ -2030,10 +2042,10 @@ input:focus {
 /* ---------------- Config Preview ---------------- */
 
 .config-preview {
-  margin-top: 14px;
-  padding: 14px;
+  margin-top: 8px;
+  padding: 10px;
   border: 1px solid rgba(148, 163, 184, 0.2);
-  border-radius: 14px;
+  border-radius: 12px;
   background: linear-gradient(
     180deg,
     rgba(248, 250, 252, 0.74),
@@ -2041,32 +2053,30 @@ input:focus {
   );
 }
 
-.config-preview-title {
-  margin-bottom: 10px;
-  color: #1f2a44;
-  font-size: 12px;
-  font-weight: 900;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-
 .preview-grid {
   display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+
+.preview-detail-grid {
+  display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
+  gap: 6px;
+  margin-top: 8px;
 }
 
 .preview-item {
-  padding: 8px 10px;
+  padding: 6px 8px;
   border: 1px solid rgba(148, 163, 184, 0.15);
-  border-radius: 10px;
+  border-radius: 8px;
   background: rgba(255, 255, 255, 0.8);
 }
 
 .preview-label {
   display: block;
   color: #64748b;
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -2074,9 +2084,9 @@ input:focus {
 
 .preview-item strong {
   display: block;
-  margin-top: 2px;
+  margin-top: 1px;
   color: #0f172a;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 800;
 }
 
@@ -2108,44 +2118,45 @@ input:focus {
   color: #dc2626;
 }
 
+.preview-details {
+  margin-top: 6px;
+}
+
+.preview-details summary {
+  cursor: pointer;
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 0;
+}
+
 .preview-recommended {
-  margin-top: 10px;
-  padding: 8px 10px;
+  margin-top: 8px;
+  padding: 6px 8px;
   border: 1px solid rgba(148, 163, 184, 0.15);
-  border-radius: 10px;
+  border-radius: 8px;
   background: rgba(255, 255, 255, 0.8);
 }
 
 .preview-recommended p {
   margin: 2px 0 0;
   color: #475569;
-  font-size: 13px;
-}
-
-.preview-explanations {
-  margin-top: 10px;
-}
-
-.preview-explanations summary {
-  cursor: pointer;
-  color: #64748b;
   font-size: 12px;
-  font-weight: 700;
 }
 
 .explanation-list {
-  margin-top: 6px;
-  padding: 10px;
+  margin-top: 8px;
+  padding: 8px;
   border: 1px solid rgba(148, 163, 184, 0.15);
-  border-radius: 10px;
+  border-radius: 8px;
   background: rgba(255, 255, 255, 0.8);
 }
 
 .explanation-list p {
-  margin: 4px 0;
+  margin: 3px 0;
   color: #475569;
-  font-size: 12px;
-  line-height: 1.5;
+  font-size: 11px;
+  line-height: 1.4;
 }
 
 .explanation-list strong {
@@ -3076,6 +3087,10 @@ button:disabled,
     max-width: 540px;
   }
 
+  .preview-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
   .status-card,
   .metric-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -3088,28 +3103,35 @@ button:disabled,
 
 @media (max-width: 720px) {
   .page {
-    padding: 22px 14px 44px;
+    padding: 18px 12px 36px;
   }
 
   .hero,
   .comparison-card,
   .chart-card,
   .status-card {
-    border-radius: 22px;
+    border-radius: 20px;
   }
 
   .hero {
-    padding: 28px 20px;
+    padding: 20px 16px;
+  }
+
+  .hero-title-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
   }
 
   h1 {
-    font-size: clamp(30px, 10vw, 42px);
+    font-size: clamp(22px, 8vw, 32px);
   }
 
   .status-card,
   .metric-grid,
   .job-detail-grid,
-  .preview-grid {
+  .preview-grid,
+  .preview-detail-grid {
     grid-template-columns: 1fr;
   }
 
