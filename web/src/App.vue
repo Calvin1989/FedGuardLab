@@ -2,6 +2,7 @@
 import DashboardSectionHeading from "./components/DashboardSectionHeading.vue";
 import GlobalToolbar from "./components/GlobalToolbar.vue";
 import RuntimeMetricTile from "./components/RuntimeMetricTile.vue";
+import RuntimeInfoTile from "./components/RuntimeInfoTile.vue";
 import DashboardSectionNav from "./components/DashboardSectionNav.vue";
 import { computed, onMounted, ref, watch } from "vue";
 import { Line } from "vue-chartjs";
@@ -2075,15 +2076,17 @@ async function startExperiment() {
       <section class="monitor-card">
         <div class="runtime-panel">
           <div class="runtime-row">
-            <div class="runtime-item">
-              <span class="runtime-label">{{ t.statusLabel }}</span>
-              <strong class="runtime-value runtime-text-value">{{ t.statusValues[status] || status }}</strong>
-            </div>
+            <RuntimeInfoTile
+              :label="t.statusLabel"
+              :value="t.statusValues[status] || status"
+            />
 
-            <div v-if="jobId" class="runtime-item wide">
-              <span class="runtime-label">{{ t.jobLabel }}</span>
-              <strong class="runtime-value">{{ jobId }}</strong>
-            </div>
+            <RuntimeInfoTile
+              v-if="jobId"
+              :label="t.jobLabel"
+              :value="jobId"
+              wide
+            />
 
             <RuntimeMetricTile
               v-if="latestMetric"
