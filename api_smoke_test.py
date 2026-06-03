@@ -185,6 +185,26 @@ def _assert_reports_cleanup_summary() -> None:
     )
     print("[OK]  GET /reports/cleanup/summary", flush=True)
 
+
+def _assert_reports_cleanup_run_dry_run() -> None:
+    print("[RUN] POST /reports/cleanup/run dry-run", flush=True)
+    code, data = _post_json_with_status(
+        "/reports/cleanup/run",
+        {"keep_latest": 20, "dry_run": True, "confirm": False},
+    )
+    assert code == 200, f"expected 200, got {code}: {data}"
+    assert data.get("dry_run") is True, f"dry_run not true: {data}"
+    assert data.get("deletes_files") is False, f"deletes_files not false: {data}"
+    assert isinstance(data.get("candidate_count"), int), (
+        f"candidate_count not int: {data}"
+    )
+    assert isinstance(data.get("deleted_count"), int), (
+        f"deleted_count not int: {data}"
+    )
+    assert data.get("deleted_count") == 0, f"dry-run deleted files: {data}"
+    assert isinstance(data.get("skipped"), list), f"skipped not list: {data}"
+    print("[OK]  POST /reports/cleanup/run dry-run", flush=True)
+
 def run_recovery_check(job_id: str) -> None:
     print("[RUN] GET /jobs (recovery check)", flush=True)
     data = _get("/jobs")
@@ -462,6 +482,7 @@ def run_default() -> None:
 
     # POST /run
     _assert_reports_cleanup_summary()
+    _assert_reports_cleanup_run_dry_run()
 
     print("[RUN] POST /run", flush=True)
     data = _post("/run?config_path=configs/label_flip_demo.yaml")
