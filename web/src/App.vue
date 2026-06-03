@@ -4,29 +4,10 @@ import GlobalToolbar from "./components/GlobalToolbar.vue";
 import RuntimeMetricTile from "./components/RuntimeMetricTile.vue";
 import RuntimeInfoTile from "./components/RuntimeInfoTile.vue";
 import RuntimeReportAction from "./components/RuntimeReportAction.vue";
+import ConfigPreview from "./components/ConfigPreview.vue";
 import DashboardSectionNav from "./components/DashboardSectionNav.vue";
+import RuntimeChartPanel from "./components/RuntimeChartPanel.vue";
 import { computed, onMounted, ref, watch } from "vue";
-import { Line } from "vue-chartjs";
-import {
-  Chart as ChartJS,
-  Title,
-  Tooltip,
-  Legend,
-  LineElement,
-  PointElement,
-  CategoryScale,
-  LinearScale,
-} from "chart.js";
-
-ChartJS.register(
-  Title,
-  Tooltip,
-  Legend,
-  LineElement,
-  PointElement,
-  CategoryScale,
-  LinearScale
-);
 
 const API_BASE = "http://127.0.0.1:8000";
 const WS_BASE = "ws://127.0.0.1:8000";
@@ -2001,77 +1982,11 @@ async function startExperiment() {
           </div>
         </div>
 
-        <div v-if="displayConfigPreview" class="config-preview compact config-preview-line">
-          <div class="preview-grid compact">
-            <div class="preview-item">
-              <span class="preview-label">{{ t.previewDataset }}</span>
-              <strong>{{ displayConfigPreview.dataset }}</strong>
-            </div>
-            <div class="preview-item">
-              <span class="preview-label">{{ t.previewAggregation }}</span>
-              <strong>{{ displayConfigPreview.aggregation }}</strong>
-            </div>
-            <div class="preview-item">
-              <span class="preview-label">{{ t.previewAttack }}</span>
-              <strong class="preview-value" :title="displayConfigPreview.attack">{{ displayConfigPreview.attack }}</strong>
-            </div>
-            <div class="preview-item">
-              <span class="preview-label">{{ t.previewDefense }}</span>
-              <strong class="preview-value" :title="displayConfigPreview.defense">{{ displayConfigPreview.defense }}</strong>
-            </div>
-            <div class="preview-item">
-              <span class="preview-label">{{ t.previewRounds }}</span>
-              <strong>{{ displayConfigPreview.rounds }}</strong>
-            </div>
-            <div class="preview-item">
-              <span class="preview-label">{{ t.previewClients }}</span>
-              <strong>{{ displayConfigPreview.clients }}</strong>
-            </div>
-            <div class="preview-item risk-preview">
-              <span class="preview-label">{{ t.previewRiskLevel }}</span>
-              <strong>
-                <span class="risk-badge" :class="'risk-' + displayConfigPreview.risk_level">
-                  {{ t.riskLevels[displayConfigPreview.risk_level] || displayConfigPreview.risk_level }}
-                </span>
-              </strong>
-            </div>
-          </div>
-
-          <details class="preview-details">
-            <summary>{{ t.previewDetails }}</summary>
-            <div class="preview-detail-grid">
-              <div class="preview-item">
-                <span class="preview-label">{{ t.previewPartition }}</span>
-                <strong>{{ displayConfigPreview.partition }}</strong>
-              </div>
-              <div class="preview-item">
-                <span class="preview-label">{{ t.previewMalicious }}</span>
-                <strong>{{ displayConfigPreview.malicious_clients }}</strong>
-              </div>
-              <div class="preview-item">
-                <span class="preview-label">{{ t.previewLocalEpochs }}</span>
-                <strong>{{ displayConfigPreview.local_epochs }}</strong>
-              </div>
-              <div class="preview-item">
-                <span class="preview-label">{{ t.previewBatchSize }}</span>
-                <strong>{{ displayConfigPreview.batch_size }}</strong>
-              </div>
-              <div class="preview-item">
-                <span class="preview-label">{{ t.previewLearningRate }}</span>
-                <strong>{{ displayConfigPreview.learning_rate }}</strong>
-              </div>
-            </div>
-            <div v-if="displayConfigPreview.recommended_use" class="preview-recommended">
-              <span class="preview-label">{{ t.previewRecommendedUse }}</span>
-              <p>{{ displayConfigPreview.recommended_use }}</p>
-            </div>
-            <div v-if="displayConfigPreview.explanations" class="explanation-list">
-              <p v-for="(val, key) in displayConfigPreview.explanations" :key="key">
-                <strong>{{ key }}:</strong> {{ val }}
-              </p>
-            </div>
-          </details>
-        </div>
+        <ConfigPreview
+          v-if="displayConfigPreview"
+          :preview="displayConfigPreview"
+          :copy="t"
+        />
       </section>
 
       <section class="monitor-card">
@@ -2124,17 +2039,12 @@ async function startExperiment() {
           </div>
         </div>
 
-        <section class="chart-card" :class="{ 'is-empty': metrics.length === 0 }">
-          <Line
-            v-if="metrics.length > 0"
-            :data="chartData"
-            :options="chartOptions"
-          />
-
-          <div v-else class="empty-state">
-            {{ t.emptyChart }}
-          </div>
-        </section>
+        <RuntimeChartPanel
+          :metrics="metrics"
+          :chart-data="chartData"
+          :chart-options="chartOptions"
+          :copy="t"
+        />
       </section>
     </section>
 
