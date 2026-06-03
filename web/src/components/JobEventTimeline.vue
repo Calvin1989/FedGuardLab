@@ -41,6 +41,7 @@ defineProps({
         v-for="(ev, idx) in lifecycleEvents"
         :key="idx"
         class="event-item"
+        :class="ev.eventClass"
       >
         <div class="event-body">
           <div class="event-header">

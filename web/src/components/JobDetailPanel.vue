@@ -119,7 +119,7 @@ const emit = defineEmits(["archive"]);
     <div v-if="job.has_report" class="detail-exports">
       <h3 class="detail-exports-title">{{ copy.exportsTitle }}</h3>
       <div class="detail-exports-grid">
-        <template v-for="item in exportItems" :key="item.label">
+        <template v-for="item in exportItems" :key="item.key || item.label">
           <a
             v-if="!item.disabled && item.url"
             class="detail-export-item"

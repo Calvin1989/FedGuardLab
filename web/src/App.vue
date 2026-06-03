@@ -1449,6 +1449,7 @@ const detailExportItems = computed(() => {
     const href =
       entry.key === "report_html" ? withLang(url || "") : url || "";
     return {
+      key: entry.key,
       url: href,
       icon: entry.icon,
       label: t.value[entry.labelKey] || entry.labelKey,
@@ -1461,6 +1462,7 @@ const detailExportItems = computed(() => {
 const lifecycleDisplayEvents = computed(() =>
   selectedLifecycleEvents.value.map((ev) => ({
     icon: eventIcon(ev.type),
+    eventClass: "event-" + ev.type,
     badgeClass: "badge-" + ev.type,
     badgeText: t.value.eventType[ev.type] || ev.type,
     time: formatEventTime(ev.created_at),
