@@ -205,6 +205,19 @@ const messages = {
     reportsCleanupCandidatePreview: "候选预览",
     reportsCleanupNoCandidates: "暂无清理候选",
     reportsCleanupPath: "路径",
+    reportsCleanupRunDryRun: "执行预览",
+    reportsCleanupDeleteRun: "清理候选",
+    reportsCleanupRunning: "执行中...",
+    reportsCleanupDeleting: "清理中...",
+    reportsCleanupRunFailed: "reports 清理执行失败",
+    reportsCleanupRunResult: "清理执行结果",
+    reportsCleanupRunDryResult: "预览完成，未删除文件",
+    reportsCleanupRunDeleteResult: "清理完成",
+    reportsCleanupDeleted: "已删除",
+    reportsCleanupDeletedSize: "释放空间",
+    reportsCleanupSkipped: "跳过",
+    reportsCleanupErrors: "错误",
+    reportsCleanupConfirm: "确认删除 cleanup preview 中的候选 reports？此操作不可撤销。",
     insightsTitle: "结果洞察",
     bestAccuracy: "最佳准确率",
     lowestLoss: "最低损失",
@@ -412,6 +425,19 @@ const messages = {
     reportsCleanupCandidatePreview: "Candidate preview",
     reportsCleanupNoCandidates: "No cleanup candidates",
     reportsCleanupPath: "Path",
+    reportsCleanupRunDryRun: "Run preview",
+    reportsCleanupDeleteRun: "Clean candidates",
+    reportsCleanupRunning: "Running...",
+    reportsCleanupDeleting: "Cleaning...",
+    reportsCleanupRunFailed: "Failed to run reports cleanup",
+    reportsCleanupRunResult: "Cleanup run result",
+    reportsCleanupRunDryResult: "Preview complete. No files deleted.",
+    reportsCleanupRunDeleteResult: "Cleanup complete",
+    reportsCleanupDeleted: "Deleted",
+    reportsCleanupDeletedSize: "Freed space",
+    reportsCleanupSkipped: "Skipped",
+    reportsCleanupErrors: "Errors",
+    reportsCleanupConfirm: "Delete the cleanup preview candidates? This cannot be undone.",
     insightsTitle: "Result Insights",
     bestAccuracy: "Best Accuracy",
     lowestLoss: "Lowest Loss",
@@ -589,6 +615,10 @@ const comparisonHistoryError = ref("");
 const reportsCleanupSummary = ref(null);
 const reportsCleanupStatus = ref("idle");
 const reportsCleanupError = ref("");
+const reportsCleanupRunStatus = ref("idle");
+const reportsCleanupRunMode = ref("");
+const reportsCleanupRunError = ref("");
+const reportsCleanupRunResult = ref(null);
 
 const reportsCleanupPreview = computed(() =>
   reportsCleanupSummary.value?.cleanup_preview || {
@@ -609,6 +639,12 @@ const reportsCleanupLatestModifiedAt = computed(() =>
   reportsCleanupSummary.value?.jobs?.latest_modified_at ||
   reportsCleanupSummary.value?.comparisons?.latest_modified_at ||
   ""
+);
+const reportsCleanupHasCandidates = computed(
+  () => reportsCleanupPreview.value.candidate_count > 0
+);
+const reportsCleanupRunBusy = computed(
+  () => reportsCleanupRunStatus.value === "running"
 );
 
 const experimentOptions = ref([]);
@@ -1389,6 +1425,86 @@ async function loadReportsCleanupSummary() {
     reportsCleanupError.value = error.message;
     reportsCleanupStatus.value = "error";
     throw error;
+  }
+}
+
+
+function mapReportsCleanupRunResult(data) {
+  return {
+    dry_run: Boolean(data.dry_run),
+    deletes_files: Boolean(data.deletes_files),
+    candidate_count: data.candidate_count || 0,
+    deleted_count: data.deleted_count || 0,
+    deleted_size_bytes: data.deleted_size_bytes || 0,
+    skipped: Array.isArray(data.skipped) ? data.skipped : [],
+    errors: Array.isArray(data.errors) ? data.errors : [],
+  };
+}
+
+
+async function runReportsCleanup(dryRun = true) {
+  if (reportsCleanupRunBusy.value) {
+    return;
+  }
+
+  if (!dryRun && !window.confirm(t.value.reportsCleanupConfirm)) {
+    return;
+  }
+
+  reportsCleanupRunStatus.value = "running";
+  reportsCleanupRunMode.value = dryRun ? "dry-run" : "delete";
+  reportsCleanupRunError.value = "";
+  reportsCleanupRunResult.value = null;
+
+  try {
+    const response = await fetch(`${API_BASE}/reports/cleanup/run`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        keep_latest: reportsCleanupSummary.value?.keep_latest_per_kind ?? 20,
+        dry_run: dryRun,
+        confirm: !dryRun,
+      }),
+    });
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      throw new Error(data.detail || t.value.reportsCleanupRunFailed);
+    }
+
+    reportsCleanupRunResult.value = mapReportsCleanupRunResult(data);
+    reportsCleanupRunStatus.value = "idle";
+    reportsCleanupRunMode.value = "";
+
+    await loadReportsCleanupSummary();
+
+    if (!dryRun) {
+      const refreshTasks = [];
+
+      if (typeof loadComparisonHistory === "function") {
+        refreshTasks.push(
+          loadComparisonHistory().catch((error) => {
+            console.warn("Failed to refresh comparison history:", error);
+          })
+        );
+      }
+
+      if (typeof loadRecentJobs === "function") {
+        refreshTasks.push(
+          loadRecentJobs().catch((error) => {
+            console.warn("Failed to refresh job history:", error);
+          })
+        );
+      }
+
+      await Promise.all(refreshTasks);
+    }
+  } catch (error) {
+    reportsCleanupRunError.value = error.message;
+    reportsCleanupRunStatus.value = "error";
+    reportsCleanupRunMode.value = "";
   }
 }
 
@@ -2596,13 +2712,29 @@ async function startExperiment() {
             <span class="detail-section-title">{{ t.reportsCleanupTitle }}</span>
             <span class="detail-section-subtitle">{{ t.reportsCleanupHint }}</span>
           </div>
-          <button
-            class="secondary-button comparison-history-refresh"
-            :disabled="reportsCleanupStatus === 'loading'"
-            @click="loadReportsCleanupSummary"
-          >
-            {{ t.reportsCleanupRefresh }}
-          </button>
+          <div class="reports-cleanup-actions">
+            <button
+              class="secondary-button reports-cleanup-action"
+              :disabled="reportsCleanupStatus === 'loading' || reportsCleanupRunBusy"
+              @click="loadReportsCleanupSummary"
+            >
+              {{ t.reportsCleanupRefresh }}
+            </button>
+            <button
+              class="secondary-button reports-cleanup-action"
+              :disabled="reportsCleanupStatus === 'loading' || reportsCleanupRunBusy"
+              @click="runReportsCleanup(true)"
+            >
+              {{ reportsCleanupRunStatus === 'running' && reportsCleanupRunMode === 'dry-run' ? t.reportsCleanupRunning : t.reportsCleanupRunDryRun }}
+            </button>
+            <button
+              class="secondary-button reports-cleanup-action reports-cleanup-delete-button"
+              :disabled="reportsCleanupStatus === 'loading' || reportsCleanupRunBusy || !reportsCleanupHasCandidates"
+              @click="runReportsCleanup(false)"
+            >
+              {{ reportsCleanupRunStatus === 'running' && reportsCleanupRunMode === 'delete' ? t.reportsCleanupDeleting : t.reportsCleanupDeleteRun }}
+            </button>
+          </div>
         </div>
 
         <div v-if="reportsCleanupStatus === 'loading'" class="empty-state small reports-cleanup-empty">
@@ -2625,6 +2757,42 @@ async function startExperiment() {
             <span class="reports-cleanup-root" :title="reportsCleanupSummary.reports_root">
               {{ reportsCleanupSummary.reports_root }}
             </span>
+          </div>
+
+          <div v-if="reportsCleanupRunError" class="comparison-feedback error-feedback reports-cleanup-error">
+            <strong>{{ t.reportsCleanupRunFailed }}</strong>
+            <span>{{ reportsCleanupRunError }}</span>
+          </div>
+
+          <div v-if="reportsCleanupRunResult" class="reports-cleanup-run-result">
+            <div class="reports-cleanup-run-result-heading">
+              <strong>{{ t.reportsCleanupRunResult }}</strong>
+              <span>
+                {{ reportsCleanupRunResult.dry_run ? t.reportsCleanupRunDryResult : t.reportsCleanupRunDeleteResult }}
+              </span>
+            </div>
+            <div class="reports-cleanup-stats reports-cleanup-run-stats">
+              <span class="history-stat">
+                <strong>{{ reportsCleanupRunResult.candidate_count }}</strong>
+                <small>{{ t.reportsCleanupCandidates }}</small>
+              </span>
+              <span class="history-stat">
+                <strong>{{ reportsCleanupRunResult.deleted_count }}</strong>
+                <small>{{ t.reportsCleanupDeleted }}</small>
+              </span>
+              <span class="history-stat">
+                <strong>{{ formatStorageBytes(reportsCleanupRunResult.deleted_size_bytes) }}</strong>
+                <small>{{ t.reportsCleanupDeletedSize }}</small>
+              </span>
+              <span class="history-stat">
+                <strong>{{ reportsCleanupRunResult.skipped.length }}</strong>
+                <small>{{ t.reportsCleanupSkipped }}</small>
+              </span>
+              <span class="history-stat">
+                <strong>{{ reportsCleanupRunResult.errors.length }}</strong>
+                <small>{{ t.reportsCleanupErrors }}</small>
+              </span>
+            </div>
           </div>
 
           <div class="reports-cleanup-stats">
@@ -5945,4 +6113,76 @@ input {
     align-items: flex-start;
   }
 }
+
+
+/* Reports cleanup run controls */
+.reports-cleanup-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.reports-cleanup-action {
+  min-height: 34px;
+  padding: 0 12px;
+  white-space: nowrap;
+}
+
+.reports-cleanup-delete-button {
+  border-color: rgba(248, 113, 113, 0.42);
+  background: rgba(255, 241, 242, 0.92);
+  color: #be123c;
+}
+
+.reports-cleanup-delete-button:not(:disabled):hover {
+  border-color: rgba(244, 63, 94, 0.5);
+  background: rgba(255, 228, 230, 0.94);
+  color: #9f1239;
+}
+
+.reports-cleanup-run-result {
+  display: grid;
+  gap: 10px;
+  padding: 10px;
+  border: 1px solid rgba(96, 165, 250, 0.22);
+  border-radius: 14px;
+  background: rgba(239, 246, 255, 0.64);
+}
+
+.reports-cleanup-run-result-heading {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  align-items: center;
+  justify-content: space-between;
+  color: #0f172a;
+  font-size: 13px;
+}
+
+.reports-cleanup-run-result-heading span {
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.reports-cleanup-run-stats {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+@media (max-width: 760px) {
+  .reports-cleanup-actions {
+    justify-content: stretch;
+  }
+
+  .reports-cleanup-actions .reports-cleanup-action {
+    flex: 1 1 140px;
+  }
+
+  .reports-cleanup-run-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 </style>
