@@ -1,12 +1,16 @@
 <script setup>
 import DashboardSectionHeading from "./components/DashboardSectionHeading.vue";
 import GlobalToolbar from "./components/GlobalToolbar.vue";
+import HistoryManagementStrip from "./components/HistoryManagementStrip.vue";
+import JobsEmptyState from "./components/JobsEmptyState.vue";
+import JobsSectionHeader from "./components/JobsSectionHeader.vue";
 import RuntimeMetricTile from "./components/RuntimeMetricTile.vue";
 import RuntimeInfoTile from "./components/RuntimeInfoTile.vue";
 import RuntimeReportAction from "./components/RuntimeReportAction.vue";
 import ConfigPreview from "./components/ConfigPreview.vue";
 import DashboardSectionNav from "./components/DashboardSectionNav.vue";
 import RuntimeChartPanel from "./components/RuntimeChartPanel.vue";
+import SelectedJobsPreview from "./components/SelectedJobsPreview.vue";
 import { computed, onMounted, ref, watch } from "vue";
 
 const API_BASE = "http://127.0.0.1:8000";
@@ -2055,123 +2059,59 @@ async function startExperiment() {
         v-show="activeDashboardSection === 'jobs' || activeDashboardSection === 'comparisons'"
         class="dashboard-section-panel dashboard-jobs-panel"
       >
-      <div class="section-header">
-        <div>
-          <h2>{{ t.comparisonTitle }}</h2>
-          <p>{{ t.comparisonHint }}</p>
-          <div class="job-filters">
-            <label class="status-filter">
-              {{ t.statusFilter }}:
-              <select v-model="jobStatusFilter">
-                <option value="all">{{ t.allStatuses }}</option>
-                <option value="finished_report">{{ t.finishedWithReport }}</option>
-                <option value="finished">{{ t.statusValues.finished }}</option>
-                <option value="running">{{ t.statusValues.running }}</option>
-                <option value="cancelled">{{ t.statusValues.cancelled }}</option>
-                <option value="failed">{{ t.statusValues.failed }}</option>
-                <option value="queued">{{ t.statusValues.queued }}</option>
-              </select>
-            </label>
+      <JobsSectionHeader
+        v-model:status-filter="jobStatusFilter"
+        v-model:archive-filter="jobArchiveFilter"
+        v-model:limit="recentJobsLimit"
+        v-model:sort="recentJobsSort"
+        :copy="t"
+      >
+        <template #default>
+          <div class="section-actions">
+            <button
+              class="secondary-button"
+              :disabled="selectedJobIds.length === 0"
+              @click="deleteSelectedJobs"
+            >
+              {{ t.deleteSelected }}
+            </button>
 
-            <label class="status-filter">
-              {{ t.historyArchiveFilter }}:
-              <select v-model="jobArchiveFilter">
-                <option value="active">{{ t.archiveActive }}</option>
-                <option value="archived">{{ t.archiveArchived }}</option>
-                <option value="all">{{ t.archiveAll }}</option>
-              </select>
-            </label>
+            <button
+              class="secondary-button"
+              :disabled="recentJobs.length === 0"
+              @click="clearRecentJobs"
+            >
+              {{ t.clearHistory }}
+            </button>
 
-            <label class="status-filter">
-              {{ t.limitFilter }}:
-              <select v-model.number="recentJobsLimit">
-                <option :value="10">10</option>
-                <option :value="20">20</option>
-                <option :value="50">50</option>
-              </select>
-            </label>
-
-            <label class="status-filter">
-              {{ t.sortFilter }}:
-              <select v-model="recentJobsSort">
-                <option value="created_at_desc">{{ t.newestFirst }}</option>
-                <option value="created_at_asc">{{ t.oldestFirst }}</option>
-              </select>
-            </label>
+            <button
+              class="run-button"
+              :disabled="selectedJobIds.length < 2 || comparisonStatus === 'creating'"
+              @click="createComparisonReport"
+            >
+              {{ comparisonStatus === "creating" ? t.generating : t.generateReport }}
+            </button>
           </div>
+        </template>
+      </JobsSectionHeader>
 
-        </div>
-
-        <div class="section-actions">
-          <button
-            class="secondary-button"
-            :disabled="selectedJobIds.length === 0"
-            @click="deleteSelectedJobs"
-          >
-            {{ t.deleteSelected }}
-          </button>
-
-          <button
-            class="secondary-button"
-            :disabled="recentJobs.length === 0"
-            @click="clearRecentJobs"
-          >
-            {{ t.clearHistory }}
-          </button>
-
-          <button
-            class="run-button"
-            :disabled="selectedJobIds.length < 2 || comparisonStatus === 'creating'"
-            @click="createComparisonReport"
-          >
-            {{ comparisonStatus === "creating" ? t.generating : t.generateReport }}
-          </button>
-        </div>
-      </div>
-
-      <div class="history-management-strip">
-        <div class="history-management-copy">
-          <strong>{{ t.historyManagementTitle }}</strong>
-          <span>{{ t.historyManagementDescription }}</span>
-        </div>
-        <div class="history-management-stats">
-          <span class="history-stat">
-            <strong>{{ recentJobs.length }}</strong>
-            <small>{{ t.historyTotalJobs }}</small>
-          </span>
-          <span class="history-stat">
-            <strong>{{ comparableJobsCount }}</strong>
-            <small>{{ t.historyComparableJobs }}</small>
-          </span>
-          <span class="history-stat">
-            <strong>{{ selectedJobIds.length }}</strong>
-            <small>{{ t.historySelectedJobs }}</small>
-          </span>
-          <span class="history-stat history-stat-wide">
-            <strong>{{ historyActiveFilterLabel }}</strong>
-            <small>{{ t.historyCurrentFilter }}</small>
-          </span>
-        </div>
-      </div>
+      <HistoryManagementStrip
+        :copy="t"
+        :total-jobs="recentJobs.length"
+        :comparable-jobs="comparableJobsCount"
+        :selected-jobs="selectedJobIds.length"
+        :active-filter-label="historyActiveFilterLabel"
+      />
 
       <div v-if="historyActionError" class="comparison-feedback error-feedback history-action-error">
         <span>{{ historyActionError }}</span>
       </div>
 
-      <div v-if="recentJobs.length === 0" class="empty-state small comparison-empty-state">
-        <template v-if="jobStatusFilter === 'all'">
-          <strong>{{ t.emptyAllStatuses }}</strong>
-          <span>{{ t.emptyAllStatusesHint }}</span>
-        </template>
-        <template v-else-if="jobStatusFilter === 'finished_report'">
-          <strong>{{ t.emptyAll }}</strong>
-          <span>{{ t.emptyAllHint }}</span>
-        </template>
-        <template v-else>
-          <strong>{{ t.emptyFiltered.replace('{status}', t.statusValues[jobStatusFilter] || jobStatusFilter) }}</strong>
-          <span>{{ t.emptyFilteredHint }}</span>
-        </template>
-      </div>
+      <JobsEmptyState
+        v-if="recentJobs.length === 0"
+        :copy="t"
+        :status-filter="jobStatusFilter"
+      />
 
       <table v-else class="jobs-table">
         <thead>
@@ -2490,33 +2430,11 @@ async function startExperiment() {
         v-show="activeDashboardSection === 'comparisons'"
         class="dashboard-section-panel dashboard-comparisons-panel"
       >
-      <div v-if="selectedJobIds.length > 0" class="selected-jobs-preview">
-        <div class="selected-jobs-header">
-          <p class="section-kicker">{{ t.selectedJobsTitle }}</p>
-        </div>
-
-        <div class="selected-jobs-list">
-          <div
-            v-for="job in selectedJobsForPreview"
-            :key="job.job_id"
-            class="selected-job-chip"
-          >
-            <span class="selected-job-id">{{ job.job_id.slice(0, 8) }}</span>
-            <span class="selected-job-name">
-              {{ job.experiment_name || job.config_path || "—" }}
-            </span>
-            <span
-              class="selected-job-status"
-              :class="'status-' + (job.status || '')"
-            >
-              {{ t.statusValues[job.status] || job.status || "—" }}
-            </span>
-            <span class="selected-job-time">
-              {{ job.finished_at || job.created_at || "—" }}
-            </span>
-          </div>
-        </div>
-      </div>
+      <SelectedJobsPreview
+        v-if="selectedJobIds.length > 0"
+        :copy="t"
+        :selected-jobs="selectedJobsForPreview"
+      />
 
       <div v-if="comparisonStatus === 'creating'" class="comparison-feedback creating">
         <span class="feedback-spinner"></span>
