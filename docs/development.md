@@ -59,23 +59,30 @@ quick test 会检查：
 
 ---
 
-## 完整 smoke test
+## 本地训练 Smoke Test（可选）
+
+`smoke_test.py` 是本地训练与报告生成 smoke test，用于手动检查多种实验路径是否仍可运行。
 
 ```bash
 python smoke_test.py
 ```
 
-smoke test 会检查：
+该脚本会覆盖：
 
 - simulated demo；
 - real MNIST FedAvg；
 - label flipping；
 - Median / Trimmed Mean / Krum；
-- HTML 报告生成；
-- CSV / Markdown 导出；
-- comparison report 生成。
+- 报告生成基础路径。
 
-该测试会生成运行产物，完成后可以清理。
+当前验证分工：
+
+- 日常提交优先执行 `python quick_test.py` 和 `python -m pytest`。
+- Live API 行为使用 `python api_smoke_test.py` 验证，且需要 backend 已启动。
+- GitHub Actions 主 CI 不运行 `smoke_test.py`；主 CI 使用 Ruff、quick test、pytest 和 frontend build。
+- Docker Smoke workflow 使用 `api_smoke_test.py` 验证 live API、finished job 和 backend restart recovery。
+
+因此，`smoke_test.py` 仍保留为手动本地 smoke test，不作为当前必跑 CI 入口。
 
 ---
 
