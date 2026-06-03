@@ -27,9 +27,7 @@ const sort = defineModel("sort", { type: String, default: "created_at_desc" });
 
 <template>
   <div class="section-header" :class="{ 'actions-only': !showFilters }">
-    <div v-if="showFilters" class="section-header-copy">
-      <h2>{{ copy.comparisonTitle }}</h2>
-      <p>{{ copy.comparisonHint }}</p>
+    <div v-if="showFilters" class="section-header-copy filter-only">
       <div class="job-filters">
         <label class="status-filter">
           {{ copy.statusFilter }}:
@@ -92,6 +90,14 @@ const sort = defineModel("sort", { type: String, default: "created_at_desc" });
 
 .section-header-copy {
   min-width: 0;
+}
+
+.section-header-copy.filter-only {
+  flex: 1 1 auto;
+}
+
+.section-header-copy.filter-only .job-filters {
+  margin-top: 0;
 }
 
 .section-header h2 {

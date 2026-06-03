@@ -971,6 +971,17 @@ const activeArchiveFilterLabel = computed(() => {
 const historyActiveFilterLabel = computed(() =>
   `${activeStatusFilterLabel.value} · ${activeArchiveFilterLabel.value}`
 );
+const historyArchiveFilterLabel = computed(() => {
+  if (jobArchiveFilter.value === "archived") {
+    return t.value.archiveArchived;
+  }
+
+  if (jobArchiveFilter.value === "all") {
+    return t.value.archiveAll;
+  }
+
+  return t.value.archiveActive;
+});
 
 
 function toggleJobSelection(jobId) {
@@ -1975,12 +1986,9 @@ async function startExperiment() {
 
     <section v-show="activeDashboardSection === 'run'" class="dashboard-shell dashboard-shell-v7">
       <section class="command-card">
-        <div class="command-main">
-          <div class="command-copy">
-            <h1>{{ t.heroTitle }}</h1>
-            <p class="subtitle">{{ t.heroSubtitle }}</p>
-          </div>
-        </div>
+        <DashboardSectionHeading
+          :copy="{ kicker: t.eyebrow, title: t.heroTitle, hint: t.heroSubtitle }"
+        />
 
         <div class="command-controls">
           <label class="field-control" for="category-filter">
@@ -2186,7 +2194,7 @@ async function startExperiment() {
         :total-jobs="recentJobs.length"
         :comparable-jobs="comparableJobsCount"
         :selected-jobs="selectedJobIds.length"
-        :active-filter-label="historyActiveFilterLabel"
+        :active-filter-label="historyArchiveFilterLabel"
       />
 
       <div v-if="historyActionError" class="comparison-feedback error-feedback history-action-error">
@@ -2337,8 +2345,8 @@ async function startExperiment() {
       </div>
 
       <section v-show="activeDashboardSection === 'reports'" class="reports-cleanup-panel dashboard-info-panel">
-        <div class="detail-section-heading reports-cleanup-heading">
-          <div>
+        <div class="reports-cleanup-heading">
+          <div class="reports-cleanup-heading-copy">
             <span class="detail-section-title">{{ t.reportsCleanupTitle }}</span>
             <span class="detail-section-subtitle">{{ t.reportsCleanupHint }}</span>
           </div>
@@ -4305,6 +4313,147 @@ input {
 
   .reports-cleanup-run-stats {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+
+/* Run and reports page layout polish */
+.command-card > .dashboard-section-heading {
+  margin-bottom: 20px;
+}
+
+.command-controls {
+  align-items: end;
+}
+
+.command-card .field-control > span:first-child {
+  color: #172033;
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 1.35;
+}
+
+.command-card .experiment-select {
+  min-height: 36px;
+  padding: 0 34px 0 12px;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.92);
+  color: #0f172a;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1;
+  outline: none;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+}
+
+.command-card .experiment-select:focus {
+  border-color: rgba(37, 99, 235, 0.48);
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.10);
+}
+
+.reports-cleanup-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 14px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.92);
+}
+
+.reports-cleanup-heading-copy {
+  display: grid;
+  min-width: 0;
+  gap: 4px;
+}
+
+.reports-cleanup-heading .detail-section-title {
+  display: block;
+  margin: 0;
+  color: #0f172a;
+  font-size: 14px;
+  font-weight: 900;
+  line-height: 1.25;
+}
+
+.reports-cleanup-heading .detail-section-subtitle {
+  display: block;
+  max-width: 760px;
+  margin: 0;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.55;
+}
+
+.reports-cleanup-actions {
+  display: flex;
+  flex: 0 0 auto;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.reports-cleanup-mode-row {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid rgba(191, 219, 254, 0.75);
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(239, 246, 255, 0.72), rgba(248, 250, 252, 0.94));
+}
+
+.reports-cleanup-mode-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 26px;
+  padding: 0 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.reports-cleanup-mode-pill.safe {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.reports-cleanup-mode-pill.muted {
+  background: #e2e8f0;
+  color: #475569;
+}
+
+.reports-cleanup-root {
+  min-width: 0;
+  overflow: hidden;
+  color: #64748b;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11px;
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 760px) {
+  .reports-cleanup-heading {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .reports-cleanup-actions {
+    justify-content: stretch;
+  }
+
+  .reports-cleanup-actions .reports-cleanup-action {
+    flex: 1 1 140px;
   }
 }
 
