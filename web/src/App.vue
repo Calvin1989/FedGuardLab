@@ -1866,7 +1866,7 @@ async function startExperiment() {
       </button>
     </nav>
 
-    <section class="dashboard-shell dashboard-shell-v7">
+    <section v-show="activeDashboardSection === 'run'" class="dashboard-shell dashboard-shell-v7">
       <section class="command-card">
         <div class="command-main">
           <div class="command-copy">
@@ -2099,7 +2099,11 @@ async function startExperiment() {
       </section>
     </section>
 
-    <section class="comparison-card">
+    <section v-show="activeDashboardSection !== 'run'" class="comparison-card">
+      <div
+        v-show="activeDashboardSection === 'jobs' || activeDashboardSection === 'comparisons'"
+        class="dashboard-section-panel dashboard-jobs-panel"
+      >
       <div class="section-header">
         <div>
           <h2>{{ t.comparisonTitle }}</h2>
@@ -2529,7 +2533,12 @@ async function startExperiment() {
           {{ t.jobDetailHint }}
         </div>
       </div>
+      </div>
 
+      <div
+        v-show="activeDashboardSection === 'comparisons'"
+        class="dashboard-section-panel dashboard-comparisons-panel"
+      >
       <div v-if="selectedJobIds.length > 0" class="selected-jobs-preview">
         <div class="selected-jobs-header">
           <p class="section-kicker">{{ t.selectedJobsTitle }}</p>
@@ -2735,8 +2744,9 @@ async function startExperiment() {
       <div v-if="selectedJobIds.length < 2 && selectedJobIds.length > 0 && comparisonStatus !== 'finished'" class="comparison-hint">
         {{ t.selectedJobsHint }}
       </div>
+      </div>
 
-      <section class="reports-cleanup-panel dashboard-info-panel">
+      <section v-show="activeDashboardSection === 'reports'" class="reports-cleanup-panel dashboard-info-panel">
         <div class="detail-section-heading reports-cleanup-heading">
           <div>
             <span class="detail-section-title">{{ t.reportsCleanupTitle }}</span>
@@ -2900,6 +2910,10 @@ async function startExperiment() {
 </template>
 
 <style scoped>
+.dashboard-section-panel {
+  display: contents;
+}
+
 .dashboard-section-nav {
   width: min(1180px, calc(100vw - 48px));
   margin: 0 auto 14px;
