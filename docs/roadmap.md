@@ -1440,6 +1440,45 @@ Beta.1 验证重点：
 - [ ] Manual reports cleanup dry-run check
 - [ ] Beta tag 打在 PR merge 后的 main commit 上
 
+### v1.9.0-rc.1
+
+Focus: Release candidate readiness for v1.9.0 Experiment Result Management.
+
+rc.1 阶段不新增 runtime feature、不新增依赖、不改变 API 行为、不修改训练核心逻辑。重点是 final release candidate validation。
+
+v1.9 当前已完成能力：
+
+- Dashboard history experiment management UI。
+- Job archive / restore。
+- Archived job filtering and comparison protection。
+- Comparison report history API and Dashboard panel。
+- Unified report / artifact entry styling。
+- Reports cleanup summary API and Dashboard panel。
+- Reports cleanup run API with safe dry-run default。
+- Dashboard cleanup run controls with explicit confirmation。
+- Alpha / beta release documentation。
+
+rc.1 验证重点：
+
+- [ ] `git diff --check`
+- [ ] `python -m ruff check .`
+- [ ] `python quick_test.py`
+- [ ] `python -m pytest`
+- [ ] `cd web && npm run build`
+- [ ] `python api_smoke_test.py`
+- [ ] `docker compose config`
+- [ ] `docker compose build`
+- [ ] `docker compose up -d`
+- [ ] `python api_smoke_test.py --wait-finished --write-finished-job-id smoke_finished_job_id.txt`
+- [ ] `$jobId = Get-Content smoke_finished_job_id.txt`
+- [ ] `docker compose restart backend`
+- [ ] `Start-Sleep -Seconds 10`
+- [ ] `python api_smoke_test.py --check-recovery $jobId`
+- [ ] `docker compose down`
+- [ ] `Remove-Item smoke_finished_job_id.txt`
+- [ ] GitHub Actions CI passing on main
+- [ ] GitHub Actions Docker Smoke manual workflow passing on main
+- [ ] Final tag 打在 main merge commit 上（PR 合并后）
 
 ---
 

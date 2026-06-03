@@ -4,6 +4,15 @@
 
 - No unreleased changes.
 
+## v1.9.0-rc.1
+
+- Prepared v1.9.0 release candidate readiness documentation.
+  - Summarized v1.9 Experiment Result Management scope after alpha and beta readiness.
+  - Confirmed reports cleanup safety semantics: summary is read-only, cleanup run defaults to dry-run, and real deletion requires explicit confirmation.
+  - Confirmed Dashboard cleanup controls require user confirmation before real deletion.
+  - Documented final release candidate validation path, including Docker full flow and backend restart recovery.
+  - No runtime feature, API behavior, training logic, report artifact URL, Docker runtime, or dependency changes.
+
 ## v1.9.0-beta.1
 
 - Prepared v1.9.0 beta readiness documentation.
