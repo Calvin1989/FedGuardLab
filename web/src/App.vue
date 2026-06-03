@@ -1,6 +1,7 @@
 <script setup>
 import DashboardSectionHeading from "./components/DashboardSectionHeading.vue";
 import LanguageSwitcher from "./components/LanguageSwitcher.vue";
+import TopbarBrand from "./components/TopbarBrand.vue";
 import DashboardSectionNav from "./components/DashboardSectionNav.vue";
 import { computed, onMounted, ref, watch } from "vue";
 import { Line } from "vue-chartjs";
@@ -1894,10 +1895,7 @@ async function startExperiment() {
 <template>
   <main class="page">
     <div class="global-toolbar" aria-label="Global toolbar">
-      <div class="topbar-brand">
-        <span class="brand-mark" aria-hidden="true"></span>
-        <span>FedGuardLab</span>
-      </div>
+      <TopbarBrand />
 
       <LanguageSwitcher :language="language" @select="setLanguage" />
     </div>
@@ -3003,27 +3001,6 @@ async function startExperiment() {
   margin-bottom: 18px;
 }
 
-.topbar-brand {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  color: #1e3a8a;
-  font-size: 13px;
-  font-weight: 900;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-}
-
-.brand-mark {
-  width: 14px;
-  height: 14px;
-  border-radius: 999px;
-  background: linear-gradient(135deg, #22c55e, #2563eb);
-  box-shadow:
-    0 0 0 5px rgba(59, 130, 246, 0.10),
-    0 8px 20px rgba(37, 99, 235, 0.20);
-}
-
 /* Shared cards */
 .dashboard-shell {
   display: grid;
@@ -4040,10 +4017,6 @@ input:focus {
 }
 
 @media (max-width: 560px) {
-  .topbar-brand {
-    font-size: 11px;
-  }
-
   .preview-grid.compact,
   .preview-detail-grid,
   .runtime-row,
@@ -4077,12 +4050,6 @@ input:focus {
 .global-toolbar {
   min-height: 36px;
   margin-bottom: 14px;
-}
-
-.topbar-brand {
-  color: #172554;
-  font-size: 12px;
-  letter-spacing: 0.16em;
 }
 
 .command-card,
@@ -4362,11 +4329,6 @@ input {
     "Noto Sans CJK SC",
     sans-serif;
   font-variant-numeric: tabular-nums;
-}
-
-.topbar-brand {
-  font-weight: 800;
-  letter-spacing: 0.13em;
 }
 
 .command-copy h1 {
