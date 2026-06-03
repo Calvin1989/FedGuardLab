@@ -78,6 +78,23 @@ const messages = {
       comparisons: "对比",
       reports: "报告",
     },
+    dashboardSectionCopy: {
+      jobs: {
+        kicker: "Job history",
+        title: "历史实验与任务管理",
+        hint: "查看实验记录、筛选任务状态，并管理归档 / 恢复操作。",
+      },
+      comparisons: {
+        kicker: "Experiment comparison",
+        title: "实验对比与对比报告",
+        hint: "选择已完成且有报告的实验，生成对比报告并查看历史对比结果。",
+      },
+      reports: {
+        kicker: "Reports maintenance",
+        title: "报告清理与存储维护",
+        hint: "预览 reports 存储占用，并通过安全 dry-run 流程检查清理候选。",
+      },
+    },
     categoryLabel: "分类",
     allCategories: "全部分类",
     experimentLabel: "实验配置",
@@ -298,6 +315,29 @@ const messages = {
     eyebrow: "FedGuardLab",
     heroTitle: "Interactive FL Security Playground",
     heroSubtitle: "Run FL security experiments, stream live metrics, compare outcomes",
+    dashboardSectionLabels: {
+      run: "Run",
+      jobs: "Jobs",
+      comparisons: "Comparisons",
+      reports: "Reports",
+    },
+    dashboardSectionCopy: {
+      jobs: {
+        kicker: "Job history",
+        title: "Job History and Task Management",
+        hint: "Review experiment records, filter job status, and manage archive / restore actions.",
+      },
+      comparisons: {
+        kicker: "Experiment comparison",
+        title: "Experiment Comparisons and Reports",
+        hint: "Select completed jobs with reports, generate comparison reports, and review comparison history.",
+      },
+      reports: {
+        kicker: "Reports maintenance",
+        title: "Report Cleanup and Storage Maintenance",
+        hint: "Preview reports storage usage and inspect cleanup candidates through the safe dry-run workflow.",
+      },
+    },
     categoryLabel: "Category",
     allCategories: "All categories",
     experimentLabel: "Experiment config",
@@ -523,6 +563,10 @@ const dashboardNavigationSections = computed(() =>
     id: sectionId,
     label: t.value.dashboardSectionLabels?.[sectionId] || sectionId,
   }))
+);
+
+const currentDashboardSectionCopy = computed(
+  () => t.value.dashboardSectionCopy?.[activeDashboardSection.value] || {}
 );
 
 
@@ -2111,6 +2155,12 @@ async function startExperiment() {
     </section>
 
     <section v-show="activeDashboardSection !== 'run'" class="comparison-card">
+      <div class="dashboard-section-heading">
+        <p class="section-kicker">{{ currentDashboardSectionCopy.kicker }}</p>
+        <h2>{{ currentDashboardSectionCopy.title }}</h2>
+        <p>{{ currentDashboardSectionCopy.hint }}</p>
+      </div>
+
       <div
         v-show="activeDashboardSection === 'jobs' || activeDashboardSection === 'comparisons'"
         class="dashboard-section-panel dashboard-jobs-panel"
@@ -2923,6 +2973,38 @@ async function startExperiment() {
 <style scoped>
 .dashboard-section-panel {
   display: contents;
+}
+
+.dashboard-section-heading {
+  margin-bottom: 18px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+}
+
+.dashboard-section-heading .section-kicker {
+  margin: 0 0 6px;
+  color: #2563eb;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.dashboard-section-heading h2 {
+  margin: 0;
+  color: #0f172a;
+  font-size: clamp(24px, 3vw, 34px);
+  letter-spacing: -0.045em;
+  line-height: 1.08;
+}
+
+.dashboard-section-heading p:last-child {
+  max-width: 760px;
+  margin: 8px 0 0;
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.6;
 }
 
 
