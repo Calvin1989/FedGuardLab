@@ -10,7 +10,9 @@ import RuntimeReportAction from "./components/RuntimeReportAction.vue";
 import ConfigPreview from "./components/ConfigPreview.vue";
 import DashboardSectionNav from "./components/DashboardSectionNav.vue";
 import RuntimeChartPanel from "./components/RuntimeChartPanel.vue";
+import ComparisonInsightsPanel from "./components/ComparisonInsightsPanel.vue";
 import ComparisonResultCard from "./components/ComparisonResultCard.vue";
+import ComparisonStatusFeedback from "./components/ComparisonStatusFeedback.vue";
 import SelectedJobsPreview from "./components/SelectedJobsPreview.vue";
 import { computed, onMounted, ref, watch } from "vue";
 
@@ -2439,10 +2441,12 @@ async function startExperiment() {
         :selected-jobs="selectedJobsForPreview"
       />
 
-      <div v-if="comparisonStatus === 'creating'" class="comparison-feedback creating">
-        <span class="feedback-spinner"></span>
-        {{ t.comparisonCreating }}
-      </div>
+      <ComparisonStatusFeedback
+        kind="creating"
+        :copy="t"
+        :status="comparisonStatus"
+        :error="comparisonError"
+      />
 
       <ComparisonResultCard
         v-if="comparisonStatus === 'finished' && comparisonUrl"
@@ -2452,41 +2456,11 @@ async function startExperiment() {
         :json-url="comparisonArtifactUrl('comparison_json_url')"
       />
 
-      <div v-if="comparisonStatus === 'finished' && comparisonInsights && (comparisonInsights.best_accuracy || comparisonInsights.winner)" class="insight-section">
-        <h3 class="insight-section-title">{{ t.insightsTitle }}</h3>
-        <div class="insight-cards-grid">
-          <div v-if="comparisonInsights.best_accuracy" class="insight-metric-card">
-            <span class="insight-metric-label">{{ t.bestAccuracy }}</span>
-            <span class="insight-metric-value">{{ comparisonInsights.best_accuracy.value?.toFixed(4) || '—' }}</span>
-            <span class="insight-metric-exp">{{ comparisonInsights.best_accuracy.experiment_name || '' }}</span>
-          </div>
-          <div v-if="comparisonInsights.lowest_loss" class="insight-metric-card">
-            <span class="insight-metric-label">{{ t.lowestLoss }}</span>
-            <span class="insight-metric-value">{{ comparisonInsights.lowest_loss.value?.toFixed(4) || '—' }}</span>
-            <span class="insight-metric-exp">{{ comparisonInsights.lowest_loss.experiment_name || '' }}</span>
-          </div>
-          <div v-if="comparisonInsights.lowest_asr" class="insight-metric-card">
-            <span class="insight-metric-label">{{ t.lowestAsr }}</span>
-            <span class="insight-metric-value">{{ comparisonInsights.lowest_asr.value?.toFixed(4) || '—' }}</span>
-            <span class="insight-metric-exp">{{ comparisonInsights.lowest_asr.experiment_name || '' }}</span>
-          </div>
-        </div>
-        <div class="insight-extra-cards">
-          <div v-if="comparisonInsights.winner" class="insight-extra-card insight-winner">
-            <span class="insight-extra-label">{{ t.recommended }}</span>
-            <p class="insight-extra-body"><strong>{{ comparisonInsights.winner.experiment_name }}</strong></p>
-            <p v-if="comparisonInsights.winner_reason" class="insight-extra-reason">{{ comparisonInsights.winner_reason }}</p>
-          </div>
-          <div v-if="comparisonInsights.tradeoff_summary" class="insight-extra-card insight-tradeoff">
-            <span class="insight-extra-label">{{ t.tradeoff }}</span>
-            <p class="insight-extra-body">{{ comparisonInsights.tradeoff_summary }}</p>
-          </div>
-          <div v-if="comparisonInsights.risk_hint" class="insight-extra-card insight-risk">
-            <span class="insight-extra-label">{{ t.riskHint }}</span>
-            <p class="insight-extra-body">{{ comparisonInsights.risk_hint }}</p>
-          </div>
-        </div>
-      </div>
+      <ComparisonInsightsPanel
+        v-if="comparisonStatus === 'finished' && comparisonInsights && (comparisonInsights.best_accuracy || comparisonInsights.winner)"
+        :copy="t"
+        :insights="comparisonInsights"
+      />
 
       <section class="comparison-history-panel dashboard-info-panel">
         <div class="detail-section-heading comparison-history-heading">
@@ -2575,10 +2549,12 @@ async function startExperiment() {
         </div>
       </section>
 
-      <div v-if="comparisonStatus === 'error' && comparisonError" class="comparison-feedback error-feedback">
-        <strong>{{ t.comparisonFailed }}</strong>
-        <span>{{ comparisonError }}</span>
-      </div>
+      <ComparisonStatusFeedback
+        kind="error"
+        :copy="t"
+        :status="comparisonStatus"
+        :error="comparisonError"
+      />
 
       <div v-if="selectedJobIds.length < 2 && selectedJobIds.length > 0 && comparisonStatus !== 'finished'" class="comparison-hint">
         {{ t.selectedJobsHint }}
