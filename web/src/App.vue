@@ -12,6 +12,7 @@ import DashboardSectionNav from "./components/DashboardSectionNav.vue";
 import RuntimeChartPanel from "./components/RuntimeChartPanel.vue";
 import ComparisonInsightsPanel from "./components/ComparisonInsightsPanel.vue";
 import ComparisonResultCard from "./components/ComparisonResultCard.vue";
+import ComparisonHistoryPanel from "./components/ComparisonHistoryPanel.vue";
 import ComparisonStatusFeedback from "./components/ComparisonStatusFeedback.vue";
 import SelectedJobsPreview from "./components/SelectedJobsPreview.vue";
 import { computed, onMounted, ref, watch } from "vue";
@@ -1406,6 +1407,24 @@ function mapComparisonHistoryItem(item) {
 }
 
 
+const comparisonHistoryItemsForDisplay = computed(() =>
+  comparisonHistory.value.map((item) => ({
+    comparison_id: item.comparison_id,
+    title: item.title,
+    createdAtLabel: formatEventTime(item.created_at),
+    job_count: item.job_count,
+    best_accuracy: item.best_accuracy,
+    lowest_loss: item.lowest_loss,
+    lowest_asr: item.lowest_asr,
+    htmlUrl: comparisonHistoryArtifactUrl(item, "comparison_html_url")
+      ? withLang(comparisonHistoryArtifactUrl(item, "comparison_html_url"))
+      : "",
+    csvUrl: comparisonHistoryArtifactUrl(item, "comparison_csv_url") || "",
+    jsonUrl: comparisonHistoryArtifactUrl(item, "comparison_json_url") || "",
+  }))
+);
+
+
 async function loadComparisonHistory() {
   comparisonHistoryStatus.value = "loading";
   comparisonHistoryError.value = "";
@@ -2462,92 +2481,13 @@ async function startExperiment() {
         :insights="comparisonInsights"
       />
 
-      <section class="comparison-history-panel dashboard-info-panel">
-        <div class="detail-section-heading comparison-history-heading">
-          <div>
-            <span class="detail-section-title">{{ t.comparisonHistoryTitle }}</span>
-            <span class="detail-section-subtitle">{{ t.comparisonHistoryHint }}</span>
-          </div>
-          <button
-            class="secondary-button comparison-history-refresh"
-            :disabled="comparisonHistoryStatus === 'loading'"
-            @click="loadComparisonHistory"
-          >
-            {{ t.comparisonHistoryRefresh }}
-          </button>
-        </div>
-
-        <div v-if="comparisonHistoryStatus === 'loading'" class="empty-state small comparison-history-empty">
-          {{ t.comparisonHistoryLoading }}
-        </div>
-
-        <div v-else-if="comparisonHistoryError" class="comparison-feedback error-feedback comparison-history-error">
-          <strong>{{ t.comparisonHistoryFailed }}</strong>
-          <span>{{ comparisonHistoryError }}</span>
-        </div>
-
-        <div v-else-if="comparisonHistory.length === 0" class="empty-state small comparison-history-empty">
-          {{ t.comparisonHistoryEmpty }}
-        </div>
-
-        <div v-else class="comparison-history-scroll">
-          <table class="jobs-table comparison-history-table">
-          <thead>
-            <tr>
-              <th>{{ t.comparisonHistoryCreated }}</th>
-              <th>{{ t.comparisonHistoryJobs }}</th>
-              <th>{{ t.comparisonHistoryBestAccuracy }}</th>
-              <th>{{ t.comparisonHistoryLowestLoss }}</th>
-              <th>{{ t.comparisonHistoryLowestAsr }}</th>
-              <th>{{ t.comparisonHistoryExports }}</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="item in comparisonHistory" :key="item.comparison_id">
-              <td>
-                <div class="comparison-history-title">{{ item.title }}</div>
-                <div class="job-id">{{ formatEventTime(item.created_at) }}</div>
-              </td>
-              <td>{{ item.job_count }}</td>
-              <td>{{ item.best_accuracy }}</td>
-              <td>{{ item.lowest_loss }}</td>
-              <td>{{ item.lowest_asr }}</td>
-              <td>
-                <div class="comparison-history-links">
-                  <a
-                    v-if="comparisonHistoryArtifactUrl(item, 'comparison_html_url')"
-                    class="report-link"
-                    :href="withLang(comparisonHistoryArtifactUrl(item, 'comparison_html_url'))"
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    {{ t.comparisonHtmlShort }}
-                  </a>
-                  <a
-                    v-if="comparisonHistoryArtifactUrl(item, 'comparison_csv_url')"
-                    class="report-link secondary-link"
-                    :href="comparisonHistoryArtifactUrl(item, 'comparison_csv_url')"
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    {{ t.comparisonCsvShort }}
-                  </a>
-                  <a
-                    v-if="comparisonHistoryArtifactUrl(item, 'comparison_json_url')"
-                    class="report-link secondary-link"
-                    :href="comparisonHistoryArtifactUrl(item, 'comparison_json_url')"
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    {{ t.comparisonJsonShort }}
-                  </a>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-          </table>
-        </div>
-      </section>
+      <ComparisonHistoryPanel
+        :copy="t"
+        :status="comparisonHistoryStatus"
+        :error="comparisonHistoryError"
+        :items="comparisonHistoryItemsForDisplay"
+        @refresh="loadComparisonHistory"
+      />
 
       <ComparisonStatusFeedback
         kind="error"
