@@ -1503,25 +1503,25 @@ v1.9.0 release scope completed:
 
 Final validation checklist:
 
-- [ ] `git diff --check`
-- [ ] `python -m ruff check .`
-- [ ] `python quick_test.py`
-- [ ] `python -m pytest`
-- [ ] `cd web && npm run build`
-- [ ] `python api_smoke_test.py`
-- [ ] `docker compose config`
-- [ ] `docker compose build`
-- [ ] `docker compose up -d`
-- [ ] `python api_smoke_test.py --wait-finished --write-finished-job-id smoke_finished_job_id.txt`
-- [ ] `$jobId = Get-Content smoke_finished_job_id.txt`
-- [ ] `docker compose restart backend`
-- [ ] `Start-Sleep -Seconds 10`
-- [ ] `python api_smoke_test.py --check-recovery $jobId`
-- [ ] `docker compose down`
-- [ ] `Remove-Item smoke_finished_job_id.txt`
-- [ ] GitHub Actions CI passing on main
-- [ ] GitHub Actions Docker Smoke manual workflow passing on main
-- [ ] Final tag `v1.9.0` 打在 main merge commit 上。
+- [x] `git diff --check`
+- [x] `python -m ruff check .`
+- [x] `python quick_test.py`
+- [x] `python -m pytest`
+- [x] `cd web && npm run build`
+- [x] `python api_smoke_test.py`
+- [x] `docker compose config`
+- [x] `docker compose build`
+- [x] `docker compose up -d`
+- [x] `python api_smoke_test.py --wait-finished --write-finished-job-id smoke_finished_job_id.txt`
+- [x] `$jobId = Get-Content smoke_finished_job_id.txt`
+- [x] `docker compose restart backend`
+- [x] `Start-Sleep -Seconds 10`
+- [x] `python api_smoke_test.py --check-recovery $jobId`
+- [x] `docker compose down`
+- [x] `Remove-Item smoke_finished_job_id.txt`
+- [x] GitHub Actions CI passing on main
+- [x] GitHub Actions Docker Smoke manual workflow passing on main
+- [x] Final tag `v1.9.0` 打在 main merge commit 上。
 
 ---
 
