@@ -2947,6 +2947,7 @@ async function startExperiment() {
 </template>
 
 <style scoped>
+/* Dashboard section shell and shared page layout */
 .dashboard-section-panel {
   display: contents;
 }
@@ -2987,7 +2988,7 @@ async function startExperiment() {
 
 /* Top bar */
 
-/* Shared cards */
+/* Shared dashboard card surfaces */
 .dashboard-shell {
   display: grid;
   grid-template-columns: 1fr;
@@ -3030,7 +3031,7 @@ async function startExperiment() {
   z-index: 1;
 }
 
-/* Command card */
+/* Run command panel, config selector, and config preview */
 .command-card {
   padding: 28px 30px 24px;
 }
@@ -3341,6 +3342,7 @@ input:focus {
   padding: 20px;
 }
 
+/* Runtime summary, live metrics, report link, and chart */
 .runtime-panel {
   min-width: 0;
 }
@@ -3472,6 +3474,7 @@ input:focus {
   padding: 26px 28px;
 }
 
+/* Jobs, comparison controls, and section actions */
 .section-header {
   display: flex;
   align-items: flex-start;
@@ -3595,6 +3598,7 @@ input:focus {
   color: #64748b;
 }
 
+/* Job detail panel, artifacts, and event timeline */
 .job-detail-card {
   margin-top: 18px;
   padding: 20px;
@@ -3913,7 +3917,7 @@ input:focus {
   line-height: 1.5;
 }
 
-/* Responsive */
+/* Responsive overrides */
 @media (max-width: 1180px) {
   .preview-grid.compact {
     grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -4403,6 +4407,7 @@ input {
   box-shadow: 0 8px 18px rgba(37, 99, 235, 0.12);
 }
 
+/* Comparison result, insights, and comparison history */
 .comparison-result-card {
   display: flex;
   align-items: center;
@@ -4491,7 +4496,7 @@ input {
 }
 
 
-/* v1.8.5 dashboard microcopy, empty-state, and alignment polish */
+/* Historical dashboard polish overrides: v1.8.5 microcopy, empty-state, and alignment */
 .command-controls {
   grid-template-columns: 180px minmax(300px, 560px) auto;
   justify-content: start;
@@ -4625,7 +4630,7 @@ input {
 }
 
 
-/* v1.8.6 dashboard alignment and config preview i18n polish */
+/* Historical dashboard polish overrides: v1.8.6 alignment and config preview i18n */
 .command-controls {
   grid-template-columns: 180px minmax(280px, 460px) auto;
 }
@@ -4722,7 +4727,7 @@ input {
 }
 
 
-/* v1.8.7 runtime summary alignment and disclosure affordance polish */
+/* Historical dashboard polish overrides: v1.8.7 runtime summary and disclosure affordance */
 .runtime-row {
   grid-template-columns:
     minmax(112px, 0.72fr)
@@ -5897,6 +5902,7 @@ input {
 }
 
 
+/* Reports cleanup panel and cleanup run result */
 .reports-cleanup-content {
   display: grid;
   gap: 12px;
