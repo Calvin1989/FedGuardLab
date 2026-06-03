@@ -33,7 +33,7 @@ defineProps({
   },
 })
 
-defineEmits(["refresh"])
+const emit = defineEmits(["refresh"]);
 </script>
 
 <template>
@@ -46,7 +46,7 @@ defineEmits(["refresh"])
       <button
         class="secondary-button comparison-history-refresh"
         :disabled="status === 'loading'"
-        @click="$emit('refresh')"
+        @click="emit('refresh')"
       >
         {{ copy.comparisonHistoryRefresh }}
       </button>

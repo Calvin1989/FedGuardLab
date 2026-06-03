@@ -1408,20 +1408,24 @@ function mapComparisonHistoryItem(item) {
 
 
 const comparisonHistoryItemsForDisplay = computed(() =>
-  comparisonHistory.value.map((item) => ({
-    comparison_id: item.comparison_id,
-    title: item.title,
-    createdAtLabel: formatEventTime(item.created_at),
-    job_count: item.job_count,
-    best_accuracy: item.best_accuracy,
-    lowest_loss: item.lowest_loss,
-    lowest_asr: item.lowest_asr,
-    htmlUrl: comparisonHistoryArtifactUrl(item, "comparison_html_url")
-      ? withLang(comparisonHistoryArtifactUrl(item, "comparison_html_url"))
-      : "",
-    csvUrl: comparisonHistoryArtifactUrl(item, "comparison_csv_url") || "",
-    jsonUrl: comparisonHistoryArtifactUrl(item, "comparison_json_url") || "",
-  }))
+  comparisonHistory.value.map((item) => {
+    const htmlUrl = comparisonHistoryArtifactUrl(item, "comparison_html_url");
+    const csvUrl = comparisonHistoryArtifactUrl(item, "comparison_csv_url");
+    const jsonUrl = comparisonHistoryArtifactUrl(item, "comparison_json_url");
+
+    return {
+      comparison_id: item.comparison_id,
+      title: item.title,
+      createdAtLabel: formatEventTime(item.created_at),
+      job_count: item.job_count,
+      best_accuracy: item.best_accuracy,
+      lowest_loss: item.lowest_loss,
+      lowest_asr: item.lowest_asr,
+      htmlUrl: htmlUrl ? withLang(htmlUrl) : "",
+      csvUrl: csvUrl || "",
+      jsonUrl: jsonUrl || "",
+    };
+  })
 );
 
 
@@ -4967,85 +4971,7 @@ input {
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
 }
 
-.comparison-history-heading {
-  margin-bottom: 12px;
-}
 
-.comparison-history-refresh {
-  min-height: 34px;
-  padding: 8px 12px;
-  white-space: nowrap;
-}
-
-.comparison-history-empty,
-.comparison-history-error,
-
-.comparison-history-table {
-  margin-top: 10px;
-  box-shadow: none;
-}
-
-.comparison-history-table th,
-.comparison-history-table td {
-  padding-top: 11px;
-  padding-bottom: 11px;
-}
-
-.comparison-history-title {
-  max-width: 320px;
-  overflow: hidden;
-  color: #0f172a;
-  font-weight: 800;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.comparison-history-links {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.comparison-history-links .report-link {
-  min-width: auto;
-  padding: 7px 10px;
-  font-size: 12px;
-}
-
-.comparison-history-links .secondary-link {
-  background: rgba(239, 246, 255, 0.92);
-  color: #1d4ed8;
-}
-
-
-/* Report entry sizing and comparison history scroll */
-.comparison-history-scroll {
-  max-height: 460px;
-  overflow: auto;
-  border: 1px solid rgba(226, 232, 240, 0.92);
-  border-radius: 14px;
-  background: #ffffff;
-}
-
-.comparison-history-scroll .comparison-history-table {
-  margin-top: 0;
-  border: 0;
-  border-radius: 0;
-  box-shadow: none;
-}
-
-.comparison-history-scroll .comparison-history-table thead th {
-  position: sticky;
-  top: 0;
-  z-index: 2;
-  background: #f8fafc;
-}
-
-.comparison-history-scroll .comparison-history-table tr:last-child td {
-  border-bottom: 0;
-}
-
-.comparison-history-links .report-link,
 .job-detail-actions .detail-report-link,
 .jobs-table .report-link {
   min-height: 30px;
@@ -5061,19 +4987,11 @@ input {
   border-radius: 9px;
 }
 
-@media (max-width: 760px) {
-  .comparison-history-scroll {
-    max-height: 360px;
-  }
-}
-
-
 /* Unified report and artifact entry system */
 .report-link,
 .detail-report-link,
 .detail-export-item,
-.comparison-export-item,
-.comparison-history-links .report-link {
+.comparison-export-item {
   min-height: 32px;
   padding: 0 12px;
   border-radius: 9px;
@@ -5083,8 +5001,7 @@ input {
   gap: 6px;
 }
 
-.jobs-table .report-link,
-.comparison-history-links .report-link {
+.jobs-table .report-link {
   min-height: 28px;
   padding: 0 10px;
   font-size: 12px;
@@ -5100,11 +5017,6 @@ input {
   min-width: 0;
 }
 
-.comparison-history-links {
-  gap: 6px;
-}
-
-.comparison-history-links .secondary-link,
 .comparison-export-item:not(:first-child),
 .detail-export-item:not(:first-child) {
   border-color: rgba(148, 163, 184, 0.34);
@@ -5112,7 +5024,6 @@ input {
   color: #334155;
 }
 
-.comparison-history-links .secondary-link:hover,
 .comparison-export-item:not(:first-child):not(.disabled):hover,
 .detail-export-item:not(:first-child):not(.disabled):hover {
   border-color: rgba(96, 165, 250, 0.46);
