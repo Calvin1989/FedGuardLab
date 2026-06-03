@@ -590,6 +590,27 @@ const reportsCleanupSummary = ref(null);
 const reportsCleanupStatus = ref("idle");
 const reportsCleanupError = ref("");
 
+const reportsCleanupPreview = computed(() =>
+  reportsCleanupSummary.value?.cleanup_preview || {
+    candidate_count: 0,
+    candidate_size_bytes: 0,
+    candidates: [],
+  }
+);
+const reportsCleanupPreviewCandidates = computed(() =>
+  reportsCleanupPreview.value.candidates.slice(0, 5)
+);
+const reportsCleanupOldestModifiedAt = computed(() =>
+  reportsCleanupSummary.value?.jobs?.oldest_modified_at ||
+  reportsCleanupSummary.value?.comparisons?.oldest_modified_at ||
+  ""
+);
+const reportsCleanupLatestModifiedAt = computed(() =>
+  reportsCleanupSummary.value?.jobs?.latest_modified_at ||
+  reportsCleanupSummary.value?.comparisons?.latest_modified_at ||
+  ""
+);
+
 const experimentOptions = ref([]);
 const selectedCategory = ref("all");
 
@@ -2473,7 +2494,7 @@ async function startExperiment() {
         </div>
       </div>
 
-      <section class="comparison-history-panel">
+      <section class="comparison-history-panel dashboard-info-panel">
         <div class="detail-section-heading comparison-history-heading">
           <div>
             <span class="detail-section-title">{{ t.comparisonHistoryTitle }}</span>
@@ -2567,7 +2588,9 @@ async function startExperiment() {
 
       <div v-if="selectedJobIds.length < 2 && selectedJobIds.length > 0 && comparisonStatus !== 'finished'" class="comparison-hint">
         {{ t.selectedJobsHint }}
-      <section class="reports-cleanup-panel">
+      </div>
+
+      <section class="reports-cleanup-panel dashboard-info-panel">
         <div class="detail-section-heading reports-cleanup-heading">
           <div>
             <span class="detail-section-title">{{ t.reportsCleanupTitle }}</span>
@@ -2618,11 +2641,11 @@ async function startExperiment() {
               <small>{{ t.reportsCleanupComparisonReports }}</small>
             </span>
             <span class="history-stat">
-              <strong>{{ reportsCleanupSummary.cleanup_preview.candidate_count }}</strong>
+              <strong>{{ reportsCleanupPreview.candidate_count }}</strong>
               <small>{{ t.reportsCleanupCandidates }}</small>
             </span>
             <span class="history-stat">
-              <strong>{{ formatStorageBytes(reportsCleanupSummary.cleanup_preview.candidate_size_bytes) }}</strong>
+              <strong>{{ formatStorageBytes(reportsCleanupPreview.candidate_size_bytes) }}</strong>
               <small>{{ t.reportsCleanupCandidateSize }}</small>
             </span>
             <span class="history-stat">
@@ -2634,22 +2657,22 @@ async function startExperiment() {
           <div class="reports-cleanup-meta">
             <span>
               <strong>{{ t.reportsCleanupOldest }}</strong>
-              {{ formatEventTime(reportsCleanupSummary.jobs.oldest_modified_at || reportsCleanupSummary.comparisons.oldest_modified_at) }}
+              {{ formatEventTime(reportsCleanupOldestModifiedAt) }}
             </span>
             <span>
               <strong>{{ t.reportsCleanupLatest }}</strong>
-              {{ formatEventTime(reportsCleanupSummary.jobs.latest_modified_at || reportsCleanupSummary.comparisons.latest_modified_at) }}
+              {{ formatEventTime(reportsCleanupLatestModifiedAt) }}
             </span>
           </div>
 
           <div class="reports-cleanup-candidates">
             <div class="reports-cleanup-candidates-heading">
               <strong>{{ t.reportsCleanupCandidatePreview }}</strong>
-              <span>{{ reportsCleanupSummary.cleanup_preview.candidate_count }}</span>
+              <span>{{ reportsCleanupPreview.candidate_count }}</span>
             </div>
 
             <div
-              v-if="reportsCleanupSummary.cleanup_preview.candidates.length === 0"
+              v-if="reportsCleanupPreviewCandidates.length === 0"
               class="empty-state small reports-cleanup-empty"
             >
               {{ t.reportsCleanupNoCandidates }}
@@ -2657,7 +2680,7 @@ async function startExperiment() {
 
             <div v-else class="reports-cleanup-candidate-list">
               <div
-                v-for="item in reportsCleanupSummary.cleanup_preview.candidates.slice(0, 5)"
+                v-for="item in reportsCleanupPreviewCandidates"
                 :key="`${item.kind}:${item.id}`"
                 class="reports-cleanup-candidate"
               >
@@ -2674,7 +2697,6 @@ async function startExperiment() {
           </div>
         </div>
       </section>
-      </div>
     </section>
   </main>
 </template>
@@ -5597,12 +5619,12 @@ input {
 
 
 /* Comparison history */
-.comparison-history-panel {
+.dashboard-info-panel {
   margin-top: 16px;
   padding: 14px;
   border: 1px solid rgba(148, 163, 184, 0.22);
   border-radius: 20px;
-  background: rgba(255, 255, 255, 0.68);
+  background: rgba(255, 255, 255, 0.7);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
 }
 
@@ -5617,9 +5639,7 @@ input {
 }
 
 .comparison-history-empty,
-.comparison-history-error {
-  margin-top: 10px;
-}
+.comparison-history-error,
 
 .comparison-history-table {
   margin-top: 10px;
@@ -5778,22 +5798,11 @@ input {
 }
 
 /* Reports cleanup summary */
-.reports-cleanup-panel {
-  margin-top: 16px;
-  padding: 14px;
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.72);
-}
 
 .reports-cleanup-heading {
   margin-bottom: 12px;
 }
 
-.reports-cleanup-empty,
-.reports-cleanup-error {
-  margin-top: 10px;
-}
 
 .reports-cleanup-content {
   display: grid;
