@@ -309,3 +309,4 @@ Reports cleanup safety model:
 - Existing report artifact URLs remain unchanged.
 
 > Current v1.9 status: `v1.9.0-beta.1` is the beta readiness milestone for Experiment Result Management. It validates the completed v1.9 alpha scope, including job archive / restore, comparison history, report entry unification, and reports cleanup summary / run safety controls.
+> Current v1.9 status: `v1.9.0-rc.1` is the release candidate readiness milestone for Experiment Result Management. It adds no runtime feature and focuses on final validation of history management, archive / restore, comparison history, report entry unification, and safe reports cleanup.
