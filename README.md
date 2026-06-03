@@ -240,37 +240,12 @@ reports/comparisons/<comparison_id>/
 
 ## 当前版本
 
-当前稳定版本：
+当前维护版本：v1.9.1
 
-```text
-v1.8.10
-```
+版本状态：
 
-当前预览版本：
-
-```text
-v1.9.0-alpha.1
-```
-
-v1.9.0-alpha.1 重点改进：
-
-* History experiment management UI：将 Dashboard 下半部分整理为"历史实验与对比"，明确区分历史实验、可对比实验、已选择实验和当前筛选状态。
-* Experiment comparison readiness：增加列表实验数、可对比实验数、已选择实验数和筛选状态摘要。
-* Job detail polish：减少重复状态信息，只在必要时显示报告未就绪状态。
-* Event timeline polish：优化事件时间线文案、图标位置和中文展示。
-* Round log layout polish：训练轮次详情改为更紧凑的一行展示。
-
----
-
-v1.8.10 重点改进：
-
-* Dashboard runtime summary UI polish：统一状态值与运行指标的视觉尺寸和层级。
-* Deferred report card：未启动实验时隐藏报告卡片，实验启动后显示“未就绪”，报告生成后显示“HTML 报告 / HTML report”。
-* Dashboard job detail density polish：压缩任务详情、导出文件、事件时间线、训练轮次详情和已选择实验区域的垂直空间。
-* Config preview i18n polish：优化配置预览中文化、Attack / Defense 文案、空状态和下拉框宽度。
-* Documentation sync：同步 README、CHANGELOG、roadmap 和 Dashboard / report 截图，使文档与 v1.8.9 当前稳定状态一致。
-* Comparison completion polish：对比报告生成后不再显示"至少需要选择 2 个实验才能生成对比报告"的提示，并压缩对比完成态、结果洞察和事件时间线区域。
-* Verification hardening：v1.8.10 已通过 ruff、quick test、pytest、frontend build、API smoke 和 Docker recovery 全流程验证。
+* `v1.9.0`：Experiment Result Management final release，完成历史实验管理、归档 / 恢复、对比历史、统一 report/artifact 入口，以及安全的 reports cleanup workflow。
+* `v1.9.1`：maintenance release，记录 GitHub Actions Node 24 compatibility workflow maintenance，并确认 Docker Smoke manual workflow 通过。
 
 兼容性说明：
 
@@ -282,34 +257,13 @@ v1.8.10 重点改进：
 * 不改变测试数据结构。
 * 继续保持中文 / English 双语支持。
 
+历史版本详情请查看：
+
+* [CHANGELOG](CHANGELOG.md)
+* [Roadmap](docs/roadmap.md)
+
 ---
 
 ## 许可证
 
 MIT
-
-## v1.9.0-alpha.10 status
-
-Current v1.9 alpha focus: Experiment Result Management.
-
-Completed in the v1.9 alpha series:
-
-- Dashboard history experiment management.
-- Job archive / restore and archived job filtering.
-- Comparison report history listing.
-- Unified report and artifact entry styling.
-- Local reports cleanup summary.
-- Reports cleanup run API with dry-run default and explicit confirmation for deletion.
-- Dashboard cleanup run controls with preview, confirmation, and result feedback.
-
-Reports cleanup safety model:
-
-- Summary endpoint is read-only.
-- Cleanup run defaults to dry-run.
-- Real deletion requires `dry_run=false` and `confirm=true`.
-- Cleanup candidates come from the backend preview.
-- Existing report artifact URLs remain unchanged.
-
-> Current v1.9 status: `v1.9.0-beta.1` is the beta readiness milestone for Experiment Result Management. It validates the completed v1.9 alpha scope, including job archive / restore, comparison history, report entry unification, and reports cleanup summary / run safety controls.
-> Current v1.9 status: `v1.9.0-rc.1` is the release candidate readiness milestone for Experiment Result Management. It adds no runtime feature and focuses on final validation of history management, archive / restore, comparison history, report entry unification, and safe reports cleanup.
-> Current stable release: `v1.9.0` finalizes Experiment Result Management with history management, archive / restore, comparison history, unified report entries, and safe reports cleanup.
