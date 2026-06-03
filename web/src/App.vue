@@ -2856,7 +2856,6 @@ async function startExperiment() {
 }
 
 .experiment-select,
-.status-filter select,
 select,
 input {
   width: 100%;
@@ -2873,7 +2872,6 @@ input {
 }
 
 .experiment-select:focus,
-.status-filter select:focus,
 select:focus,
 input:focus {
   border-color: rgba(37, 99, 235, 0.78);
@@ -2995,7 +2993,6 @@ input:focus {
 .config-tag,
 .job-badge,
 .status-badge,
-.risk-badge,
 .selected-job-status,
 .event-badge,
 .round-count-pill {
@@ -3013,39 +3010,18 @@ input:focus {
   white-space: nowrap;
 }
 
-.config-preview-line {
-  margin-top: 12px;
-}
-
-.preview-grid.compact {
-  display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: 8px;
-}
-
-.preview-item,
 .runtime-item,
 .hero-metric-item,
-.detail-item,
-.insight-metric-card,
-.insight-extra-card {
+.detail-item {
   min-width: 0;
   border: 1px solid rgba(148, 163, 184, 0.18);
   border-radius: 14px;
   background: rgba(255, 255, 255, 0.70);
 }
 
-.preview-item {
-  min-height: 52px;
-  padding: 9px 10px;
-}
-
-.preview-label,
 .runtime-item span,
 .hero-metric-item span,
-.detail-item span,
-.insight-metric-label,
-.insight-extra-label {
+.detail-item span {
   display: block;
   margin-bottom: 4px;
   color: #64748b;
@@ -3053,63 +3029,12 @@ input:focus {
   font-weight: 900;
 }
 
-.preview-item strong,
 .detail-item strong {
   display: block;
   color: #111827;
   font-size: 14px;
   line-height: 1.25;
   overflow-wrap: anywhere;
-}
-
-.risk-badge {
-  background: #fef3c7;
-  color: #92400e;
-}
-
-.risk-low {
-  background: #dcfce7;
-  color: #166534;
-}
-
-.risk-high {
-  background: #fee2e2;
-  color: #991b1b;
-}
-
-.preview-details {
-  margin-top: 10px;
-  color: #475569;
-  font-size: 12px;
-}
-
-.preview-details summary {
-  width: max-content;
-  cursor: pointer;
-  color: #64748b;
-  font-weight: 900;
-}
-
-.preview-detail-grid {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 8px;
-  margin-top: 10px;
-}
-
-.preview-recommended,
-.explanation-list {
-  margin-top: 10px;
-  padding: 10px 12px;
-  border-radius: 14px;
-  background: rgba(248, 250, 252, 0.80);
-}
-
-.preview-recommended p,
-.explanation-list p {
-  margin: 4px 0 0;
-  color: #475569;
-  line-height: 1.55;
 }
 
 /* Runtime monitor */
@@ -3253,15 +3178,6 @@ input:focus {
 }
 
 /* Jobs, comparison controls, and section actions */
-.section-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 18px;
-  margin-bottom: 18px;
-}
-
-.section-header h2,
 .job-detail-header h2 {
   margin: 0;
   color: #0f172a;
@@ -3269,34 +3185,11 @@ input:focus {
   letter-spacing: -0.035em;
 }
 
-.section-header p {
-  margin: 6px 0 0;
-  color: #64748b;
-  font-size: 13px;
-}
-
-.section-actions,
-.job-filters {
+.section-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-}
-
-.section-actions {
   justify-content: flex-end;
-}
-
-.job-filters {
-  margin-top: 14px;
-}
-
-.status-filter {
-  display: grid;
-  gap: 5px;
-  min-width: 170px;
-  color: #172033;
-  font-size: 12px;
-  font-weight: 900;
 }
 
 .jobs-table {
@@ -3425,8 +3318,7 @@ input:focus {
 }
 
 .detail-exports-title,
-.detail-events-title,
-.insight-section-title {
+.detail-events-title {
   margin: 0 0 10px;
   color: #0f172a;
   font-size: 14px;
@@ -3582,7 +3474,6 @@ input:focus {
 
 .selected-jobs-preview,
 .comparison-feedback,
-.insight-section,
 .comparison-hint {
   margin-top: 16px;
   padding: 14px;
@@ -3659,48 +3550,8 @@ input:focus {
   }
 }
 
-.insight-cards-grid,
-.insight-extra-cards {
-  display: grid;
-  gap: 10px;
-}
-
-.insight-cards-grid {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
-.insight-extra-cards {
-  margin-top: 10px;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
-.insight-metric-card,
-.insight-extra-card {
-  padding: 12px 14px;
-}
-
-.insight-metric-value {
-  display: block;
-  color: #0f172a;
-  font-size: 22px;
-  font-weight: 900;
-}
-
-.insight-metric-exp,
-.insight-extra-reason,
-.insight-extra-body {
-  margin: 4px 0 0;
-  color: #64748b;
-  font-size: 12px;
-  line-height: 1.5;
-}
-
 /* Responsive overrides */
 @media (max-width: 1180px) {
-  .preview-grid.compact {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-
   .runtime-row {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
@@ -3739,7 +3590,6 @@ input:focus {
 
   .command-controls,
   .selected-config-summary,
-  .section-header,
   .job-detail-header {
     grid-template-columns: 1fr;
     flex-direction: column;
@@ -3755,12 +3605,8 @@ input:focus {
     font-size: clamp(30px, 9vw, 42px);
   }
 
-  .preview-grid.compact,
-  .preview-detail-grid,
   .runtime-row,
-  .job-detail-grid,
-  .insight-cards-grid,
-  .insight-extra-cards {
+  .job-detail-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
@@ -3780,12 +3626,8 @@ input:focus {
 }
 
 @media (max-width: 560px) {
-  .preview-grid.compact,
-  .preview-detail-grid,
   .runtime-row,
-  .job-detail-grid,
-  .insight-cards-grid,
-  .insight-extra-cards {
+  .job-detail-grid {
     grid-template-columns: 1fr;
   }
 }
@@ -3850,7 +3692,6 @@ input:focus {
 }
 
 .experiment-select,
-.status-filter select,
 select,
 input {
   min-height: 36px;
@@ -3890,16 +3731,12 @@ input {
 }
 
 .selected-config-summary,
-.preview-item,
 .runtime-item,
 .hero-metric-item,
 .detail-item,
-.insight-metric-card,
-.insight-extra-card,
 .job-detail-card,
 .selected-jobs-preview,
 .comparison-feedback,
-.insight-section,
 .comparison-hint {
   border-color: rgba(148, 163, 184, 0.22);
   background: #ffffff;
@@ -3908,14 +3745,6 @@ input {
 
 .selected-config-summary {
   margin-top: 14px;
-}
-
-.preview-grid.compact {
-  grid-template-columns: repeat(7, minmax(0, 1fr));
-}
-
-.preview-item {
-  min-height: 58px;
 }
 
 .monitor-card {
@@ -3948,19 +3777,8 @@ input {
   padding: 24px 26px;
 }
 
-.section-header {
-  align-items: flex-start;
-  padding-bottom: 16px;
-  border-bottom: 1px solid rgba(226, 232, 240, 0.86);
-}
-
-.section-header h2,
 .job-detail-header h2 {
   font-size: 22px;
-}
-
-.job-filters {
-  margin-top: 12px;
 }
 
 .section-actions {
@@ -4017,15 +3835,6 @@ input {
   background: #f0fdf4;
 }
 
-.insight-cards-grid,
-.insight-extra-cards {
-  gap: 12px;
-}
-
-.insight-metric-value {
-  font-size: 24px;
-}
-
 @media (max-width: 1180px) {
   .runtime-row {
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -4043,23 +3852,15 @@ input {
     grid-template-columns: 1fr;
   }
 
-  .preview-grid.compact,
-  .preview-detail-grid,
   .runtime-row,
-  .job-detail-grid,
-  .insight-cards-grid,
-  .insight-extra-cards {
+  .job-detail-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 @media (max-width: 560px) {
-  .preview-grid.compact,
-  .preview-detail-grid,
   .runtime-row,
-  .job-detail-grid,
-  .insight-cards-grid,
-  .insight-extra-cards {
+  .job-detail-grid {
     grid-template-columns: 1fr;
   }
 }
@@ -4093,7 +3894,6 @@ input {
   line-height: 1.08;
 }
 
-.section-header h2,
 .job-detail-header h2 {
   font-weight: 800;
   letter-spacing: -0.02em;
@@ -4101,23 +3901,16 @@ input {
 
 .field-control > span:first-child,
 .field-label,
-.preview-label,
 .runtime-label,
-.detail-label,
-.insight-metric-label,
-.insight-extra-label {
+.detail-label {
   font-weight: 800;
   line-height: 1.35;
 }
 
 .subtitle,
-.section-header p,
 .preview-description,
 .detail-value,
-.round-log-metrics,
-.insight-extra-body,
-.insight-extra-reason,
-.comparison-result-copy span {
+.round-log-metrics {
   line-height: 1.65;
 }
 
@@ -4128,8 +3921,7 @@ input {
 .detail-export-item,
 .comparison-export-item,
 .status-badge,
-.selected-job-status,
-.risk-badge {
+.selected-job-status {
   min-height: 34px;
   line-height: 1;
   align-items: center;
@@ -4137,8 +3929,7 @@ input {
 }
 
 .status-badge,
-.selected-job-status,
-.risk-badge {
+.selected-job-status {
   display: inline-flex;
   justify-content: center;
   padding-top: 0;
@@ -4149,7 +3940,6 @@ input {
 .monitor-card,
 .comparison-card,
 .job-detail-card,
-.insight-section,
 .selected-jobs-preview {
   animation: cardFadeIn 0.28s ease-out both;
 }
@@ -4185,48 +3975,6 @@ input {
   box-shadow: 0 8px 18px rgba(37, 99, 235, 0.12);
 }
 
-/* Comparison result, insights, and comparison history */
-.comparison-result-card {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 18px;
-  padding: 16px 18px;
-}
-
-.comparison-result-copy {
-  display: grid;
-  gap: 4px;
-  min-width: 0;
-}
-
-.comparison-result-copy strong {
-  color: #14532d;
-  font-size: 14px;
-  font-weight: 800;
-}
-
-.comparison-result-copy span {
-  color: #3f684d;
-  font-size: 12px;
-}
-
-.comparison-result-card .comparison-exports {
-  display: flex;
-  flex: 0 0 auto;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: 8px;
-}
-
-.comparison-result-card .comparison-export-item {
-  min-width: 92px;
-  min-height: 34px;
-  padding: 0 14px;
-  border-radius: 10px;
-  background: #ffffff;
-}
-
 .job-detail-card {
   margin-top: 18px;
 }
@@ -4240,16 +3988,6 @@ input {
   background: #ffffff;
 }
 
-.insight-extra-card,
-.insight-metric-card {
-  padding: 16px;
-}
-
-.insight-extra-body,
-.insight-extra-reason {
-  margin-bottom: 0;
-}
-
 @keyframes cardFadeIn {
   from {
     opacity: 0;
@@ -4261,17 +3999,6 @@ input {
   }
 }
 
-@media (max-width: 760px) {
-  .comparison-result-card {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-
-  .comparison-result-card .comparison-exports {
-    justify-content: flex-start;
-    width: 100%;
-  }
-}
 
 
 /* Historical dashboard polish overrides: v1.8.5 microcopy, empty-state, and alignment */
@@ -5019,89 +4746,11 @@ input {
 /* Comparison completion layout */
 .comparison-card .selected-jobs-preview,
 .comparison-card .comparison-feedback,
-.comparison-card .insight-section,
 .comparison-card .comparison-hint {
   margin-top: 12px;
 }
 
-.comparison-card .comparison-result-card {
-  padding: 12px 14px;
-  border-radius: 16px;
-}
-
-.comparison-result-card .comparison-export-item {
-  min-width: 86px;
-  min-height: 32px;
-  padding: 0 12px;
-}
-
-.comparison-card .insight-section {
-  padding: 12px;
-  border-radius: 16px;
-}
-
-.insight-section-title {
-  margin-bottom: 8px;
-}
-
-.insight-cards-grid,
-.insight-extra-cards {
-  gap: 8px;
-}
-
-.insight-extra-cards {
-  margin-top: 8px;
-}
-
-.comparison-card .insight-metric-card,
-.comparison-card .insight-extra-card {
-  padding: 12px;
-  border-radius: 14px;
-}
-
-.comparison-card .insight-metric-value {
-  font-size: 20px;
-  line-height: 1.05;
-}
-
 /* Experiment history management */
-.history-management-strip {
-  display: grid;
-  grid-template-columns: minmax(0, 1.15fr) minmax(420px, 0.85fr);
-  gap: 12px;
-  align-items: stretch;
-  width: 100%;
-  margin: -2px 0 14px;
-  padding: 12px;
-  border: 1px solid rgba(191, 219, 254, 0.9);
-  border-radius: 16px;
-  background: linear-gradient(135deg, rgba(239, 246, 255, 0.92), rgba(248, 250, 252, 0.96));
-}
-
-.history-management-copy {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  min-width: 0;
-}
-
-.history-management-copy strong {
-  color: #0f172a;
-  font-size: 13px;
-}
-
-.history-management-copy span {
-  color: #64748b;
-  font-size: 12px;
-  line-height: 1.55;
-}
-
-.history-management-stats {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 8px;
-}
-
 .history-stat {
   display: flex;
   flex-direction: column;
@@ -5200,18 +4849,6 @@ input {
   color: #64748b;
 }
 
-@media (max-width: 1024px) {
-  .history-management-strip {
-    grid-template-columns: 1fr;
-    margin-top: 0;
-  }
-}
-
-@media (max-width: 760px) {
-  .history-management-stats {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
 
 
 /* Event timeline compact typography */
