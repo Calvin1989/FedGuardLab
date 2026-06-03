@@ -14,6 +14,7 @@ import ComparisonInsightsPanel from "./components/ComparisonInsightsPanel.vue";
 import ComparisonResultCard from "./components/ComparisonResultCard.vue";
 import ComparisonHistoryPanel from "./components/ComparisonHistoryPanel.vue";
 import ComparisonStatusFeedback from "./components/ComparisonStatusFeedback.vue";
+import JobDetailPanel from "./components/JobDetailPanel.vue";
 import SelectedJobsPreview from "./components/SelectedJobsPreview.vue";
 import { computed, onMounted, ref, watch } from "vue";
 
@@ -1429,6 +1430,63 @@ const comparisonHistoryItemsForDisplay = computed(() =>
 );
 
 
+const EXPORT_ARTIFACT_KEYS = [
+  { key: "report_html", icon: "📊", labelKey: "exportHtmlReport" },
+  { key: "metrics_csv", icon: "📄", labelKey: "exportCsvMetrics" },
+  { key: "summary_md", icon: "📝", labelKey: "exportMarkdownReport" },
+  { key: "metrics_json", icon: "{ }", labelKey: "exportMetricsJson" },
+  { key: "config_json", icon: "⚙", labelKey: "exportConfigJson" },
+];
+
+const detailExportItems = computed(() => {
+  const job = selectedDetailJob.value;
+  if (!job || !job.has_report) {
+    return [];
+  }
+
+  return EXPORT_ARTIFACT_KEYS.map((entry) => {
+    const url = jobArtifactUrl(job, entry.key);
+    const href =
+      entry.key === "report_html" ? withLang(url || "") : url || "";
+    return {
+      key: entry.key,
+      url: href,
+      icon: entry.icon,
+      label: t.value[entry.labelKey] || entry.labelKey,
+      disabled: !url,
+    };
+  });
+});
+
+
+const lifecycleDisplayEvents = computed(() =>
+  selectedLifecycleEvents.value.map((ev) => ({
+    icon: eventIcon(ev.type),
+    eventClass: "event-" + ev.type,
+    badgeClass: "badge-" + ev.type,
+    badgeText: t.value.eventType[ev.type] || ev.type,
+    time: formatEventTime(ev.created_at),
+    message: formatEventMessage(ev),
+    isFailed: ev.type === "failed" && Boolean(ev.details),
+    error: ev.details?.error || "",
+    traceback: ev.details?.traceback_summary || "",
+  }))
+);
+
+
+const roundDisplayEvents = computed(() =>
+  selectedRoundEvents.value.map((ev) => ({
+    badgeText: t.value.eventType.round_progress,
+    roundLabel: `${t.value.eventRound} ${ev.round}/${ev.total_rounds}`,
+    time: formatEventTime(ev.created_at),
+    hasMetrics: Boolean(ev.metrics),
+    accuracy: ev.metrics?.accuracy ?? "",
+    loss: ev.metrics?.loss ?? "",
+    asr: ev.metrics?.attack_success_rate ?? "",
+  }))
+);
+
+
 async function loadComparisonHistory() {
   comparisonHistoryStatus.value = "loading";
   comparisonHistoryError.value = "";
@@ -2207,246 +2265,19 @@ async function startExperiment() {
       </table>
 
       <div v-if="recentJobs.length > 0" class="job-detail-card">
-        <div v-if="selectedDetailJob" class="job-detail-panel">
-          <div class="job-detail-header">
-            <div class="job-detail-title-stack">
-              <p class="detail-section-title">{{ t.jobDetailTitle }}</p>
-              <h2 class="detail-section-main-title">{{ selectedDetailJob.label || selectedDetailJob.experiment_name || selectedDetailJob.config_path || "—" }}</h2>
-              <div class="job-detail-meta">
-                <span
-                  class="job-detail-meta-pill"
-                  :class="{ ready: canSelectJobForComparison(selectedDetailJob) }"
-                >
-                  {{ canSelectJobForComparison(selectedDetailJob) ? t.comparisonReady : t.comparisonUnavailable }}
-                </span>
-                <span
-                  v-if="selectedDetailJob.archived"
-                  class="job-detail-meta-pill archived"
-                >
-                  {{ t.archivedBadge }}
-                </span>
-                <span
-                  v-if="!selectedDetailJob.has_report"
-                  class="job-detail-meta-pill"
-                >
-                  {{ t.reportUnavailable }}
-                </span>
-              </div>
-            </div>
-
-            <div class="job-detail-actions">
-              <button
-                class="secondary-button detail-archive-button"
-                :disabled="historyActionStatus !== 'idle'"
-                :title="t.archiveHint"
-                @click="setJobArchived(selectedDetailJob, !selectedDetailJob.archived)"
-              >
-                {{ selectedDetailJob.archived ? t.restoreAction : t.archiveAction }}
-              </button>
-
-              <a
-                v-if="selectedDetailJob.has_report && selectedDetailJob.report_url"
-                class="report-link detail-report-link"
-                :href="withLang(selectedDetailJob.report_url)"
-                target="_blank"
-                rel="noreferrer"
-              >
-                {{ t.openHtmlReportShort || t.openHtmlReport }}
-              </a>
-            </div>
-          </div>
-
-          <div class="job-detail-grid">
-            <div class="detail-item detail-item-wide">
-              <span>{{ t.jobDetailId }}</span>
-              <strong>{{ selectedDetailJob.job_id || "—" }}</strong>
-            </div>
-
-            <div class="detail-item">
-              <span>{{ t.jobDetailStatus }}</span>
-              <strong>{{ t.statusValues[selectedDetailJob.status] || selectedDetailJob.status || "—" }}</strong>
-            </div>
-
-            <div class="detail-item">
-              <span>{{ t.jobDetailArtifacts }}</span>
-              <strong>{{ selectedDetailArtifactsCount }}</strong>
-            </div>
-
-            <div class="detail-item detail-item-wide">
-              <span>{{ t.jobDetailConfig }}</span>
-              <strong>{{ selectedDetailJob.config_path || "—" }}</strong>
-            </div>
-
-            <div class="detail-item">
-              <span>{{ t.jobDetailCreated }}</span>
-              <strong>{{ selectedDetailJob.created_at || "—" }}</strong>
-            </div>
-
-            <div class="detail-item">
-              <span>{{ t.jobDetailStarted }}</span>
-              <strong>{{ selectedDetailJob.started_at || "—" }}</strong>
-            </div>
-
-            <div class="detail-item">
-              <span>{{ t.jobDetailFinished }}</span>
-              <strong>{{ selectedDetailJob.finished_at || "—" }}</strong>
-            </div>
-
-            <div class="detail-item">
-              <span>{{ t.jobDetailReport }}</span>
-              <strong>{{ selectedDetailJob.has_report ? t.available : t.notReady }}</strong>
-            </div>
-          </div>
-
-          <div v-if="selectedDetailJob.has_report" class="detail-exports">
-            <h3 class="detail-exports-title">{{ t.exportsTitle }}</h3>
-            <div class="detail-exports-grid">
-              <a
-                v-if="jobArtifactUrl(selectedDetailJob, 'report_html')"
-                class="detail-export-item"
-                :href="withLang(jobArtifactUrl(selectedDetailJob, 'report_html'))"
-                target="_blank"
-                rel="noreferrer"
-              >
-                <span class="detail-export-icon">📊</span>
-                <span class="detail-export-label">{{ t.exportHtmlReport }}</span>
-              </a>
-              <span v-else class="detail-export-item disabled">
-                <span class="detail-export-icon">📊</span>
-                <span class="detail-export-label">{{ t.exportHtmlReport }}</span>
-              </span>
-
-              <a
-                v-if="jobArtifactUrl(selectedDetailJob, 'metrics_csv')"
-                class="detail-export-item"
-                :href="jobArtifactUrl(selectedDetailJob, 'metrics_csv')"
-                target="_blank"
-                rel="noreferrer"
-              >
-                <span class="detail-export-icon">📄</span>
-                <span class="detail-export-label">{{ t.exportCsvMetrics }}</span>
-              </a>
-              <span v-else class="detail-export-item disabled">
-                <span class="detail-export-icon">📄</span>
-                <span class="detail-export-label">{{ t.exportCsvMetrics }}</span>
-              </span>
-
-              <a
-                v-if="jobArtifactUrl(selectedDetailJob, 'summary_md')"
-                class="detail-export-item"
-                :href="jobArtifactUrl(selectedDetailJob, 'summary_md')"
-                target="_blank"
-                rel="noreferrer"
-              >
-                <span class="detail-export-icon">📝</span>
-                <span class="detail-export-label">{{ t.exportMarkdownReport }}</span>
-              </a>
-              <span v-else class="detail-export-item disabled">
-                <span class="detail-export-icon">📝</span>
-                <span class="detail-export-label">{{ t.exportMarkdownReport }}</span>
-              </span>
-
-              <a
-                v-if="jobArtifactUrl(selectedDetailJob, 'metrics_json')"
-                class="detail-export-item"
-                :href="jobArtifactUrl(selectedDetailJob, 'metrics_json')"
-                target="_blank"
-                rel="noreferrer"
-              >
-                <span class="detail-export-icon">{ }</span>
-                <span class="detail-export-label">{{ t.exportMetricsJson }}</span>
-              </a>
-              <span v-else class="detail-export-item disabled">
-                <span class="detail-export-icon">{ }</span>
-                <span class="detail-export-label">{{ t.exportMetricsJson }}</span>
-              </span>
-
-              <a
-                v-if="jobArtifactUrl(selectedDetailJob, 'config_json')"
-                class="detail-export-item"
-                :href="jobArtifactUrl(selectedDetailJob, 'config_json')"
-                target="_blank"
-                rel="noreferrer"
-              >
-                <span class="detail-export-icon">⚙</span>
-                <span class="detail-export-label">{{ t.exportConfigJson }}</span>
-              </a>
-              <span v-else class="detail-export-item disabled">
-                <span class="detail-export-icon">⚙</span>
-                <span class="detail-export-label">{{ t.exportConfigJson }}</span>
-              </span>
-            </div>
-          </div>
-
-          <div class="detail-events compact-events">
-            <div class="detail-events-heading">
-              <div class="detail-section-heading">
-                <h3 class="detail-section-title detail-events-title">{{ t.eventTimeline }}</h3>
-                <p class="detail-section-subtitle detail-events-subtitle">{{ t.lifecycleEvents }}</p>
-              </div>
-              <span v-if="selectedRoundEvents.length > 0" class="round-count-pill">
-                {{ t.trainingRoundsCount.replace('{count}', selectedRoundEvents.length) }}
-              </span>
-            </div>
-
-            <div v-if="selectedLifecycleEvents.length > 0" class="event-timeline lifecycle-timeline">
-              <div
-                v-for="(ev, idx) in selectedLifecycleEvents"
-                :key="idx"
-                class="event-item"
-                :class="'event-' + ev.type"
-              >
-                <div class="event-body">
-                  <div class="event-header">
-                    <span class="event-icon" aria-hidden="true">{{ eventIcon(ev.type) }}</span>
-                    <span class="event-badge" :class="'badge-' + ev.type">{{ t.eventType[ev.type] || ev.type }}</span>
-                    <span class="event-time">{{ formatEventTime(ev.created_at) }}</span>
-                    <span class="event-message">{{ formatEventMessage(ev) }}</span>
-                  </div>
-                  <div v-if="ev.type === 'failed' && ev.details" class="event-failure">
-                    <p><strong>{{ t.eventFailureReason }}:</strong> {{ ev.details.error }}</p>
-                    <pre v-if="ev.details.traceback_summary" class="event-traceback">{{ ev.details.traceback_summary }}</pre>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <details v-if="selectedRoundEvents.length > 0" class="round-log-panel">
-              <summary>
-                <div class="detail-section-heading">
-                  <span class="detail-section-title">{{ t.trainingRoundsTitle }}</span>
-                  <span class="detail-section-subtitle">{{ t.trainingRoundsHint }}</span>
-                </div>
-                <strong>{{ t.trainingRoundsCount.replace('{count}', selectedRoundEvents.length) }}</strong>
-              </summary>
-              <div class="round-log-list">
-                <div
-                  v-for="(ev, idx) in selectedRoundEvents"
-                  :key="idx"
-                  class="round-log-row"
-                >
-                  <div class="round-log-main">
-                    <span class="event-badge badge-round_progress">{{ t.eventType.round_progress }}</span>
-                    <strong>{{ t.eventRound }} {{ ev.round }}/{{ ev.total_rounds }}</strong>
-                    <span>{{ formatEventTime(ev.created_at) }}</span>
-                  </div>
-                  <div v-if="ev.metrics" class="round-log-metrics">
-                    <span>{{ t.accuracy }}: {{ ev.metrics.accuracy }}</span>
-                    <span>{{ t.loss }}: {{ ev.metrics.loss }}</span>
-                    <span>{{ t.asr }}: {{ ev.metrics.attack_success_rate }}</span>
-                  </div>
-                </div>
-              </div>
-            </details>
-
-            <div
-              v-if="selectedLifecycleEvents.length === 0 && selectedRoundEvents.length === 0"
-              class="empty-state small"
-            >
-              <p>{{ t.noEvents }}</p>
-            </div>
-          </div>
-        </div>
+        <JobDetailPanel
+          v-if="selectedDetailJob"
+          :copy="t"
+          :job="selectedDetailJob"
+          :artifacts-count="selectedDetailArtifactsCount"
+          :is-comparable="canSelectJobForComparison(selectedDetailJob)"
+          :is-action-disabled="historyActionStatus !== 'idle'"
+          :report-html-url="selectedDetailJob.report_url ? withLang(selectedDetailJob.report_url) : ''"
+          :export-items="detailExportItems"
+          :lifecycle-events="lifecycleDisplayEvents"
+          :round-events="roundDisplayEvents"
+          @archive="setJobArchived(selectedDetailJob, !selectedDetailJob.archived)"
+        />
 
         <div v-else class="empty-state small">
           {{ t.jobDetailHint }}
