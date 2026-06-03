@@ -1,4 +1,4 @@
-﻿metadata:
+metadata:
   name: "MNIST Trimmed Mean Backdoor"
   description: "Backdoor attack with Trimmed Mean defense"
   category: "defense"

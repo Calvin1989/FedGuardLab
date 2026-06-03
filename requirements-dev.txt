@@ -1,4 +1,4 @@
-﻿-r requirements-cpu.txt
+-r requirements-cpu.txt
 
 ruff
 pytest

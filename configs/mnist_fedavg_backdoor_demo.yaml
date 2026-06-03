@@ -1,4 +1,4 @@
-﻿metadata:
+metadata:
   name: "MNIST FedAvg Backdoor"
   description: "MNIST FedAvg with backdoor attack, no defense"
   category: "attack"

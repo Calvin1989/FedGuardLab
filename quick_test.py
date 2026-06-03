@@ -1,4 +1,4 @@
-﻿import asyncio
+import asyncio
 
 import torch
 from pydantic import ValidationError
