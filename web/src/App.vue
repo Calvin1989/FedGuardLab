@@ -1,6 +1,7 @@
 <script setup>
 import DashboardSectionHeading from "./components/DashboardSectionHeading.vue";
 import GlobalToolbar from "./components/GlobalToolbar.vue";
+import RuntimeMetricTile from "./components/RuntimeMetricTile.vue";
 import DashboardSectionNav from "./components/DashboardSectionNav.vue";
 import { computed, onMounted, ref, watch } from "vue";
 import { Line } from "vue-chartjs";
@@ -2084,22 +2085,26 @@ async function startExperiment() {
               <strong class="runtime-value">{{ jobId }}</strong>
             </div>
 
-            <div v-if="latestMetric" class="hero-metric-item">
-              <span class="runtime-label">{{ t.round }}</span>
-              <strong class="runtime-value">{{ latestMetric.round }}</strong>
-            </div>
-            <div v-if="latestMetric" class="hero-metric-item">
-              <span class="runtime-label">{{ t.accuracy }}</span>
-              <strong class="runtime-value">{{ latestMetric.accuracy }}</strong>
-            </div>
-            <div v-if="latestMetric" class="hero-metric-item">
-              <span class="runtime-label">{{ t.loss }}</span>
-              <strong class="runtime-value">{{ latestMetric.loss }}</strong>
-            </div>
-            <div v-if="latestMetric" class="hero-metric-item">
-              <span class="runtime-label">{{ t.asr }}</span>
-              <strong class="runtime-value">{{ latestMetric.attack_success_rate }}</strong>
-            </div>
+            <RuntimeMetricTile
+              v-if="latestMetric"
+              :label="t.round"
+              :value="latestMetric.round"
+            />
+            <RuntimeMetricTile
+              v-if="latestMetric"
+              :label="t.accuracy"
+              :value="latestMetric.accuracy"
+            />
+            <RuntimeMetricTile
+              v-if="latestMetric"
+              :label="t.loss"
+              :value="latestMetric.loss"
+            />
+            <RuntimeMetricTile
+              v-if="latestMetric"
+              :label="t.asr"
+              :value="latestMetric.attack_success_rate"
+            />
             <div v-if="jobId || reportUrl" class="runtime-item runtime-action" :class="{ 'is-disabled': !reportUrl }">
               <span class="runtime-label">{{ t.reportLabel }}</span>
               <a
