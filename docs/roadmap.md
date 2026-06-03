@@ -1400,6 +1400,47 @@ Focus: Dashboard job detail and comparison density polish.
 - [x] 完成 v1.8.9 验证闭环：ruff、quick test、pytest、frontend build、API smoke、Docker full flow 和 backend restart recovery。
 - [x] 不修改 API、训练逻辑、report artifact URL、Docker runtime 或测试数据结构。
 
+### v1.9.0-beta.1
+
+Focus: Beta readiness validation for v1.9 Experiment Result Management.
+
+v1.9.0-beta.1 不新增 runtime feature、不新增依赖、不改变 API 行为、不修改训练核心逻辑、不修改 report artifact URL、不修改 Docker runtime。重点是验证 alpha series 已完成能力，并为 rc.1 做稳定性收敛。
+
+v1.9 alpha series 已完成：
+
+- Dashboard history experiment management UI。
+- Job archive / restore API 与 Dashboard 控制。
+- Comparison report history API 与 Dashboard 面板。
+- Report entry styling unification。
+- Reports cleanup summary API 与 Dashboard 面板。
+- Reports cleanup run API 与 Dashboard 控制。
+- Cleanup safety model：summary 只读、run 默认 dry-run、真实删除必须显式 confirm。
+- v1.9 alpha release docs consolidation。
+
+Beta.1 验证重点：
+
+- [ ] `git diff --check`
+- [ ] `python -m ruff check .`
+- [ ] `python quick_test.py`
+- [ ] `python -m pytest`
+- [ ] `cd web && npm run build`
+- [ ] `python api_smoke_test.py`
+- [ ] `docker compose config`
+- [ ] `docker compose build`
+- [ ] `docker compose up -d`
+- [ ] `python api_smoke_test.py --wait-finished --write-finished-job-id smoke_finished_job_id.txt`
+- [ ] `$jobId = Get-Content smoke_finished_job_id.txt`
+- [ ] `docker compose restart backend`
+- [ ] `Start-Sleep -Seconds 10`
+- [ ] `python api_smoke_test.py --check-recovery $jobId`
+- [ ] `docker compose down`
+- [ ] `Remove-Item smoke_finished_job_id.txt`
+- [ ] GitHub Actions CI passing
+- [ ] Manual Dashboard zh / en check
+- [ ] Manual reports cleanup dry-run check
+- [ ] Beta tag 打在 PR merge 后的 main commit 上
+
+
 ---
 
 ## v1.8.10 Maintenance Update
