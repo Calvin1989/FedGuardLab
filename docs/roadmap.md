@@ -1448,3 +1448,103 @@ Focus: Dashboard history experiment management UI.
 - [x] 不修改 report artifact URL。
 - [x] 不修改 Docker runtime。
 - [x] 不改变测试数据结构。
+
+### v1.9.0-alpha.2 — completed
+
+Focus: Job archive / restore management.
+
+- [x] 增加 archived job 状态。
+- [x] 增加 archived_at 时间戳。
+- [x] 支持 active / archived / all job filtering。
+- [x] 支持 job archive / restore flow。
+- [x] archived job 不参与新 comparison。
+- [x] 保持 existing report artifact URL 不变。
+- [x] 保持训练逻辑不变。
+
+### v1.9.0-alpha.3 — completed
+
+Focus: Comparison report history.
+
+- [x] 增加 comparison report history listing。
+- [x] 支持 comparison history limit / sort query。
+- [x] Dashboard 展示 comparison history table。
+- [x] 保留 comparison HTML / CSV / JSON 直接入口。
+- [x] 保持 comparison artifact URL 不变。
+
+### v1.9.0-alpha.4 — completed
+
+Focus: Dashboard CSS cleanup pass.
+
+- [x] 清理重复 Dashboard CSS override。
+- [x] 删除被后续规则覆盖的 lifecycle timeline 样式块。
+- [x] 清理 selected jobs 区域重复 spacing。
+- [x] 保留最终生效样式和页面行为。
+
+### v1.9.0-alpha.5 — completed
+
+Focus: Dashboard report entry style unification.
+
+- [x] 统一 report link、detail export item、comparison export item、comparison history link 样式。
+- [x] 保持 report artifact URL 不变。
+- [x] 保持 Dashboard 行为不变。
+
+### v1.9.0-alpha.6 — completed
+
+Focus: Reports cleanup summary API and read-only Dashboard panel.
+
+- [x] 新增 `GET /reports/cleanup/summary`。
+- [x] 统计 reports/jobs 和 reports/comparisons。
+- [x] 返回 job reports 数量、comparison reports 数量、总大小、最早 / 最新修改时间。
+- [x] 返回 cleanup preview candidates。
+- [x] 明确 `dry_run=true`、`deletes_files=false`。
+- [x] Dashboard 展示本地 reports 清理策略只读面板。
+- [x] 不删除任何 report 文件。
+
+### v1.9.0-alpha.7 — completed
+
+Focus: Reports cleanup panel layout fix.
+
+- [x] 修复 reports cleanup panel 模板嵌套问题。
+- [x] 使 cleanup panel 作为独立 Dashboard 区块展示。
+- [x] 抽出 dashboard info panel 公共样式。
+- [x] 清理重复 CSS。
+- [x] 保持 API、训练逻辑、artifact URL 和 Docker runtime 不变。
+
+### v1.9.0-alpha.8 — completed
+
+Focus: Reports cleanup run API.
+
+- [x] 新增 `POST /reports/cleanup/run`。
+- [x] 默认 `dry_run=true`。
+- [x] `dry_run=false` 时必须显式 `confirm=true`。
+- [x] 只处理 cleanup summary preview 返回的候选项。
+- [x] 返回 candidate_count、deleted_count、deleted_size_bytes、skipped、errors。
+- [x] 增加 reports path safety checks。
+- [x] 扩展 unit tests 和 api_smoke_test dry-run 覆盖。
+
+### v1.9.0-alpha.9 — completed
+
+Focus: Dashboard reports cleanup run controls.
+
+- [x] Dashboard 新增 cleanup dry-run preview 按钮。
+- [x] Dashboard 新增 cleanup candidates 按钮。
+- [x] 真实删除前需要浏览器二次确认。
+- [x] 接入 `POST /reports/cleanup/run`。
+- [x] 展示 cleanup run result。
+- [x] 清理完成后刷新 cleanup summary。
+- [x] 清理完成后尝试刷新 comparison history 和 job history。
+- [x] 保持默认安全行为，不自动删除文件。
+
+### v1.9.0-alpha.10 — completed
+
+Focus: Release documentation consolidation.
+
+- [x] 补齐 v1.9 alpha series changelog。
+- [x] 新增 v1.9.0-alpha.10 release notes。
+- [x] 总结 reports cleanup safety semantics。
+- [x] 总结 v1.9 Experiment Result Management 当前完成范围。
+- [x] 不新增 runtime feature。
+- [x] 不修改 API 行为。
+- [x] 不修改训练核心逻辑。
+- [x] 不修改 report artifact URL。
+- [x] 不修改 Docker runtime。
