@@ -43,10 +43,10 @@ const selectedDetailJobId = ref("");
 const RECENT_JOBS_STORAGE_KEY = "fedguardlab_recent_jobs";
 const HIDDEN_JOBS_STORAGE_KEY = "fedguardlab_hidden_jobs";
 const LANGUAGE_STORAGE_KEY = "fedguardlab_language";
+const DASHBOARD_SECTION_STORAGE_KEY = "fedguardlab_dashboard_section";
 
 const language = ref(window.localStorage.getItem(LANGUAGE_STORAGE_KEY) || "zh");
 
-const activeDashboardSection = ref("run");
 const dashboardSections = [
   { id: "run", zh: "运行", en: "Run" },
   { id: "jobs", zh: "任务", en: "Jobs" },
@@ -54,8 +54,24 @@ const dashboardSections = [
   { id: "reports", zh: "报告", en: "Reports" },
 ];
 
+const dashboardSectionIds = new Set(
+  dashboardSections.map((section) => section.id)
+);
+
+function getInitialDashboardSection() {
+  const savedSection = window.localStorage.getItem(DASHBOARD_SECTION_STORAGE_KEY);
+  return dashboardSectionIds.has(savedSection) ? savedSection : "run";
+}
+
+const activeDashboardSection = ref(getInitialDashboardSection());
+
 function setDashboardSection(sectionId) {
+  if (!dashboardSectionIds.has(sectionId)) {
+    return;
+  }
+
   activeDashboardSection.value = sectionId;
+  window.localStorage.setItem(DASHBOARD_SECTION_STORAGE_KEY, sectionId);
 }
 
 const messages = {
