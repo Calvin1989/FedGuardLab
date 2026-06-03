@@ -10,6 +10,7 @@ import RuntimeReportAction from "./components/RuntimeReportAction.vue";
 import ConfigPreview from "./components/ConfigPreview.vue";
 import DashboardSectionNav from "./components/DashboardSectionNav.vue";
 import RuntimeChartPanel from "./components/RuntimeChartPanel.vue";
+import ComparisonResultCard from "./components/ComparisonResultCard.vue";
 import SelectedJobsPreview from "./components/SelectedJobsPreview.vue";
 import { computed, onMounted, ref, watch } from "vue";
 
@@ -2443,46 +2444,13 @@ async function startExperiment() {
         {{ t.comparisonCreating }}
       </div>
 
-      <div v-if="comparisonStatus === 'finished' && comparisonUrl" class="comparison-feedback success comparison-result-card">
-        <div class="comparison-result-copy">
-          <strong>{{ t.comparisonSuccess }}</strong>
-          <span>{{ t.comparisonSuccessDescription }}</span>
-        </div>
-        <div class="comparison-exports" :aria-label="t.comparisonExportsTitle">
-          <a
-            class="comparison-export-item"
-            :href="withLang(comparisonArtifactUrl('comparison_html_url'))"
-            target="_blank"
-            rel="noreferrer"
-          >
-            <span class="detail-export-label">{{ t.comparisonHtmlShort }}</span>
-          </a>
-          <a
-            v-if="comparisonArtifactUrl('comparison_csv_url')"
-            class="comparison-export-item"
-            :href="comparisonArtifactUrl('comparison_csv_url')"
-            target="_blank"
-            rel="noreferrer"
-          >
-            <span class="detail-export-label">{{ t.comparisonCsvShort }}</span>
-          </a>
-          <span v-else class="comparison-export-item disabled">
-            <span class="detail-export-label">{{ t.comparisonCsvShort }}</span>
-          </span>
-          <a
-            v-if="comparisonArtifactUrl('comparison_json_url')"
-            class="comparison-export-item"
-            :href="comparisonArtifactUrl('comparison_json_url')"
-            target="_blank"
-            rel="noreferrer"
-          >
-            <span class="detail-export-label">{{ t.comparisonJsonShort }}</span>
-          </a>
-          <span v-else class="comparison-export-item disabled">
-            <span class="detail-export-label">{{ t.comparisonJsonShort }}</span>
-          </span>
-        </div>
-      </div>
+      <ComparisonResultCard
+        v-if="comparisonStatus === 'finished' && comparisonUrl"
+        :copy="t"
+        :html-url="withLang(comparisonArtifactUrl('comparison_html_url'))"
+        :csv-url="comparisonArtifactUrl('comparison_csv_url')"
+        :json-url="comparisonArtifactUrl('comparison_json_url')"
+      />
 
       <div v-if="comparisonStatus === 'finished' && comparisonInsights && (comparisonInsights.best_accuracy || comparisonInsights.winner)" class="insight-section">
         <h3 class="insight-section-title">{{ t.insightsTitle }}</h3>
