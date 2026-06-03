@@ -1,7 +1,6 @@
 <script setup>
 import DashboardSectionHeading from "./components/DashboardSectionHeading.vue";
-import LanguageSwitcher from "./components/LanguageSwitcher.vue";
-import TopbarBrand from "./components/TopbarBrand.vue";
+import GlobalToolbar from "./components/GlobalToolbar.vue";
 import DashboardSectionNav from "./components/DashboardSectionNav.vue";
 import { computed, onMounted, ref, watch } from "vue";
 import { Line } from "vue-chartjs";
@@ -1894,11 +1893,7 @@ async function startExperiment() {
 
 <template>
   <main class="page">
-    <div class="global-toolbar" aria-label="Global toolbar">
-      <TopbarBrand />
-
-      <LanguageSwitcher :language="language" @select="setLanguage" />
-    </div>
+    <GlobalToolbar :language="language" @select-language="setLanguage" />
 
     <DashboardSectionNav
       :sections="dashboardNavigationSections"
@@ -2983,7 +2978,6 @@ async function startExperiment() {
 }
 
 .page > *,
-.global-toolbar,
 .dashboard-shell,
 .comparison-card {
   width: min(1180px, calc(100vw - 48px));
@@ -2992,14 +2986,6 @@ async function startExperiment() {
 }
 
 /* Top bar */
-.global-toolbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  min-height: 42px;
-  margin-bottom: 18px;
-}
 
 /* Shared cards */
 .dashboard-shell {
@@ -3954,14 +3940,9 @@ input:focus {
   }
 
   .page > *,
-  .global-toolbar,
   .dashboard-shell,
   .comparison-card {
     width: min(100%, calc(100vw - 28px));
-  }
-
-  .global-toolbar {
-    align-items: flex-start;
   }
 
   .command-card,
@@ -4041,15 +4022,9 @@ input:focus {
 }
 
 .page > *,
-.global-toolbar,
 .dashboard-shell,
 .comparison-card {
   width: min(1200px, calc(100vw - 48px));
-}
-
-.global-toolbar {
-  min-height: 36px;
-  margin-bottom: 14px;
 }
 
 .command-card,
@@ -4277,7 +4252,6 @@ input {
 
 @media (max-width: 860px) {
   .page > *,
-  .global-toolbar,
   .dashboard-shell,
   .comparison-card {
     width: min(100%, calc(100vw - 28px));
