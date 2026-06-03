@@ -4,6 +4,19 @@
 
 - No unreleased changes.
 
+## v1.9.0
+
+- Finalized v1.9.0 Experiment Result Management.
+  - Added Dashboard history experiment management UI.
+  - Added job archive / restore workflow with archived filtering and comparison protection.
+  - Added comparison report history API and Dashboard panel.
+  - Unified report and artifact entry styling.
+  - Added reports cleanup summary API and Dashboard panel.
+  - Added reports cleanup run API with safe dry-run default and explicit confirmation requirement for real deletion.
+  - Added Dashboard cleanup run controls with browser confirmation before real deletion.
+  - Consolidated v1.9 alpha, beta, and release candidate documentation.
+  - Kept training core logic and report artifact URLs stable.
+
 ## v1.9.0-rc.1
 
 - Prepared v1.9.0 release candidate readiness documentation.
