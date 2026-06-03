@@ -2065,6 +2065,7 @@ async function startExperiment() {
         v-model:limit="recentJobsLimit"
         v-model:sort="recentJobsSort"
         :copy="t"
+        :show-filters="activeDashboardSection === 'jobs'"
       >
         <template #default>
           <div class="section-actions">
@@ -2096,6 +2097,7 @@ async function startExperiment() {
       </JobsSectionHeader>
 
       <HistoryManagementStrip
+        v-if="activeDashboardSection === 'jobs'"
         :copy="t"
         :total-jobs="recentJobs.length"
         :comparable-jobs="comparableJobsCount"
