@@ -8,17 +8,9 @@ const props = defineProps({
     type: String,
     required: true,
   },
-  language: {
-    type: String,
-    required: true,
-  },
 });
 
 const emit = defineEmits(["select"]);
-
-function sectionLabel(section) {
-  return props.language === "zh" ? section.zh : section.en;
-}
 </script>
 
 <template>
@@ -32,7 +24,7 @@ function sectionLabel(section) {
       :aria-current="activeSection === section.id ? 'page' : undefined"
       @click="emit('select', section.id)"
     >
-      {{ sectionLabel(section) }}
+      {{ section.label }}
     </button>
   </nav>
 </template>

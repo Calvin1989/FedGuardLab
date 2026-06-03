@@ -47,16 +47,9 @@ const DASHBOARD_SECTION_STORAGE_KEY = "fedguardlab_dashboard_section";
 
 const language = ref(window.localStorage.getItem(LANGUAGE_STORAGE_KEY) || "zh");
 
-const dashboardSections = [
-  { id: "run", zh: "运行", en: "Run" },
-  { id: "jobs", zh: "任务", en: "Jobs" },
-  { id: "comparisons", zh: "对比", en: "Comparisons" },
-  { id: "reports", zh: "报告", en: "Reports" },
-];
+const dashboardSections = ["run", "jobs", "comparisons", "reports"];
 
-const dashboardSectionIds = new Set(
-  dashboardSections.map((section) => section.id)
-);
+const dashboardSectionIds = new Set(dashboardSections);
 
 function getInitialDashboardSection() {
   const savedSection = window.localStorage.getItem(DASHBOARD_SECTION_STORAGE_KEY);
@@ -79,6 +72,12 @@ const messages = {
     eyebrow: "FedGuardLab",
     heroTitle: "联邦学习安全实验平台",
     heroSubtitle: "运行 FL 安全实验，实时查看指标，对比攻防效果",
+    dashboardSectionLabels: {
+      run: "运行",
+      jobs: "任务",
+      comparisons: "对比",
+      reports: "报告",
+    },
     categoryLabel: "分类",
     allCategories: "全部分类",
     experimentLabel: "实验配置",
@@ -518,6 +517,13 @@ const messages = {
 };
 
 const t = computed(() => messages[language.value] || messages.zh);
+
+const dashboardNavigationSections = computed(() =>
+  dashboardSections.map((sectionId) => ({
+    id: sectionId,
+    label: t.value.dashboardSectionLabels?.[sectionId] || sectionId,
+  }))
+);
 
 
 const CONFIG_DISPLAY_TEXT = {
@@ -1866,9 +1872,8 @@ async function startExperiment() {
     </div>
 
     <DashboardSectionNav
-      :sections="dashboardSections"
+      :sections="dashboardNavigationSections"
       :active-section="activeDashboardSection"
-      :language="language"
       @select="setDashboardSection"
     />
 
