@@ -1,23 +1,40 @@
+# Normalize text files in the repository to LF in Git.
+# Working-tree checkout behavior may still depend on local Git settings.
 * text=auto
 
+# Source code
 *.py text eol=lf
 *.js text eol=lf
 *.vue text eol=lf
-*.md text eol=lf
-*.yml text eol=lf
-*.yaml text eol=lf
-*.json text eol=lf
-*.toml text eol=lf
 *.css text eol=lf
 *.html text eol=lf
+*.j2 text eol=lf
 
+# Config and documentation
+*.md text eol=lf
+*.txt text eol=lf
+*.toml text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+*.json text eol=lf
+*.ini text eol=lf
+*.cfg text eol=lf
+
+# Docker and ignore files
 Dockerfile text eol=lf
 Dockerfile.* text eol=lf
 *.dockerfile text eol=lf
+*.dockerignore text eol=lf
+.gitignore text eol=lf
+.gitattributes text eol=lf
 
+# Binary assets
 *.png binary
 *.jpg binary
 *.jpeg binary
 *.gif binary
 *.webp binary
 *.ico binary
+*.gz binary
+*.zip binary
+*.ubyte binary
