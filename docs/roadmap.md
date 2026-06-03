@@ -1480,6 +1480,49 @@ rc.1 验证重点：
 - [ ] GitHub Actions Docker Smoke manual workflow passing on main
 - [ ] Final tag 打在 main merge commit 上（PR 合并后）
 
+### v1.9.0 — completed
+
+Focus: Final release for Experiment Result Management. ✅ Completed.
+
+v1.9.0 release scope completed:
+
+- [x] Dashboard history experiment management UI.
+- [x] Job archive / restore workflow.
+- [x] Archived job filtering and comparison protection.
+- [x] Comparison report history API.
+- [x] Comparison report history Dashboard panel.
+- [x] Unified report and artifact entry styling.
+- [x] Reports cleanup summary API.
+- [x] Reports cleanup summary Dashboard panel.
+- [x] Reports cleanup run API with safe dry-run default.
+- [x] Dashboard cleanup run controls with explicit confirmation.
+- [x] Reports cleanup safety model documented.
+- [x] Alpha release documentation consolidation.
+- [x] Beta readiness documentation.
+- [x] Release candidate readiness documentation.
+
+Final validation checklist:
+
+- [ ] `git diff --check`
+- [ ] `python -m ruff check .`
+- [ ] `python quick_test.py`
+- [ ] `python -m pytest`
+- [ ] `cd web && npm run build`
+- [ ] `python api_smoke_test.py`
+- [ ] `docker compose config`
+- [ ] `docker compose build`
+- [ ] `docker compose up -d`
+- [ ] `python api_smoke_test.py --wait-finished --write-finished-job-id smoke_finished_job_id.txt`
+- [ ] `$jobId = Get-Content smoke_finished_job_id.txt`
+- [ ] `docker compose restart backend`
+- [ ] `Start-Sleep -Seconds 10`
+- [ ] `python api_smoke_test.py --check-recovery $jobId`
+- [ ] `docker compose down`
+- [ ] `Remove-Item smoke_finished_job_id.txt`
+- [ ] GitHub Actions CI passing on main
+- [ ] GitHub Actions Docker Smoke manual workflow passing on main
+- [ ] Final tag `v1.9.0` 打在 main merge commit 上。
+
 ---
 
 ## v1.8.10 Maintenance Update
