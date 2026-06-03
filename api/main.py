@@ -1,6 +1,7 @@
 import asyncio
 import json
 import re
+import shutil
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
@@ -63,6 +64,12 @@ JOB_ID_PATTERN = re.compile(
 class ComparisonRequest(BaseModel):
     job_ids: List[str]
     title: str = "FedGuardLab Experiment Comparison"
+
+
+class ReportsCleanupRunRequest(BaseModel):
+    keep_latest: int = 20
+    dry_run: bool = True
+    confirm: bool = False
 
 
 def save_job_results(job_id: str) -> None:
@@ -553,6 +560,135 @@ def build_reports_cleanup_summary(keep_latest: int = 20) -> dict[str, Any]:
             "candidates": cleanup_candidates[:50],
         },
     }
+def _cleanup_candidate_id(candidate: dict[str, Any]) -> str:
+    for key in ("id", "name", "job_id", "comparison_id"):
+        value = candidate.get(key)
+        if value:
+            return str(value)
+    raise ValueError("cleanup candidate is missing an id")
+
+
+def _cleanup_candidate_path(candidate: dict[str, Any]) -> Path:
+    roots = (REPORTS_DIR.resolve(), COMPARISONS_DIR.resolve())
+    raw_path = candidate.get("path")
+
+    if raw_path:
+        target_path = Path(str(raw_path)).resolve()
+    else:
+        kind = str(candidate.get("kind") or candidate.get("type") or "")
+        if kind == "job":
+            target_path = (REPORTS_DIR / _cleanup_candidate_id(candidate)).resolve()
+        elif kind == "comparison":
+            target_path = (
+                COMPARISONS_DIR / _cleanup_candidate_id(candidate)
+            ).resolve()
+        else:
+            raise ValueError(f"unsupported cleanup candidate kind: {kind}")
+
+    if target_path in roots:
+        raise ValueError("refusing to delete reports root directory")
+
+    if not any(target_path.is_relative_to(root) for root in roots):
+        raise ValueError(f"cleanup candidate is outside reports root: {target_path}")
+
+    return target_path
+
+
+def _path_size_bytes(path: Path) -> int:
+    if path.is_file():
+        return path.stat().st_size
+
+    if not path.is_dir():
+        return 0
+
+    total = 0
+    for child in path.rglob("*"):
+        if child.is_symlink():
+            continue
+        if child.is_file():
+            total += child.stat().st_size
+    return total
+
+
+def run_reports_cleanup(
+    *,
+    keep_latest: int = 20,
+    dry_run: bool = True,
+    confirm: bool = False,
+) -> dict[str, Any]:
+    if keep_latest < 0 or keep_latest > 1000:
+        raise ValueError("keep_latest must be between 0 and 1000")
+
+    if not dry_run and not confirm:
+        raise ValueError("confirm=true is required when dry_run=false")
+
+    summary = build_reports_cleanup_summary(keep_latest=keep_latest)
+    preview = summary["cleanup_preview"]
+    candidates = preview["candidates"]
+
+    result: dict[str, Any] = {
+        "dry_run": dry_run,
+        "deletes_files": not dry_run,
+        "confirmed": confirm,
+        "keep_latest_per_kind": keep_latest,
+        "candidate_count": preview["candidate_count"],
+        "selected_candidate_count": len(candidates),
+        "candidate_size_bytes": preview["candidate_size_bytes"],
+        "deleted_count": 0,
+        "deleted_size_bytes": 0,
+        "skipped_count": 0,
+        "error_count": 0,
+        "deleted": [],
+        "skipped": [],
+        "errors": [],
+        "summary_before": summary,
+    }
+
+    for candidate in candidates:
+        candidate_ref = {
+            "kind": candidate.get("kind"),
+            "id": candidate.get("id") or candidate.get("name"),
+            "size_bytes": candidate.get("size_bytes", 0),
+            "modified_at": candidate.get("modified_at"),
+        }
+
+        try:
+            target_path = _cleanup_candidate_path(candidate)
+        except ValueError as exc:
+            result["error_count"] += 1
+            result["errors"].append({**candidate_ref, "error": str(exc)})
+            continue
+
+        candidate_ref["path"] = target_path.as_posix()
+
+        if dry_run:
+            result["skipped_count"] += 1
+            result["skipped"].append({**candidate_ref, "reason": "dry_run"})
+            continue
+
+        if not target_path.exists():
+            result["skipped_count"] += 1
+            result["skipped"].append({**candidate_ref, "reason": "missing"})
+            continue
+
+        try:
+            size_before_delete = _path_size_bytes(target_path)
+            if target_path.is_dir():
+                shutil.rmtree(target_path)
+            else:
+                target_path.unlink()
+
+            result["deleted_count"] += 1
+            result["deleted_size_bytes"] += size_before_delete
+            result["deleted"].append(
+                {**candidate_ref, "size_bytes": size_before_delete}
+            )
+        except OSError as exc:
+            result["error_count"] += 1
+            result["errors"].append({**candidate_ref, "error": str(exc)})
+
+    return result
+
 def _download_file(path: Path, filename: str) -> FileResponse:
     if not path.exists() or not path.is_file():
         raise HTTPException(status_code=404, detail="artifact not found")
@@ -575,6 +711,22 @@ def reports_cleanup_summary(
     keep_latest: int = Query(20, ge=0, le=1000),
 ):
     return build_reports_cleanup_summary(keep_latest=keep_latest)
+
+
+@app.post("/reports/cleanup/run")
+def reports_cleanup_run(request: ReportsCleanupRunRequest | None = None):
+    options = request or ReportsCleanupRunRequest()
+
+    try:
+        return run_reports_cleanup(
+            keep_latest=options.keep_latest,
+            dry_run=options.dry_run,
+            confirm=options.confirm,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
 @app.get("/configs")
 def list_configs():
     configs = []
