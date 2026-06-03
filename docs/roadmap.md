@@ -1671,3 +1671,33 @@ Focus: Release documentation consolidation.
 - [x] 不修改训练核心逻辑。
 - [x] 不修改 report artifact URL。
 - [x] 不修改 Docker runtime。
+
+---
+
+## v1.9.1 Maintenance Update
+
+### v1.9.1 — completed
+
+Focus: GitHub Actions Node 24 compatibility maintenance.
+
+- [x] Updated GitHub Actions workflow actions for Node 24 compatibility.
+- [x] Confirmed CI remains green after workflow maintenance.
+- [x] Confirmed Docker Smoke manual workflow passes after workflow maintenance.
+- [x] No runtime feature change.
+- [x] No API behavior change.
+- [x] No training logic change.
+- [x] No report artifact URL change.
+- [x] No Docker runtime behavior change.
+- [x] No new dependency.
+
+Checklist:
+
+- [x] `git diff --check`
+- [x] `python -m ruff check .`
+- [x] `python quick_test.py`
+- [x] `python -m pytest`
+- [x] `cd web && npm run build`
+- [x] `python api_smoke_test.py`
+- [x] GitHub Actions CI passing
+- [x] GitHub Actions Docker Smoke manual workflow passing
+

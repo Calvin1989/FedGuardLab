@@ -4,6 +4,13 @@
 
 - No unreleased changes.
 
+## v1.9.1
+
+- Prepared v1.9.1 maintenance release documentation.
+  - Recorded GitHub Actions Node 24 compatibility workflow maintenance.
+  - Confirmed Docker Smoke workflow after the workflow update.
+  - No runtime feature change, no API behavior change, no training logic change, no report artifact URL change, and no new dependency.
+
 ## v1.9.0
 
 - Finalized v1.9.0 Experiment Result Management.
