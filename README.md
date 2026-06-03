@@ -1,5 +1,7 @@
 # FedGuardLab
 
+> Current maintenance release: v1.9.1 maintenance release after v1.9.0, documenting GitHub Actions Node 24 compatibility workflow maintenance.
+
 ![CI](https://github.com/Calvin1989/FedGuardLab/actions/workflows/ci.yml/badge.svg)
 
 FedGuardLab 是一个面向联邦学习安全实验的轻量级交互式平台。
