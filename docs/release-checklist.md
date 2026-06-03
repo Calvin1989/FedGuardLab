@@ -1,4 +1,4 @@
-﻿# Release Checklist
+# Release Checklist
 
 本清单适用于 FedGuardLab v1.8.x 之后的 release / rc / final 验证。
 

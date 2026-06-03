@@ -1,4 +1,4 @@
-﻿import argparse
+import argparse
 
 from fedguardlab.reporting.comparison import generate_comparison_report
 

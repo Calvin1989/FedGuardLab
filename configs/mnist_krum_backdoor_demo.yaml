@@ -1,4 +1,4 @@
-﻿metadata:
+metadata:
   name: "MNIST Krum Backdoor"
   description: "Backdoor attack with Krum defense"
   category: "defense"

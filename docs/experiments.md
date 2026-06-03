@@ -1,4 +1,4 @@
-﻿# 实验说明
+# 实验说明
 
 FedGuardLab 当前提供 simulated demo 和 real MNIST demo 两类实验。
 

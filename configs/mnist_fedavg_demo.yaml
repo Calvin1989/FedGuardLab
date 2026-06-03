@@ -1,4 +1,4 @@
-﻿metadata:
+metadata:
   name: "MNIST FedAvg Demo"
   description: "Baseline MNIST training with FedAvg, no attack"
   category: "baseline"
