@@ -4,6 +4,22 @@
 
 - No unreleased changes.
 
+## v1.9.0-beta.1
+
+- Prepared v1.9.0 beta readiness documentation.
+  - Summarized the completed v1.9 alpha series.
+  - Defined beta validation scope for Experiment Result Management.
+  - Reconfirmed reports cleanup safety semantics.
+  - No runtime feature change, no dependency change, no API behavior change, no training logic change, no report artifact URL change, no Docker runtime change.
+  - Validation target:
+    - `git diff --check`
+    - `python -m ruff check .`
+    - `python quick_test.py`
+    - `python -m pytest`
+    - `cd web && npm run build`
+    - `python api_smoke_test.py`
+    - Docker Compose full flow and backend restart recovery.
+
 ## v1.9.0-alpha.10
 
 - Consolidated v1.9.0 alpha release documentation.

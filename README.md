@@ -307,3 +307,5 @@ Reports cleanup safety model:
 - Real deletion requires `dry_run=false` and `confirm=true`.
 - Cleanup candidates come from the backend preview.
 - Existing report artifact URLs remain unchanged.
+
+> Current v1.9 status: `v1.9.0-beta.1` is the beta readiness milestone for Experiment Result Management. It validates the completed v1.9 alpha scope, including job archive / restore, comparison history, report entry unification, and reports cleanup summary / run safety controls.
