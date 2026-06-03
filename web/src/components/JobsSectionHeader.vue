@@ -3,8 +3,8 @@
  * JobsSectionHeader — title, hint, and filter controls for the
  * jobs / comparisons dashboard section.
  *
- * All state (filters) is synced to the parent via v-model.
- * No API calls or internal business logic.
+ * Filter state is synced to the parent via v-model.
+ * Section actions stay in the parent through the default slot.
  */
 defineProps({
   /** Localised UI copy (the `t` computed from App.vue) */
@@ -12,17 +12,22 @@ defineProps({
     type: Object,
     required: true,
   },
-})
+  /** Whether to show the jobs title, hint, and filter controls */
+  showFilters: {
+    type: Boolean,
+    default: true,
+  },
+});
 
-const statusFilter = defineModel("statusFilter", { type: String, default: "all" })
-const archiveFilter = defineModel("archiveFilter", { type: String, default: "active" })
-const limit = defineModel("limit", { type: Number, default: 20 })
-const sort = defineModel("sort", { type: String, default: "created_at_desc" })
+const statusFilter = defineModel("statusFilter", { type: String, default: "all" });
+const archiveFilter = defineModel("archiveFilter", { type: String, default: "active" });
+const limit = defineModel("limit", { type: Number, default: 20 });
+const sort = defineModel("sort", { type: String, default: "created_at_desc" });
 </script>
 
 <template>
-  <div class="section-header">
-    <div>
+  <div class="section-header" :class="{ 'actions-only': !showFilters }">
+    <div v-if="showFilters" class="section-header-copy">
       <h2>{{ copy.comparisonTitle }}</h2>
       <p>{{ copy.comparisonHint }}</p>
       <div class="job-filters">
@@ -67,7 +72,6 @@ const sort = defineModel("sort", { type: String, default: "created_at_desc" })
       </div>
     </div>
 
-    <!-- Slot for section-actions so the parent keeps full control of buttons -->
     <slot />
   </div>
 </template>
@@ -81,6 +85,15 @@ const sort = defineModel("sort", { type: String, default: "created_at_desc" })
   margin-bottom: 18px;
 }
 
+.section-header.actions-only {
+  justify-content: flex-end;
+  margin-bottom: 14px;
+}
+
+.section-header-copy {
+  min-width: 0;
+}
+
 .section-header h2 {
   margin: 0;
   color: #0f172a;
@@ -89,9 +102,11 @@ const sort = defineModel("sort", { type: String, default: "created_at_desc" })
 }
 
 .section-header p {
+  max-width: 720px;
   margin: 6px 0 0;
   color: #64748b;
   font-size: 13px;
+  line-height: 1.55;
 }
 
 .job-filters {
@@ -108,5 +123,36 @@ const sort = defineModel("sort", { type: String, default: "created_at_desc" })
   color: #172033;
   font-size: 12px;
   font-weight: 900;
+}
+
+.status-filter select {
+  min-height: 36px;
+  padding: 0 34px 0 12px;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.92);
+  color: #0f172a;
+  font-size: 12px;
+  font-weight: 800;
+  outline: none;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+}
+
+.status-filter select:focus {
+  border-color: rgba(37, 99, 235, 0.48);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.10);
+}
+
+@media (max-width: 860px) {
+  .section-header,
+  .section-header.actions-only {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .job-filters {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
 }
 </style>
