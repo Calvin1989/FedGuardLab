@@ -3,6 +3,7 @@ import DashboardSectionHeading from "./components/DashboardSectionHeading.vue";
 import GlobalToolbar from "./components/GlobalToolbar.vue";
 import RuntimeMetricTile from "./components/RuntimeMetricTile.vue";
 import RuntimeInfoTile from "./components/RuntimeInfoTile.vue";
+import RuntimeReportAction from "./components/RuntimeReportAction.vue";
 import DashboardSectionNav from "./components/DashboardSectionNav.vue";
 import { computed, onMounted, ref, watch } from "vue";
 import { Line } from "vue-chartjs";
@@ -2108,18 +2109,13 @@ async function startExperiment() {
               :label="t.asr"
               :value="latestMetric.attack_success_rate"
             />
-            <div v-if="jobId || reportUrl" class="runtime-item runtime-action" :class="{ 'is-disabled': !reportUrl }">
-              <span class="runtime-label">{{ t.reportLabel }}</span>
-              <a
-                v-if="reportUrl"
-                class="runtime-value runtime-text-value runtime-report-link runtime-report-value"
-                :href="withLang(reportUrl)"
-                target="_blank"
-              >
-                {{ t.openHtmlReportShort || t.openHtmlReport }}
-              </a>
-              <strong v-else class="runtime-value runtime-text-value runtime-report-value">{{ t.notReady }}</strong>
-            </div>
+            <RuntimeReportAction
+              v-if="jobId || reportUrl"
+              :label="t.reportLabel"
+              :href="reportUrl ? withLang(reportUrl) : ''"
+              :link-label="t.openHtmlReportShort || t.openHtmlReport"
+              :not-ready-label="t.notReady"
+            />
           </div>
 
           <div v-if="errorMessage" class="runtime-error">
