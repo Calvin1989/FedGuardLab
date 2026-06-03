@@ -1,4 +1,5 @@
 <script setup>
+import DashboardSectionHeading from "./components/DashboardSectionHeading.vue";
 import DashboardSectionNav from "./components/DashboardSectionNav.vue";
 import { computed, onMounted, ref, watch } from "vue";
 import { Line } from "vue-chartjs";
@@ -2155,11 +2156,7 @@ async function startExperiment() {
     </section>
 
     <section v-show="activeDashboardSection !== 'run'" class="comparison-card">
-      <div class="dashboard-section-heading">
-        <p class="section-kicker">{{ currentDashboardSectionCopy.kicker }}</p>
-        <h2>{{ currentDashboardSectionCopy.title }}</h2>
-        <p>{{ currentDashboardSectionCopy.hint }}</p>
-      </div>
+      <DashboardSectionHeading :copy="currentDashboardSectionCopy" />
 
       <div
         v-show="activeDashboardSection === 'jobs' || activeDashboardSection === 'comparisons'"
@@ -2974,39 +2971,6 @@ async function startExperiment() {
 .dashboard-section-panel {
   display: contents;
 }
-
-.dashboard-section-heading {
-  margin-bottom: 18px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid rgba(148, 163, 184, 0.18);
-}
-
-.dashboard-section-heading .section-kicker {
-  margin: 0 0 6px;
-  color: #2563eb;
-  font-size: 11px;
-  font-weight: 900;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.dashboard-section-heading h2 {
-  margin: 0;
-  color: #0f172a;
-  font-size: clamp(24px, 3vw, 34px);
-  letter-spacing: -0.045em;
-  line-height: 1.08;
-}
-
-.dashboard-section-heading p:last-child {
-  max-width: 760px;
-  margin: 8px 0 0;
-  color: #64748b;
-  font-size: 13px;
-  font-weight: 700;
-  line-height: 1.6;
-}
-
 
 :global(*) {
   box-sizing: border-box;
