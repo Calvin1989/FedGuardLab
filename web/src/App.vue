@@ -45,6 +45,22 @@ const LANGUAGE_STORAGE_KEY = "fedguardlab_language";
 
 const language = ref(window.localStorage.getItem(LANGUAGE_STORAGE_KEY) || "zh");
 
+const activeDashboardSection = ref("run");
+const dashboardSections = [
+  { id: "run", zh: "运行", en: "Run" },
+  { id: "jobs", zh: "任务", en: "Jobs" },
+  { id: "comparisons", zh: "对比", en: "Comparisons" },
+  { id: "reports", zh: "报告", en: "Reports" },
+];
+
+function setDashboardSection(sectionId) {
+  activeDashboardSection.value = sectionId;
+}
+
+function dashboardSectionLabel(section) {
+  return language.value === "zh" ? section.zh : section.en;
+}
+
 const messages = {
   zh: {
     eyebrow: "FedGuardLab",
@@ -1836,6 +1852,20 @@ async function startExperiment() {
       </div>
     </div>
 
+    <nav class="dashboard-section-nav" aria-label="Dashboard sections">
+      <button
+        v-for="section in dashboardSections"
+        :key="section.id"
+        type="button"
+        class="dashboard-section-tab"
+        :class="{ active: activeDashboardSection === section.id }"
+        :aria-current="activeDashboardSection === section.id ? 'page' : undefined"
+        @click="setDashboardSection(section.id)"
+      >
+        {{ dashboardSectionLabel(section) }}
+      </button>
+    </nav>
+
     <section class="dashboard-shell dashboard-shell-v7">
       <section class="command-card">
         <div class="command-main">
@@ -2870,6 +2900,54 @@ async function startExperiment() {
 </template>
 
 <style scoped>
+.dashboard-section-nav {
+  width: min(1180px, calc(100vw - 48px));
+  margin: 0 auto 14px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.dashboard-section-tab {
+  appearance: none;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.82);
+  color: #334155;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 1;
+  min-height: 34px;
+  padding: 0 14px;
+  transition:
+    background-color 0.16s ease,
+    border-color 0.16s ease,
+    box-shadow 0.16s ease,
+    color 0.16s ease,
+    transform 0.16s ease;
+}
+
+.dashboard-section-tab:hover {
+  border-color: rgba(59, 130, 246, 0.42);
+  color: #1d4ed8;
+  transform: translateY(-1px);
+}
+
+.dashboard-section-tab.active {
+  border-color: rgba(37, 99, 235, 0.52);
+  background: #eff6ff;
+  box-shadow: 0 10px 24px rgba(37, 99, 235, 0.12);
+  color: #1d4ed8;
+}
+
+@media (max-width: 860px) {
+  .dashboard-section-nav {
+    width: min(100%, calc(100vw - 28px));
+  }
+}
+
 :global(*) {
   box-sizing: border-box;
 }
