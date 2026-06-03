@@ -126,6 +126,197 @@ defineEmits(["refresh"])
 </template>
 
 <style scoped>
+/* Panel shell */
+.dashboard-info-panel {
+  margin-top: 16px;
+  padding: 14px;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.7);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
+}
+
+/* Section heading */
+.detail-section-heading {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+}
+
+.detail-section-title {
+  margin: 0;
+  color: #0f172a;
+  font-size: 14px;
+  font-weight: 900;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+  text-transform: none;
+}
+
+.detail-section-subtitle {
+  margin: 0;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1.45;
+}
+
+/* Secondary button */
+.secondary-button {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 34px;
+  padding: 0 16px;
+  border: 1px solid rgba(96, 165, 250, 0.48);
+  border-radius: 10px;
+  background: #eff6ff;
+  color: #2563eb;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+  word-break: keep-all;
+  cursor: pointer;
+  box-shadow: none;
+  transition:
+    transform 0.16s ease,
+    border-color 0.16s ease,
+    background-color 0.16s ease,
+    color 0.16s ease,
+    box-shadow 0.16s ease;
+}
+
+.secondary-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.secondary-button:not(:disabled):hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(37, 99, 235, 0.12);
+}
+
+/* Empty state */
+.empty-state {
+  width: 100%;
+  min-height: 82px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  border: 1px dashed rgba(148, 163, 184, 0.34);
+  border-radius: 18px;
+  color: #64748b;
+  text-align: center;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.empty-state.small {
+  min-height: 70px;
+  margin-top: 16px;
+}
+
+/* Feedback states */
+.comparison-feedback {
+  margin-top: 16px;
+  padding: 14px;
+  border: 1px solid rgba(148, 163, 184, 0.20);
+  border-radius: 18px;
+  background: rgba(248, 250, 252, 0.72);
+}
+
+.error-feedback {
+  background: #fff1f2;
+  color: #9f1239;
+}
+
+/* Jobs table */
+.jobs-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  overflow: hidden;
+  border-radius: 14px;
+  background: #ffffff;
+  font-size: 12px;
+}
+
+.jobs-table th,
+.jobs-table td {
+  padding: 11px 12px;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.88);
+  text-align: left;
+  vertical-align: middle;
+}
+
+.jobs-table th {
+  background: #f8fafc;
+  color: #334155;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.jobs-table tr:last-child td {
+  border-bottom: 0;
+}
+
+/* Job ID label */
+.job-id {
+  margin-top: 2px;
+  color: #64748b;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 10px;
+}
+
+/* Report link */
+.report-link {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 28px;
+  padding: 0 10px;
+  border: 1px solid rgba(96, 165, 250, 0.48);
+  border-radius: 9px;
+  background: #eff6ff;
+  color: #2563eb;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  box-shadow: none;
+  transition:
+    transform 0.16s ease,
+    border-color 0.16s ease,
+    background-color 0.16s ease,
+    color 0.16s ease,
+    box-shadow 0.16s ease;
+}
+
+.report-link:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(37, 99, 235, 0.12);
+}
+
+.report-link.disabled {
+  border-color: rgba(148, 163, 184, 0.26);
+  background: #f8fafc;
+  color: #94a3b8;
+  box-shadow: none;
+}
+
+/* Comparison history specific */
 .comparison-history-heading {
   margin-bottom: 12px;
 }
@@ -136,8 +327,13 @@ defineEmits(["refresh"])
   white-space: nowrap;
 }
 
-.comparison-history-empty,
-.comparison-history-error,
+.comparison-history-empty {
+  margin-top: 10px;
+}
+
+.comparison-history-error {
+  margin-top: 10px;
+}
 
 .comparison-history-table {
   margin-top: 10px;
@@ -159,25 +355,7 @@ defineEmits(["refresh"])
   white-space: nowrap;
 }
 
-.comparison-history-links {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.comparison-history-links .report-link {
-  min-width: auto;
-  padding: 7px 10px;
-  font-size: 12px;
-}
-
-.comparison-history-links .secondary-link {
-  background: rgba(239, 246, 255, 0.92);
-  color: #1d4ed8;
-}
-
-
-/* Report entry sizing and comparison history scroll */
+/* Comparison history scroll container */
 .comparison-history-scroll {
   max-height: 460px;
   overflow: auto;
@@ -204,14 +382,18 @@ defineEmits(["refresh"])
   border-bottom: 0;
 }
 
-.comparison-history-links .report-link {
-  min-height: 28px;
-  padding: 0 10px;
-  font-size: 12px;
+/* Comparison history links */
+.comparison-history-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
 }
 
-.comparison-history-links {
-  gap: 6px;
+.comparison-history-links .report-link {
+  min-height: 28px;
+  min-width: auto;
+  padding: 7px 10px;
+  font-size: 12px;
 }
 
 .comparison-history-links .secondary-link {
