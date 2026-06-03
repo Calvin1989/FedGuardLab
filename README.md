@@ -285,3 +285,25 @@ v1.8.10 重点改进：
 ## 许可证
 
 MIT
+
+## v1.9.0-alpha.10 status
+
+Current v1.9 alpha focus: Experiment Result Management.
+
+Completed in the v1.9 alpha series:
+
+- Dashboard history experiment management.
+- Job archive / restore and archived job filtering.
+- Comparison report history listing.
+- Unified report and artifact entry styling.
+- Local reports cleanup summary.
+- Reports cleanup run API with dry-run default and explicit confirmation for deletion.
+- Dashboard cleanup run controls with preview, confirmation, and result feedback.
+
+Reports cleanup safety model:
+
+- Summary endpoint is read-only.
+- Cleanup run defaults to dry-run.
+- Real deletion requires `dry_run=false` and `confirm=true`.
+- Cleanup candidates come from the backend preview.
+- Existing report artifact URLs remain unchanged.

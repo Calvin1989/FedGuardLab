@@ -4,6 +4,87 @@
 
 - No unreleased changes.
 
+## v1.9.0-alpha.10
+
+- Consolidated v1.9.0 alpha release documentation.
+  - Added release notes for the v1.9.0 alpha series.
+  - Backfilled changelog coverage for alpha.2 through alpha.9.
+  - Documented reports cleanup safety semantics: summary is read-only, cleanup run defaults to dry-run, and real deletion requires explicit confirmation.
+  - Documented v1.9 Experiment Result Management scope.
+  - No runtime feature, no API behavior change, no training logic change, no report artifact URL change, no Docker runtime change, no dependency change.
+
+## v1.9.0-alpha.9
+
+- Added Dashboard controls for reports cleanup run.
+  - Added dry-run preview action.
+  - Added cleanup candidates action guarded by browser confirmation.
+  - Connected Dashboard to `POST /reports/cleanup/run`.
+  - Displayed cleanup run result: candidate count, deleted count, freed space, skipped count, and error count.
+  - Refreshed cleanup summary after execution.
+  - Attempted to refresh comparison history and job history after confirmed cleanup.
+  - Kept default behavior safe; no automatic deletion.
+
+## v1.9.0-alpha.8
+
+- Added reports cleanup run API.
+  - Added `POST /reports/cleanup/run`.
+  - Default behavior is `dry_run=true`.
+  - Real deletion requires `dry_run=false` and `confirm=true`.
+  - Cleanup is limited to candidates returned by cleanup summary preview.
+  - Added candidate count, deleted count, deleted size, skipped items, and errors to the response.
+  - Added path safety checks for reports root and reports tree boundaries.
+  - Extended unit tests and API smoke coverage.
+
+## v1.9.0-alpha.7
+
+- Fixed reports cleanup panel layout.
+  - Ensured the cleanup panel renders as an independent Dashboard section.
+  - Consolidated shared info-panel styling.
+  - Reduced long cleanup preview access chains in the template.
+  - Kept API, training logic, report artifact URLs, and Docker runtime unchanged.
+
+## v1.9.0-alpha.6
+
+- Added reports cleanup summary foundation.
+  - Added `GET /reports/cleanup/summary`.
+  - Summarized job reports, comparison reports, total storage size, and modified-time range.
+  - Added cleanup preview with candidate count, candidate size, and candidate list.
+  - Marked summary as `dry_run=true` and `deletes_files=false`.
+  - Added Dashboard read-only summary panel for local reports cleanup strategy.
+  - Added tests and smoke coverage.
+
+## v1.9.0-alpha.5
+
+- Unified Dashboard report and artifact entry styling.
+  - Normalized report links, detail export items, comparison export items, and comparison history links.
+  - Preserved existing report artifact URLs and Dashboard behavior.
+  - Kept the change limited to Dashboard UI.
+
+## v1.9.0-alpha.4
+
+- Cleaned up Dashboard CSS overrides.
+  - Removed duplicate Dashboard comparison-density CSS.
+  - Removed superseded lifecycle timeline style blocks.
+  - Cleaned selected-jobs spacing overrides.
+  - Preserved final effective timeline, comparison history, and report entry styles.
+
+## v1.9.0-alpha.3
+
+- Added comparison report history management.
+  - Added comparison history listing.
+  - Added query validation for comparison history limits and sort order.
+  - Added Dashboard comparison history table with direct HTML / CSV / JSON access.
+  - Preserved existing comparison artifact paths.
+
+## v1.9.0-alpha.2
+
+- Added job archive / restore management.
+  - Added archived job state and archived timestamp.
+  - Added active / archived / all job filtering.
+  - Added archive and restore flow validation.
+  - Prevented archived jobs from being used in new comparisons.
+  - Preserved existing report artifacts and job recovery behavior.
+
 ## v1.9.0-alpha.1
 
 - Started v1.9.0 Experiment Result Management with Dashboard history management UI.
