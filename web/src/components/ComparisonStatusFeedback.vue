@@ -25,7 +25,7 @@ defineProps({
     {{ copy.comparisonCreating }}
   </div>
 
-  <div v-else-if="kind === 'error' && error" class="comparison-feedback error-feedback">
+  <div v-else-if="kind === 'error' && status === 'error' && error" class="comparison-feedback error-feedback">
     <strong>{{ copy.comparisonFailed }}</strong>
     <span>{{ error }}</span>
   </div>
