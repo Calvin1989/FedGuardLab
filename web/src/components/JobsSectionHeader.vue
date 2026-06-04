@@ -149,6 +149,77 @@ const sort = defineModel("sort", { type: String, default: "created_at_desc" });
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.10);
 }
 
+/* Section actions (slotted from App.vue) */
+:deep(.section-actions) {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: flex-end;
+  align-items: flex-end;
+}
+
+:deep(.run-button),
+:deep(.secondary-button) {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 0 16px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+  word-break: keep-all;
+  cursor: pointer;
+  box-shadow: none;
+  transition:
+    transform 0.16s ease,
+    border-color 0.16s ease,
+    background-color 0.16s ease,
+    color 0.16s ease,
+    box-shadow 0.16s ease;
+}
+
+:deep(.run-button) {
+  border: 1px solid #1d4ed8;
+  background: linear-gradient(135deg, #1d4ed8, #1e40af);
+  color: #ffffff;
+}
+
+:deep(.run-button:disabled) {
+  opacity: 0.48;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+:deep(.run-button:not(:disabled):hover) {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(37, 99, 235, 0.12);
+}
+
+:deep(.secondary-button) {
+  border: 1px solid rgba(96, 165, 250, 0.48);
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+:deep(.secondary-button:disabled) {
+  opacity: 0.48;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+:deep(.secondary-button:not(:disabled):hover) {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(37, 99, 235, 0.12);
+}
+
 @media (max-width: 860px) {
   .section-header,
   .section-header.actions-only {

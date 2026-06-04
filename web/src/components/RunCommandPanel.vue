@@ -167,22 +167,24 @@ const emit = defineEmits(["start", "cancel"]);
 
 .experiment-select {
   width: 100%;
-  min-height: 38px;
-  padding: 7px 12px;
-  border: 1px solid rgba(148, 163, 184, 0.46);
-  border-radius: 13px;
-  background: rgba(255, 255, 255, 0.94);
-  color: #172033;
-  font-size: 13px;
+  min-height: 36px;
+  padding: 0 34px 0 12px;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.92);
+  color: #0f172a;
+  font-size: 12px;
+  font-weight: 800;
   line-height: 1.35;
   outline: none;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
   transition: border-color 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
 }
 
 .experiment-select:focus {
-  border-color: rgba(37, 99, 235, 0.78);
+  border-color: rgba(37, 99, 235, 0.48);
   background: #ffffff;
-  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.10);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.10);
 }
 
 .run-button {
