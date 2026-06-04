@@ -118,6 +118,10 @@ const emit = defineEmits(["start", "cancel"]);
 </template>
 
 <style scoped>
+.command-card {
+  padding: 24px 26px;
+}
+
 .command-controls {
   display: grid;
   grid-template-columns: 180px minmax(280px, 420px) auto;
@@ -216,6 +220,39 @@ const emit = defineEmits(["start", "cancel"]);
   border: 1px solid rgba(148, 163, 184, 0.20);
   border-radius: 16px;
   background: rgba(255, 255, 255, 0.62);
+}
+
+.selected-config-copy {
+  display: grid;
+  min-width: 0;
+  gap: 3px;
+}
+
+.selected-config-kicker {
+  display: block;
+  margin: 0;
+  color: #2563eb;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+}
+
+.selected-config-copy strong {
+  display: block;
+  margin: 0;
+  color: #0f172a;
+  font-size: 14px;
+  font-weight: 900;
+  line-height: 1.25;
+}
+
+.selected-config-copy p {
+  margin: 0;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.45;
 }
 
 .selected-config-tags {
