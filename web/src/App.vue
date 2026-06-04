@@ -5,12 +5,8 @@ import HistoryManagementStrip from "./components/HistoryManagementStrip.vue";
 import JobsEmptyState from "./components/JobsEmptyState.vue";
 import JobsSectionHeader from "./components/JobsSectionHeader.vue";
 import JobsTable from "./components/JobsTable.vue";
-import RuntimeMetricTile from "./components/RuntimeMetricTile.vue";
-import RuntimeInfoTile from "./components/RuntimeInfoTile.vue";
-import RuntimeReportAction from "./components/RuntimeReportAction.vue";
 import ConfigPreview from "./components/ConfigPreview.vue";
 import DashboardSectionNav from "./components/DashboardSectionNav.vue";
-import RuntimeChartPanel from "./components/RuntimeChartPanel.vue";
 import ComparisonInsightsPanel from "./components/ComparisonInsightsPanel.vue";
 import ComparisonResultCard from "./components/ComparisonResultCard.vue";
 import ComparisonHistoryPanel from "./components/ComparisonHistoryPanel.vue";
@@ -19,6 +15,7 @@ import JobDetailPanel from "./components/JobDetailPanel.vue";
 import SelectedJobsPreview from "./components/SelectedJobsPreview.vue";
 import ReportsCleanupPanel from "./components/ReportsCleanupPanel.vue";
 import RunCommandPanel from "./components/RunCommandPanel.vue";
+import RuntimeMonitorPanel from "./components/RuntimeMonitorPanel.vue";
 import { computed, onMounted, ref, watch } from "vue";
 
 const API_BASE = "http://127.0.0.1:8000";
@@ -1953,63 +1950,18 @@ async function startExperiment() {
         @cancel="cancelCurrentJob"
       />
 
-      <section class="monitor-card">
-        <div class="runtime-panel">
-          <div class="runtime-row">
-            <RuntimeInfoTile
-              :label="t.statusLabel"
-              :value="t.statusValues[status] || status"
-            />
-
-            <RuntimeInfoTile
-              v-if="jobId"
-              :label="t.jobLabel"
-              :value="jobId"
-              wide
-            />
-
-            <RuntimeMetricTile
-              v-if="latestMetric"
-              :label="t.round"
-              :value="latestMetric.round"
-            />
-            <RuntimeMetricTile
-              v-if="latestMetric"
-              :label="t.accuracy"
-              :value="latestMetric.accuracy"
-            />
-            <RuntimeMetricTile
-              v-if="latestMetric"
-              :label="t.loss"
-              :value="latestMetric.loss"
-            />
-            <RuntimeMetricTile
-              v-if="latestMetric"
-              :label="t.asr"
-              :value="latestMetric.attack_success_rate"
-            />
-            <RuntimeReportAction
-              v-if="jobId || reportUrl"
-              :label="t.reportLabel"
-              :href="reportUrl ? withLang(reportUrl) : ''"
-              :link-label="t.openHtmlReportShort || t.openHtmlReport"
-              :not-ready-label="t.notReady"
-            />
-          </div>
-
-          <div v-if="errorMessage" class="runtime-error">
-            <strong>{{ t.errorLabel }}:</strong>
-            <span>{{ errorMessage }}</span>
-          </div>
-        </div>
-
-        <RuntimeChartPanel
-          :metrics="metrics"
-          :chart-data="chartData"
-          :chart-options="chartOptions"
-          :copy="t"
-        />
-      </section>
+      <RuntimeMonitorPanel
+        :copy="t"
+        :status="status"
+        :job-id="jobId"
+        :error-message="errorMessage"
+        :report-url="reportUrl"
+        :latest-metric="latestMetric"
+        :metrics="metrics"
+        :chart-data="chartData"
+        :chart-options="chartOptions"
+        :with-lang="withLang"
+      />
     </section>
 
     <section
@@ -2238,7 +2190,6 @@ async function startExperiment() {
 }
 
 .command-card,
-.monitor-card,
 .comparison-card {
   position: relative;
   overflow: hidden;
@@ -2252,8 +2203,7 @@ async function startExperiment() {
     inset 0 1px 0 rgba(255, 255, 255, 0.86);
 }
 
-.command-card::after,
-.monitor-card::after {
+.command-card::after {
   content: "";
   position: absolute;
   right: -120px;
@@ -2266,7 +2216,6 @@ async function startExperiment() {
 }
 
 .command-card > *,
-.monitor-card > *,
 .comparison-card > * {
   position: relative;
   z-index: 1;
@@ -2365,110 +2314,6 @@ async function startExperiment() {
   white-space: nowrap;
 }
 
-.runtime-item,
-.hero-metric-item {
-  min-width: 0;
-  border: 1px solid rgba(148, 163, 184, 0.18);
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.70);
-}
-
-.runtime-item span,
-.hero-metric-item span {
-  display: block;
-  margin-bottom: 4px;
-  color: #64748b;
-  font-size: 11px;
-  font-weight: 900;
-}
-
-/* Runtime monitor */
-.monitor-card {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 14px;
-  padding: 20px;
-}
-
-/* Runtime summary, live metrics, report link, and chart */
-.runtime-panel {
-  min-width: 0;
-}
-
-.runtime-row {
-  display: grid;
-  grid-template-columns: minmax(112px, 0.75fr) minmax(220px, 1.6fr) minmax(130px, 0.9fr) repeat(4, minmax(100px, 1fr));
-  align-items: stretch;
-  gap: 10px;
-}
-
-.runtime-item,
-.hero-metric-item {
-  min-height: 64px;
-  padding: 10px 12px;
-}
-
-.runtime-item.wide strong {
-  display: block;
-  color: #111827;
-  font-size: 11px;
-  line-height: 1.25;
-  overflow-wrap: anywhere;
-}
-
-.runtime-item strong,
-.hero-metric-item strong {
-  display: block;
-  color: #111827;
-  font-size: 20px;
-  line-height: 1.05;
-}
-
-.runtime-action .report-link {
-  width: 100%;
-  max-width: 150px;
-  min-height: 34px;
-  padding: 0 10px;
-}
-
-.status-idle,
-.status-queued {
-  background: #eef2ff;
-  color: #475569;
-}
-
-.status-running,
-.status-creating {
-  background: #dbeafe;
-  color: #1d4ed8;
-}
-
-.status-finished {
-  background: #dcfce7;
-  color: #166534;
-}
-
-.status-cancelled {
-  background: #f1f5f9;
-  color: #475569;
-}
-
-.status-failed,
-.status-error,
-.status-disconnected {
-  background: #fee2e2;
-  color: #991b1b;
-}
-
-.runtime-error {
-  margin-top: 12px;
-  padding: 10px 12px;
-  border-radius: 14px;
-  background: #fff1f2;
-  color: #9f1239;
-  font-size: 12px;
-}
-
 .empty-state {
   width: 100%;
   min-height: 82px;
@@ -2544,17 +2389,6 @@ async function startExperiment() {
 }
 
 /* Responsive overrides */
-@media (max-width: 1180px) {
-  .runtime-row {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
-  .runtime-item.wide {
-    grid-column: span 2;
-  }
-
-}
-
 @media (max-width: 860px) {
   .page {
     padding: 18px 14px 56px;
@@ -2567,7 +2401,6 @@ async function startExperiment() {
   }
 
   .command-card,
-  .monitor-card,
   .comparison-card {
     border-radius: 22px;
   }
@@ -2579,21 +2412,6 @@ async function startExperiment() {
     justify-content: flex-start;
   }
 
-
-  .runtime-row {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .runtime-item.wide {
-    grid-column: 1 / -1;
-  }
-
-}
-
-@media (max-width: 560px) {
-  .runtime-row {
-    grid-template-columns: 1fr;
-  }
 }
 
 /* v1.8.3 unified product UI polish */
@@ -2615,7 +2433,6 @@ async function startExperiment() {
 }
 
 .command-card,
-.monitor-card,
 .comparison-card {
   border-color: rgba(148, 163, 184, 0.22);
   border-radius: 22px;
@@ -2623,8 +2440,7 @@ async function startExperiment() {
   box-shadow: 0 18px 48px rgba(15, 23, 42, 0.07);
 }
 
-.command-card::after,
-.monitor-card::after {
+.command-card::after {
   display: none;
 }
 
@@ -2668,8 +2484,6 @@ async function startExperiment() {
 }
 
 .selected-config-summary,
-.runtime-item,
-.hero-metric-item,
 .comparison-feedback,
 .comparison-hint {
   border-color: rgba(148, 163, 184, 0.22);
@@ -2677,25 +2491,6 @@ async function startExperiment() {
   box-shadow: none;
 }
 
-
-.monitor-card {
-  padding: 18px;
-  gap: 12px;
-}
-
-.runtime-row {
-  grid-template-columns: minmax(108px, 0.7fr) minmax(230px, 1.7fr) minmax(130px, 0.8fr) repeat(4, minmax(96px, 1fr));
-  gap: 10px;
-}
-
-.runtime-item,
-.hero-metric-item {
-  min-height: 62px;
-}
-
-.runtime-action .report-link {
-  max-width: none;
-}
 
 .comparison-card {
   padding: 24px 26px;
@@ -2713,31 +2508,6 @@ async function startExperiment() {
 .comparison-feedback.success {
   border-color: rgba(34, 197, 94, 0.26);
   background: #f0fdf4;
-}
-
-@media (max-width: 1180px) {
-  .runtime-row {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 860px) {
-  .page > *,
-  .dashboard-shell,
-  .comparison-card {
-    width: min(100%, calc(100vw - 28px));
-  }
-
-
-  .runtime-row {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 560px) {
-  .runtime-row {
-    grid-template-columns: 1fr;
-  }
 }
 
 /* v1.8.4 final UI polish: typography, alignment, motion, and export layout */
@@ -2765,7 +2535,6 @@ async function startExperiment() {
 
 .field-control > span:first-child,
 .field-label,
-.runtime-label,
 .detail-label {
   font-weight: 800;
   line-height: 1.35;
@@ -2798,7 +2567,6 @@ async function startExperiment() {
 }
 
 .command-card,
-.monitor-card,
 .dashboard-shell,
 .comparison-card,
 .job-detail-card {
@@ -2858,52 +2626,6 @@ async function startExperiment() {
   word-break: keep-all;
 }
 
-.runtime-item,
-.hero-metric-item {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 6px;
-}
-
-.runtime-label {
-  display: block;
-  margin: 0;
-  color: #64748b;
-  font-size: 12px;
-  font-weight: 800;
-  line-height: 1.25;
-}
-
-.runtime-value {
-  display: flex;
-  align-items: center;
-  min-height: 30px;
-  margin: 0;
-  line-height: 1.15;
-}
-
-.runtime-item.wide .runtime-value {
-  min-height: auto;
-  align-items: flex-start;
-  line-height: 1.35;
-}
-
-.runtime-action {
-  gap: 6px;
-}
-
-.runtime-action .runtime-report-link {
-  align-self: flex-start;
-  width: auto;
-  min-width: 88px;
-  height: 30px;
-  min-height: 30px;
-  max-width: 100%;
-  padding: 0 12px;
-  border-radius: 999px;
-}
-
 .status-badge {
   height: 30px;
   min-height: 30px;
@@ -2912,8 +2634,7 @@ async function startExperiment() {
   line-height: 1;
 }
 
-.report-link.disabled,
-.runtime-action.is-disabled .runtime-report-link {
+.report-link.disabled {
   border-color: rgba(148, 163, 184, 0.26);
   background: #f8fafc;
   color: #94a3b8;
@@ -2966,376 +2687,6 @@ async function startExperiment() {
 }
 
 /* Historical dashboard polish overrides: v1.8.6 alignment and config preview i18n */
-
-
-
-
-
-.runtime-item,
-.hero-metric-item {
-  padding: 12px 14px;
-}
-
-.runtime-label {
-  margin-bottom: 0;
-  line-height: 1.1;
-}
-
-.runtime-value,
-.runtime-status-value,
-.runtime-muted-value {
-  display: flex;
-  min-height: 28px;
-  align-items: center;
-  margin: 0;
-  color: #111827;
-  font-size: 18px;
-  font-weight: 800;
-  line-height: 1.2;
-}
-
-.runtime-status-text,
-.runtime-muted-value {
-  display: inline-flex;
-  min-height: 28px;
-  align-items: center;
-  line-height: 1.2;
-  white-space: nowrap;
-}
-
-.runtime-status-idle,
-.runtime-muted-value {
-  color: #64748b;
-}
-
-.runtime-status-running,
-.runtime-status-creating {
-  color: #1d4ed8;
-}
-
-.runtime-status-finished {
-  color: #047857;
-}
-
-.runtime-status-cancelled,
-.runtime-status-disconnected,
-.runtime-status-failed,
-.runtime-status-error {
-  color: #b91c1c;
-}
-
-.runtime-action .runtime-report-link {
-  align-self: flex-start;
-  min-width: auto;
-  min-height: 28px;
-  height: 28px;
-  padding: 0 10px;
-  border-radius: 9px;
-  font-size: 12px;
-  line-height: 1;
-}
-
-
-/* Historical dashboard polish overrides: v1.8.7 runtime summary and disclosure affordance */
-.runtime-row {
-  grid-template-columns:
-    minmax(112px, 0.72fr)
-    minmax(260px, 1.65fr)
-    repeat(4, minmax(108px, 1fr))
-    minmax(150px, 0.95fr);
-}
-
-.runtime-action {
-  grid-column: -2 / -1;
-}
-
-.runtime-item,
-.hero-metric-item {
-  justify-content: center;
-  gap: 7px;
-  min-height: 68px;
-  padding: 13px 15px;
-}
-
-.runtime-label {
-  margin: 0;
-  color: #64748b;
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: -0.01em;
-  line-height: 1.1;
-}
-
-.runtime-value,
-.runtime-status-value,
-.runtime-muted-value,
-.runtime-status-text {
-  min-height: 30px;
-  margin: 0;
-  align-items: center;
-  color: #111827;
-  font-size: 20px;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  line-height: 1.1;
-}
-
-.runtime-value,
-.runtime-status-value,
-.runtime-muted-value {
-  display: flex;
-}
-
-.runtime-status-text {
-  display: inline-flex;
-  white-space: nowrap;
-}
-
-.runtime-item.wide .runtime-value {
-  min-height: 30px;
-  align-items: center;
-  font-size: 15px;
-  letter-spacing: -0.015em;
-  line-height: 1.25;
-}
-
-.runtime-action .runtime-report-link {
-  width: 100%;
-  max-width: none;
-  min-height: 30px;
-  padding: 0;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  box-shadow: none;
-  color: #2563eb;
-  font-size: 14px;
-  font-weight: 800;
-  justify-content: flex-start;
-  letter-spacing: -0.01em;
-  text-decoration: none;
-  transform: none;
-}
-
-.runtime-action .runtime-report-link:hover {
-  background: transparent;
-  box-shadow: none;
-  color: #1d4ed8;
-  text-decoration: underline;
-  transform: none;
-}
-
-.runtime-action .runtime-muted-value {
-  color: #64748b;
-}
-
-@media (max-width: 1180px) {
-  .runtime-row {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .runtime-action {
-    grid-column: auto;
-  }
-}
-
-@media (max-width: 680px) {
-  .runtime-row {
-    grid-template-columns: 1fr;
-  }
-
-  .runtime-item.wide .runtime-value,
-  .runtime-action .runtime-report-link {
-    font-size: 14px;
-  }
-}
-
-/* v1.8.8 runtime value parity and deferred report card */
-.runtime-row {
-  grid-template-columns:
-    minmax(112px, 0.72fr)
-    minmax(260px, 1.65fr)
-    repeat(4, minmax(108px, 1fr))
-    minmax(150px, 0.95fr);
-}
-
-.runtime-value,
-.runtime-muted-value,
-.runtime-action .runtime-report-link {
-  min-height: 30px;
-  align-items: center;
-  color: #111827;
-  font-size: 20px;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  line-height: 1.1;
-}
-
-.runtime-muted-value {
-  color: #64748b;
-}
-
-.runtime-action .runtime-report-link {
-  display: inline-flex;
-  width: auto;
-  max-width: 100%;
-  min-width: 0;
-  padding: 0;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  box-shadow: none;
-  justify-content: flex-start;
-  text-decoration: none;
-  transform: none;
-}
-
-.runtime-action .runtime-report-link:hover {
-  background: transparent;
-  box-shadow: none;
-  color: #1d4ed8;
-  text-decoration: underline;
-  transform: none;
-}
-
-.runtime-status-idle,
-.runtime-status-running,
-.runtime-status-creating,
-.runtime-status-finished,
-.runtime-status-cancelled,
-.runtime-status-disconnected,
-.runtime-status-failed,
-.runtime-status-error {
-  color: inherit;
-}
-
-@media (max-width: 980px) {
-  .runtime-row {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 640px) {
-  .runtime-row {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* v1.8.8 final runtime report value consistency */
-.runtime-row .runtime-action .runtime-report-value {
-  display: flex;
-  min-height: 30px;
-  align-items: center;
-  margin: 0;
-  padding: 0;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  box-shadow: none;
-  color: #111827;
-  font-size: 20px;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  line-height: 1.1;
-  text-decoration: none;
-  transform: none;
-}
-
-.runtime-row .runtime-action .runtime-report-link.runtime-report-value {
-  width: 100%;
-  max-width: 100%;
-  justify-content: flex-start;
-}
-
-.runtime-row .runtime-action .runtime-report-link.runtime-report-value:hover {
-  color: #1d4ed8;
-  text-decoration: underline;
-}
-
-.runtime-row .runtime-action.is-disabled .runtime-report-value {
-  color: #111827;
-}
-
-@media (max-width: 680px) {
-  .runtime-row .runtime-action .runtime-report-value {
-    font-size: 20px;
-  }
-}
-
-/* v1.8.8 final text-value balance for runtime summary */
-.runtime-row .runtime-text-value {
-  display: flex;
-  min-height: 30px;
-  align-items: center;
-  max-width: 100%;
-  margin: 0;
-  color: #111827;
-  font-size: 17px;
-  font-weight: 800;
-  letter-spacing: -0.012em;
-  line-height: 1.15;
-  white-space: nowrap;
-}
-
-.runtime-row .runtime-action .runtime-report-link.runtime-text-value {
-  width: auto;
-  min-width: 0;
-  max-width: 100%;
-  overflow: hidden;
-  color: #2563eb;
-  justify-content: flex-start;
-  text-decoration: underline;
-  text-decoration-color: rgba(37, 99, 235, 0.42);
-  text-decoration-thickness: 1.5px;
-  text-underline-offset: 3px;
-  text-overflow: ellipsis;
-}
-
-.runtime-row .runtime-action .runtime-report-link.runtime-text-value:hover {
-  color: #1d4ed8;
-  text-decoration-color: currentColor;
-}
-
-.runtime-row .runtime-action.is-disabled .runtime-text-value {
-  color: #111827;
-}
-
-@media (max-width: 680px) {
-  .runtime-row .runtime-text-value {
-    font-size: 17px;
-  }
-}
-
-/* v1.8.8 final report text sizing parity */
-.runtime-row .runtime-action .runtime-report-value,
-.runtime-row .runtime-action .runtime-report-link.runtime-report-value {
-  min-height: 30px;
-  align-items: center;
-  font-size: 17px;
-  font-weight: 800;
-  letter-spacing: -0.012em;
-  line-height: 1.15;
-  white-space: nowrap;
-}
-
-.runtime-row .runtime-action .runtime-report-link.runtime-report-value {
-  color: #2563eb;
-  text-decoration: underline;
-  text-decoration-color: rgba(37, 99, 235, 0.42);
-  text-decoration-thickness: 1.5px;
-  text-underline-offset: 3px;
-}
-
-.runtime-row .runtime-action.is-disabled .runtime-report-value {
-  color: #111827;
-}
-
-@media (max-width: 680px) {
-  .runtime-row .runtime-action .runtime-report-value,
-  .runtime-row .runtime-action .runtime-report-link.runtime-report-value {
-    font-size: 17px;
-  }
-}
 
 /* Dashboard detail density and comparison layout */
 .comparison-card .job-detail-card {
@@ -3415,24 +2766,5 @@ async function startExperiment() {
 
 
 /* Run and reports page layout polish */
-
-
-
-
-
-@media (max-width: 760px) {
-  .reports-cleanup-heading {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .reports-cleanup-actions {
-    justify-content: stretch;
-  }
-
-  .reports-cleanup-actions .reports-cleanup-action {
-    flex: 1 1 140px;
-  }
-}
 
 </style>
