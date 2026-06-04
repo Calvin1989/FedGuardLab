@@ -2273,22 +2273,8 @@ async function startExperiment() {
 }
 
 /* Run command panel, config selector, and config preview */
-.command-card {
-  padding: 28px 30px 24px;
-}
 
-.command-main {
-  margin-bottom: 20px;
-}
 
-.command-copy h1 {
-  max-width: 720px;
-  margin: 0;
-  color: #0f172a;
-  font-size: clamp(32px, 4.1vw, 50px);
-  line-height: 1.04;
-  letter-spacing: -0.055em;
-}
 
 .subtitle {
   max-width: 620px;
@@ -2298,49 +2284,9 @@ async function startExperiment() {
   line-height: 1.55;
 }
 
-.command-controls {
-  display: grid;
-  grid-template-columns: 180px minmax(280px, 420px) auto;
-  align-items: end;
-  gap: 12px;
-}
 
-.field-control {
-  display: grid;
-  min-width: 0;
-  gap: 6px;
-}
 
-.field-control > span:first-child,
-.field-label {
-  color: #172033;
-  font-size: 12px;
-  font-weight: 900;
-}
 
-.experiment-select,
-select,
-input {
-  width: 100%;
-  min-height: 38px;
-  padding: 7px 12px;
-  border: 1px solid rgba(148, 163, 184, 0.46);
-  border-radius: 13px;
-  background: rgba(255, 255, 255, 0.94);
-  color: #172033;
-  font-size: 13px;
-  line-height: 1.35;
-  outline: none;
-  transition: border-color 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
-}
-
-.experiment-select:focus,
-select:focus,
-input:focus {
-  border-color: rgba(37, 99, 235, 0.78);
-  background: #ffffff;
-  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.10);
-}
 
 .config-empty-filter {
   min-height: 38px;
@@ -2382,18 +2328,7 @@ input:focus {
   cursor: pointer;
 }
 
-.run-button {
-  border: 1px solid #1d4ed8;
-  background: linear-gradient(135deg, #1d4ed8, #1e40af);
-  color: #ffffff;
-  box-shadow: 0 10px 20px rgba(37, 99, 235, 0.18);
-}
 
-.run-button:disabled,
-.secondary-button:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-}
 
 .secondary-button,
 .report-link,
@@ -2405,53 +2340,11 @@ input:focus {
   color: #2563eb;
 }
 
-.selected-config-summary {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 14px;
-  align-items: center;
-  margin-top: 16px;
-  padding: 12px 14px;
-  border: 1px solid rgba(148, 163, 184, 0.20);
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.62);
-}
 
-.selected-config-copy {
-  min-width: 0;
-}
 
-.selected-config-kicker {
-  display: block;
-  margin-bottom: 3px;
-  color: #2563eb;
-  font-size: 10px;
-  font-weight: 900;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
 
-.selected-config-copy strong {
-  display: block;
-  color: #111827;
-  font-size: 14px;
-  line-height: 1.25;
-}
 
-.selected-config-copy p {
-  margin: 4px 0 0;
-  color: #64748b;
-  font-size: 12px;
-  line-height: 1.45;
-}
 
-.selected-config-tags {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: 6px;
-  max-width: 360px;
-}
 
 .config-tag,
 .job-badge,
@@ -2679,25 +2572,13 @@ input:focus {
     border-radius: 22px;
   }
 
-  .command-card {
-    padding: 22px 16px 18px;
-  }
 
-  .command-controls,
-  .selected-config-summary {
-    grid-template-columns: 1fr;
-    flex-direction: column;
-    align-items: stretch;
-  }
 
   .selected-config-tags,
   .section-actions {
     justify-content: flex-start;
   }
 
-  .command-copy h1 {
-    font-size: clamp(30px, 9vw, 42px);
-  }
 
   .runtime-row {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -2747,19 +2628,8 @@ input:focus {
   display: none;
 }
 
-.command-card {
-  padding: 24px 26px 20px;
-}
 
-.command-main {
-  margin-bottom: 16px;
-}
 
-.command-copy h1 {
-  max-width: 680px;
-  font-size: clamp(30px, 3.1vw, 42px);
-  letter-spacing: -0.045em;
-}
 
 .subtitle {
   margin-top: 8px;
@@ -2767,19 +2637,7 @@ input:focus {
   line-height: 1.55;
 }
 
-.command-controls {
-  grid-template-columns: 190px minmax(300px, 1fr) auto;
-  gap: 12px;
-  align-items: end;
-}
 
-.experiment-select,
-select,
-input {
-  min-height: 36px;
-  border-radius: 10px;
-  background: #ffffff;
-}
 
 .run-button,
 .secondary-button,
@@ -2792,9 +2650,6 @@ input {
   box-shadow: none;
 }
 
-.run-button {
-  background: #1d4ed8;
-}
 
 .secondary-button,
 .report-link,
@@ -2822,9 +2677,6 @@ input {
   box-shadow: none;
 }
 
-.selected-config-summary {
-  margin-top: 14px;
-}
 
 .monitor-card {
   padding: 18px;
@@ -2876,9 +2728,6 @@ input {
     width: min(100%, calc(100vw - 28px));
   }
 
-  .command-controls {
-    grid-template-columns: 1fr;
-  }
 
   .runtime-row {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -2913,11 +2762,6 @@ input {
   font-variant-numeric: tabular-nums;
 }
 
-.command-copy h1 {
-  font-weight: 800;
-  letter-spacing: -0.035em;
-  line-height: 1.08;
-}
 
 .field-control > span:first-child,
 .field-label,
@@ -3004,15 +2848,7 @@ input {
 }
 
 /* Historical dashboard polish overrides: v1.8.5 microcopy, empty-state, and alignment */
-.command-controls {
-  grid-template-columns: 180px minmax(300px, 560px) auto;
-  justify-content: start;
-}
 
-.command-controls .field-control:nth-child(2),
-.experiment-select {
-  max-width: 560px;
-}
 
 .preview-value {
   min-width: 0;
@@ -3117,13 +2953,6 @@ input {
   box-shadow: none;
 }
 
-@media (max-width: 860px) {
-  .command-controls,
-  .command-controls .field-control:nth-child(2),
-  .experiment-select {
-    max-width: none;
-  }
-}
 
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -3137,27 +2966,10 @@ input {
 }
 
 /* Historical dashboard polish overrides: v1.8.6 alignment and config preview i18n */
-.command-controls {
-  grid-template-columns: 180px minmax(280px, 460px) auto;
-}
 
-.command-controls .field-control:nth-child(2) {
-  width: min(460px, 100%);
-  max-width: 460px;
-}
 
-.command-controls .field-control:nth-child(2) .experiment-select {
-  max-width: 460px;
-}
 
-.selected-config-copy strong,
-.selected-config-copy p {
-  text-wrap: pretty;
-}
 
-.selected-config-tags {
-  align-items: center;
-}
 
 .runtime-item,
 .hero-metric-item {
@@ -3223,14 +3035,6 @@ input {
   line-height: 1;
 }
 
-@media (max-width: 860px) {
-  .command-controls,
-  .command-controls .field-control:nth-child(2),
-  .command-controls .field-control:nth-child(2) .experiment-select {
-    width: 100%;
-    max-width: none;
-  }
-}
 
 /* Historical dashboard polish overrides: v1.8.7 runtime summary and disclosure affordance */
 .runtime-row {
@@ -3611,40 +3415,10 @@ input {
 
 
 /* Run and reports page layout polish */
-.command-card > .dashboard-section-heading {
-  margin-bottom: 20px;
-}
 
-.command-controls {
-  align-items: end;
-}
 
-.command-card .field-control > span:first-child {
-  color: #172033;
-  font-size: 12px;
-  font-weight: 900;
-  line-height: 1.35;
-}
 
-.command-card .experiment-select {
-  min-height: 36px;
-  padding: 0 34px 0 12px;
-  border: 1px solid rgba(148, 163, 184, 0.28);
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.92);
-  color: #0f172a;
-  font-size: 12px;
-  font-weight: 800;
-  line-height: 1;
-  outline: none;
-  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
-}
 
-.command-card .experiment-select:focus {
-  border-color: rgba(37, 99, 235, 0.48);
-  background: #ffffff;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.10);
-}
 
 @media (max-width: 760px) {
   .reports-cleanup-heading {
