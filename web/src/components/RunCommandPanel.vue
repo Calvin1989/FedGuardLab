@@ -118,8 +118,32 @@ const emit = defineEmits(["start", "cancel"]);
 </template>
 
 <style scoped>
+/* Card surface (migrated from App.vue) */
 .command-card {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 18px 48px rgba(15, 23, 42, 0.07);
   padding: 24px 26px;
+  animation: commandFadeIn 0.28s ease-out both;
+}
+
+@keyframes commandFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.command-card > * {
+  position: relative;
+  z-index: 1;
 }
 
 .command-controls {
@@ -210,6 +234,23 @@ const emit = defineEmits(["start", "cancel"]);
   cursor: not-allowed;
 }
 
+.config-empty-filter {
+  min-height: 38px;
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  border: 1px dashed rgba(148, 163, 184, 0.46);
+  border-radius: 13px;
+  color: #64748b;
+  font-size: 12px;
+}
+
+.command-run-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .selected-config-summary {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
@@ -217,9 +258,10 @@ const emit = defineEmits(["start", "cancel"]);
   align-items: center;
   margin-top: 16px;
   padding: 12px 14px;
-  border: 1px solid rgba(148, 163, 184, 0.20);
+  border: 1px solid rgba(148, 163, 184, 0.22);
   border-radius: 16px;
-  background: rgba(255, 255, 255, 0.62);
+  background: #ffffff;
+  box-shadow: none;
 }
 
 .selected-config-copy {
@@ -279,6 +321,10 @@ const emit = defineEmits(["start", "cancel"]);
 }
 
 @media (max-width: 860px) {
+  .command-card {
+    border-radius: 22px;
+  }
+
   .command-controls {
     grid-template-columns: 1fr;
   }
