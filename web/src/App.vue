@@ -2096,11 +2096,14 @@ async function startExperiment() {
       </section>
     </section>
 
-    <section v-show="activeDashboardSection !== 'run'" class="comparison-card">
+    <section
+      v-if="activeDashboardSection === 'jobs' || activeDashboardSection === 'comparisons'"
+      class="comparison-card"
+    >
       <DashboardSectionHeading :copy="currentDashboardSectionCopy" />
 
       <div
-        v-show="activeDashboardSection === 'jobs' || activeDashboardSection === 'comparisons'"
+        v-if="activeDashboardSection === 'jobs'"
         class="dashboard-section-panel dashboard-jobs-panel"
       >
       <JobsSectionHeader
@@ -2189,7 +2192,7 @@ async function startExperiment() {
       </div>
 
       <div
-        v-show="activeDashboardSection === 'comparisons'"
+        v-if="activeDashboardSection === 'comparisons'"
         class="dashboard-section-panel dashboard-comparisons-panel"
       >
       <SelectedJobsPreview
@@ -2238,9 +2241,12 @@ async function startExperiment() {
         {{ t.selectedJobsHint }}
       </div>
       </div>
+    </section>
+
+    <section v-if="activeDashboardSection === 'reports'" class="comparison-card">
+      <DashboardSectionHeading :copy="currentDashboardSectionCopy" />
 
       <ReportsCleanupPanel
-        v-show="activeDashboardSection === 'reports'"
         :copy="t"
         :status="reportsCleanupStatus"
         :error="reportsCleanupError"
@@ -3033,6 +3039,7 @@ input {
 
 .command-card,
 .monitor-card,
+.dashboard-shell,
 .comparison-card,
 .job-detail-card {
   animation: cardFadeIn 0.28s ease-out both;
