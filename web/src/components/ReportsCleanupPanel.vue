@@ -280,6 +280,42 @@ const emit = defineEmits(["refresh", "run-cleanup"]);
 
 /* Reports cleanup run controls */
 
+.secondary-button {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 34px;
+  padding: 0 16px;
+  border: 1px solid rgba(96, 165, 250, 0.48);
+  border-radius: 10px;
+  background: #eff6ff;
+  color: #2563eb;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    transform 0.16s ease,
+    border-color 0.16s ease,
+    background-color 0.16s ease,
+    color 0.16s ease,
+    box-shadow 0.16s ease;
+}
+
+.secondary-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.secondary-button:not(:disabled):hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(37, 99, 235, 0.12);
+}
+
 .reports-cleanup-action {
   min-height: 34px;
   padding: 0 12px;
@@ -296,6 +332,8 @@ const emit = defineEmits(["refresh", "run-cleanup"]);
   border-color: rgba(244, 63, 94, 0.5);
   background: rgba(255, 228, 230, 0.94);
   color: #9f1239;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(220, 38, 38, 0.12);
 }
 
 .reports-cleanup-run-result {
