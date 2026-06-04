@@ -4,6 +4,7 @@ import GlobalToolbar from "./components/GlobalToolbar.vue";
 import HistoryManagementStrip from "./components/HistoryManagementStrip.vue";
 import JobsEmptyState from "./components/JobsEmptyState.vue";
 import JobsSectionHeader from "./components/JobsSectionHeader.vue";
+import JobsTable from "./components/JobsTable.vue";
 import RuntimeMetricTile from "./components/RuntimeMetricTile.vue";
 import RuntimeInfoTile from "./components/RuntimeInfoTile.vue";
 import RuntimeReportAction from "./components/RuntimeReportAction.vue";
@@ -1643,6 +1644,18 @@ const selectedDetailJob = computed(() => {
   return recentJobs.value.find((j) => j.job_id === selectedDetailJobId.value) || null;
 });
 
+const recentJobsForDisplay = computed(() =>
+  recentJobs.value.map((job) => ({
+    ...job,
+    statusLabel: t.value.statusValues[job.status] || job.status,
+    reportUrlWithLang: job.report_url ? withLang(job.report_url) : "",
+    canCompare: canSelectJobForComparison(job),
+    isSelected: selectedJobIds.value.includes(job.job_id),
+    isDetailSelected: selectedDetailJobId.value === job.job_id,
+    hasArtifacts: hasArtifacts(job),
+  }))
+);
+
 const selectedDetailArtifactsCount = computed(() => {
   const job = selectedDetailJob.value;
   if (!job) {
@@ -2146,70 +2159,13 @@ async function startExperiment() {
         :status-filter="jobStatusFilter"
       />
 
-      <table v-else class="jobs-table">
-        <thead>
-          <tr>
-            <th>{{ t.tableSelect }}</th>
-            <th>{{ t.tableExperiment }}</th>
-            <th>{{ t.tableAggregation }}</th>
-            <th>{{ t.tableDefense }}</th>
-            <th>{{ t.tableAttack }}</th>
-            <th>{{ t.tableAccuracy }}</th>
-            <th>{{ t.tableLoss }}</th>
-            <th>{{ t.tableAsr }}</th>
-            <th>{{ t.tableArtifacts }}</th>
-            <th>{{ t.tableReport }}</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          <tr
-            v-for="job in recentJobs"
-            :key="job.job_id"
-            class="job-row"
-            :class="{ 'job-row-selected': selectedDetailJobId === job.job_id, 'selected': selectedDetailJobId === job.job_id, 'archived': job.archived }"
-            @click="toggleDetailJob(job.job_id)"
-          >
-            <td class="job-select-cell">
-              <input
-                type="checkbox"
-                :checked="selectedJobIds.includes(job.job_id)"
-                :disabled="!canSelectJobForComparison(job)"
-                @change="toggleJobSelection(job.job_id)"
-              />
-            </td>
-            <td>
-              <div class="job-label">{{ job.label }}</div>
-              <div class="job-id">{{ job.job_id }}</div>
-            </td>
-            <td>{{ job.aggregation }}</td>
-            <td>{{ job.defense }}</td>
-            <td>{{ job.attack }}</td>
-            <td>{{ job.final_accuracy }}</td>
-            <td>{{ job.final_loss }}</td>
-            <td>{{ job.final_asr }}</td>
-            <td>
-              <div class="job-badges">
-                <span v-if="job.archived" class="job-badge archived">{{ t.archivedBadge }}</span>
-                <span v-if="job.has_report" class="job-badge success">{{ t.badgeReport }}</span>
-                <span v-if="hasArtifacts(job)" class="job-badge">{{ t.badgeArtifacts }}</span>
-                <span v-if="!job.has_report && !hasArtifacts(job)" class="job-badge muted">{{ t.badgeNoReport }}</span>
-              </div>
-            </td>
-            <td>
-              <a
-                v-if="job.status === 'finished' && job.has_report && job.report_url"
-                class="report-link"
-                :href="withLang(job.report_url)"
-                target="_blank"
-              >
-                {{ t.openHtmlReportShort || t.openHtmlReport }}
-              </a>
-              <span v-else>{{ t.notReady }}</span>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <JobsTable
+        v-else
+        :copy="t"
+        :jobs="recentJobsForDisplay"
+        @toggle-selection="toggleJobSelection"
+        @toggle-detail="toggleDetailJob"
+      />
 
       <div v-if="recentJobs.length > 0" class="job-detail-card">
         <JobDetailPanel
