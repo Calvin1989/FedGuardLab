@@ -69,4 +69,30 @@ defineProps({
   margin-top: 4px;
   font-size: 12px;
 }
+
+/* Override for comparison-empty-state */
+.comparison-empty-state {
+  min-height: 112px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 22px 24px;
+  text-align: center;
+}
+
+.comparison-empty-state strong {
+  display: block;
+  color: #475569;
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.comparison-empty-state span {
+  display: block;
+  color: #94a3b8;
+  font-size: 12px;
+  line-height: 1.45;
+}
 </style>

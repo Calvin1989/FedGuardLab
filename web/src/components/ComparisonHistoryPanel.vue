@@ -318,6 +318,10 @@ const emit = defineEmits(["refresh"]);
 
 /* Comparison history specific */
 .comparison-history-heading {
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
   margin-bottom: 12px;
 }
 
@@ -411,6 +415,16 @@ const emit = defineEmits(["refresh"]);
 @media (max-width: 760px) {
   .comparison-history-scroll {
     max-height: 360px;
+  }
+
+  .comparison-history-heading {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .comparison-history-refresh {
+    align-self: flex-start;
   }
 }
 </style>

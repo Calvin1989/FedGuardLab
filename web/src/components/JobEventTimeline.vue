@@ -321,17 +321,44 @@ defineProps({
   border-top: 1px solid rgba(226, 232, 240, 0.90);
 }
 
-.round-log-main,
-.round-log-metrics {
-  display: contents;
+.round-log-main {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
 }
 
 .round-log-main strong {
   color: #111827;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.round-log-main > span:last-child {
+  color: #94a3b8;
+  font-size: 11px;
 }
 
 .round-log-metrics {
-  margin-top: 0;
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-left: auto;
+}
+
+.round-log-metrics > span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 20px;
+  padding: 2px 8px;
+  border: 1px solid rgba(226, 232, 240, 0.92);
+  border-radius: 8px;
+  background: #f8fafc;
+  color: #475569;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
 }
 
 .empty-state {
