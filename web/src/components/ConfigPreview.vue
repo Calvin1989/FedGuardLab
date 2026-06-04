@@ -129,6 +129,14 @@ defineProps({
   overflow-wrap: anywhere;
 }
 
+.preview-value {
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: keep-all;
+}
+
 .risk-badge {
   background: #fef3c7;
   color: #92400e;

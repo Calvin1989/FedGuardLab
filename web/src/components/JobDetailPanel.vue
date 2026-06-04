@@ -369,6 +369,11 @@ const emit = defineEmits(["archive"]);
   font-size: 12px;
 }
 
+.detail-export-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 @media (max-width: 720px) {
   .job-detail-header,
   .job-detail-actions,
