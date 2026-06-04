@@ -18,6 +18,7 @@ import ComparisonStatusFeedback from "./components/ComparisonStatusFeedback.vue"
 import JobDetailPanel from "./components/JobDetailPanel.vue";
 import SelectedJobsPreview from "./components/SelectedJobsPreview.vue";
 import ReportsCleanupPanel from "./components/ReportsCleanupPanel.vue";
+import RunCommandPanel from "./components/RunCommandPanel.vue";
 import { computed, onMounted, ref, watch } from "vue";
 
 const API_BASE = "http://127.0.0.1:8000";
@@ -1937,105 +1938,20 @@ async function startExperiment() {
     />
 
     <section v-show="activeDashboardSection === 'run'" class="dashboard-shell dashboard-shell-v7">
-      <section class="command-card">
-        <DashboardSectionHeading
-          :copy="{ kicker: t.eyebrow, title: t.heroTitle, hint: t.heroSubtitle }"
-        />
-
-        <div class="command-controls">
-          <label class="field-control" for="category-filter">
-            <span>{{ t.categoryLabel }}</span>
-            <select
-              id="category-filter"
-              v-model="selectedCategory"
-              class="experiment-select"
-              :disabled="status === 'creating' || status === 'running'"
-            >
-              <option value="all">{{ t.allCategories }}</option>
-              <option
-                v-for="cat in configCategories"
-                :key="cat"
-                :value="cat"
-              >
-                {{ cat }}
-              </option>
-            </select>
-          </label>
-
-          <label class="field-control field-control-wide" for="experiment-select">
-            <span>{{ t.experimentLabel }}</span>
-            <select
-              v-if="filteredExperimentOptions.length > 0"
-              id="experiment-select"
-              v-model="selectedConfig"
-              class="experiment-select"
-              :disabled="status === 'creating' || status === 'running'"
-            >
-              <option
-                v-for="option in filteredExperimentOptions"
-                :key="option.value"
-                :value="option.value"
-              >
-                {{ option.label }}
-              </option>
-            </select>
-            <span v-else class="config-empty-filter">
-              {{ t.noConfigsForCategory }}
-            </span>
-          </label>
-
-          <div class="command-run-group">
-            <button
-              class="run-button"
-              :disabled="
-                status === 'creating' ||
-                status === 'running' ||
-                filteredExperimentOptions.length === 0
-              "
-              @click="startExperiment"
-            >
-              {{ status === "running" ? t.running : t.runExperiment }}
-            </button>
-
-            <button
-              v-if="status === 'creating' || status === 'running'"
-              class="secondary-button"
-              @click="cancelCurrentJob"
-            >
-              {{ t.cancelExperiment }}
-            </button>
-          </div>
-        </div>
-
-        <div v-if="selectedConfigMetadata" class="selected-config-summary">
-          <div class="selected-config-copy">
-            <span class="selected-config-kicker">{{ t.configPreview }}</span>
-            <strong>{{ selectedConfigMetadata.name || getSelectedExperimentLabel() }}</strong>
-            <p>
-              {{ selectedConfigMetadata.description || selectedExperimentDescription }}
-            </p>
-          </div>
-
-          <div
-            v-if="selectedConfigMetadata.tags.length > 0"
-            class="selected-config-tags"
-          >
-            <span
-              v-for="tag in selectedConfigMetadata.tags"
-              :key="tag"
-              class="config-tag"
-            >
-              {{ tag }}
-            </span>
-          </div>
-        </div>
-
-        <ConfigPreview
-          v-if="displayConfigPreview"
-          :preview="displayConfigPreview"
-          :copy="t"
-        />
-      </section>
+      <RunCommandPanel
+        :copy="t"
+        v-model:selected-category="selectedCategory"
+        v-model:selected-config="selectedConfig"
+        :category-options="configCategories"
+        :config-options="filteredExperimentOptions"
+        :config-metadata="selectedConfigMetadata"
+        :config-description="selectedExperimentDescription"
+        :config-preview="displayConfigPreview"
+        :config-label="getSelectedExperimentLabel()"
+        :is-running="status === 'creating' || status === 'running'"
+        @start="startExperiment"
+        @cancel="cancelCurrentJob"
+      />
 
       <section class="monitor-card">
         <div class="runtime-panel">
