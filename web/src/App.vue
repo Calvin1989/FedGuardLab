@@ -2213,11 +2213,7 @@ async function startExperiment() {
 
 
 .run-button,
-.secondary-button,
-.report-link,
-.detail-report-link,
-.detail-export-item,
-.comparison-export-item {
+.secondary-button {
   appearance: none;
   display: inline-flex;
   align-items: center;
@@ -2237,11 +2233,7 @@ async function startExperiment() {
 
 
 
-.secondary-button,
-.report-link,
-.detail-report-link,
-.detail-export-item,
-.comparison-export-item {
+.secondary-button {
   border: 1px solid rgba(96, 165, 250, 0.48);
   background: rgba(239, 246, 255, 0.78);
   color: #2563eb;
@@ -2252,25 +2244,6 @@ async function startExperiment() {
 
 
 
-
-.config-tag,
-.job-badge,
-.status-badge,
-.event-badge,
-.round-count-pill {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 22px;
-  padding: 3px 9px;
-  border-radius: 999px;
-  background: #edf2ff;
-  color: #334155;
-  font-size: 11px;
-  font-weight: 900;
-  line-height: 1;
-  white-space: nowrap;
-}
 
 .empty-state {
   width: 100%;
@@ -2315,35 +2288,9 @@ async function startExperiment() {
   background: rgba(248, 250, 252, 0.72);
 }
 
-.comparison-feedback.success {
-  background: #f0fdf4;
-  color: #166534;
-}
-
-.comparison-feedback.creating {
-  color: #2563eb;
-}
-
 .error-feedback {
   background: #fff1f2;
   color: #9f1239;
-}
-
-.feedback-spinner {
-  width: 16px;
-  height: 16px;
-  display: inline-flex;
-  margin-right: 8px;
-  border: 2px solid rgba(37, 99, 235, 0.22);
-  border-top-color: #2563eb;
-  border-radius: 999px;
-  animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
 }
 
 /* Responsive overrides */
@@ -2401,31 +2348,15 @@ async function startExperiment() {
 
 
 .run-button,
-.secondary-button,
-.report-link,
-.detail-report-link,
-.detail-export-item,
-.comparison-export-item {
+.secondary-button {
   min-height: 36px;
   border-radius: 10px;
   box-shadow: none;
 }
 
 
-.secondary-button,
-.report-link,
-.detail-report-link,
-.detail-export-item,
-.comparison-export-item {
+.secondary-button {
   background: #eff6ff;
-}
-
-.report-link.disabled,
-.runtime-action.is-disabled .report-link {
-  border-color: rgba(148, 163, 184, 0.28);
-  background: #f8fafc;
-  color: #94a3b8;
-  cursor: not-allowed;
 }
 
 .comparison-feedback,
@@ -2447,11 +2378,6 @@ async function startExperiment() {
 
 .job-detail-card {
   border-radius: 18px;
-}
-
-.comparison-feedback.success {
-  border-color: rgba(34, 197, 94, 0.26);
-  background: #f0fdf4;
 }
 
 /* v1.8.4 final UI polish: typography, alignment, motion, and export layout */
@@ -2477,36 +2403,12 @@ async function startExperiment() {
 }
 
 
-.field-control > span:first-child,
-.field-label,
-.detail-label {
-  font-weight: 800;
-  line-height: 1.35;
-}
-
-.preview-description,
-.detail-value {
-  line-height: 1.65;
-}
-
 .run-button,
-.secondary-button,
-.report-link,
-.detail-report-link,
-.detail-export-item,
-.comparison-export-item,
-.status-badge {
+.secondary-button {
   min-height: 34px;
   line-height: 1;
   align-items: center;
   font-weight: 800;
-}
-
-.status-badge {
-  display: inline-flex;
-  justify-content: center;
-  padding-top: 0;
-  padding-bottom: 0;
 }
 
 .dashboard-shell,
@@ -2515,19 +2417,12 @@ async function startExperiment() {
   animation: cardFadeIn 0.28s ease-out both;
 }
 
-.comparison-feedback.success,
-.comparison-feedback.creating,
 .error-feedback {
   animation: cardFadeIn 0.22s ease-out both;
 }
 
 .run-button,
-.secondary-button,
-.report-link,
-.detail-report-link,
-.detail-export-item,
-.comparison-export-item,
-.job-row {
+.secondary-button {
   transition:
     transform 0.16s ease,
     border-color 0.16s ease,
@@ -2537,11 +2432,7 @@ async function startExperiment() {
 }
 
 .run-button:not(:disabled):hover,
-.secondary-button:not(:disabled):hover,
-.report-link:not(.disabled):hover,
-.detail-report-link:hover,
-.detail-export-item:not(.disabled):hover,
-.comparison-export-item:not(.disabled):hover {
+.secondary-button:not(:disabled):hover {
   transform: translateY(-1px);
   box-shadow: 0 8px 18px rgba(37, 99, 235, 0.12);
 }
@@ -2559,55 +2450,6 @@ async function startExperiment() {
 
 /* Historical dashboard polish overrides: v1.8.5 microcopy, empty-state, and alignment */
 
-
-.preview-value {
-  min-width: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  word-break: keep-all;
-}
-
-.status-badge {
-  height: 30px;
-  min-height: 30px;
-  padding: 0 13px;
-  font-size: 12px;
-  line-height: 1;
-}
-
-.report-link.disabled {
-  border-color: rgba(148, 163, 184, 0.26);
-  background: #f8fafc;
-  color: #94a3b8;
-  box-shadow: none;
-}
-
-.comparison-empty-state {
-  min-height: 112px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 22px 24px;
-  text-align: center;
-}
-
-.comparison-empty-state strong {
-  display: block;
-  color: #475569;
-  font-size: 14px;
-  font-weight: 800;
-  line-height: 1.35;
-}
-
-.comparison-empty-state span {
-  display: block;
-  color: #94a3b8;
-  font-size: 12px;
-  line-height: 1.45;
-}
 
 .section-actions .secondary-button:disabled,
 .section-actions .run-button:disabled {
@@ -2642,70 +2484,6 @@ async function startExperiment() {
 .comparison-card .comparison-hint {
   margin-top: 12px;
 }
-
-/* Experiment history management */
-.history-stat {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 2px;
-  min-width: 0;
-  padding: 8px 10px;
-  border: 1px solid rgba(226, 232, 240, 0.95);
-  border-radius: 12px;
-  background: #ffffff;
-}
-
-.history-stat strong {
-  overflow: hidden;
-  color: #0f172a;
-  font-size: 14px;
-  line-height: 1.15;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.history-stat small {
-  color: #64748b;
-  font-size: 10px;
-  font-weight: 700;
-}
-
-
-/* Detail section heading layout (shared with reports cleanup heading) */
-.detail-section-heading {
-  display: flex;
-  min-width: 0;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 3px;
-}
-
-/* Comparison history */
-.dashboard-info-panel {
-  margin-top: 16px;
-  padding: 14px;
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.7);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
-}
-
-
-/* Unified report and artifact entry system */
-.report-link,
-.detail-report-link,
-.detail-export-item,
-.comparison-export-item {
-  min-height: 32px;
-  padding: 0 12px;
-  border-radius: 9px;
-  font-size: 12px;
-  font-weight: 700;
-  line-height: 1;
-  gap: 6px;
-}
-
 
 /* Run and reports page layout polish */
 
