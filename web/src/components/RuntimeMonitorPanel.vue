@@ -1,0 +1,218 @@
+<script setup>
+/**
+ * RuntimeMonitorPanel — container for the live runtime monitor section.
+ *
+ * Displays status, job ID, per-round metrics, report link, error banner,
+ * and the training metrics chart.  All state / WebSocket / API logic stays
+ * in App.vue; this component is pure presentational.
+ */
+import RuntimeInfoTile from "./RuntimeInfoTile.vue";
+import RuntimeMetricTile from "./RuntimeMetricTile.vue";
+import RuntimeReportAction from "./RuntimeReportAction.vue";
+import RuntimeChartPanel from "./RuntimeChartPanel.vue";
+
+defineProps({
+  /** Localised UI copy object (`t` from App.vue) */
+  copy: { type: Object, required: true },
+  /** Current experiment status string */
+  status: { type: String, default: "idle" },
+  /** Active job ID */
+  jobId: { type: String, default: "" },
+  /** Latest error message (empty = hidden) */
+  errorMessage: { type: String, default: "" },
+  /** HTML report URL (empty = not ready) */
+  reportUrl: { type: String, default: "" },
+  /** Latest metric object (null when no data) */
+  latestMetric: { type: Object, default: null },
+  /** Full metrics array (for chart) */
+  metrics: { type: Array, required: true },
+  /** Chart.js data object */
+  chartData: { type: Object, required: true },
+  /** Chart.js options object */
+  chartOptions: { type: Object, required: true },
+  /** URL helper that appends lang query param */
+  withLang: { type: Function, required: true },
+});
+</script>
+
+<template>
+  <section class="monitor-card">
+    <div class="runtime-panel">
+      <div class="runtime-row">
+        <RuntimeInfoTile
+          :label="copy.statusLabel"
+          :value="copy.statusValues[status] || status"
+        />
+
+        <RuntimeInfoTile
+          v-if="jobId"
+          :label="copy.jobLabel"
+          :value="jobId"
+          wide
+        />
+
+        <RuntimeMetricTile
+          v-if="latestMetric"
+          :label="copy.round"
+          :value="latestMetric.round"
+        />
+        <RuntimeMetricTile
+          v-if="latestMetric"
+          :label="copy.accuracy"
+          :value="latestMetric.accuracy"
+        />
+        <RuntimeMetricTile
+          v-if="latestMetric"
+          :label="copy.loss"
+          :value="latestMetric.loss"
+        />
+        <RuntimeMetricTile
+          v-if="latestMetric"
+          :label="copy.asr"
+          :value="latestMetric.attack_success_rate"
+        />
+        <RuntimeReportAction
+          v-if="jobId || reportUrl"
+          :label="copy.reportLabel"
+          :href="reportUrl ? withLang(reportUrl) : ''"
+          :link-label="copy.openHtmlReportShort || copy.openHtmlReport"
+          :not-ready-label="copy.notReady"
+        />
+      </div>
+
+      <div v-if="errorMessage" class="runtime-error">
+        <strong>{{ copy.errorLabel }}:</strong>
+        <span>{{ errorMessage }}</span>
+      </div>
+    </div>
+
+    <RuntimeChartPanel
+      :metrics="metrics"
+      :chart-data="chartData"
+      :chart-options="chartOptions"
+      :copy="copy"
+    />
+  </section>
+</template>
+
+<style scoped>
+/* Card surface */
+.monitor-card {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 18px 48px rgba(15, 23, 42, 0.07);
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  padding: 18px;
+  animation: monitorFadeIn 0.28s ease-out both;
+}
+
+@keyframes monitorFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.monitor-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Layout */
+.runtime-panel {
+  min-width: 0;
+}
+
+.runtime-row {
+  display: grid;
+  grid-template-columns:
+    minmax(112px, 0.72fr)
+    minmax(260px, 1.65fr)
+    repeat(4, minmax(108px, 1fr))
+    minmax(150px, 0.95fr);
+  align-items: stretch;
+  gap: 10px;
+}
+
+/* Root element overrides (reach child component root via scoped) */
+.runtime-item,
+.hero-metric-item {
+  min-height: 68px;
+  padding: 13px 15px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 7px;
+}
+
+.runtime-item.wide strong {
+  display: block;
+  color: #111827;
+  font-size: 11px;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.runtime-action {
+  grid-column: -2 / -1;
+  gap: 6px;
+}
+
+/* Error banner */
+.runtime-error {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: #fff1f2;
+  color: #9f1239;
+  font-size: 12px;
+}
+
+/* Responsive */
+@media (max-width: 1180px) {
+  .runtime-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .runtime-action {
+    grid-column: auto;
+  }
+
+  .runtime-item.wide {
+    grid-column: span 2;
+  }
+}
+
+@media (max-width: 980px) {
+  .runtime-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 680px) {
+  .runtime-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .runtime-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  .runtime-row {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
