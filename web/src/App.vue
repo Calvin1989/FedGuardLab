@@ -2189,7 +2189,6 @@ async function startExperiment() {
   margin-bottom: 26px;
 }
 
-.command-card,
 .comparison-card {
   position: relative;
   overflow: hidden;
@@ -2203,19 +2202,6 @@ async function startExperiment() {
     inset 0 1px 0 rgba(255, 255, 255, 0.86);
 }
 
-.command-card::after {
-  content: "";
-  position: absolute;
-  right: -120px;
-  bottom: -180px;
-  width: 340px;
-  height: 340px;
-  border-radius: 999px;
-  background: radial-gradient(circle, rgba(59, 130, 246, 0.13), transparent 68%);
-  pointer-events: none;
-}
-
-.command-card > *,
 .comparison-card > * {
   position: relative;
   z-index: 1;
@@ -2225,34 +2211,6 @@ async function startExperiment() {
 
 
 
-.subtitle {
-  max-width: 620px;
-  margin: 10px 0 0;
-  color: #5f6f87;
-  font-size: 14px;
-  line-height: 1.55;
-}
-
-
-
-
-
-.config-empty-filter {
-  min-height: 38px;
-  display: flex;
-  align-items: center;
-  padding: 0 12px;
-  border: 1px dashed rgba(148, 163, 184, 0.46);
-  border-radius: 13px;
-  color: #64748b;
-  font-size: 12px;
-}
-
-.command-run-group {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
 
 .run-button,
 .secondary-button,
@@ -2400,14 +2358,12 @@ async function startExperiment() {
     width: min(100%, calc(100vw - 28px));
   }
 
-  .command-card,
   .comparison-card {
     border-radius: 22px;
   }
 
 
 
-  .selected-config-tags,
   .section-actions {
     justify-content: flex-start;
   }
@@ -2432,7 +2388,6 @@ async function startExperiment() {
   width: min(1200px, calc(100vw - 48px));
 }
 
-.command-card,
 .comparison-card {
   border-color: rgba(148, 163, 184, 0.22);
   border-radius: 22px;
@@ -2440,18 +2395,8 @@ async function startExperiment() {
   box-shadow: 0 18px 48px rgba(15, 23, 42, 0.07);
 }
 
-.command-card::after {
-  display: none;
-}
 
 
-
-
-.subtitle {
-  margin-top: 8px;
-  font-size: 13px;
-  line-height: 1.55;
-}
 
 
 
@@ -2483,7 +2428,6 @@ async function startExperiment() {
   cursor: not-allowed;
 }
 
-.selected-config-summary,
 .comparison-feedback,
 .comparison-hint {
   border-color: rgba(148, 163, 184, 0.22);
@@ -2540,7 +2484,6 @@ async function startExperiment() {
   line-height: 1.35;
 }
 
-.subtitle,
 .preview-description,
 .detail-value {
   line-height: 1.65;
@@ -2566,7 +2509,6 @@ async function startExperiment() {
   padding-bottom: 0;
 }
 
-.command-card,
 .dashboard-shell,
 .comparison-card,
 .job-detail-card {
