@@ -564,7 +564,6 @@ const currentDashboardSectionCopy = computed(
   () => t.value.dashboardSectionCopy?.[activeDashboardSection.value] || {}
 );
 
-
 const CONFIG_DISPLAY_TEXT = {
   zh: {
     label_flip_demo: {
@@ -642,7 +641,6 @@ function withLang(url) {
   const sep = url.includes("?") ? "&" : "?";
   return `${url}${sep}lang=${language.value}`;
 }
-
 
 function getConfigKey(option) {
   if (!option) {
@@ -809,21 +807,17 @@ onMounted(async () => {
   }
 });
 
-
 const selectedConfigOption = computed(() =>
   experimentOptions.value.find((item) => item.value === selectedConfig.value)
 );
-
 
 const selectedExperimentDescription = computed(() => {
   return getLocalizedConfigDisplay(selectedConfigOption.value).description;
 });
 
-
 const selectedConfigPreview = computed(() => {
   return selectedConfigOption.value?.preview || null;
 });
-
 
 const displayConfigPreview = computed(() => {
   const preview = selectedConfigPreview.value;
@@ -845,7 +839,6 @@ const displayConfigPreview = computed(() => {
   };
 });
 
-
 const selectedConfigMetadata = computed(() => {
   const option = experimentOptions.value.find(
     (item) => item.value === selectedConfig.value
@@ -866,7 +859,6 @@ const selectedConfigMetadata = computed(() => {
   };
 });
 
-
 const configCategories = computed(() => {
   const cats = new Set(
     experimentOptions.value.map(
@@ -875,7 +867,6 @@ const configCategories = computed(() => {
   );
   return [...cats].sort();
 });
-
 
 const filteredExperimentOptions = computed(() => {
   if (selectedCategory.value === "all") {
@@ -886,7 +877,6 @@ const filteredExperimentOptions = computed(() => {
   );
 });
 
-
 watch(selectedCategory, () => {
   const current = filteredExperimentOptions.value.find(
     (opt) => opt.value === selectedConfig.value
@@ -896,7 +886,6 @@ watch(selectedCategory, () => {
   }
 });
 
-
 function getSelectedExperimentLabel() {
   const option = experimentOptions.value.find(
     (item) => item.value === selectedConfig.value
@@ -904,7 +893,6 @@ function getSelectedExperimentLabel() {
 
   return option ? getLocalizedConfigDisplay(option).name : selectedConfig.value;
 }
-
 
 async function loadExperimentOptions() {
   try {
@@ -925,7 +913,6 @@ async function loadExperimentOptions() {
   }
 }
 
-
 function canSelectJobForComparison(job) {
   return (
     job.archived !== true &&
@@ -936,41 +923,10 @@ function canSelectJobForComparison(job) {
   );
 }
 
-
 const comparableJobsCount = computed(() =>
   recentJobs.value.filter((job) => canSelectJobForComparison(job)).length
 );
 
-
-const activeStatusFilterLabel = computed(() => {
-  if (jobStatusFilter.value === "finished_report") {
-    return t.value.finishedWithReport;
-  }
-
-  if (jobStatusFilter.value === "all") {
-    return t.value.allStatuses;
-  }
-
-  return t.value.statusValues[jobStatusFilter.value] || jobStatusFilter.value;
-});
-
-
-const activeArchiveFilterLabel = computed(() => {
-  if (jobArchiveFilter.value === "archived") {
-    return t.value.archiveArchived;
-  }
-
-  if (jobArchiveFilter.value === "all") {
-    return t.value.archiveAll;
-  }
-
-  return t.value.archiveActive;
-});
-
-
-const historyActiveFilterLabel = computed(() =>
-  `${activeStatusFilterLabel.value} · ${activeArchiveFilterLabel.value}`
-);
 const historyArchiveFilterLabel = computed(() => {
   if (jobArchiveFilter.value === "archived") {
     return t.value.archiveArchived;
@@ -983,7 +939,6 @@ const historyArchiveFilterLabel = computed(() => {
   return t.value.archiveActive;
 });
 
-
 function toggleJobSelection(jobId) {
   if (selectedJobIds.value.includes(jobId)) {
     selectedJobIds.value = selectedJobIds.value.filter((id) => id !== jobId);
@@ -992,7 +947,6 @@ function toggleJobSelection(jobId) {
 
   selectedJobIds.value = [...selectedJobIds.value, jobId];
 }
-
 
 async function createComparisonReport() {
   comparisonError.value = "";
@@ -1038,7 +992,6 @@ async function createComparisonReport() {
   }
 }
 
-
 function loadHiddenJobIds() {
   const rawValue = window.localStorage.getItem(HIDDEN_JOBS_STORAGE_KEY);
 
@@ -1060,14 +1013,12 @@ function loadHiddenJobIds() {
   return new Set();
 }
 
-
 function saveHiddenJobIds(hiddenIds) {
   window.localStorage.setItem(
     HIDDEN_JOBS_STORAGE_KEY,
     JSON.stringify([...hiddenIds])
   );
 }
-
 
 function hideJobIds(jobIds) {
   const hiddenIds = loadHiddenJobIds();
@@ -1081,14 +1032,12 @@ function hideJobIds(jobIds) {
   saveHiddenJobIds(hiddenIds);
 }
 
-
 function unhideJobId(jobId) {
   const hiddenIds = loadHiddenJobIds();
 
   hiddenIds.delete(jobId);
   saveHiddenJobIds(hiddenIds);
 }
-
 
 function loadRecentJobs() {
   const rawValue = window.localStorage.getItem(RECENT_JOBS_STORAGE_KEY);
@@ -1112,7 +1061,6 @@ function loadRecentJobs() {
   }
 }
 
-
 function titleizeDisplayValue(value) {
   if (!value) {
     return "—";
@@ -1122,7 +1070,6 @@ function titleizeDisplayValue(value) {
     .replace(/_/g, " ")
     .replace(/\b\w/g, (char) => char.toUpperCase());
 }
-
 
 function formatAttackDisplay(attackConfig, fallbackValue = "") {
   const type = attackConfig?.type || fallbackValue;
@@ -1153,7 +1100,6 @@ function formatAttackDisplay(attackConfig, fallbackValue = "") {
   return titleizeDisplayValue(type);
 }
 
-
 function formatDefenseDisplay(defenseConfig, fallbackValue = "") {
   const type = defenseConfig?.type || fallbackValue;
 
@@ -1168,7 +1114,6 @@ function formatDefenseDisplay(defenseConfig, fallbackValue = "") {
   return titleizeDisplayValue(type);
 }
 
-
 function formatDisplayValue(value) {
   if (value === null || value === undefined || value === "") {
     return "—";
@@ -1176,7 +1121,6 @@ function formatDisplayValue(value) {
 
   return value;
 }
-
 
 function formatMetricValue(value) {
   if (value === null || value === undefined || value === "") {
@@ -1189,7 +1133,6 @@ function formatMetricValue(value) {
 
   return value;
 }
-
 
 function mapApiJobToRecentJob(job) {
   const artifacts = job.artifacts || {};
@@ -1231,7 +1174,6 @@ function mapApiJobToRecentJob(job) {
   };
 }
 
-
 async function loadRecentJobsFromApi() {
   const filter = jobStatusFilter.value;
   const params = new URLSearchParams();
@@ -1267,7 +1209,6 @@ async function loadRecentJobsFromApi() {
 
   recentJobs.value = visibleJobs.map(mapApiJobToRecentJob);
 }
-
 
 function eventIcon(type) {
   const icons = {
@@ -1352,7 +1293,6 @@ function jobArtifactUrl(job, key) {
   return fallbackUrls[key] || "";
 }
 
-
 function comparisonArtifactUrl(key) {
   const artifacts = comparisonArtifacts.value || {};
 
@@ -1372,7 +1312,6 @@ function comparisonArtifactUrl(key) {
 
   return fallbackUrls[key] || "";
 }
-
 
 function comparisonHistoryArtifactUrl(item, key) {
   const artifacts = item?.artifacts || {};
@@ -1395,12 +1334,10 @@ function comparisonHistoryArtifactUrl(item, key) {
   return fallbackUrls[key] || "";
 }
 
-
 function formatComparisonMetric(value) {
   const rawValue = typeof value === "object" && value !== null ? value.value : value;
   return formatMetricValue(rawValue);
 }
-
 
 function mapComparisonHistoryItem(item) {
   const artifacts = item.artifacts || {};
@@ -1417,7 +1354,6 @@ function mapComparisonHistoryItem(item) {
     artifacts,
   };
 }
-
 
 const comparisonHistoryItemsForDisplay = computed(() =>
   comparisonHistory.value.map((item) => {
@@ -1439,7 +1375,6 @@ const comparisonHistoryItemsForDisplay = computed(() =>
     };
   })
 );
-
 
 const EXPORT_ARTIFACT_KEYS = [
   { key: "report_html", icon: "📊", labelKey: "exportHtmlReport" },
@@ -1469,7 +1404,6 @@ const detailExportItems = computed(() => {
   });
 });
 
-
 const lifecycleDisplayEvents = computed(() =>
   selectedLifecycleEvents.value.map((ev) => ({
     icon: eventIcon(ev.type),
@@ -1484,7 +1418,6 @@ const lifecycleDisplayEvents = computed(() =>
   }))
 );
 
-
 const roundDisplayEvents = computed(() =>
   selectedRoundEvents.value.map((ev) => ({
     badgeText: t.value.eventType.round_progress,
@@ -1496,7 +1429,6 @@ const roundDisplayEvents = computed(() =>
     asr: ev.metrics?.attack_success_rate ?? "",
   }))
 );
-
 
 async function loadComparisonHistory() {
   comparisonHistoryStatus.value = "loading";
@@ -1545,7 +1477,6 @@ function formatStorageBytes(value) {
   return `${size.toFixed(digits)} ${units[unitIndex]}`;
 }
 
-
 function mapReportsCleanupSummary(data) {
   const preview = data.cleanup_preview || {};
 
@@ -1564,7 +1495,6 @@ function mapReportsCleanupSummary(data) {
     },
   };
 }
-
 
 async function loadReportsCleanupSummary() {
   reportsCleanupStatus.value = "loading";
@@ -1592,7 +1522,6 @@ async function loadReportsCleanupSummary() {
   }
 }
 
-
 function mapReportsCleanupRunResult(data) {
   return {
     dry_run: Boolean(data.dry_run),
@@ -1604,7 +1533,6 @@ function mapReportsCleanupRunResult(data) {
     errors: Array.isArray(data.errors) ? data.errors : [],
   };
 }
-
 
 async function runReportsCleanup(dryRun = true) {
   if (reportsCleanupRunBusy.value) {
@@ -1672,7 +1600,6 @@ async function runReportsCleanup(dryRun = true) {
   }
 }
 
-
 function hasArtifacts(job) {
   return Boolean(
     jobArtifactUrl(job, "report_html") ||
@@ -1683,14 +1610,12 @@ function hasArtifacts(job) {
   );
 }
 
-
 const selectedDetailJob = computed(() => {
   if (!selectedDetailJobId.value) {
     return null;
   }
   return recentJobs.value.find((j) => j.job_id === selectedDetailJobId.value) || null;
 });
-
 
 const selectedDetailArtifactsCount = computed(() => {
   const job = selectedDetailJob.value;
@@ -1707,7 +1632,6 @@ const selectedDetailArtifactsCount = computed(() => {
   ].filter(Boolean).length;
 });
 
-
 const selectedJobsForPreview = computed(() =>
   selectedJobIds.value
     .map((selectedJobId) =>
@@ -1716,24 +1640,20 @@ const selectedJobsForPreview = computed(() =>
     .filter(Boolean)
 );
 
-
 const selectedLifecycleEvents = computed(() => {
   const events = selectedDetailJob.value?.events || [];
   return events.filter((event) => event.type !== "round_progress");
 });
-
 
 const selectedRoundEvents = computed(() => {
   const events = selectedDetailJob.value?.events || [];
   return events.filter((event) => event.type === "round_progress");
 });
 
-
 function toggleDetailJob(jobId) {
   selectedDetailJobId.value =
     selectedDetailJobId.value === jobId ? "" : jobId;
 }
-
 
 async function setJobArchived(job, archived) {
   if (!job?.job_id) {
@@ -1770,13 +1690,11 @@ async function setJobArchived(job, archived) {
   }
 }
 
-
 watch([jobStatusFilter, jobArchiveFilter, recentJobsLimit, recentJobsSort], () => {
   loadRecentJobsFromApi().catch((error) => {
     console.warn("Failed to reload jobs after filter change:", error);
   });
 });
-
 
 function saveRecentJobs() {
   window.localStorage.setItem(
@@ -1784,7 +1702,6 @@ function saveRecentJobs() {
     JSON.stringify(recentJobs.value.slice(0, 20))
   );
 }
-
 
 function buildComparisonTitle() {
   const selectedJobs = recentJobs.value.filter((job) =>
@@ -1805,7 +1722,6 @@ function buildComparisonTitle() {
   return "FedGuardLab Experiment Comparison";
 }
 
-
 function clearRecentJobs() {
   hideJobIds(recentJobs.value.map((job) => job.job_id));
 
@@ -1815,7 +1731,6 @@ function clearRecentJobs() {
   comparisonError.value = "";
   window.localStorage.removeItem(RECENT_JOBS_STORAGE_KEY);
 }
-
 
 function deleteSelectedJobs() {
   const selectedIds = new Set(selectedJobIds.value);
@@ -1832,7 +1747,6 @@ function deleteSelectedJobs() {
 
   saveRecentJobs();
 }
-
 
 async function cancelCurrentJob() {
   if (!jobId.value) {
@@ -1859,7 +1773,6 @@ async function cancelCurrentJob() {
     errorMessage.value = error.message;
   }
 }
-
 
 async function startExperiment() {
   errorMessage.value = "";
@@ -3116,7 +3029,6 @@ input:focus {
   }
 }
 
-
 /* v1.8.3 unified product UI polish */
 :global(html) {
   background:
@@ -3318,7 +3230,6 @@ input {
   }
 }
 
-
 /* v1.8.4 final UI polish: typography, alignment, motion, and export layout */
 :global(html) {
   -webkit-font-smoothing: antialiased;
@@ -3429,8 +3340,6 @@ input {
     transform: translateY(0);
   }
 }
-
-
 
 /* Historical dashboard polish overrides: v1.8.5 microcopy, empty-state, and alignment */
 .command-controls {
@@ -3565,7 +3474,6 @@ input {
   }
 }
 
-
 /* Historical dashboard polish overrides: v1.8.6 alignment and config preview i18n */
 .command-controls {
   grid-template-columns: 180px minmax(280px, 460px) auto;
@@ -3661,7 +3569,6 @@ input {
     max-width: none;
   }
 }
-
 
 /* Historical dashboard polish overrides: v1.8.7 runtime summary and disclosure affordance */
 .runtime-row {
@@ -3777,7 +3684,6 @@ input {
   }
 }
 
-
 /* v1.8.8 runtime value parity and deferred report card */
 .runtime-row {
   grid-template-columns:
@@ -3849,8 +3755,6 @@ input {
   }
 }
 
-
-
 /* v1.8.8 final runtime report value consistency */
 .runtime-row .runtime-action .runtime-report-value {
   display: flex;
@@ -3891,7 +3795,6 @@ input {
     font-size: 20px;
   }
 }
-
 
 /* v1.8.8 final text-value balance for runtime summary */
 .runtime-row .runtime-text-value {
@@ -3975,7 +3878,6 @@ input {
   border-radius: 16px;
 }
 
-
 /* Comparison completion layout */
 .comparison-card .comparison-feedback,
 .comparison-card .comparison-hint {
@@ -4042,10 +3944,6 @@ input {
   color: #64748b;
 }
 
-
-
-
-
 /* Detail section heading layout (shared with reports cleanup heading) */
 .detail-section-heading {
   display: flex;
@@ -4054,7 +3952,6 @@ input {
   align-items: flex-start;
   gap: 3px;
 }
-
 
 /* Comparison history */
 .dashboard-info-panel {
@@ -4065,7 +3962,6 @@ input {
   background: rgba(255, 255, 255, 0.7);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
 }
-
 
 .jobs-table .report-link {
   min-height: 30px;
@@ -4094,26 +3990,10 @@ input {
   font-size: 12px;
 }
 
-
-/* Reports cleanup summary */
-
-.reports-cleanup-heading {
-  margin-bottom: 12px;
-}
-
-
 /* Reports cleanup panel and cleanup run result */
 .reports-cleanup-content {
   display: grid;
   gap: 12px;
-}
-
-.reports-cleanup-mode-row {
-  display: flex;
-  min-width: 0;
-  flex-wrap: wrap;
-  gap: 8px;
-  align-items: center;
 }
 
 .reports-cleanup-mode-pill {
@@ -4138,16 +4018,6 @@ input {
   border: 1px solid rgba(148, 163, 184, 0.28);
   background: rgba(248, 250, 252, 0.92);
   color: #64748b;
-}
-
-.reports-cleanup-root {
-  min-width: 0;
-  overflow: hidden;
-  color: #64748b;
-  font-size: 12px;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .reports-cleanup-stats {
@@ -4245,7 +4115,6 @@ input {
   }
 }
 
-
 /* Reports cleanup run controls */
 .reports-cleanup-actions {
   display: flex;
@@ -4303,19 +4172,10 @@ input {
 }
 
 @media (max-width: 760px) {
-  .reports-cleanup-actions {
-    justify-content: stretch;
-  }
-
-  .reports-cleanup-actions .reports-cleanup-action {
-    flex: 1 1 140px;
-  }
-
   .reports-cleanup-run-stats {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
-
 
 /* Run and reports page layout polish */
 .command-card > .dashboard-section-heading {
