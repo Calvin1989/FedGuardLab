@@ -69,6 +69,22 @@ defineProps({
 </template>
 
 <style scoped>
+.comparison-feedback {
+  border: 1px solid rgba(148, 163, 184, 0.20);
+  border-radius: 18px;
+}
+
+.comparison-feedback.success {
+  background: #f0fdf4;
+  color: #166534;
+  border-color: rgba(34, 197, 94, 0.26);
+}
+
+.detail-export-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .comparison-result-card {
   display: flex;
   align-items: center;
