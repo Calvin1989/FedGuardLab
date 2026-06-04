@@ -16,6 +16,7 @@ import ComparisonHistoryPanel from "./components/ComparisonHistoryPanel.vue";
 import ComparisonStatusFeedback from "./components/ComparisonStatusFeedback.vue";
 import JobDetailPanel from "./components/JobDetailPanel.vue";
 import SelectedJobsPreview from "./components/SelectedJobsPreview.vue";
+import ReportsCleanupPanel from "./components/ReportsCleanupPanel.vue";
 import { computed, onMounted, ref, watch } from "vue";
 
 const API_BASE = "http://127.0.0.1:8000";
@@ -717,6 +718,31 @@ const reportsCleanupHasCandidates = computed(
 );
 const reportsCleanupRunBusy = computed(
   () => reportsCleanupRunStatus.value === "running"
+);
+
+const reportsCleanupTotalSizeLabel = computed(() =>
+  formatStorageBytes(reportsCleanupSummary.value?.total_size_bytes ?? 0)
+);
+const reportsCleanupCandidateSizeLabel = computed(() =>
+  formatStorageBytes(reportsCleanupPreview.value?.candidate_size_bytes ?? 0)
+);
+const reportsCleanupDeletedSizeLabel = computed(() =>
+  reportsCleanupRunResult.value
+    ? formatStorageBytes(reportsCleanupRunResult.value.deleted_size_bytes)
+    : "0 B"
+);
+const reportsCleanupOldestLabel = computed(() =>
+  formatEventTime(reportsCleanupOldestModifiedAt.value)
+);
+const reportsCleanupLatestLabel = computed(() =>
+  formatEventTime(reportsCleanupLatestModifiedAt.value)
+);
+const reportsCleanupCandidatesForDisplay = computed(() =>
+  reportsCleanupPreviewCandidates.value.map((item) => ({
+    ...item,
+    sizeLabel: formatStorageBytes(item.size_bytes),
+    modifiedAtLabel: formatEventTime(item.modified_at),
+  }))
 );
 
 const experimentOptions = ref([]);
@@ -2257,165 +2283,28 @@ async function startExperiment() {
       </div>
       </div>
 
-      <section v-show="activeDashboardSection === 'reports'" class="reports-cleanup-panel dashboard-info-panel">
-        <div class="reports-cleanup-heading">
-          <div class="reports-cleanup-heading-copy">
-            <span class="detail-section-title">{{ t.reportsCleanupTitle }}</span>
-            <span class="detail-section-subtitle">{{ t.reportsCleanupHint }}</span>
-          </div>
-          <div class="reports-cleanup-actions">
-            <button
-              class="secondary-button reports-cleanup-action"
-              :disabled="reportsCleanupStatus === 'loading' || reportsCleanupRunBusy"
-              @click="loadReportsCleanupSummary"
-            >
-              {{ t.reportsCleanupRefresh }}
-            </button>
-            <button
-              class="secondary-button reports-cleanup-action"
-              :disabled="reportsCleanupStatus === 'loading' || reportsCleanupRunBusy"
-              @click="runReportsCleanup(true)"
-            >
-              {{ reportsCleanupRunStatus === 'running' && reportsCleanupRunMode === 'dry-run' ? t.reportsCleanupRunning : t.reportsCleanupRunDryRun }}
-            </button>
-            <button
-              class="secondary-button reports-cleanup-action reports-cleanup-delete-button"
-              :disabled="reportsCleanupStatus === 'loading' || reportsCleanupRunBusy || !reportsCleanupHasCandidates"
-              @click="runReportsCleanup(false)"
-            >
-              {{ reportsCleanupRunStatus === 'running' && reportsCleanupRunMode === 'delete' ? t.reportsCleanupDeleting : t.reportsCleanupDeleteRun }}
-            </button>
-          </div>
-        </div>
-
-        <div v-if="reportsCleanupStatus === 'loading'" class="empty-state small reports-cleanup-empty">
-          {{ t.reportsCleanupLoading }}
-        </div>
-
-        <div v-else-if="reportsCleanupError" class="comparison-feedback error-feedback reports-cleanup-error">
-          <strong>{{ t.reportsCleanupFailed }}</strong>
-          <span>{{ reportsCleanupError }}</span>
-        </div>
-
-        <div v-else-if="reportsCleanupSummary" class="reports-cleanup-content">
-          <div class="reports-cleanup-mode-row">
-            <span class="reports-cleanup-mode-pill safe">
-              {{ t.reportsCleanupDryRun }}
-            </span>
-            <span class="reports-cleanup-mode-pill muted">
-              {{ t.reportsCleanupSafeMode }}
-            </span>
-            <span class="reports-cleanup-root" :title="reportsCleanupSummary.reports_root">
-              {{ reportsCleanupSummary.reports_root }}
-            </span>
-          </div>
-
-          <div v-if="reportsCleanupRunError" class="comparison-feedback error-feedback reports-cleanup-error">
-            <strong>{{ t.reportsCleanupRunFailed }}</strong>
-            <span>{{ reportsCleanupRunError }}</span>
-          </div>
-
-          <div v-if="reportsCleanupRunResult" class="reports-cleanup-run-result">
-            <div class="reports-cleanup-run-result-heading">
-              <strong>{{ t.reportsCleanupRunResult }}</strong>
-              <span>
-                {{ reportsCleanupRunResult.dry_run ? t.reportsCleanupRunDryResult : t.reportsCleanupRunDeleteResult }}
-              </span>
-            </div>
-            <div class="reports-cleanup-stats reports-cleanup-run-stats">
-              <span class="history-stat">
-                <strong>{{ reportsCleanupRunResult.candidate_count }}</strong>
-                <small>{{ t.reportsCleanupCandidates }}</small>
-              </span>
-              <span class="history-stat">
-                <strong>{{ reportsCleanupRunResult.deleted_count }}</strong>
-                <small>{{ t.reportsCleanupDeleted }}</small>
-              </span>
-              <span class="history-stat">
-                <strong>{{ formatStorageBytes(reportsCleanupRunResult.deleted_size_bytes) }}</strong>
-                <small>{{ t.reportsCleanupDeletedSize }}</small>
-              </span>
-              <span class="history-stat">
-                <strong>{{ reportsCleanupRunResult.skipped.length }}</strong>
-                <small>{{ t.reportsCleanupSkipped }}</small>
-              </span>
-              <span class="history-stat">
-                <strong>{{ reportsCleanupRunResult.errors.length }}</strong>
-                <small>{{ t.reportsCleanupErrors }}</small>
-              </span>
-            </div>
-          </div>
-
-          <div class="reports-cleanup-stats">
-            <span class="history-stat">
-              <strong>{{ formatStorageBytes(reportsCleanupSummary.total_size_bytes) }}</strong>
-              <small>{{ t.reportsCleanupTotalSize }}</small>
-            </span>
-            <span class="history-stat">
-              <strong>{{ reportsCleanupSummary.jobs.count || 0 }}</strong>
-              <small>{{ t.reportsCleanupJobReports }}</small>
-            </span>
-            <span class="history-stat">
-              <strong>{{ reportsCleanupSummary.comparisons.count || 0 }}</strong>
-              <small>{{ t.reportsCleanupComparisonReports }}</small>
-            </span>
-            <span class="history-stat">
-              <strong>{{ reportsCleanupPreview.candidate_count }}</strong>
-              <small>{{ t.reportsCleanupCandidates }}</small>
-            </span>
-            <span class="history-stat">
-              <strong>{{ formatStorageBytes(reportsCleanupPreview.candidate_size_bytes) }}</strong>
-              <small>{{ t.reportsCleanupCandidateSize }}</small>
-            </span>
-            <span class="history-stat">
-              <strong>{{ reportsCleanupSummary.keep_latest_per_kind }}</strong>
-              <small>{{ t.reportsCleanupKeepLatest }}</small>
-            </span>
-          </div>
-
-          <div class="reports-cleanup-meta">
-            <span>
-              <strong>{{ t.reportsCleanupOldest }}</strong>
-              {{ formatEventTime(reportsCleanupOldestModifiedAt) }}
-            </span>
-            <span>
-              <strong>{{ t.reportsCleanupLatest }}</strong>
-              {{ formatEventTime(reportsCleanupLatestModifiedAt) }}
-            </span>
-          </div>
-
-          <div class="reports-cleanup-candidates">
-            <div class="reports-cleanup-candidates-heading">
-              <strong>{{ t.reportsCleanupCandidatePreview }}</strong>
-              <span>{{ reportsCleanupPreview.candidate_count }}</span>
-            </div>
-
-            <div
-              v-if="reportsCleanupPreviewCandidates.length === 0"
-              class="empty-state small reports-cleanup-empty"
-            >
-              {{ t.reportsCleanupNoCandidates }}
-            </div>
-
-            <div v-else class="reports-cleanup-candidate-list">
-              <div
-                v-for="item in reportsCleanupPreviewCandidates"
-                :key="`${item.kind}:${item.id}`"
-                class="reports-cleanup-candidate"
-              >
-                <div>
-                  <strong>{{ item.id }}</strong>
-                  <span>{{ item.kind }}</span>
-                </div>
-                <div class="reports-cleanup-candidate-meta">
-                  <span>{{ formatStorageBytes(item.size_bytes) }}</span>
-                  <span>{{ formatEventTime(item.modified_at) }}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <ReportsCleanupPanel
+        v-show="activeDashboardSection === 'reports'"
+        :copy="t"
+        :status="reportsCleanupStatus"
+        :error="reportsCleanupError"
+        :summary="reportsCleanupSummary"
+        :preview="reportsCleanupPreview"
+        :candidates-for-display="reportsCleanupCandidatesForDisplay"
+        :has-candidates="reportsCleanupHasCandidates"
+        :run-status="reportsCleanupRunStatus"
+        :run-mode="reportsCleanupRunMode"
+        :run-busy="reportsCleanupRunBusy"
+        :run-error="reportsCleanupRunError"
+        :run-result="reportsCleanupRunResult"
+        :total-size-label="reportsCleanupTotalSizeLabel"
+        :candidate-size-label="reportsCleanupCandidateSizeLabel"
+        :deleted-size-label="reportsCleanupDeletedSizeLabel"
+        :oldest-modified-label="reportsCleanupOldestLabel"
+        :latest-modified-label="reportsCleanupLatestLabel"
+        @refresh="loadReportsCleanupSummary"
+        @run-cleanup="runReportsCleanup"
+      />
     </section>
   </main>
 </template>
