@@ -34,12 +34,12 @@ const emit = defineEmits(["select"]);
   align-items: center;
   justify-content: center;
   width: auto;
-  height: 32px;
+  height: 28px;
   padding: 2px;
   gap: 2px;
-  border: 1px solid rgba(148, 163, 184, 0.18);
+  border: 1px solid rgba(148, 163, 184, 0.12);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.4);
 }
 
 .lang-button {
@@ -74,7 +74,7 @@ const emit = defineEmits(["select"]);
 .lang-button.active {
   background: #0f172a;
   color: #ffffff;
-  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.10);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
 }
 
 .lang-button:focus-visible {

@@ -26,8 +26,8 @@ const emit = defineEmits(["select-language"]);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  min-height: 36px;
+  gap: 12px;
+  min-height: 32px;
 }
 
 @media (max-width: 860px) {

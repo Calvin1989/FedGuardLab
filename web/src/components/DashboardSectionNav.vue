@@ -40,9 +40,9 @@ const emit = defineEmits(["select"]);
 
 .dashboard-section-tab {
   appearance: none;
-  border: 1px solid rgba(148, 163, 184, 0.22);
+  border: 1px solid rgba(148, 163, 184, 0.14);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.42);
   color: #475569;
   cursor: pointer;
   font-size: 12px;
@@ -65,9 +65,9 @@ const emit = defineEmits(["select"]);
 }
 
 .dashboard-section-tab.active {
-  border-color: rgba(37, 99, 235, 0.42);
-  background: #eff6ff;
-  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.08);
+  border-color: rgba(37, 99, 235, 0.36);
+  background: rgba(239, 246, 255, 0.72);
+  box-shadow: 0 1px 4px rgba(37, 99, 235, 0.06);
   color: #1d4ed8;
   font-weight: 800;
 }
