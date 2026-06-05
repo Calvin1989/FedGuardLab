@@ -2140,11 +2140,7 @@ async function startExperiment() {
 </template>
 
 <style scoped>
-/* Dashboard section shell and shared page layout */
-.dashboard-section-panel {
-  display: contents;
-}
-
+/* Global resets */
 :global(*) {
   box-sizing: border-box;
 }
@@ -2152,9 +2148,12 @@ async function startExperiment() {
 :global(html) {
   min-height: 100%;
   background:
-    radial-gradient(circle at 10% 0%, rgba(99, 102, 241, 0.16), transparent 30%),
-    radial-gradient(circle at 90% 4%, rgba(56, 189, 248, 0.18), transparent 32%),
-    linear-gradient(135deg, #f7f8ff 0%, #f8fbff 50%, #f7f3ff 100%);
+    radial-gradient(circle at 8% 0%, rgba(37, 99, 235, 0.08), transparent 28%),
+    radial-gradient(circle at 92% 2%, rgba(14, 165, 233, 0.09), transparent 30%),
+    linear-gradient(135deg, #f8fafc 0%, #f6f8fb 46%, #f7f5fb 100%);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 :global(body) {
@@ -2162,26 +2161,38 @@ async function startExperiment() {
   min-height: 100vh;
 }
 
+/* Page layout */
 .page {
   min-height: 100vh;
-  padding: 28px 24px 72px;
+  padding: 22px 24px 64px;
   color: #101828;
   font-family:
-    Inter, "Microsoft YaHei", "PingFang SC", "Noto Sans CJK SC", system-ui,
-    -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    "PingFang SC",
+    "Microsoft YaHei",
+    "Noto Sans CJK SC",
+    sans-serif;
+  font-variant-numeric: tabular-nums;
 }
 
 .page > *,
 .dashboard-shell,
 .comparison-card {
-  width: min(1180px, calc(100vw - 48px));
+  width: min(1200px, calc(100vw - 48px));
   margin-left: auto;
   margin-right: auto;
 }
 
-/* Top bar */
+/* Dashboard shell */
+.dashboard-section-panel {
+  display: contents;
+}
 
-/* Shared dashboard card surfaces */
 .dashboard-shell {
   display: grid;
   grid-template-columns: 1fr;
@@ -2189,17 +2200,15 @@ async function startExperiment() {
   margin-bottom: 26px;
 }
 
+/* Comparison card */
 .comparison-card {
   position: relative;
   overflow: hidden;
+  padding: 24px 26px;
   border: 1px solid rgba(148, 163, 184, 0.22);
-  border-radius: 26px;
-  background:
-    radial-gradient(circle at 96% 96%, rgba(59, 130, 246, 0.12), transparent 28%),
-    linear-gradient(135deg, rgba(255, 255, 255, 0.94), rgba(248, 251, 255, 0.86));
-  box-shadow:
-    0 22px 70px rgba(15, 23, 42, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.86);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 18px 48px rgba(15, 23, 42, 0.07);
 }
 
 .comparison-card > * {
@@ -2207,11 +2216,18 @@ async function startExperiment() {
   z-index: 1;
 }
 
-/* Run command panel, config selector, and config preview */
+.comparison-card .job-detail-card {
+  margin-top: 14px;
+  padding: 16px;
+  border-radius: 16px;
+}
 
+.comparison-card .comparison-feedback,
+.comparison-card .comparison-hint {
+  margin-top: 12px;
+}
 
-
-
+/* Buttons */
 .run-button,
 .secondary-button {
   appearance: none;
@@ -2219,32 +2235,38 @@ async function startExperiment() {
   align-items: center;
   justify-content: center;
   gap: 6px;
-  min-height: 38px;
+  min-height: 34px;
   padding: 0 16px;
-  border-radius: 13px;
+  border-radius: 10px;
+  box-shadow: none;
   font-size: 12px;
-  font-weight: 900;
+  font-weight: 800;
   line-height: 1;
   text-decoration: none;
   white-space: nowrap;
   word-break: keep-all;
   cursor: pointer;
+  transition:
+    transform 0.16s ease,
+    border-color 0.16s ease,
+    background-color 0.16s ease,
+    color 0.16s ease,
+    box-shadow 0.16s ease;
 }
 
-
+.run-button:not(:disabled):hover,
+.secondary-button:not(:disabled):hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(37, 99, 235, 0.12);
+}
 
 .secondary-button {
   border: 1px solid rgba(96, 165, 250, 0.48);
-  background: rgba(239, 246, 255, 0.78);
+  background: #eff6ff;
   color: #2563eb;
 }
 
-
-
-
-
-
-
+/* Empty state */
 .empty-state {
   width: 100%;
   min-height: 82px;
@@ -2265,27 +2287,31 @@ async function startExperiment() {
   margin-top: 16px;
 }
 
-/* Comparison */
-.comparison-card {
-  padding: 26px 28px;
-}
-
-/* Jobs, comparison controls, and section actions */
+/* Section actions */
 .section-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
   justify-content: flex-end;
+  align-items: flex-end;
 }
 
+.section-actions .secondary-button:disabled,
+.section-actions .run-button:disabled {
+  opacity: 0.48;
+  transform: none;
+  box-shadow: none;
+}
 
+/* Feedback and hints */
 .comparison-feedback,
 .comparison-hint {
   margin-top: 16px;
   padding: 14px;
-  border: 1px solid rgba(148, 163, 184, 0.20);
+  border: 1px solid rgba(148, 163, 184, 0.22);
   border-radius: 18px;
-  background: rgba(248, 250, 252, 0.72);
+  background: #ffffff;
+  box-shadow: none;
 }
 
 .error-feedback {
@@ -2293,7 +2319,12 @@ async function startExperiment() {
   color: #9f1239;
 }
 
-/* Responsive overrides */
+/* Job detail card */
+.job-detail-card {
+  border-radius: 18px;
+}
+
+/* Responsive */
 @media (max-width: 860px) {
   .page {
     padding: 18px 14px 56px;
@@ -2309,108 +2340,12 @@ async function startExperiment() {
     border-radius: 22px;
   }
 
-
-
   .section-actions {
     justify-content: flex-start;
   }
-
 }
 
-/* v1.8.3 unified product UI polish */
-:global(html) {
-  background:
-    radial-gradient(circle at 8% 0%, rgba(37, 99, 235, 0.08), transparent 28%),
-    radial-gradient(circle at 92% 2%, rgba(14, 165, 233, 0.09), transparent 30%),
-    linear-gradient(135deg, #f8fafc 0%, #f6f8fb 46%, #f7f5fb 100%);
-}
-
-.page {
-  padding: 22px 24px 64px;
-}
-
-.page > *,
-.dashboard-shell,
-.comparison-card {
-  width: min(1200px, calc(100vw - 48px));
-}
-
-.comparison-card {
-  border-color: rgba(148, 163, 184, 0.22);
-  border-radius: 22px;
-  background: rgba(255, 255, 255, 0.92);
-  box-shadow: 0 18px 48px rgba(15, 23, 42, 0.07);
-}
-
-
-
-
-
-
-.run-button,
-.secondary-button {
-  min-height: 36px;
-  border-radius: 10px;
-  box-shadow: none;
-}
-
-
-.secondary-button {
-  background: #eff6ff;
-}
-
-.comparison-feedback,
-.comparison-hint {
-  border-color: rgba(148, 163, 184, 0.22);
-  background: #ffffff;
-  box-shadow: none;
-}
-
-
-.comparison-card {
-  padding: 24px 26px;
-}
-
-.section-actions {
-  align-items: flex-end;
-}
-
-
-.job-detail-card {
-  border-radius: 18px;
-}
-
-/* v1.8.4 final UI polish: typography, alignment, motion, and export layout */
-:global(html) {
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
-}
-
-.page {
-  font-family:
-    Inter,
-    ui-sans-serif,
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    "PingFang SC",
-    "Microsoft YaHei",
-    "Noto Sans CJK SC",
-    sans-serif;
-  font-variant-numeric: tabular-nums;
-}
-
-
-.run-button,
-.secondary-button {
-  min-height: 34px;
-  line-height: 1;
-  align-items: center;
-  font-weight: 800;
-}
-
+/* Animation */
 .dashboard-shell,
 .comparison-card,
 .job-detail-card {
@@ -2419,22 +2354,6 @@ async function startExperiment() {
 
 .error-feedback {
   animation: cardFadeIn 0.22s ease-out both;
-}
-
-.run-button,
-.secondary-button {
-  transition:
-    transform 0.16s ease,
-    border-color 0.16s ease,
-    background-color 0.16s ease,
-    color 0.16s ease,
-    box-shadow 0.16s ease;
-}
-
-.run-button:not(:disabled):hover,
-.secondary-button:not(:disabled):hover {
-  transform: translateY(-1px);
-  box-shadow: 0 8px 18px rgba(37, 99, 235, 0.12);
 }
 
 @keyframes cardFadeIn {
@@ -2448,17 +2367,6 @@ async function startExperiment() {
   }
 }
 
-/* Historical dashboard polish overrides: v1.8.5 microcopy, empty-state, and alignment */
-
-
-.section-actions .secondary-button:disabled,
-.section-actions .run-button:disabled {
-  opacity: 0.48;
-  transform: none;
-  box-shadow: none;
-}
-
-
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -2469,22 +2377,4 @@ async function startExperiment() {
     transition-duration: 0.01ms !important;
   }
 }
-
-/* Historical dashboard polish overrides: v1.8.6 alignment and config preview i18n */
-
-/* Dashboard detail density and comparison layout */
-.comparison-card .job-detail-card {
-  margin-top: 14px;
-  padding: 16px;
-  border-radius: 16px;
-}
-
-/* Comparison completion layout */
-.comparison-card .comparison-feedback,
-.comparison-card .comparison-hint {
-  margin-top: 12px;
-}
-
-/* Run and reports page layout polish */
-
 </style>
