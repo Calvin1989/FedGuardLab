@@ -31,59 +31,55 @@ const emit = defineEmits(["select"]);
 
 <style scoped>
 .dashboard-section-nav {
-  width: 100%;
+  width: min(1180px, calc(100vw - 48px));
+  margin: 0 auto 10px;
   display: flex;
   flex-wrap: wrap;
-  gap: 0;
-  align-items: stretch;
-  border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+  gap: 6px;
+  align-items: center;
 }
 
 .dashboard-section-tab {
   appearance: none;
-  border: none;
-  border-bottom: 2px solid transparent;
-  border-radius: 0;
-  background: transparent;
-  color: #64748b;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.82);
+  color: #334155;
   cursor: pointer;
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 12px;
+  font-weight: 900;
   line-height: 1;
-  min-height: 40px;
-  padding: 0 16px;
+  min-height: 32px;
+  padding: 0 12px;
   transition:
+    background-color 0.16s ease,
+    border-color 0.16s ease,
+    box-shadow 0.16s ease,
     color 0.16s ease,
-    border-color 0.16s ease;
+    transform 0.16s ease;
 }
 
 .dashboard-section-tab:hover {
-  color: #334155;
-  border-bottom-color: rgba(148, 163, 184, 0.3);
+  border-color: rgba(59, 130, 246, 0.42);
+  color: #1d4ed8;
+  transform: translateY(-1px);
 }
 
 .dashboard-section-tab.active {
+  border-color: rgba(37, 99, 235, 0.52);
+  background: #eff6ff;
+  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.10);
   color: #1d4ed8;
-  border-bottom-color: #2563eb;
-  font-weight: 700;
 }
 
 .dashboard-section-tab:focus-visible {
   outline: 2px solid rgba(37, 99, 235, 0.5);
-  outline-offset: -2px;
+  outline-offset: 2px;
 }
 
 @media (max-width: 860px) {
   .dashboard-section-nav {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .dashboard-section-tab {
-    min-height: 36px;
-    padding: 0 12px;
-    font-size: 12px;
-    white-space: nowrap;
+    width: min(100%, calc(100vw - 28px));
   }
 }
 </style>

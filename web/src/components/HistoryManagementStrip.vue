@@ -62,15 +62,17 @@ defineProps({
 
 <style scoped>
 .history-management-strip {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(280px, 1fr) minmax(520px, 0.95fr);
   align-items: stretch;
-  gap: 16px;
+  gap: 14px;
   width: 100%;
-  margin: 0 0 12px;
-  padding: 10px 14px;
-  border: 1px solid rgba(148, 163, 184, 0.12);
-  border-radius: 10px;
-  background: #f8fafc;
+  margin: 0 0 10px;
+  padding: 12px;
+  border: 1px solid rgba(191, 219, 254, 0.76);
+  border-radius: 18px;
+  background:
+    linear-gradient(135deg, rgba(239, 246, 255, 0.82), rgba(248, 250, 252, 0.96));
 }
 
 .history-management-copy {
@@ -78,113 +80,97 @@ defineProps({
   min-width: 0;
   flex-direction: column;
   justify-content: center;
-  gap: 3px;
-  padding: 2px 16px 2px 4px;
-  border-right: 1px solid rgba(148, 163, 184, 0.12);
-  flex-shrink: 0;
+  gap: 5px;
+  padding: 4px 4px 4px 6px;
 }
 
 .history-management-copy strong {
   color: #0f172a;
-  font-size: 13px;
-  font-weight: 700;
+  font-size: 15px;
+  font-weight: 900;
   line-height: 1.25;
 }
 
 .history-management-copy span {
-  max-width: 280px;
+  max-width: 820px;
   color: #64748b;
   font-size: 12px;
-  font-weight: 500;
-  line-height: 1.4;
+  font-weight: 700;
+  line-height: 1.55;
 }
 
 .history-management-stats {
-  display: flex;
-  gap: 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
   min-width: 0;
-  flex: 1;
-  align-items: stretch;
 }
 
 .history-summary-card {
   display: flex;
   min-width: 0;
-  flex: 1;
+  min-height: 64px;
   flex-direction: column;
   justify-content: center;
-  gap: 2px;
-  padding: 4px 14px;
-  border-right: 1px solid rgba(148, 163, 184, 0.08);
-}
-
-.history-summary-card:last-child {
-  border-right: none;
+  gap: 4px;
+  padding: 8px 12px;
+  border: 1px solid rgba(226, 232, 240, 0.96);
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.04);
 }
 
 .history-summary-card small {
   overflow: hidden;
-  color: #94a3b8;
+  color: #64748b;
   font-size: 10px;
-  font-weight: 600;
+  font-weight: 800;
   line-height: 1.2;
   text-overflow: ellipsis;
   white-space: nowrap;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
 }
 
 .history-summary-card strong {
   overflow: hidden;
   color: #0f172a;
-  font-size: 18px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  line-height: 1.1;
+  font-size: 24px;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  line-height: 1;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .history-summary-card-filter {
-  border-color: transparent;
-  background: transparent;
+  border-color: rgba(147, 197, 253, 0.62);
+  background: rgba(255, 255, 255, 0.96);
 }
 
 .history-summary-card-filter strong {
-  font-size: 13px;
-  letter-spacing: 0;
-  line-height: 1.2;
-  color: #334155;
+  font-size: 15px;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
 }
 
 @media (max-width: 1180px) {
   .history-management-strip {
-    flex-wrap: wrap;
+    grid-template-columns: 1fr;
   }
 
-  .history-management-copy {
-    border-right: none;
-    border-bottom: 1px solid rgba(148, 163, 184, 0.12);
-    padding: 2px 4px 8px;
-    flex: 1 1 100%;
+  .history-management-stats {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
 
 @media (max-width: 820px) {
   .history-management-stats {
-    flex-wrap: wrap;
-  }
-
-  .history-summary-card {
-    flex: 1 1 45%;
-    border-right: none;
-    padding: 6px 10px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 @media (max-width: 520px) {
-  .history-summary-card {
-    flex: 1 1 100%;
+  .history-management-stats {
+    grid-template-columns: 1fr;
   }
 }
 </style>

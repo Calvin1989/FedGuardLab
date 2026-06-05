@@ -69,12 +69,12 @@ defineProps({
 <style scoped>
 .chart-card {
   width: 100%;
-  min-height: 280px;
-  height: 280px;
-  padding: 12px 14px;
-  border: none;
-  border-radius: 0;
-  background: transparent;
+  min-height: 300px;
+  height: 300px;
+  padding: 16px 18px;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.74);
 }
 
 .chart-card > div,
@@ -92,17 +92,17 @@ defineProps({
 
 .empty-state {
   width: 100%;
-  min-height: 56px;
+  min-height: 72px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 12px;
-  border: 1px dashed rgba(148, 163, 184, 0.2);
-  border-radius: 8px;
-  color: #94a3b8;
+  padding: 14px;
+  border: 1px dashed rgba(148, 163, 184, 0.34);
+  border-radius: 18px;
+  color: #64748b;
   text-align: center;
-  font-size: 12px;
-  line-height: 1.5;
+  font-size: 13px;
+  line-height: 1.6;
 }
 
 .chart-card .empty-state {
