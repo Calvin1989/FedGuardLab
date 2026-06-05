@@ -41,6 +41,8 @@ import { computed, onMounted, ref, watch } from "vue";
 const API_BASE = "http://127.0.0.1:8000";
 const WS_BASE = "ws://127.0.0.1:8000";
 
+const errorMessage = ref("");
+
 const DASHBOARD_SECTION_STORAGE_KEY = "fedguardlab_dashboard_section";
 
 const {
@@ -278,7 +280,6 @@ const {
   jobId,
   status,
   metrics,
-  errorMessage,
   reportUrl,
   latestMetric,
   chartData,
@@ -292,6 +293,7 @@ const {
   selectedConfig,
   getSelectedExperimentLabel,
   onExperimentFinished: handleExperimentFinished,
+  errorMessage,
 });
 
 onMounted(async () => {

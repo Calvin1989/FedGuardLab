@@ -7,11 +7,11 @@ export function useRuntimeMonitor({
   selectedConfig,
   getSelectedExperimentLabel,
   onExperimentFinished,
+  errorMessage,
 }) {
   const jobId = ref("");
   const status = ref("idle");
   const metrics = ref([]);
-  const errorMessage = ref("");
   const reportUrl = ref("");
 
   let socket = null;
