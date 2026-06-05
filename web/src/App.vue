@@ -276,6 +276,19 @@ function handleExperimentFinished({
   });
 }
 
+function reuseJobConfig(configPath) {
+  if (!configPath) {
+    errorMessage.value = language.value === "en"
+      ? "No configuration path available for this job."
+      : "该任务没有可复用的配置路径。";
+    return;
+  }
+
+  selectedConfig.value = configPath;
+  selectedCategory.value = "all";
+  setDashboardSection("run");
+}
+
 const {
   jobId,
   status,
@@ -457,6 +470,7 @@ function hasArtifacts(job) {
         :jobs="recentJobsForDisplay"
         @toggle-selection="toggleJobSelection"
         @toggle-detail="toggleDetailJob"
+        @reuse-config="reuseJobConfig"
       />
 
       <div v-if="recentJobs.length > 0" class="job-detail-card">

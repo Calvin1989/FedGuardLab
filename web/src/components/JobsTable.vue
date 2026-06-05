@@ -4,7 +4,7 @@ defineProps({
   jobs: { type: Array, required: true },
 });
 
-const emit = defineEmits(["toggle-selection", "toggle-detail"]);
+const emit = defineEmits(["toggle-selection", "toggle-detail", "reuse-config"]);
 </script>
 
 <template>
@@ -59,15 +59,25 @@ const emit = defineEmits(["toggle-selection", "toggle-detail"]);
           </div>
         </td>
         <td>
-          <a
-            v-if="job.status === 'finished' && job.has_report && job.report_url"
-            class="report-link"
-            :href="job.reportUrlWithLang"
-            target="_blank"
-          >
-            {{ copy.openHtmlReportShort || copy.openHtmlReport }}
-          </a>
-          <span v-else>{{ copy.notReady }}</span>
+          <div class="job-actions">
+            <a
+              v-if="job.status === 'finished' && job.has_report && job.report_url"
+              class="report-link"
+              :href="job.reportUrlWithLang"
+              target="_blank"
+            >
+              {{ copy.openHtmlReportShort || copy.openHtmlReport }}
+            </a>
+            <span v-else>{{ copy.notReady }}</span>
+            <button
+              v-if="job.config_path"
+              class="reuse-config-button"
+              :title="copy.reuseConfig"
+              @click.stop="emit('reuse-config', job.config_path)"
+            >
+              {{ copy.reuseConfig }}
+            </button>
+          </div>
         </td>
       </tr>
     </tbody>
@@ -215,6 +225,13 @@ const emit = defineEmits(["toggle-selection", "toggle-detail"]);
   cursor: not-allowed;
 }
 
+/* Job actions */
+.job-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
 /* Report link (base + table override) */
 .report-link {
   appearance: none;
@@ -247,6 +264,34 @@ const emit = defineEmits(["toggle-selection", "toggle-detail"]);
   min-height: 26px;
   padding: 0 8px;
   font-size: 11px;
+}
+
+/* Reuse config button */
+.reuse-config-button {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-height: 26px;
+  padding: 0 8px;
+  border: 1px solid rgba(148, 163, 184, 0.32);
+  border-radius: 8px;
+  background: #f8fafc;
+  color: #475569;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  word-break: keep-all;
+  cursor: pointer;
+  transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+}
+
+.reuse-config-button:hover {
+  background: #eff6ff;
+  border-color: rgba(96, 165, 250, 0.40);
+  color: #2563eb;
 }
 
 /* Status colors */

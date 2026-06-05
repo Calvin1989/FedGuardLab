@@ -86,6 +86,17 @@ describe("useI18n – t computed", () => {
     expect(t.value).toBe(t.value); // object identity stays stable
     expect(t.value.eyebrow).toBe("FedGuardLab");
   });
+
+  it("includes reuseConfig label in zh", () => {
+    const { t } = useI18n();
+    expect(t.value.reuseConfig).toBe("复用配置");
+  });
+
+  it("includes reuseConfig label in en", () => {
+    const { t, setLanguage } = useI18n();
+    setLanguage("en");
+    expect(t.value.reuseConfig).toBe("Reuse config");
+  });
 });
 
 // ---------------------------------------------------------------------------
