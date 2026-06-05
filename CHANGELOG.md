@@ -5,6 +5,7 @@
 - Added Vitest unit coverage for the dashboard i18n composable helpers.
 - Added Vitest unit coverage for experiment option loading, filtering, and preview formatting helpers.
 - Added Vitest unit coverage for comparison report creation, history loading, and artifact URL helpers.
+- Added Vitest unit coverage for reports cleanup and runtime monitor composables.
 
 ## v1.9.3
 
