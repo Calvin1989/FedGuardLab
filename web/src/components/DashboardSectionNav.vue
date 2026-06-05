@@ -72,6 +72,11 @@ const emit = defineEmits(["select"]);
   color: #1d4ed8;
 }
 
+.dashboard-section-tab:focus-visible {
+  outline: 2px solid rgba(37, 99, 235, 0.5);
+  outline-offset: 2px;
+}
+
 @media (max-width: 860px) {
   .dashboard-section-nav {
     width: min(100%, calc(100vw - 28px));

@@ -152,6 +152,13 @@ defineProps({
   flex-direction: column;
   justify-content: center;
   gap: 7px;
+  border-radius: 12px;
+  transition: background 0.16s ease;
+}
+
+.runtime-item:hover,
+.hero-metric-item:hover {
+  background: rgba(248, 250, 252, 0.72);
 }
 
 .runtime-item.wide strong {
@@ -192,27 +199,13 @@ defineProps({
   }
 }
 
-@media (max-width: 980px) {
-  .runtime-row {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
 @media (max-width: 680px) {
   .runtime-row {
     grid-template-columns: 1fr;
   }
-}
 
-@media (max-width: 640px) {
-  .runtime-row {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 560px) {
-  .runtime-row {
-    grid-template-columns: 1fr;
+  .runtime-item.wide {
+    grid-column: auto;
   }
 }
 </style>

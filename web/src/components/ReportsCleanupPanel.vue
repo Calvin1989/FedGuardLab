@@ -254,6 +254,12 @@ const emit = defineEmits(["refresh", "run-cleanup"]);
   border: 1px solid rgba(226, 232, 240, 0.9);
   border-radius: 12px;
   background: rgba(248, 250, 252, 0.82);
+  transition: border-color 0.16s ease, background 0.16s ease;
+}
+
+.reports-cleanup-candidate:hover {
+  border-color: rgba(96, 165, 250, 0.32);
+  background: rgba(239, 246, 255, 0.64);
 }
 
 .reports-cleanup-candidate strong {
@@ -314,6 +320,16 @@ const emit = defineEmits(["refresh", "run-cleanup"]);
 .secondary-button:not(:disabled):hover {
   transform: translateY(-1px);
   box-shadow: 0 8px 18px rgba(37, 99, 235, 0.12);
+}
+
+.secondary-button:focus-visible,
+.reports-cleanup-delete-button:focus-visible {
+  outline: 2px solid rgba(37, 99, 235, 0.5);
+  outline-offset: 2px;
+}
+
+.reports-cleanup-delete-button:focus-visible {
+  outline-color: rgba(220, 38, 38, 0.5);
 }
 
 .reports-cleanup-action {

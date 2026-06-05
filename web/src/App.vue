@@ -655,7 +655,7 @@ function hasArtifacts(job) {
   align-items: center;
   justify-content: center;
   gap: 6px;
-  min-height: 34px;
+  min-height: 36px;
   padding: 0 16px;
   border-radius: 10px;
   box-shadow: none;
@@ -678,6 +678,12 @@ function hasArtifacts(job) {
 .secondary-button:not(:disabled):hover {
   transform: translateY(-1px);
   box-shadow: 0 8px 18px rgba(37, 99, 235, 0.12);
+}
+
+.run-button:focus-visible,
+.secondary-button:focus-visible {
+  outline: 2px solid rgba(37, 99, 235, 0.5);
+  outline-offset: 2px;
 }
 
 .secondary-button {
@@ -742,6 +748,31 @@ function hasArtifacts(job) {
 /* Job detail card */
 .job-detail-card {
   border-radius: 18px;
+}
+
+/* Scrollbar styling */
+:global(::-webkit-scrollbar) {
+  width: 7px;
+  height: 7px;
+}
+
+:global(::-webkit-scrollbar-track) {
+  background: transparent;
+}
+
+:global(::-webkit-scrollbar-thumb) {
+  background: rgba(148, 163, 184, 0.32);
+  border-radius: 999px;
+}
+
+:global(::-webkit-scrollbar-thumb:hover) {
+  background: rgba(100, 116, 139, 0.42);
+}
+
+/* Focus-visible for selects */
+select:focus-visible {
+  outline: 2px solid rgba(37, 99, 235, 0.4);
+  outline-offset: 1px;
 }
 
 /* Responsive */

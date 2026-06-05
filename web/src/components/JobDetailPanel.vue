@@ -263,6 +263,13 @@ const emit = defineEmits(["archive"]);
   box-shadow: 0 8px 18px rgba(37, 99, 235, 0.12);
 }
 
+.secondary-button:focus-visible,
+.report-link:focus-visible,
+.detail-export-item:focus-visible {
+  outline: 2px solid rgba(37, 99, 235, 0.5);
+  outline-offset: 2px;
+}
+
 .detail-archive-button {
   min-height: 34px;
   padding: 0 12px;
@@ -277,7 +284,7 @@ const emit = defineEmits(["archive"]);
   min-height: 30px;
   padding: 0 11px;
   border: 1px solid rgba(96, 165, 250, 0.48);
-  border-radius: 9px;
+  border-radius: 10px;
   background: #eff6ff;
   color: #2563eb;
   font-size: 11px;
@@ -333,7 +340,7 @@ const emit = defineEmits(["archive"]);
   min-height: 32px;
   padding: 0 12px;
   border: 1px solid rgba(96, 165, 250, 0.48);
-  border-radius: 9px;
+  border-radius: 10px;
   background: #eff6ff;
   color: #2563eb;
   font-size: 12px;
