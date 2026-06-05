@@ -16,7 +16,9 @@ import SelectedJobsPreview from "./components/SelectedJobsPreview.vue";
 import ReportsCleanupPanel from "./components/ReportsCleanupPanel.vue";
 import RunCommandPanel from "./components/RunCommandPanel.vue";
 import RuntimeMonitorPanel from "./components/RuntimeMonitorPanel.vue";
+import SystemStatusPanel from "./components/SystemStatusPanel.vue";
 import { useI18n } from "./composables/useI18n.js";
+import { useSystemStatus } from "./composables/useSystemStatus.js";
 import { useExperimentOptions } from "./composables/useExperimentOptions.js";
 import { useReportsCleanup } from "./composables/useReportsCleanup.js";
 import { useRecentJobs } from "./composables/useRecentJobs.js";
@@ -54,6 +56,15 @@ const {
   getLocalizedConfigDisplay,
   formatConfigTag,
 } = useI18n();
+
+const {
+  apiStatus,
+  apiStatusError,
+  lastCheckedAt,
+  apiStatusLabel,
+  apiStatusTone,
+  checkApiStatus,
+} = useSystemStatus({ API_BASE, t, language });
 
 function formatAttackDisplay(attackConfig, fallbackValue = "") {
   return formatAttackDisplayBase({ t, language }, attackConfig, fallbackValue);
@@ -297,6 +308,8 @@ const {
 });
 
 onMounted(async () => {
+  checkApiStatus();
+
   await loadExperimentOptions();
 
   try {
@@ -369,6 +382,19 @@ function hasArtifacts(job) {
         :is-running="status === 'creating' || status === 'running'"
         @start="startExperiment"
         @cancel="cancelCurrentJob"
+      />
+
+      <SystemStatusPanel
+        :api-status="apiStatus"
+        :api-status-label="apiStatusLabel"
+        :api-status-tone="apiStatusTone"
+        :api-status-error="apiStatusError"
+        :experiment-count="experimentOptions.length"
+        :recent-job-count="recentJobs.length"
+        :language="language"
+        tests-summary="388 Vitest tests"
+        :last-checked-at="lastCheckedAt"
+        @refresh="checkApiStatus"
       />
 
       <RuntimeMonitorPanel

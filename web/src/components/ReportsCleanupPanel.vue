@@ -1,5 +1,5 @@
 <script setup>
-defineProps({
+const props = defineProps({
   copy: { type: Object, required: true },
   status: { type: String, default: "idle" },
   error: { type: String, default: "" },
@@ -20,6 +20,10 @@ defineProps({
 })
 
 const emit = defineEmits(["refresh", "run-cleanup"]);
+
+function handleRunCleanup(dryRun) {
+  emit("run-cleanup", dryRun);
+}
 </script>
 
 <template>
@@ -37,14 +41,14 @@ const emit = defineEmits(["refresh", "run-cleanup"]);
         <button
           class="secondary-button reports-cleanup-action"
           :disabled="status === 'loading' || runBusy"
-          @click="emit('run-cleanup', true)"
+          @click="handleRunCleanup(true)"
         >
           {{ runStatus === "running" && runMode === "dry-run" ? copy.reportsCleanupRunning : copy.reportsCleanupRunDryRun }}
         </button>
         <button
           class="secondary-button reports-cleanup-action reports-cleanup-delete-button"
           :disabled="status === 'loading' || runBusy || !hasCandidates"
-          @click="emit('run-cleanup', false)"
+          @click="handleRunCleanup(false)"
         >
           {{ runStatus === "running" && runMode === "delete" ? copy.reportsCleanupDeleting : copy.reportsCleanupDeleteRun }}
         </button>
@@ -61,18 +65,6 @@ const emit = defineEmits(["refresh", "run-cleanup"]);
     </div>
 
     <div v-else-if="summary" class="reports-cleanup-content">
-      <div class="reports-cleanup-mode-row">
-        <span class="reports-cleanup-mode-pill safe">
-          {{ copy.reportsCleanupDryRun }}
-        </span>
-        <span class="reports-cleanup-mode-pill muted">
-          {{ copy.reportsCleanupSafeMode }}
-        </span>
-        <span class="reports-cleanup-root" :title="summary.reports_root">
-          {{ summary.reports_root }}
-        </span>
-      </div>
-
       <div v-if="runError" class="comparison-feedback error-feedback reports-cleanup-error">
         <strong>{{ copy.reportsCleanupRunFailed }}</strong>
         <span>{{ runError }}</span>
@@ -405,56 +397,6 @@ const emit = defineEmits(["refresh", "run-cleanup"]);
   gap: 8px;
   align-items: center;
   justify-content: flex-end;
-}
-
-.reports-cleanup-mode-row {
-  display: flex;
-  align-items: center;
-  min-width: 0;
-  flex-wrap: wrap;
-  gap: 8px;
-  padding: 6px 10px;
-  border: 1px solid rgba(191, 219, 254, 0.55);
-  border-radius: 12px;
-  background: linear-gradient(135deg, rgba(239, 246, 255, 0.54), rgba(248, 250, 252, 0.78));
-  opacity: 0.88;
-}
-
-.reports-cleanup-mode-pill {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 26px;
-  padding: 0 10px;
-  border-radius: 999px;
-  font-size: 11px;
-  font-weight: 900;
-  letter-spacing: 0.01em;
-  line-height: 1;
-  white-space: nowrap;
-}
-
-.reports-cleanup-mode-pill.safe {
-  border: 1px solid rgba(34, 197, 94, 0.28);
-  background: #dcfce7;
-  color: #166534;
-}
-
-.reports-cleanup-mode-pill.muted {
-  border: 1px solid rgba(148, 163, 184, 0.28);
-  background: #e2e8f0;
-  color: #475569;
-}
-
-.reports-cleanup-root {
-  min-width: 0;
-  overflow: hidden;
-  color: #64748b;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 11px;
-  font-weight: 800;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 /* Shared utility classes */

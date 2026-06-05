@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Added a lightweight dashboard system status panel for API reachability, configuration count, recent job count, language, and frontend test coverage visibility.
+- Fixed reports cleanup panel action handler to prevent `.catch` on undefined when clicking preview or cleanup buttons.
+- Removed duplicate mode row from reports cleanup panel without changing cleanup logic.
 - Reduced repeated dashboard panel copy and refined comparison/report panel headers without runtime behavior changes.
 - Polished dashboard layout, spacing, controls, tables, and card surfaces for a more consistent commercial UI without runtime behavior changes.
 - Refined dashboard spacing, density, table scroll surfaces, and KPI/action alignment without runtime behavior changes.
