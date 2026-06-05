@@ -2,7 +2,12 @@
 
 ## Unreleased
 
-- No unreleased changes.
+- Refactored dashboard frontend logic into composables and helpers.
+  - Extracted i18n, experiment option loading, reports cleanup, recent jobs, comparison, runtime monitor, and dashboard formatter logic from `App.vue`.
+  - Reduced `App.vue` to the root dashboard orchestration layer while keeping template bindings and scoped styles intact.
+  - Preserved report artifact URLs, comparison history behavior, recent jobs cleanup behavior, WebSocket runtime monitoring, and dashboard UI bindings.
+  - Fixed shared `errorMessage` handling between `useExperimentOptions` and `useRuntimeMonitor`.
+  - No documented API behavior change, training logic change, report artifact URL change, or new dependency.
 
 ## v1.9.2
 
