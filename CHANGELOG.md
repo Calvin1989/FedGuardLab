@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Added Vitest unit coverage for the dashboard i18n composable helpers.
+- Added Vitest unit coverage for experiment option loading, filtering, and preview formatting helpers.
 
 ## v1.9.3
 
