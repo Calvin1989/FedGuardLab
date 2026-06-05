@@ -4,6 +4,7 @@
 
 - Polished dashboard layout, spacing, controls, tables, and card surfaces for a more consistent commercial UI without runtime behavior changes.
 - Refined dashboard spacing, density, table scroll surfaces, and KPI/action alignment without runtime behavior changes.
+- Refined the dashboard into a more cohesive commercial layout with unified top navigation, denser toolbars, stronger table panels, and more consistent KPI surfaces without runtime behavior changes.
 
 ## v1.9.4
 

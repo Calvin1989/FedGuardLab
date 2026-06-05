@@ -129,11 +129,11 @@ const emit = defineEmits(["refresh"]);
 /* Panel shell */
 .dashboard-info-panel {
   margin-top: 16px;
-  padding: 14px;
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.7);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
+  padding: 0;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 10px;
+  background: #ffffff;
+  overflow: hidden;
 }
 
 /* Section heading */
@@ -142,16 +142,16 @@ const emit = defineEmits(["refresh"]);
   min-width: 0;
   flex-direction: column;
   align-items: flex-start;
-  gap: 3px;
+  gap: 2px;
 }
 
 .detail-section-title {
   margin: 0;
   color: #0f172a;
-  font-size: 14px;
-  font-weight: 900;
-  letter-spacing: -0.01em;
-  line-height: 1.2;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1.3;
   text-transform: none;
 }
 
@@ -159,9 +159,9 @@ const emit = defineEmits(["refresh"]);
   margin: 0;
   color: #64748b;
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 500;
   letter-spacing: 0;
-  line-height: 1.45;
+  line-height: 1.4;
 }
 
 /* Secondary button */
@@ -171,14 +171,14 @@ const emit = defineEmits(["refresh"]);
   align-items: center;
   justify-content: center;
   gap: 6px;
-  min-height: 34px;
-  padding: 0 16px;
-  border: 1px solid rgba(96, 165, 250, 0.48);
-  border-radius: 10px;
-  background: #eff6ff;
-  color: #2563eb;
+  min-height: 32px;
+  padding: 0 12px;
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  border-radius: 6px;
+  background: #ffffff;
+  color: #334155;
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 600;
   line-height: 1;
   text-decoration: none;
   white-space: nowrap;
@@ -186,21 +186,19 @@ const emit = defineEmits(["refresh"]);
   cursor: pointer;
   box-shadow: none;
   transition:
-    transform 0.16s ease,
-    border-color 0.16s ease,
     background-color 0.16s ease,
-    color 0.16s ease,
-    box-shadow 0.16s ease;
+    border-color 0.16s ease,
+    color 0.16s ease;
 }
 
 .secondary-button:disabled {
-  opacity: 0.55;
+  opacity: 0.48;
   cursor: not-allowed;
 }
 
 .secondary-button:not(:disabled):hover {
-  transform: translateY(-1px);
-  box-shadow: 0 8px 18px rgba(37, 99, 235, 0.12);
+  background: #f8fafc;
+  border-color: rgba(148, 163, 184, 0.36);
 }
 
 .secondary-button:focus-visible,
@@ -212,31 +210,31 @@ const emit = defineEmits(["refresh"]);
 /* Empty state */
 .empty-state {
   width: 100%;
-  min-height: 72px;
+  min-height: 56px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 14px;
-  border: 1px dashed rgba(148, 163, 184, 0.34);
-  border-radius: 18px;
-  color: #64748b;
+  padding: 12px;
+  border: 1px dashed rgba(148, 163, 184, 0.24);
+  border-radius: 8px;
+  color: #94a3b8;
   text-align: center;
-  font-size: 13px;
-  line-height: 1.6;
+  font-size: 12px;
+  line-height: 1.5;
 }
 
 .empty-state.small {
-  min-height: 60px;
-  margin-top: 12px;
+  min-height: 48px;
+  margin-top: 8px;
 }
 
 /* Feedback states */
 .comparison-feedback {
-  margin-top: 16px;
-  padding: 14px;
-  border: 1px solid rgba(148, 163, 184, 0.20);
-  border-radius: 18px;
-  background: rgba(248, 250, 252, 0.72);
+  margin-top: 12px;
+  padding: 10px 12px;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 8px;
+  background: #f8fafc;
 }
 
 .error-feedback {
@@ -250,24 +248,26 @@ const emit = defineEmits(["refresh"]);
   border-collapse: separate;
   border-spacing: 0;
   overflow: hidden;
-  border-radius: 16px;
+  border-radius: 0;
   background: #ffffff;
   font-size: 12px;
 }
 
 .jobs-table th,
 .jobs-table td {
-  padding: 11px 12px;
-  border-bottom: 1px solid rgba(226, 232, 240, 0.88);
+  padding: 8px 12px;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.72);
   text-align: left;
   vertical-align: middle;
 }
 
 .jobs-table th {
   background: #f8fafc;
-  color: #334155;
-  font-size: 12px;
-  font-weight: 900;
+  color: #475569;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
 }
 
 .jobs-table tr:last-child td {
@@ -276,8 +276,8 @@ const emit = defineEmits(["refresh"]);
 
 /* Job ID label */
 .job-id {
-  margin-top: 2px;
-  color: #64748b;
+  margin-top: 1px;
+  color: #94a3b8;
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-size: 10px;
 }
@@ -288,92 +288,93 @@ const emit = defineEmits(["refresh"]);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  min-height: 28px;
-  padding: 0 10px;
-  border: 1px solid rgba(96, 165, 250, 0.48);
-  border-radius: 10px;
-  background: #eff6ff;
+  gap: 4px;
+  min-height: 26px;
+  padding: 0 8px;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 5px;
+  background: #ffffff;
   color: #2563eb;
-  font-size: 12px;
-  font-weight: 700;
+  font-size: 11px;
+  font-weight: 600;
   line-height: 1;
   text-decoration: none;
   white-space: nowrap;
   cursor: pointer;
   box-shadow: none;
   transition:
-    transform 0.16s ease,
-    border-color 0.16s ease,
-    background-color 0.16s ease,
-    color 0.16s ease,
-    box-shadow 0.16s ease;
+    background 0.12s ease,
+    border-color 0.12s ease;
 }
 
 .report-link:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 8px 18px rgba(37, 99, 235, 0.12);
+  background: #eff6ff;
+  border-color: rgba(37, 99, 235, 0.3);
 }
 
 .report-link.disabled {
-  border-color: rgba(148, 163, 184, 0.26);
+  border-color: rgba(148, 163, 184, 0.16);
   background: #f8fafc;
   color: #94a3b8;
-  box-shadow: none;
 }
 
 /* Comparison history specific */
 .comparison-history-heading {
   flex-direction: row;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 12px;
-  margin-bottom: 12px;
+  margin: 0;
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+  background: #f8fafc;
 }
 
 .comparison-history-refresh {
-  min-height: 32px;
-  padding: 6px 12px;
+  min-height: 30px;
+  padding: 4px 10px;
   white-space: nowrap;
 }
 
 .comparison-history-empty {
-  margin-top: 10px;
+  margin-top: 0;
+  padding: 14px;
 }
 
 .comparison-history-error {
-  margin-top: 10px;
+  margin-top: 0;
+  padding: 14px;
 }
 
 .comparison-history-table {
-  margin-top: 10px;
+  margin-top: 0;
   box-shadow: none;
 }
 
 .comparison-history-table th,
 .comparison-history-table td {
-  padding-top: 9px;
-  padding-bottom: 9px;
+  padding-top: 7px;
+  padding-bottom: 7px;
 }
 
 .comparison-history-title {
   max-width: 320px;
   overflow: hidden;
   color: #0f172a;
-  font-weight: 800;
+  font-weight: 600;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 /* Comparison history scroll container */
 .comparison-history-scroll {
-  max-height: 420px;
+  max-height: 400px;
   overflow: auto;
-  border: 1px solid rgba(226, 232, 240, 0.72);
-  border-radius: 16px;
+  border: none;
+  border-radius: 0;
   background: #ffffff;
   scrollbar-width: thin;
-  scrollbar-color: rgba(148, 163, 184, 0.20) transparent;
+  scrollbar-color: rgba(148, 163, 184, 0.16) transparent;
 }
 
 .comparison-history-scroll .comparison-history-table {
@@ -388,6 +389,7 @@ const emit = defineEmits(["refresh"]);
   top: 0;
   z-index: 2;
   background: #f8fafc;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.16);
 }
 
 .comparison-history-scroll .comparison-history-table tr:last-child td {
@@ -398,31 +400,31 @@ const emit = defineEmits(["refresh"]);
 .comparison-history-links {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 4px;
 }
 
 .comparison-history-links .report-link {
-  min-height: 28px;
+  min-height: 26px;
   min-width: auto;
-  padding: 7px 10px;
-  font-size: 12px;
+  padding: 3px 8px;
+  font-size: 11px;
 }
 
 .comparison-history-links .secondary-link {
-  border-color: rgba(148, 163, 184, 0.34);
-  background: rgba(248, 250, 252, 0.94);
-  color: #334155;
+  border-color: rgba(148, 163, 184, 0.2);
+  background: #ffffff;
+  color: #475569;
 }
 
 .comparison-history-links .secondary-link:hover {
-  border-color: rgba(96, 165, 250, 0.46);
-  background: rgba(239, 246, 255, 0.96);
-  color: #1d4ed8;
+  border-color: rgba(37, 99, 235, 0.3);
+  background: #eff6ff;
+  color: #2563eb;
 }
 
 @media (max-width: 760px) {
   .comparison-history-scroll {
-    max-height: 360px;
+    max-height: 320px;
   }
 
   .comparison-history-heading {

@@ -22,21 +22,17 @@ const emit = defineEmits(["select-language"]);
 
 <style scoped>
 .global-toolbar {
-  width: min(1200px, calc(100vw - 48px));
-  margin-left: auto;
-  margin-right: auto;
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  min-height: 36px;
-  margin-bottom: 14px;
+  min-height: 40px;
 }
 
 @media (max-width: 860px) {
   .global-toolbar {
-    width: min(100%, calc(100vw - 28px));
-    align-items: flex-start;
+    align-items: center;
   }
 }
 </style>

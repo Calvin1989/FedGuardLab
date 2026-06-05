@@ -122,10 +122,10 @@ const emit = defineEmits(["start", "cancel"]);
 .command-card {
   position: relative;
   overflow: hidden;
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  border-radius: 22px;
-  background: rgba(255, 255, 255, 0.92);
-  box-shadow: 0 18px 48px rgba(15, 23, 42, 0.07);
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04), 0 8px 24px rgba(15, 23, 42, 0.04);
   padding: 20px 22px;
   animation: commandFadeIn 0.28s ease-out both;
 }
@@ -147,44 +147,52 @@ const emit = defineEmits(["start", "cancel"]);
 }
 
 .command-controls {
-  display: grid;
-  grid-template-columns: 180px minmax(280px, 420px) auto;
-  align-items: end;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
   gap: 10px;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+  margin-bottom: 12px;
 }
 
 .field-control {
   display: grid;
   min-width: 0;
-  gap: 6px;
+  gap: 4px;
+  flex: 1 1 160px;
+}
+
+.field-control-wide {
+  flex: 2 1 240px;
 }
 
 .field-control > span:first-child {
-  color: #172033;
-  font-size: 12px;
-  font-weight: 900;
+  color: #475569;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
 }
 
 .experiment-select {
   width: 100%;
   min-height: 36px;
-  padding: 0 34px 0 12px;
-  border: 1px solid rgba(148, 163, 184, 0.28);
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.92);
+  padding: 0 34px 0 10px;
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.96);
   color: #0f172a;
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 600;
   line-height: 1.35;
   outline: none;
-  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
-  transition: border-color 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
+  transition: border-color 0.16s ease, box-shadow 0.16s ease;
 }
 
 .experiment-select:focus {
   border-color: rgba(37, 99, 235, 0.48);
   background: #ffffff;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.10);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
 }
 
 .experiment-select:focus-visible {
@@ -205,18 +213,18 @@ const emit = defineEmits(["start", "cancel"]);
   justify-content: center;
   gap: 6px;
   min-height: 36px;
-  padding: 0 16px;
+  padding: 0 20px;
   border: 1px solid #1d4ed8;
-  border-radius: 10px;
-  background: linear-gradient(135deg, #1d4ed8, #1e40af);
+  border-radius: 8px;
+  background: #2563eb;
   color: #ffffff;
   font-size: 12px;
-  font-weight: 900;
+  font-weight: 700;
   line-height: 1;
   white-space: nowrap;
   word-break: keep-all;
   cursor: pointer;
-  box-shadow: 0 10px 20px rgba(37, 99, 235, 0.18);
+  box-shadow: 0 1px 2px rgba(37, 99, 235, 0.2);
 }
 
 .run-button:disabled {
@@ -269,11 +277,11 @@ const emit = defineEmits(["start", "cancel"]);
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 12px;
   align-items: center;
-  margin-top: 12px;
+  margin-top: 0;
   padding: 10px 12px;
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  border-radius: 16px;
-  background: #ffffff;
+  border: 1px solid rgba(148, 163, 184, 0.12);
+  border-radius: 10px;
+  background: #f8fafc;
   box-shadow: none;
 }
 
@@ -335,11 +343,17 @@ const emit = defineEmits(["start", "cancel"]);
 
 @media (max-width: 860px) {
   .command-card {
-    border-radius: 22px;
+    border-radius: 12px;
   }
 
   .command-controls {
-    grid-template-columns: 1fr;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .field-control,
+  .field-control-wide {
+    flex: 1 1 auto;
   }
 
   .selected-config-summary {
