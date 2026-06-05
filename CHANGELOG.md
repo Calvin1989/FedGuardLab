@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- No unreleased changes.
+
+## v1.9.3
+
 - Added Vitest-based frontend unit test coverage for dashboard formatter helpers and wired frontend tests into CI.
 - Fixed frontend lockfile compatibility for GitHub Actions `npm ci` by pinning Vitest to a Vite 5-compatible 3.x release, with no frontend runtime behavior change.
 - Refactored dashboard frontend logic into composables and helpers.
