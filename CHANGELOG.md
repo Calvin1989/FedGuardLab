@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Added Vitest-based frontend unit test coverage for dashboard formatter helpers and wired frontend tests into CI.
+- Fixed frontend lockfile compatibility for GitHub Actions `npm ci` by pinning Vitest to a Vite 5-compatible 3.x release, with no frontend runtime behavior change.
 - Refactored dashboard frontend logic into composables and helpers.
   - Extracted i18n, experiment option loading, reports cleanup, recent jobs, comparison, runtime monitor, and dashboard formatter logic from `App.vue`.
   - Reduced `App.vue` to the root dashboard orchestration layer while keeping template bindings and scoped styles intact.
