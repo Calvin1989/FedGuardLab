@@ -4,6 +4,14 @@
 
 - No unreleased changes.
 
+## v1.9.2
+
+- Completed dashboard UI scoped style cleanup after the component extraction work.
+  - Removed duplicated and dead App.vue scoped styles.
+  - Completed scoped component style migration and cleanup work from PR #140 through PR #151.
+  - Kept dashboard UI cleanup scoped to presentation and styling maintenance.
+  - No documented API behavior change, training logic change, report artifact URL change, or new dependency in this maintenance release.
+
 ## v1.9.1
 
 - Prepared v1.9.1 maintenance release documentation.

@@ -1,6 +1,6 @@
 # FedGuardLab
 
-> Current maintenance release: v1.9.1 maintenance release after v1.9.0, documenting GitHub Actions Node 24 compatibility workflow maintenance.
+> Current maintenance release: v1.9.2 maintenance release after v1.9.1, documenting dashboard UI scoped style cleanup after the component extraction work.
 
 ![CI](https://github.com/Calvin1989/FedGuardLab/actions/workflows/ci.yml/badge.svg)
 
@@ -240,12 +240,13 @@ reports/comparisons/<comparison_id>/
 
 ## 当前版本
 
-当前维护版本：v1.9.1
+当前维护版本：v1.9.2
 
 版本状态：
 
 * `v1.9.0`：Experiment Result Management final release，完成历史实验管理、归档 / 恢复、对比历史、统一 report/artifact 入口，以及安全的 reports cleanup workflow。
 * `v1.9.1`：maintenance release，记录 GitHub Actions Node 24 compatibility workflow maintenance，并确认 Docker Smoke manual workflow 通过。
+* `v1.9.2`：maintenance release，记录 dashboard UI scoped style cleanup，移除重复和 dead App.vue scoped styles，并完成 PR #140–#151 范围内的组件 scoped style 迁移与清理。
 
 兼容性说明：
 
