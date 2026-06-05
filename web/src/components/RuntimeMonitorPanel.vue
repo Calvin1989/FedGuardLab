@@ -36,7 +36,7 @@ defineProps({
 </script>
 
 <template>
-  <section class="monitor-card">
+  <section class="card-base animate-fade-in">
     <div class="runtime-panel">
       <div class="runtime-row">
         <RuntimeInfoTile
@@ -80,7 +80,7 @@ defineProps({
         />
       </div>
 
-      <div v-if="errorMessage" class="runtime-error">
+      <div v-if="errorMessage" class="error-feedback">
         <strong>{{ copy.errorLabel }}:</strong>
         <span>{{ errorMessage }}</span>
       </div>
@@ -96,116 +96,43 @@ defineProps({
 </template>
 
 <style scoped>
-/* Card surface */
-.monitor-card {
-  position: relative;
-  overflow: hidden;
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  border-radius: 22px;
-  background: rgba(255, 255, 255, 0.92);
-  box-shadow: 0 18px 48px rgba(15, 23, 42, 0.07);
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 10px;
-  padding: 16px;
-  animation: monitorFadeIn 0.28s ease-out both;
-}
-
-@keyframes monitorFadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.monitor-card > * {
-  position: relative;
-  z-index: 1;
-}
-
-/* Layout */
 .runtime-panel {
   min-width: 0;
+  margin-bottom: 24px;
 }
 
 .runtime-row {
   display: grid;
   grid-template-columns:
-    minmax(112px, 0.72fr)
-    minmax(260px, 1.65fr)
-    repeat(4, minmax(108px, 1fr))
-    minmax(150px, 0.95fr);
+    minmax(120px, 0.8fr)
+    minmax(280px, 1.8fr)
+    repeat(4, minmax(110px, 1fr))
+    minmax(160px, 1fr);
   align-items: stretch;
-  gap: 10px;
-}
-
-/* Root element overrides (reach child component root via scoped) */
-.runtime-item,
-.hero-metric-item {
-  min-height: 60px;
-  padding: 11px 13px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 7px;
-  border-radius: 12px;
-  transition: background 0.16s ease;
-}
-
-.runtime-item:hover,
-.hero-metric-item:hover {
-  background: rgba(248, 250, 252, 0.72);
-}
-
-.runtime-item.wide strong {
-  display: block;
-  color: #111827;
-  font-size: 11px;
-  line-height: 1.25;
-  overflow-wrap: anywhere;
-}
-
-.runtime-action {
-  grid-column: -2 / -1;
-  gap: 6px;
+  gap: 12px;
 }
 
 /* Error banner */
-.runtime-error {
-  margin-top: 12px;
-  padding: 10px 12px;
-  border-radius: 14px;
-  background: #fff1f2;
-  color: #9f1239;
-  font-size: 12px;
+.error-feedback {
+  margin-top: 16px;
 }
 
 /* Responsive */
-@media (max-width: 1180px) {
+@media (max-width: 1280px) {
   .runtime-row {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .runtime-action {
-    grid-column: auto;
-  }
-
-  .runtime-item.wide {
-    grid-column: span 2;
+    grid-template-columns: repeat(4, 1fr);
   }
 }
 
-@media (max-width: 680px) {
+@media (max-width: 860px) {
+  .runtime-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
   .runtime-row {
     grid-template-columns: 1fr;
-  }
-
-  .runtime-item.wide {
-    grid-column: auto;
   }
 }
 </style>

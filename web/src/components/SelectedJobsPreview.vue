@@ -17,12 +17,21 @@ defineProps({
     required: true,
   },
 })
+
+function getStatusClass(status) {
+  if (status === 'finished') return 'success';
+  if (status === 'running' || status === 'creating') return 'primary';
+  if (status === 'failed') return 'danger';
+  if (status === 'queued') return 'warning';
+  return 'muted';
+}
 </script>
 
 <template>
-  <div class="selected-jobs-preview">
+  <div class="selected-jobs-preview card-base">
     <div class="selected-jobs-header">
-      <p class="section-kicker">{{ copy.selectedJobsTitle }}</p>
+      <h3 class="text-h3">{{ copy.selectedJobsTitle }}</h3>
+      <span class="tag tag-primary">{{ selectedJobs.length }}</span>
     </div>
 
     <div class="selected-jobs-list">
@@ -31,17 +40,17 @@ defineProps({
         :key="job.job_id"
         class="selected-job-chip"
       >
-        <span class="selected-job-id">{{ job.job_id.slice(0, 8) }}</span>
-        <span class="selected-job-name">
+        <span class="job-id text-xs text-muted font-mono">{{ job.job_id.slice(0, 8) }}</span>
+        <span class="job-name text-sm font-semibold">
           {{ job.experiment_name || job.config_path || "—" }}
         </span>
         <span
-          class="selected-job-status"
-          :class="'status-' + (job.status || '')"
+          class="tag text-xs"
+          :class="'tag-' + getStatusClass(job.status)"
         >
           {{ copy.statusValues[job.status] || job.status || "—" }}
         </span>
-        <span class="selected-job-time">
+        <span class="job-time text-xs text-muted">
           {{ job.finished_at || job.created_at || "—" }}
         </span>
       </div>
@@ -51,112 +60,52 @@ defineProps({
 
 <style scoped>
 .selected-jobs-preview {
-  margin-top: 16px;
-  padding: 14px;
-  border: 1px solid rgba(148, 163, 184, 0.20);
-  border-radius: 18px;
-  background: rgba(248, 250, 252, 0.72);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px;
 }
 
 .selected-jobs-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 12px;
-  margin-bottom: 12px;
-}
-
-.section-kicker {
-  margin: 0 0 4px;
-  color: #2563eb;
-  font-size: 11px;
-  font-weight: 900;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
 }
 
 .selected-jobs-list {
   display: grid;
-  gap: 8px;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 12px;
 }
 
 .selected-job-chip {
   display: grid;
-  grid-template-columns: 90px minmax(0, 1fr) auto auto;
-  gap: 10px;
+  grid-template-columns: 80px 1fr auto;
+  grid-template-areas:
+    "id name status"
+    "id time status";
+  gap: 4px 12px;
   align-items: center;
-  padding: 10px 12px;
-  border: 1px solid rgba(226, 232, 240, 0.6);
-  border-radius: 14px;
-  background: #ffffff;
-  color: #334155;
-  font-size: 12px;
-  transition: border-color 0.16s ease, box-shadow 0.16s ease;
+  padding: 12px;
+  border: 1px solid var(--color-border-card);
+  border-radius: var(--radius-md);
+  background: white;
+  transition: all var(--transition-fast);
 }
 
 .selected-job-chip:hover {
-  border-color: rgba(96, 165, 250, 0.32);
-  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+  border-color: var(--color-primary-border);
+  box-shadow: var(--shadow-sm);
 }
 
-.selected-job-id {
-  color: #64748b;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-}
+.job-id { grid-area: id; }
+.job-name { grid-area: name; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.job-time { grid-area: time; }
+.tag { grid-area: status; }
 
-.selected-job-name {
-  min-width: 0;
-  overflow: hidden;
-  color: #111827;
-  font-weight: 900;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.selected-job-status {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 22px;
-  padding: 3px 9px;
-  border-radius: 999px;
-  font-size: 11px;
-  font-weight: 900;
-  line-height: 1;
-  white-space: nowrap;
-}
-
-.selected-job-time {
-  color: #94a3b8;
-  font-size: 11px;
-}
-
-.status-idle,
-.status-queued {
-  background: #eef2ff;
-  color: #475569;
-}
-
-.status-running,
-.status-creating {
-  background: #dbeafe;
-  color: #1d4ed8;
-}
-
-.status-finished {
-  background: #dcfce7;
-  color: #166534;
-}
-
-.status-cancelled {
-  background: #f1f5f9;
-  color: #475569;
-}
-
-.status-failed,
-.status-error,
-.status-disconnected {
-  background: #fee2e2;
-  color: #991b1b;
+@media (max-width: 640px) {
+  .selected-jobs-list {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

@@ -30,147 +30,93 @@ defineProps({
 </script>
 
 <template>
-  <div class="history-management-strip">
+  <div class="history-management-strip animate-fade-in">
     <div class="history-management-copy">
-      <strong>{{ copy.historyManagementTitle }}</strong>
-      <span>{{ copy.historyManagementDescription }}</span>
+      <strong class="text-h3">{{ copy.historyManagementTitle }}</strong>
+      <span class="text-secondary text-sm">{{ copy.historyManagementDescription }}</span>
     </div>
 
     <div class="history-management-stats" aria-label="Job history summary">
-      <span class="history-summary-card">
-        <small>{{ copy.historyTotalJobs }}</small>
-        <strong>{{ totalJobs }}</strong>
-      </span>
+      <div class="stat-pill">
+        <small class="text-xs uppercase font-bold">{{ copy.historyTotalJobs }}</small>
+        <strong class="text-h3">{{ totalJobs }}</strong>
+      </div>
 
-      <span class="history-summary-card">
-        <small>{{ copy.historyComparableJobs }}</small>
-        <strong>{{ comparableJobs }}</strong>
-      </span>
+      <div class="stat-pill">
+        <small class="text-xs uppercase font-bold">{{ copy.historyComparableJobs }}</small>
+        <strong class="text-h3">{{ comparableJobs }}</strong>
+      </div>
 
-      <span class="history-summary-card">
-        <small>{{ copy.historySelectedJobs }}</small>
-        <strong>{{ selectedJobs }}</strong>
-      </span>
+      <div class="stat-pill">
+        <small class="text-xs uppercase font-bold">{{ copy.historySelectedJobs }}</small>
+        <strong class="text-h3">{{ selectedJobs }}</strong>
+      </div>
 
-      <span class="history-summary-card history-summary-card-filter">
-        <small>{{ copy.historyCurrentFilter }}</small>
-        <strong>{{ activeFilterLabel }}</strong>
-      </span>
+      <div class="stat-pill filter-pill">
+        <small class="text-xs uppercase font-bold">{{ copy.historyCurrentFilter }}</small>
+        <strong class="text-sm font-bold">{{ activeFilterLabel }}</strong>
+      </div>
     </div>
   </div>
 </template>
 
 <style scoped>
 .history-management-strip {
-  display: grid;
-  grid-template-columns: minmax(280px, 1fr) minmax(520px, 0.95fr);
-  align-items: stretch;
-  gap: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
   width: 100%;
-  margin: 0 0 10px;
-  padding: 12px;
-  border: 1px solid rgba(191, 219, 254, 0.76);
-  border-radius: 18px;
-  background:
-    linear-gradient(135deg, rgba(239, 246, 255, 0.82), rgba(248, 250, 252, 0.96));
+  margin-bottom: 24px;
+  padding: 20px 24px;
+  border: 1px solid var(--color-primary-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-primary-light);
 }
 
 .history-management-copy {
   display: flex;
-  min-width: 0;
   flex-direction: column;
-  justify-content: center;
-  gap: 5px;
-  padding: 4px 4px 4px 6px;
-}
-
-.history-management-copy strong {
-  color: #0f172a;
-  font-size: 15px;
-  font-weight: 900;
-  line-height: 1.25;
-}
-
-.history-management-copy span {
-  max-width: 820px;
-  color: #64748b;
-  font-size: 12px;
-  font-weight: 700;
-  line-height: 1.55;
+  gap: 4px;
+  min-width: 0;
 }
 
 .history-management-stats {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 8px;
-  min-width: 0;
+  display: flex;
+  gap: 12px;
 }
 
-.history-summary-card {
+.stat-pill {
   display: flex;
-  min-width: 0;
-  min-height: 64px;
   flex-direction: column;
   justify-content: center;
-  gap: 4px;
-  padding: 8px 12px;
-  border: 1px solid rgba(226, 232, 240, 0.96);
-  border-radius: 14px;
-  background: #ffffff;
-  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.04);
+  gap: 2px;
+  min-width: 80px;
+  padding: 8px 16px;
+  background: white;
+  border: 1px solid var(--color-border-card);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
 }
 
-.history-summary-card small {
-  overflow: hidden;
-  color: #64748b;
-  font-size: 10px;
-  font-weight: 800;
-  line-height: 1.2;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.filter-pill {
+  min-width: 120px;
+  background: var(--color-bg-page);
 }
 
-.history-summary-card strong {
-  overflow: hidden;
-  color: #0f172a;
-  font-size: 24px;
-  font-weight: 900;
-  letter-spacing: -0.03em;
-  line-height: 1;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
+.uppercase { text-transform: uppercase; }
+.font-bold { font-weight: 700; }
 
-.history-summary-card-filter {
-  border-color: rgba(147, 197, 253, 0.62);
-  background: rgba(255, 255, 255, 0.96);
-}
-
-.history-summary-card-filter strong {
-  font-size: 15px;
-  letter-spacing: -0.01em;
-  line-height: 1.15;
-}
-
-@media (max-width: 1180px) {
+@media (max-width: 960px) {
   .history-management-strip {
-    grid-template-columns: 1fr;
+    flex-direction: column;
+    align-items: flex-start;
   }
 
   .history-management-stats {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 820px) {
-  .history-management-stats {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 520px) {
-  .history-management-stats {
-    grid-template-columns: 1fr;
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 </style>

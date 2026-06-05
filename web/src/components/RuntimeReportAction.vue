@@ -21,75 +21,50 @@ defineProps({
 </script>
 
 <template>
-  <div class="runtime-report-action runtime-item runtime-action" :class="{ 'is-disabled': !href }">
-    <span class="runtime-label">{{ label }}</span>
+  <div class="stat-card">
+    <span class="text-secondary text-xs font-bold uppercase tracking-wider">{{ label }}</span>
     <a
       v-if="href"
-      class="runtime-value runtime-text-value runtime-report-link runtime-report-value"
+      class="btn btn-primary btn-sm"
       :href="href"
       target="_blank"
     >
       {{ linkLabel }}
     </a>
-    <strong v-else class="runtime-value runtime-text-value runtime-report-value">{{ notReadyLabel }}</strong>
+    <strong v-else class="text-muted text-sm">{{ notReadyLabel }}</strong>
   </div>
 </template>
 
 <style scoped>
-.runtime-report-action {
-  gap: 6px;
-}
-
-.runtime-report-action .runtime-label {
-  display: block;
-  margin: 0;
-  color: #64748b;
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: -0.01em;
-  line-height: 1.1;
-}
-
-.runtime-report-action .runtime-report-value {
+.stat-card {
   display: flex;
-  min-height: 30px;
-  align-items: center;
-  max-width: 100%;
-  margin: 0;
-  padding: 0;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  box-shadow: none;
-  color: #111827;
-  font-size: 17px;
-  font-weight: 800;
-  letter-spacing: -0.012em;
-  line-height: 1.15;
-  white-space: nowrap;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: white;
+  border: 1px solid var(--color-border-card);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-fast);
+  min-height: 64px;
 }
 
-.runtime-report-action .runtime-report-link {
-  width: auto;
-  min-width: 0;
-  max-width: 100%;
-  overflow: hidden;
-  color: #2563eb;
-  justify-content: flex-start;
-  text-decoration: underline;
-  text-decoration-color: rgba(37, 99, 235, 0.42);
-  text-decoration-thickness: 1.5px;
-  text-underline-offset: 3px;
-  text-overflow: ellipsis;
-  transform: none;
+.stat-card:hover {
+  border-color: var(--color-primary);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
 }
 
-.runtime-report-action .runtime-report-link:hover {
-  color: #1d4ed8;
-  text-decoration-color: currentColor;
-}
+.text-xs { font-size: 11px; }
+.text-sm { font-size: 13px; }
+.font-bold { font-weight: 700; }
+.uppercase { text-transform: uppercase; }
+.tracking-wider { letter-spacing: 0.05em; }
 
-.runtime-report-action.is-disabled .runtime-report-value {
-  color: #111827;
+.btn-sm {
+  width: 100%;
+  font-size: 11px;
+  padding: 6px;
 }
 </style>

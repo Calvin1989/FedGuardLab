@@ -24,7 +24,7 @@ export function useReportsCleanup({
     }
   );
   const reportsCleanupPreviewCandidates = computed(() =>
-    reportsCleanupPreview.value.candidates.slice(0, 5)
+    reportsCleanupPreview.value.candidates.slice(0, 50)
   );
   const reportsCleanupOldestModifiedAt = computed(() =>
     reportsCleanupSummary.value?.jobs?.oldest_modified_at ||
@@ -70,6 +70,8 @@ export function useReportsCleanup({
 
   function mapReportsCleanupSummary(data) {
     const preview = data.cleanup_preview || {};
+    const jobs = data.jobs || {};
+    const comparisons = data.comparisons || {};
 
     return {
       dry_run: Boolean(data.dry_run),
@@ -77,8 +79,9 @@ export function useReportsCleanup({
       reports_root: data.reports_root || "",
       keep_latest_per_kind: data.keep_latest_per_kind ?? 20,
       total_size_bytes: data.total_size_bytes || 0,
-      jobs: data.jobs || {},
-      comparisons: data.comparisons || {},
+      total_count: (jobs.count || 0) + (comparisons.count || 0),
+      jobs,
+      comparisons,
       cleanup_preview: {
         candidate_count: preview.candidate_count || 0,
         candidate_size_bytes: preview.candidate_size_bytes || 0,

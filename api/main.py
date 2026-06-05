@@ -66,6 +66,11 @@ class ComparisonRequest(BaseModel):
     title: str = "FedGuardLab Experiment Comparison"
 
 
+class RunRequest(BaseModel):
+    config_path: str = "configs/mnist_fedavg_demo.yaml"
+    overrides: Dict[str, Any] | None = None
+
+
 class ReportsCleanupRunRequest(BaseModel):
     keep_latest: int = 20
     dry_run: bool = True
@@ -432,6 +437,7 @@ def _job_summary(job: JobRecord) -> dict[str, Any]:
         "job_id": job.job_id,
         "status": job.status,
         "config_path": job.config_path,
+        "config": config,
         "experiment_name": config.get("experiment", {}).get("name"),
         "aggregation": config.get("federated", {}).get("aggregation"),
         "defense": config.get("defense", {}).get("type"),
@@ -774,12 +780,40 @@ def list_configs():
     return {"configs": configs}
 
 
+def _apply_overrides(data: Dict[str, Any], overrides: Dict[str, Any]) -> None:
+    """Recursively apply overrides to a nested dictionary."""
+    for key, value in overrides.items():
+        if (
+            key in data
+            and isinstance(data[key], dict)
+            and isinstance(value, dict)
+        ):
+            _apply_overrides(data[key], value)
+        else:
+            data[key] = value
+
+
 @app.post("/run")
-async def create_run(config_path: str = "configs/mnist_fedavg_demo.yaml"):
-    resolved_config_path = resolve_config_path(config_path)
+async def create_run(request: RunRequest = None):  # noqa: B008
+    if request is None:
+        request = RunRequest()
+    resolved_config_path = resolve_config_path(request.config_path)
 
     job_id = str(uuid.uuid4())
-    config = load_config(resolved_config_path)
+
+    # Load base config
+    with open(resolved_config_path, "r", encoding="utf-8") as f:
+        raw_config = yaml.safe_load(f)
+
+    # Apply overrides if provided
+    if request.overrides:
+        _apply_overrides(raw_config, request.overrides)
+
+    # Validate with Pydantic
+    try:
+        config = FedGuardConfig(**raw_config)
+    except Exception as exc:
+        raise HTTPException(status_code=400, detail=f"Invalid config: {exc}") from exc
 
     JOB_STORE.create(
         JobRecord(
@@ -1104,6 +1138,24 @@ def create_comparison(request: ComparisonRequest):
 
     except Exception as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@app.delete("/comparisons/all")
+def clear_comparisons():
+    """Clear all comparison reports from the comparisons directory."""
+    if not COMPARISONS_DIR.exists():
+        return {"message": "Comparisons directory not found", "removed": 0}
+
+    count = 0
+    for child in COMPARISONS_DIR.iterdir():
+        if child.is_dir():
+            try:
+                shutil.rmtree(child)
+                count += 1
+            except OSError as exc:
+                print(f"Failed to delete {child}: {exc}")
+
+    return {"message": "Comparison history cleared", "removed": count}
 
 
 @app.get("/comparisons/{comparison_id}")

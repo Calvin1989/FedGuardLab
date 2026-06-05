@@ -8,274 +8,115 @@ const emit = defineEmits(["toggle-selection", "toggle-detail"]);
 </script>
 
 <template>
-  <table class="jobs-table">
-    <thead>
-      <tr>
-        <th>{{ copy.tableSelect }}</th>
-        <th>{{ copy.tableExperiment }}</th>
-        <th>{{ copy.tableAggregation }}</th>
-        <th>{{ copy.tableDefense }}</th>
-        <th>{{ copy.tableAttack }}</th>
-        <th>{{ copy.tableAccuracy }}</th>
-        <th>{{ copy.tableLoss }}</th>
-        <th>{{ copy.tableAsr }}</th>
-        <th>{{ copy.tableArtifacts }}</th>
-        <th>{{ copy.tableReport }}</th>
-      </tr>
-    </thead>
+  <div class="table-container">
+    <table class="base-table jobs-table">
+      <thead>
+        <tr>
+          <th>{{ copy.tableSelect }}</th>
+          <th>{{ copy.tableExperiment }}</th>
+          <th>{{ copy.tableAggregation }}</th>
+          <th>{{ copy.tableDefense }}</th>
+          <th>{{ copy.tableAttack }}</th>
+          <th>{{ copy.tableAccuracy }}</th>
+          <th>{{ copy.tableLoss }}</th>
+          <th>{{ copy.tableAsr }}</th>
+          <th>{{ copy.tableArtifacts }}</th>
+          <th>{{ copy.tableReport }}</th>
+        </tr>
+      </thead>
 
-    <tbody>
-      <tr
-        v-for="job in jobs"
-        :key="job.job_id"
-        class="job-row"
-        :class="{ 'job-row-selected': job.isDetailSelected, 'selected': job.isDetailSelected, 'archived': job.archived }"
-        @click="emit('toggle-detail', job.job_id)"
-      >
-        <td class="job-select-cell">
-          <input
-            type="checkbox"
-            :checked="job.isSelected"
-            :disabled="!job.canCompare"
-            @change="emit('toggle-selection', job.job_id)"
-          />
-        </td>
-        <td>
-          <div class="job-label">{{ job.label }}</div>
-          <div class="job-id">{{ job.job_id }}</div>
-        </td>
-        <td>{{ job.aggregation }}</td>
-        <td>{{ job.defense }}</td>
-        <td>{{ job.attack }}</td>
-        <td>{{ job.final_accuracy }}</td>
-        <td>{{ job.final_loss }}</td>
-        <td>{{ job.final_asr }}</td>
-        <td>
-          <div class="job-badges">
-            <span v-if="job.archived" class="job-badge archived">{{ copy.archivedBadge }}</span>
-            <span v-if="job.has_report" class="job-badge success">{{ copy.badgeReport }}</span>
-            <span v-if="job.hasArtifacts" class="job-badge">{{ copy.badgeArtifacts }}</span>
-            <span v-if="!job.has_report && !job.hasArtifacts" class="job-badge muted">{{ copy.badgeNoReport }}</span>
-          </div>
-        </td>
-        <td>
-          <a
-            v-if="job.status === 'finished' && job.has_report && job.report_url"
-            class="report-link"
-            :href="job.reportUrlWithLang"
-            target="_blank"
-          >
-            {{ copy.openHtmlReportShort || copy.openHtmlReport }}
-          </a>
-          <span v-else>{{ copy.notReady }}</span>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+      <tbody>
+        <tr
+          v-for="job in jobs"
+          :key="job.job_id"
+          class="job-row"
+          :class="{ 'selected': job.isDetailSelected, 'archived': job.archived }"
+          @click="emit('toggle-detail', job.job_id)"
+        >
+          <td class="job-select-cell" @click.stop>
+            <input
+              type="checkbox"
+              class="checkbox-base"
+              :checked="job.isSelected"
+              :disabled="!job.canCompare"
+              @change="emit('toggle-selection', job.job_id)"
+            />
+          </td>
+          <td>
+            <div class="job-label text-h3">{{ job.label }}</div>
+            <div class="job-id text-xs text-muted font-mono">{{ job.job_id }}</div>
+          </td>
+          <td class="text-sm">{{ job.aggregation }}</td>
+          <td class="text-sm">{{ job.defense }}</td>
+          <td class="text-sm">{{ job.attack }}</td>
+          <td class="text-sm font-mono">{{ job.final_accuracy }}</td>
+          <td class="text-sm font-mono">{{ job.final_loss }}</td>
+          <td class="text-sm font-mono">{{ job.final_asr }}</td>
+          <td>
+            <div class="job-badges">
+              <span v-if="job.archived" class="tag tag-outline archived">{{ copy.archivedBadge }}</span>
+              <span v-if="job.has_report" class="tag tag-success">{{ copy.badgeReport }}</span>
+              <span v-if="job.hasArtifacts" class="tag tag-primary">{{ copy.badgeArtifacts }}</span>
+              <span v-if="!job.has_report && !job.hasArtifacts" class="tag tag-muted">{{ copy.badgeNoReport }}</span>
+            </div>
+          </td>
+          <td>
+            <a
+              v-if="job.status === 'finished' && job.has_report && job.report_url"
+              class="btn btn-secondary btn-sm"
+              :href="job.reportUrlWithLang"
+              target="_blank"
+              @click.stop
+            >
+              {{ copy.openHtmlReportShort || copy.openHtmlReport }}
+            </a>
+            <span v-else class="text-muted text-xs">{{ copy.notReady }}</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </template>
 
 <style scoped>
-.jobs-table {
-  width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
-  overflow: hidden;
-  border: 1px solid rgba(148, 163, 184, 0.20);
-  border-radius: 14px;
-  background: #ffffff;
-  font-size: 12px;
-}
-
-.jobs-table th,
-.jobs-table td {
-  padding: 7px 12px;
-  border-bottom: 1px solid rgba(226, 232, 240, 0.80);
-  text-align: left;
-  vertical-align: middle;
-}
-
-.jobs-table th {
-  position: sticky;
-  top: 0;
-  z-index: 1;
-  background: #f1f5f9;
-  color: #475569;
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  border-bottom: 1px solid rgba(148, 163, 184, 0.24);
-}
-
-.jobs-table tr:last-child td {
-  border-bottom: 0;
-}
-
-.jobs-table input[type="checkbox"] {
-  width: 16px;
-  height: 16px;
-  min-height: 0;
-  padding: 0;
-  border-radius: 4px;
-  cursor: pointer;
-  accent-color: #2563eb;
-}
-
-@media (max-width: 1180px) {
-  .jobs-table {
-    display: block;
-    overflow-x: auto;
-    white-space: nowrap;
-  }
-}
-
-/* Row */
-.job-row {
-  cursor: pointer;
-  transition: background 0.12s ease;
-}
-
-.job-row:hover,
-.job-row-selected,
 .job-row.selected {
-  background: #f8fafc;
+  background: var(--color-primary-light);
+  box-shadow: inset 4px 0 0 var(--color-primary);
 }
 
 .job-row.archived {
-  opacity: 0.76;
+  opacity: 0.7;
 }
 
-.job-row.archived .job-label,
-.job-row.archived .job-id {
-  color: #64748b;
-}
-
-/* Cell content */
 .job-label {
-  color: #0f172a;
-  font-weight: 700;
+  max-width: 240px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-bottom: 2px;
 }
 
-.job-id {
-  margin-top: 2px;
-  color: #64748b;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 10px;
-}
-
-/* Badges */
 .job-badges {
   display: flex;
   flex-wrap: wrap;
-  gap: 5px;
-}
-
-.job-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 20px;
-  padding: 2px 8px;
-  border-radius: 6px;
-  background: #edf2ff;
-  color: #334155;
-  font-size: 10px;
-  font-weight: 600;
-  line-height: 1;
-  white-space: nowrap;
-}
-
-.job-badge.success {
-  background: #dcfce7;
-  color: #166534;
-}
-
-.job-badge.muted {
-  background: #f1f5f9;
-  color: #64748b;
-}
-
-.job-badge.archived {
-  border-color: rgba(203, 213, 225, 0.95);
-  background: #e2e8f0;
-  color: #475569;
-}
-
-/* Select cell */
-.job-select-cell {
-  min-width: 46px;
-}
-
-.job-select-cell input[type="checkbox"] {
-  width: 16px;
-  height: 16px;
-}
-
-.job-select-cell input[type="checkbox"]:disabled {
-  cursor: not-allowed;
-}
-
-/* Report link (base + table override) */
-.report-link {
-  appearance: none;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
   gap: 4px;
-  min-height: 30px;
-  padding: 0 10px;
-  border: 1px solid rgba(96, 165, 250, 0.40);
-  border-radius: 8px;
-  background: #eff6ff;
-  color: #2563eb;
-  font-size: 11px;
-  font-weight: 600;
-  line-height: 1;
-  text-decoration: none;
-  white-space: nowrap;
-  word-break: keep-all;
+}
+
+.checkbox-base {
+  width: 18px;
+  height: 18px;
   cursor: pointer;
-  transition: background 0.12s ease, border-color 0.12s ease;
+  accent-color: var(--color-primary);
 }
 
-.report-link:hover {
-  background: #dbeafe;
-  border-color: rgba(37, 99, 235, 0.50);
+.tag-outline {
+  background: transparent;
+  border: 1px solid var(--color-border-card);
+  color: var(--color-text-secondary);
 }
 
-.jobs-table .report-link {
-  min-height: 26px;
-  padding: 0 8px;
-  font-size: 11px;
-}
-
-/* Status colors */
-.status-idle,
-.status-queued {
-  background: #eef2ff;
-  color: #475569;
-}
-
-.status-running,
-.status-creating {
-  background: #dbeafe;
-  color: #1d4ed8;
-}
-
-.status-finished {
-  background: #dcfce7;
-  color: #166534;
-}
-
-.status-cancelled {
+.tag-muted {
   background: #f1f5f9;
-  color: #475569;
-}
-
-.status-failed,
-.status-error,
-.status-disconnected {
-  background: #fee2e2;
-  color: #991b1b;
+  color: var(--color-text-muted);
 }
 </style>

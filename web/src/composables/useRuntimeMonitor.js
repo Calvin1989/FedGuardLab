@@ -13,8 +13,67 @@ export function useRuntimeMonitor({
   const status = ref("idle");
   const metrics = ref([]);
   const reportUrl = ref("");
+  const configOverrides = ref({
+    experiment: { rounds: 20 },
+    federated: { num_clients: 10, malicious_clients: 0 },
+    training: { learning_rate: 0.01, batch_size: 64, local_epochs: 1 },
+    attack: { poison_fraction: 1.0 },
+  });
 
   let socket = null;
+
+  function resetConfigOverrides() {
+    configOverrides.value = {
+      experiment: { rounds: 20 },
+      federated: { num_clients: 10, malicious_clients: 0 },
+      training: { learning_rate: 0.01, batch_size: 64, local_epochs: 1 },
+      attack: { poison_fraction: 1.0 },
+    };
+  }
+
+  function applyPreset(type) {
+    switch (type) {
+      case "quick":
+        configOverrides.value = {
+          experiment: { rounds: 5 },
+          federated: { num_clients: 5, malicious_clients: 0 },
+          training: { learning_rate: 0.01, batch_size: 32, local_epochs: 1 },
+          attack: { poison_fraction: 1.0 },
+        };
+        break;
+      case "standard":
+        configOverrides.value = {
+          experiment: { rounds: 20 },
+          federated: { num_clients: 10, malicious_clients: 2 },
+          training: { learning_rate: 0.01, batch_size: 64, local_epochs: 1 },
+          attack: { poison_fraction: 1.0 },
+        };
+        break;
+      case "high_intensity":
+        configOverrides.value = {
+          experiment: { rounds: 30 },
+          federated: { num_clients: 20, malicious_clients: 8 },
+          training: { learning_rate: 0.005, batch_size: 64, local_epochs: 3 },
+          attack: { poison_fraction: 1.0 },
+        };
+        break;
+      case "long_term":
+        configOverrides.value = {
+          experiment: { rounds: 100 },
+          federated: { num_clients: 10, malicious_clients: 2 },
+          training: { learning_rate: 0.01, batch_size: 128, local_epochs: 1 },
+          attack: { poison_fraction: 1.0 },
+        };
+        break;
+    }
+  }
+
+  function cleanupSocket() {
+    if (socket) {
+      socket.close();
+      socket = null;
+    }
+  }
 
   const latestMetric = computed(() => {
     if (metrics.value.length === 0) {
@@ -118,15 +177,20 @@ export function useRuntimeMonitor({
     cleanupSocket();
 
     try {
-      const response = await fetch(
-        `${API_BASE}/run?config_path=${encodeURIComponent(selectedConfig.value)}`,
-        {
-          method: "POST",
-        }
-      );
+      const response = await fetch(`${API_BASE}/run`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          config_path: selectedConfig.value,
+          overrides: configOverrides.value,
+        }),
+      });
 
       if (!response.ok) {
-        throw new Error(`Failed to create run: ${response.status}`);
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.detail || `Failed to create run: ${response.status}`);
       }
 
       const data = await response.json();
@@ -207,6 +271,9 @@ export function useRuntimeMonitor({
     latestMetric,
     chartData,
     chartOptions,
+    configOverrides,
+    resetConfigOverrides,
+    applyPreset,
     cancelCurrentJob,
     startExperiment,
   };

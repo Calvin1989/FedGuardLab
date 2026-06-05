@@ -17,37 +17,50 @@ defineProps({
 </script>
 
 <template>
-  <div class="runtime-info-tile runtime-item" :class="{ wide }">
-    <span class="runtime-label">{{ label }}</span>
-    <strong class="runtime-value runtime-text-value">{{ value }}</strong>
+  <div class="stat-card" :class="{ wide }">
+    <span class="text-secondary text-xs font-bold uppercase tracking-wider">{{ label }}</span>
+    <strong class="text-h3">{{ value }}</strong>
   </div>
 </template>
 
 <style scoped>
-.runtime-info-tile .runtime-label {
-  display: block;
-  margin: 0;
-  color: #64748b;
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: -0.01em;
-  line-height: 1.1;
-}
-
-.runtime-info-tile .runtime-value {
+.stat-card {
   display: flex;
-  min-height: 26px;
-  min-width: 0;
-  align-items: center;
-  margin: 0;
-  color: #111827;
-  font-size: 18px;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  line-height: 1.1;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  padding: 12px 16px;
+  background: white;
+  border: 1px solid var(--color-border-card);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-fast);
+  min-height: 64px;
 }
 
-.runtime-info-tile .runtime-text-value {
-  overflow-wrap: anywhere;
+.stat-card:hover {
+  border-color: var(--color-primary);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.text-xs { font-size: 11px; }
+.font-bold { font-weight: 700; }
+.uppercase { text-transform: uppercase; }
+.tracking-wider { letter-spacing: 0.05em; }
+
+.font-mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  word-break: break-all;
+}
+
+.wide {
+  grid-column: span 2;
+}
+
+@media (max-width: 860px) {
+  .wide {
+    grid-column: auto;
+  }
 }
 </style>
