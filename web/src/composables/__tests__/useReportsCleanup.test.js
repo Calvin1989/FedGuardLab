@@ -1064,6 +1064,33 @@ describe("useReportsCleanup – runReportsCleanup busy state", () => {
 // ---------------------------------------------------------------------------
 
 describe("useReportsCleanup – runReportsCleanup refresh error handling", () => {
+  it("does not throw when loadRecentJobs is synchronous (returns undefined)", async () => {
+    const deps = makeDeps({
+      loadRecentJobs: vi.fn(() => undefined),
+    });
+
+    fetchMock
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve(makeSummaryResponse()),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve(makeRunResponse({ dry_run: false })),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve(makeSummaryResponse()),
+      });
+
+    const { loadReportsCleanupSummary, runReportsCleanup } =
+      useReportsCleanup(deps);
+    await loadReportsCleanupSummary();
+
+    await expect(runReportsCleanup(false)).resolves.toBeUndefined();
+    expect(deps.loadRecentJobs).toHaveBeenCalled();
+  });
+
   it("does not throw when loadRecentJobs fails after non-dry-run", async () => {
     const deps = makeDeps();
     deps.loadRecentJobs.mockRejectedValue(new Error("jobs refresh fail"));

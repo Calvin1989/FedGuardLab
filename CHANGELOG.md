@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Added a recent-job action to reuse a completed experiment configuration from the run dashboard without starting a new job automatically.
+- Fixed the selected-job reuse-config workflow and report cleanup action handling without backend or training logic changes.
 - Reduced repeated dashboard panel copy and refined comparison/report panel headers without runtime behavior changes.
 - Polished dashboard layout, spacing, controls, tables, and card surfaces for a more consistent commercial UI without runtime behavior changes.
 - Refined dashboard spacing, density, table scroll surfaces, and KPI/action alignment without runtime behavior changes.

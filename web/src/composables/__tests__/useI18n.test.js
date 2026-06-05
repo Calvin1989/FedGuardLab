@@ -97,6 +97,28 @@ describe("useI18n – t computed", () => {
     setLanguage("en");
     expect(t.value.reuseConfig).toBe("Reuse config");
   });
+
+  it("includes reuseConfigUnavailable message in zh", () => {
+    const { t } = useI18n();
+    expect(t.value.reuseConfigUnavailable).toBe("所选实验没有可复用的配置。");
+  });
+
+  it("includes reuseConfigUnavailable message in en", () => {
+    const { t, setLanguage } = useI18n();
+    setLanguage("en");
+    expect(t.value.reuseConfigUnavailable).toBe("The selected job does not have a reusable configuration.");
+  });
+
+  it("includes reuseConfigNotFound message in zh", () => {
+    const { t } = useI18n();
+    expect(t.value.reuseConfigNotFound).toBe("未找到匹配的实验配置。");
+  });
+
+  it("includes reuseConfigNotFound message in en", () => {
+    const { t, setLanguage } = useI18n();
+    setLanguage("en");
+    expect(t.value.reuseConfigNotFound).toBe("No matching experiment configuration was found.");
+  });
 });
 
 // ---------------------------------------------------------------------------
