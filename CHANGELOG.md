@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Added Vitest-based frontend unit test coverage for dashboard formatter helpers and wired frontend tests into CI.
 - Refactored dashboard frontend logic into composables and helpers.
   - Extracted i18n, experiment option loading, reports cleanup, recent jobs, comparison, runtime monitor, and dashboard formatter logic from `App.vue`.
   - Reduced `App.vue` to the root dashboard orchestration layer while keeping template bindings and scoped styles intact.
