@@ -612,17 +612,17 @@ function hasArtifacts(job) {
 /* Product header shell */
 .app-header {
   width: min(1200px, calc(100vw - 48px));
-  margin: 0 auto 12px;
+  margin: 0 auto 10px;
   display: flex;
   flex-direction: column;
   gap: 0;
-  padding: 10px 14px;
-  border: 1px solid rgba(148, 163, 184, 0.18);
-  border-radius: 18px;
+  padding: 8px 12px;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 14px;
   background: rgba(255, 255, 255, 0.72);
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
-  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.03);
 }
 
 /* Dashboard shell */
