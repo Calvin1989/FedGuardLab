@@ -17,6 +17,7 @@ import ReportsCleanupPanel from "./components/ReportsCleanupPanel.vue";
 import RunCommandPanel from "./components/RunCommandPanel.vue";
 import RuntimeMonitorPanel from "./components/RuntimeMonitorPanel.vue";
 import { useI18n } from "./composables/useI18n.js";
+import { useExperimentOptions } from "./composables/useExperimentOptions.js";
 import { computed, onMounted, ref, watch } from "vue";
 
 const API_BASE = "http://127.0.0.1:8000";
@@ -27,7 +28,6 @@ const status = ref("idle");
 const metrics = ref([]);
 const errorMessage = ref("");
 const reportUrl = ref("");
-const selectedConfig = ref("");
 
 const recentJobs = ref([]);
 const jobStatusFilter = ref("all");
@@ -49,6 +49,72 @@ const {
   getLocalizedConfigDisplay,
   formatConfigTag,
 } = useI18n();
+
+function formatAttackDisplay(attackConfig, fallbackValue = "") {
+  const type = attackConfig?.type || fallbackValue;
+
+  if (!type || type === "—") {
+    return "—";
+  }
+
+  if (type === "none") {
+    return t.value.noneValue;
+  }
+
+  if (type === "label_flipping") {
+    const source = attackConfig?.source_label ?? "?";
+    const target = attackConfig?.target_label ?? "?";
+    return language.value === "zh"
+      ? `标签翻转 · ${source}→${target}`
+      : `Label flip · ${source}→${target}`;
+  }
+
+  if (type === "backdoor") {
+    const target = attackConfig?.target_label ?? "?";
+    return language.value === "zh"
+      ? `后门攻击 · 目标 ${target}`
+      : `Backdoor · target ${target}`;
+  }
+
+  return titleizeDisplayValue(type);
+}
+
+function formatDefenseDisplay(defenseConfig, fallbackValue = "") {
+  const type = defenseConfig?.type || fallbackValue;
+
+  if (!type || type === "—") {
+    return "—";
+  }
+
+  if (type === "none") {
+    return t.value.noneValue;
+  }
+
+  return titleizeDisplayValue(type);
+}
+
+const {
+  selectedConfig,
+  experimentOptions,
+  selectedCategory,
+  selectedConfigOption,
+  selectedExperimentDescription,
+  selectedConfigPreview,
+  displayConfigPreview,
+  selectedConfigMetadata,
+  configCategories,
+  filteredExperimentOptions,
+  loadExperimentOptions,
+  getSelectedExperimentLabel,
+} = useExperimentOptions({
+  API_BASE,
+  errorMessage,
+  t,
+  getLocalizedConfigDisplay,
+  formatConfigTag,
+  formatAttackDisplay,
+  formatDefenseDisplay,
+});
 
 const dashboardSections = ["run", "jobs", "comparisons", "reports"];
 
@@ -151,8 +217,6 @@ const reportsCleanupCandidatesForDisplay = computed(() =>
   }))
 );
 
-const experimentOptions = ref([]);
-const selectedCategory = ref("all");
 
 let socket = null;
 
@@ -238,112 +302,6 @@ onMounted(async () => {
     console.warn("Failed to load reports cleanup summary:", error);
   }
 });
-
-const selectedConfigOption = computed(() =>
-  experimentOptions.value.find((item) => item.value === selectedConfig.value)
-);
-
-const selectedExperimentDescription = computed(() => {
-  return getLocalizedConfigDisplay(selectedConfigOption.value).description;
-});
-
-const selectedConfigPreview = computed(() => {
-  return selectedConfigOption.value?.preview || null;
-});
-
-const displayConfigPreview = computed(() => {
-  const preview = selectedConfigPreview.value;
-
-  if (!preview) {
-    return null;
-  }
-
-  return {
-    ...preview,
-    attack: formatAttackDisplay(
-      selectedConfigOption.value?.attack,
-      preview.attack
-    ),
-    defense: formatDefenseDisplay(
-      selectedConfigOption.value?.defense,
-      preview.defense
-    ),
-  };
-});
-
-const selectedConfigMetadata = computed(() => {
-  const option = experimentOptions.value.find(
-    (item) => item.value === selectedConfig.value
-  );
-
-  if (!option?.metadata) {
-    return null;
-  }
-
-  const meta = option.metadata;
-  const display = getLocalizedConfigDisplay(option);
-
-  return {
-    name: display.name,
-    description: display.description,
-    category: meta.category || "",
-    tags: Array.isArray(meta.tags) ? meta.tags.map(formatConfigTag) : [],
-  };
-});
-
-const configCategories = computed(() => {
-  const cats = new Set(
-    experimentOptions.value.map(
-      (opt) => opt.metadata?.category || "uncategorized"
-    )
-  );
-  return [...cats].sort();
-});
-
-const filteredExperimentOptions = computed(() => {
-  if (selectedCategory.value === "all") {
-    return experimentOptions.value;
-  }
-  return experimentOptions.value.filter(
-    (opt) => (opt.metadata?.category || "uncategorized") === selectedCategory.value
-  );
-});
-
-watch(selectedCategory, () => {
-  const current = filteredExperimentOptions.value.find(
-    (opt) => opt.value === selectedConfig.value
-  );
-  if (!current && filteredExperimentOptions.value.length > 0) {
-    selectedConfig.value = filteredExperimentOptions.value[0].value;
-  }
-});
-
-function getSelectedExperimentLabel() {
-  const option = experimentOptions.value.find(
-    (item) => item.value === selectedConfig.value
-  );
-
-  return option ? getLocalizedConfigDisplay(option).name : selectedConfig.value;
-}
-
-async function loadExperimentOptions() {
-  try {
-    const response = await fetch(`${API_BASE}/configs`);
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.detail || "Failed to load configs");
-    }
-
-    experimentOptions.value = data.configs.filter((item) => item.valid);
-
-    if (!selectedConfig.value && experimentOptions.value.length > 0) {
-      selectedConfig.value = experimentOptions.value[0].value;
-    }
-  } catch (error) {
-    errorMessage.value = error.message;
-  }
-}
 
 function canSelectJobForComparison(job) {
   return (
@@ -501,49 +459,6 @@ function titleizeDisplayValue(value) {
   return String(value)
     .replace(/_/g, " ")
     .replace(/\b\w/g, (char) => char.toUpperCase());
-}
-
-function formatAttackDisplay(attackConfig, fallbackValue = "") {
-  const type = attackConfig?.type || fallbackValue;
-
-  if (!type || type === "—") {
-    return "—";
-  }
-
-  if (type === "none") {
-    return t.value.noneValue;
-  }
-
-  if (type === "label_flipping") {
-    const source = attackConfig?.source_label ?? "?";
-    const target = attackConfig?.target_label ?? "?";
-    return language.value === "zh"
-      ? `标签翻转 · ${source}→${target}`
-      : `Label flip · ${source}→${target}`;
-  }
-
-  if (type === "backdoor") {
-    const target = attackConfig?.target_label ?? "?";
-    return language.value === "zh"
-      ? `后门攻击 · 目标 ${target}`
-      : `Backdoor · target ${target}`;
-  }
-
-  return titleizeDisplayValue(type);
-}
-
-function formatDefenseDisplay(defenseConfig, fallbackValue = "") {
-  const type = defenseConfig?.type || fallbackValue;
-
-  if (!type || type === "—") {
-    return "—";
-  }
-
-  if (type === "none") {
-    return t.value.noneValue;
-  }
-
-  return titleizeDisplayValue(type);
 }
 
 function formatDisplayValue(value) {
