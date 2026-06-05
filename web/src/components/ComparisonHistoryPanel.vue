@@ -203,6 +203,12 @@ const emit = defineEmits(["refresh"]);
   box-shadow: 0 8px 18px rgba(37, 99, 235, 0.12);
 }
 
+.secondary-button:focus-visible,
+.report-link:focus-visible {
+  outline: 2px solid rgba(37, 99, 235, 0.5);
+  outline-offset: 2px;
+}
+
 /* Empty state */
 .empty-state {
   width: 100%;
@@ -244,7 +250,7 @@ const emit = defineEmits(["refresh"]);
   border-collapse: separate;
   border-spacing: 0;
   overflow: hidden;
-  border-radius: 14px;
+  border-radius: 16px;
   background: #ffffff;
   font-size: 12px;
 }
@@ -286,7 +292,7 @@ const emit = defineEmits(["refresh"]);
   min-height: 28px;
   padding: 0 10px;
   border: 1px solid rgba(96, 165, 250, 0.48);
-  border-radius: 9px;
+  border-radius: 10px;
   background: #eff6ff;
   color: #2563eb;
   font-size: 12px;
@@ -364,8 +370,10 @@ const emit = defineEmits(["refresh"]);
   max-height: 460px;
   overflow: auto;
   border: 1px solid rgba(226, 232, 240, 0.92);
-  border-radius: 14px;
+  border-radius: 16px;
   background: #ffffff;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.32) transparent;
 }
 
 .comparison-history-scroll .comparison-history-table {

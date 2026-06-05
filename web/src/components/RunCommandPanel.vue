@@ -187,16 +187,27 @@ const emit = defineEmits(["start", "cancel"]);
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.10);
 }
 
+.experiment-select:focus-visible {
+  outline: 2px solid rgba(37, 99, 235, 0.4);
+  outline-offset: 1px;
+}
+
+.run-button:focus-visible,
+.secondary-button:focus-visible {
+  outline: 2px solid rgba(37, 99, 235, 0.5);
+  outline-offset: 2px;
+}
+
 .run-button {
   appearance: none;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
-  min-height: 38px;
+  min-height: 36px;
   padding: 0 16px;
   border: 1px solid #1d4ed8;
-  border-radius: 13px;
+  border-radius: 10px;
   background: linear-gradient(135deg, #1d4ed8, #1e40af);
   color: #ffffff;
   font-size: 12px;
@@ -219,9 +230,9 @@ const emit = defineEmits(["start", "cancel"]);
   align-items: center;
   justify-content: center;
   gap: 6px;
-  min-height: 38px;
+  min-height: 36px;
   padding: 0 16px;
-  border-radius: 13px;
+  border-radius: 10px;
   font-size: 12px;
   font-weight: 900;
   line-height: 1;
@@ -237,12 +248,12 @@ const emit = defineEmits(["start", "cancel"]);
 }
 
 .config-empty-filter {
-  min-height: 38px;
+  min-height: 36px;
   display: flex;
   align-items: center;
   padding: 0 12px;
   border: 1px dashed rgba(148, 163, 184, 0.46);
-  border-radius: 13px;
+  border-radius: 10px;
   color: #64748b;
   font-size: 12px;
 }

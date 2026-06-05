@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- No unreleased changes.
+- Polished dashboard layout, spacing, controls, tables, and card surfaces for a more consistent commercial UI without runtime behavior changes.
 
 ## v1.9.4
 

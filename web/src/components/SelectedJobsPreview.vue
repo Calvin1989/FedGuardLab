@@ -86,10 +86,17 @@ defineProps({
   gap: 10px;
   align-items: center;
   padding: 10px 12px;
+  border: 1px solid rgba(226, 232, 240, 0.6);
   border-radius: 14px;
   background: #ffffff;
   color: #334155;
   font-size: 12px;
+  transition: border-color 0.16s ease, box-shadow 0.16s ease;
+}
+
+.selected-job-chip:hover {
+  border-color: rgba(96, 165, 250, 0.32);
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
 }
 
 .selected-job-id {

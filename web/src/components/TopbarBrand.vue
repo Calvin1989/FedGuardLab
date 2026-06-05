@@ -10,11 +10,16 @@
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  color: #1e3a8a;
-  font-size: 13px;
-  font-weight: 900;
-  letter-spacing: 0.18em;
+  color: #172554;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.13em;
   text-transform: uppercase;
+  transition: opacity 0.16s ease;
+}
+
+.topbar-brand:hover {
+  opacity: 0.82;
 }
 
 .brand-mark {
@@ -31,16 +36,5 @@
   .topbar-brand {
     font-size: 11px;
   }
-}
-
-.topbar-brand {
-  color: #172554;
-  font-size: 12px;
-  letter-spacing: 0.16em;
-}
-
-.topbar-brand {
-  font-weight: 800;
-  letter-spacing: 0.13em;
 }
 </style>

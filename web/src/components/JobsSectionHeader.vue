@@ -149,6 +149,11 @@ const sort = defineModel("sort", { type: String, default: "created_at_desc" });
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.10);
 }
 
+.status-filter select:focus-visible {
+  outline: 2px solid rgba(37, 99, 235, 0.4);
+  outline-offset: 1px;
+}
+
 /* Section actions (slotted from App.vue) */
 :deep(.section-actions) {
   display: flex;
@@ -200,6 +205,12 @@ const sort = defineModel("sort", { type: String, default: "created_at_desc" });
 :deep(.run-button:not(:disabled):hover) {
   transform: translateY(-1px);
   box-shadow: 0 8px 18px rgba(37, 99, 235, 0.12);
+}
+
+:deep(.run-button:focus-visible),
+:deep(.secondary-button:focus-visible) {
+  outline: 2px solid rgba(37, 99, 235, 0.5);
+  outline-offset: 2px;
 }
 
 :deep(.secondary-button) {

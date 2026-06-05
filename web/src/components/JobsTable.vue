@@ -81,7 +81,7 @@ const emit = defineEmits(["toggle-selection", "toggle-detail"]);
   border-spacing: 0;
   overflow: hidden;
   border: 1px solid rgba(148, 163, 184, 0.24);
-  border-radius: 14px;
+  border-radius: 16px;
   background: #ffffff;
   font-size: 12px;
 }
@@ -130,7 +130,7 @@ const emit = defineEmits(["toggle-selection", "toggle-detail"]);
 .job-row:hover,
 .job-row-selected,
 .job-row.selected {
-  background: #f8fbff;
+  background: #f0f7ff;
 }
 
 .job-row.archived {

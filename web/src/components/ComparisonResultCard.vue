@@ -127,7 +127,7 @@ defineProps({
   gap: 6px;
   min-height: 38px;
   padding: 0 16px;
-  border-radius: 13px;
+  border-radius: 10px;
   border: 1px solid rgba(96, 165, 250, 0.48);
   background: rgba(239, 246, 255, 0.78);
   color: #2563eb;
@@ -149,6 +149,11 @@ defineProps({
   padding: 0 14px;
   border-radius: 10px;
   background: #ffffff;
+}
+
+.comparison-export-item:focus-visible {
+  outline: 2px solid rgba(37, 99, 235, 0.5);
+  outline-offset: 2px;
 }
 
 .comparison-export-item.disabled {
