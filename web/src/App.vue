@@ -21,6 +21,7 @@ import { useExperimentOptions } from "./composables/useExperimentOptions.js";
 import { useReportsCleanup } from "./composables/useReportsCleanup.js";
 import { useRecentJobs } from "./composables/useRecentJobs.js";
 import { useComparison } from "./composables/useComparison.js";
+import { useRuntimeMonitor } from "./composables/useRuntimeMonitor.js";
 import {
   formatDisplayValue as formatDisplayValueBase,
   formatMetricValue as formatMetricValueBase,
@@ -33,17 +34,12 @@ import {
   formatEventTime as formatEventTimeBase,
   jobArtifactUrl as jobArtifactUrlBase,
   comparisonHistoryArtifactUrl as comparisonHistoryArtifactUrlBase,
+  hasArtifacts as hasArtifactsBase,
 } from "./composables/dashboardFormatters.js";
 import { computed, onMounted, ref, watch } from "vue";
 
 const API_BASE = "http://127.0.0.1:8000";
 const WS_BASE = "ws://127.0.0.1:8000";
-
-const jobId = ref("");
-const status = ref("idle");
-const metrics = ref([]);
-const errorMessage = ref("");
-const reportUrl = ref("");
 
 const DASHBOARD_SECTION_STORAGE_KEY = "fedguardlab_dashboard_section";
 
@@ -234,68 +230,69 @@ const {
   loadComparisonHistory: loadComparisonHistory,
 });
 
-let socket = null;
+function handleExperimentFinished({
+  jobId: finishedJobId,
+  finalMetric,
+  experimentName,
+  selectedConfig: config,
+  metricsCount,
+  reportUrl: finishedReportUrl,
+}) {
+  unhideJobId(finishedJobId);
 
-const latestMetric = computed(() => {
-  if (metrics.value.length === 0) {
-    return null;
-  }
-  return metrics.value[metrics.value.length - 1];
+  recentJobs.value = [
+    {
+      job_id: finishedJobId,
+      status: "finished",
+      label: experimentName,
+      name: experimentName,
+      experiment_name: experimentName,
+      config_path: config,
+      aggregation: finalMetric.aggregation || "unknown",
+      defense: finalMetric.defense || "unknown",
+      attack: finalMetric.attack || "unknown",
+      final_accuracy: finalMetric.accuracy ?? 0,
+      final_loss: finalMetric.loss ?? 0,
+      final_asr: finalMetric.attack_success_rate ?? 0,
+      metrics_count: metricsCount,
+      report_url: finishedReportUrl,
+      has_report: true,
+      artifacts: {
+        report_html_url: finishedReportUrl,
+        metrics_csv_url: `${finishedReportUrl}/metrics.csv`,
+        summary_md_url: `${finishedReportUrl}/report.md`,
+        metrics_json_url: `${finishedReportUrl}/metrics.json`,
+        config_json_url: `${finishedReportUrl}/config.json`,
+      },
+    },
+    ...recentJobs.value.filter((job) => job.job_id !== finishedJobId),
+  ].slice(0, 20);
+
+  saveRecentJobs();
+  loadRecentJobsFromApi().catch((error) => {
+    console.warn("Failed to refresh jobs after run finished:", error);
+  });
+}
+
+const {
+  jobId,
+  status,
+  metrics,
+  errorMessage,
+  reportUrl,
+  latestMetric,
+  chartData,
+  chartOptions,
+  cancelCurrentJob,
+  startExperiment,
+} = useRuntimeMonitor({
+  API_BASE,
+  WS_BASE,
+  t,
+  selectedConfig,
+  getSelectedExperimentLabel,
+  onExperimentFinished: handleExperimentFinished,
 });
-
-const chartData = computed(() => {
-  return {
-    labels: metrics.value.map((item) => item.round),
-    datasets: [
-      {
-        label: t.value.accuracy,
-        data: metrics.value.map((item) => item.accuracy),
-        borderColor: "#2563eb",
-        backgroundColor: "rgba(37, 99, 235, 0.12)",
-        borderWidth: 3,
-        tension: 0.35,
-        pointRadius: 3,
-      },
-      {
-        label: t.value.loss,
-        data: metrics.value.map((item) => item.loss),
-        borderColor: "#dc2626",
-        backgroundColor: "rgba(220, 38, 38, 0.12)",
-        borderWidth: 3,
-        tension: 0.35,
-        pointRadius: 3,
-      },
-      {
-        label: t.value.asr,
-        data: metrics.value.map((item) => item.attack_success_rate),
-        borderColor: "#16a34a",
-        backgroundColor: "rgba(22, 163, 74, 0.12)",
-        borderWidth: 3,
-        tension: 0.35,
-        pointRadius: 3,
-      },
-    ],
-  };
-});
-
-const chartOptions = computed(() => ({
-  responsive: true,
-  maintainAspectRatio: false,
-  plugins: {
-    legend: {
-      position: "top",
-    },
-    title: {
-      display: true,
-      text: t.value.chartTitle,
-    },
-  },
-  scales: {
-    y: {
-      beginAtZero: true,
-    },
-  },
-}));
 
 onMounted(async () => {
   await loadExperimentOptions();
@@ -339,143 +336,10 @@ function formatStorageBytes(value) {
   return formatStorageBytesBase(value);
 }
 
-async function cancelCurrentJob() {
-  if (!jobId.value) {
-    return;
-  }
-
-  try {
-    const response = await fetch(`${API_BASE}/jobs/${jobId.value}/cancel`, {
-      method: "POST",
-    });
-
-    if (response.ok) {
-      status.value = "cancelled";
-      errorMessage.value = "";
-      if (socket) {
-        socket.close();
-        socket = null;
-      }
-    } else {
-      const data = await response.json();
-      errorMessage.value = data.detail || `Failed to cancel job: ${response.status}`;
-    }
-  } catch (error) {
-    errorMessage.value = error.message;
-  }
+function hasArtifacts(job) {
+  return hasArtifactsBase(job, jobArtifactUrl);
 }
 
-async function startExperiment() {
-  errorMessage.value = "";
-  metrics.value = [];
-  jobId.value = "";
-  reportUrl.value = "";
-  status.value = "creating";
-
-  if (socket) {
-    socket.close();
-    socket = null;
-  }
-
-  try {
-    const response = await fetch(
-      `${API_BASE}/run?config_path=${encodeURIComponent(selectedConfig.value)}`,
-      {
-        method: "POST",
-      }
-    );
-
-    if (!response.ok) {
-      throw new Error(`Failed to create run: ${response.status}`);
-    }
-
-    const data = await response.json();
-    jobId.value = data.job_id;
-    status.value = "running";
-
-    socket = new WebSocket(`${WS_BASE}/ws/${data.job_id}`);
-
-    socket.onmessage = (event) => {
-      const message = JSON.parse(event.data);
-
-      if (message.error) {
-        errorMessage.value = message.error;
-        status.value = "error";
-        socket.close();
-        return;
-      }
-
-      if (message.event === "cancelled") {
-        status.value = "cancelled";
-        errorMessage.value = "";
-        socket.close();
-        return;
-      }
-
-      if (message.event === "finished") {
-        status.value = "finished";
-        reportUrl.value = `${API_BASE}/reports/${jobId.value}`;
-
-        const finalMetric = metrics.value[metrics.value.length - 1] || {};
-        const experimentName = getSelectedExperimentLabel();
-
-        unhideJobId(jobId.value);
-
-        recentJobs.value = [
-          {
-            job_id: jobId.value,
-            status: "finished",
-            label: experimentName,
-            name: experimentName,
-            experiment_name: experimentName,
-            config_path: selectedConfig.value,
-            aggregation: finalMetric.aggregation || "unknown",
-            defense: finalMetric.defense || "unknown",
-            attack: finalMetric.attack || "unknown",
-            final_accuracy: finalMetric.accuracy ?? 0,
-            final_loss: finalMetric.loss ?? 0,
-            final_asr: finalMetric.attack_success_rate ?? 0,
-            metrics_count: metrics.value.length,
-            report_url: `${API_BASE}/reports/${jobId.value}`,
-            has_report: true,
-            artifacts: {
-              report_html_url: `${API_BASE}/reports/${jobId.value}`,
-              metrics_csv_url: `${API_BASE}/reports/${jobId.value}/metrics.csv`,
-              summary_md_url: `${API_BASE}/reports/${jobId.value}/report.md`,
-              metrics_json_url: `${API_BASE}/reports/${jobId.value}/metrics.json`,
-              config_json_url: `${API_BASE}/reports/${jobId.value}/config.json`,
-            },
-          },
-          ...recentJobs.value.filter((job) => job.job_id !== jobId.value),
-        ].slice(0, 20);
-
-        saveRecentJobs();
-        loadRecentJobsFromApi().catch((error) => {
-          console.warn("Failed to refresh jobs after run finished:", error);
-        });
-
-        socket.close();
-        return;
-      }
-
-      metrics.value = [...metrics.value, message];
-    };
-
-    socket.onerror = () => {
-      errorMessage.value = "WebSocket connection error";
-      status.value = "error";
-    };
-
-    socket.onclose = () => {
-      if (status.value === "running") {
-        status.value = "disconnected";
-      }
-    };
-  } catch (error) {
-    errorMessage.value = error.message;
-    status.value = "error";
-  }
-}
 </script>
 
 <template>
