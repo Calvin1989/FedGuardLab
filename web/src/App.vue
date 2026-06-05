@@ -318,20 +318,33 @@ const selectedReusableJob = computed(() => {
   return recentJobs.value.find((j) => j.job_id === selectedJobIds.value[0]) || null;
 });
 
+function getJobConfigCandidates(job) {
+  if (!job) return [];
+  const candidates = [job.config_path, job.experiment_name].filter(
+    (v) => typeof v === "string" && v.trim() !== ""
+  );
+  return [...new Set(candidates)];
+}
+
 const canReuseSelectedJobConfig = computed(() => {
   const job = selectedReusableJob.value;
-  if (!job?.config_path) return false;
-  return resolveConfigOptionValue(job.config_path) !== null;
+  return selectedJobIds.value.length === 1 && getJobConfigCandidates(job).length > 0;
 });
 
 function reuseSelectedJobConfig() {
   const job = selectedReusableJob.value;
-  if (!job?.config_path) {
+  const candidates = getJobConfigCandidates(job);
+  if (candidates.length === 0) {
     errorMessage.value = t.value.reuseConfigUnavailable;
     return;
   }
 
-  const matchedValue = resolveConfigOptionValue(job.config_path);
+  let matchedValue = null;
+  for (const candidate of candidates) {
+    matchedValue = resolveConfigOptionValue(candidate);
+    if (matchedValue) break;
+  }
+
   if (!matchedValue) {
     errorMessage.value = t.value.reuseConfigNotFound;
     return;

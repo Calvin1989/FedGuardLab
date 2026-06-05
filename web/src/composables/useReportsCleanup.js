@@ -168,7 +168,7 @@ export function useReportsCleanup({
 
         if (typeof loadComparisonHistory === "function") {
           refreshTasks.push(
-            loadComparisonHistory().catch((error) => {
+            Promise.resolve(loadComparisonHistory()).catch((error) => {
               console.warn("Failed to refresh comparison history:", error);
             })
           );
@@ -176,7 +176,7 @@ export function useReportsCleanup({
 
         if (typeof loadRecentJobs === "function") {
           refreshTasks.push(
-            loadRecentJobs().catch((error) => {
+            Promise.resolve(loadRecentJobs()).catch((error) => {
               console.warn("Failed to refresh job history:", error);
             })
           );
