@@ -276,16 +276,70 @@ function handleExperimentFinished({
   });
 }
 
-function reuseJobConfig(configPath) {
-  if (!configPath) {
-    errorMessage.value = language.value === "en"
-      ? "No configuration path available for this job."
-      : "该任务没有可复用的配置路径。";
+function resolveConfigOptionValue(jobConfigPath) {
+  if (!jobConfigPath || experimentOptions.value.length === 0) {
+    return null;
+  }
+
+  const normalize = (p) => {
+    if (!p) return "";
+    let base = p.split("/").pop() || p;
+    base = base.replace(/\.(ya?ml)$/i, "");
+    return base.toLowerCase();
+  };
+
+  const jobNorm = normalize(jobConfigPath);
+
+  for (const opt of experimentOptions.value) {
+    const candidates = [
+      opt.value,
+      opt.path,
+      opt.config_path,
+      opt.key,
+      opt.name,
+      opt.label,
+      opt.metadata?.name_key,
+    ].filter(Boolean);
+
+    for (const c of candidates) {
+      if (c === jobConfigPath) return opt.value;
+    }
+
+    for (const c of candidates) {
+      if (normalize(c) === jobNorm) return opt.value;
+    }
+  }
+
+  return null;
+}
+
+const selectedReusableJob = computed(() => {
+  if (selectedJobIds.value.length !== 1) return null;
+  return recentJobs.value.find((j) => j.job_id === selectedJobIds.value[0]) || null;
+});
+
+const canReuseSelectedJobConfig = computed(() => {
+  const job = selectedReusableJob.value;
+  if (!job?.config_path) return false;
+  return resolveConfigOptionValue(job.config_path) !== null;
+});
+
+function reuseSelectedJobConfig() {
+  const job = selectedReusableJob.value;
+  if (!job?.config_path) {
+    errorMessage.value = t.value.reuseConfigUnavailable;
     return;
   }
 
-  selectedConfig.value = configPath;
+  const matchedValue = resolveConfigOptionValue(job.config_path);
+  if (!matchedValue) {
+    errorMessage.value = t.value.reuseConfigNotFound;
+    return;
+  }
+
+  errorMessage.value = "";
   selectedCategory.value = "all";
+  selectedConfig.value = matchedValue;
   setDashboardSection("run");
 }
 
@@ -420,6 +474,14 @@ function hasArtifacts(job) {
           <div class="section-actions">
             <button
               class="secondary-button"
+              :disabled="!canReuseSelectedJobConfig"
+              @click="reuseSelectedJobConfig"
+            >
+              {{ t.reuseConfig }}
+            </button>
+
+            <button
+              class="secondary-button"
               :disabled="selectedJobIds.length === 0"
               @click="deleteSelectedJobs"
             >
@@ -470,7 +532,6 @@ function hasArtifacts(job) {
         :jobs="recentJobsForDisplay"
         @toggle-selection="toggleJobSelection"
         @toggle-detail="toggleDetailJob"
-        @reuse-config="reuseJobConfig"
       />
 
       <div v-if="recentJobs.length > 0" class="job-detail-card">
