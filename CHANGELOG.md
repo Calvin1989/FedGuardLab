@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- No unreleased changes.
+- Added Vitest unit coverage for the dashboard i18n composable helpers.
 
 ## v1.9.3
 
