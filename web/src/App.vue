@@ -19,6 +19,21 @@ import RuntimeMonitorPanel from "./components/RuntimeMonitorPanel.vue";
 import { useI18n } from "./composables/useI18n.js";
 import { useExperimentOptions } from "./composables/useExperimentOptions.js";
 import { useReportsCleanup } from "./composables/useReportsCleanup.js";
+import {
+  titleizeDisplayValue as titleizeDisplayValueBase,
+  formatDisplayValue as formatDisplayValueBase,
+  formatMetricValue as formatMetricValueBase,
+  formatComparisonMetric as formatComparisonMetricBase,
+  formatStorageBytes as formatStorageBytesBase,
+  eventIcon as eventIconBase,
+  formatAttackDisplay as formatAttackDisplayBase,
+  formatDefenseDisplay as formatDefenseDisplayBase,
+  formatEventMessage as formatEventMessageBase,
+  formatEventTime as formatEventTimeBase,
+  jobArtifactUrl as jobArtifactUrlBase,
+  comparisonHistoryArtifactUrl as comparisonHistoryArtifactUrlBase,
+  hasArtifacts as hasArtifactsBase,
+} from "./composables/dashboardFormatters.js";
 import { computed, onMounted, ref, watch } from "vue";
 
 const API_BASE = "http://127.0.0.1:8000";
@@ -52,46 +67,11 @@ const {
 } = useI18n();
 
 function formatAttackDisplay(attackConfig, fallbackValue = "") {
-  const type = attackConfig?.type || fallbackValue;
-
-  if (!type || type === "—") {
-    return "—";
-  }
-
-  if (type === "none") {
-    return t.value.noneValue;
-  }
-
-  if (type === "label_flipping") {
-    const source = attackConfig?.source_label ?? "?";
-    const target = attackConfig?.target_label ?? "?";
-    return language.value === "zh"
-      ? `标签翻转 · ${source}→${target}`
-      : `Label flip · ${source}→${target}`;
-  }
-
-  if (type === "backdoor") {
-    const target = attackConfig?.target_label ?? "?";
-    return language.value === "zh"
-      ? `后门攻击 · 目标 ${target}`
-      : `Backdoor · target ${target}`;
-  }
-
-  return titleizeDisplayValue(type);
+  return formatAttackDisplayBase({ t, language }, attackConfig, fallbackValue);
 }
 
 function formatDefenseDisplay(defenseConfig, fallbackValue = "") {
-  const type = defenseConfig?.type || fallbackValue;
-
-  if (!type || type === "—") {
-    return "—";
-  }
-
-  if (type === "none") {
-    return t.value.noneValue;
-  }
-
-  return titleizeDisplayValue(type);
+  return formatDefenseDisplayBase({ t, language }, defenseConfig, fallbackValue);
 }
 
 const {
@@ -425,33 +405,15 @@ function loadRecentJobs() {
 }
 
 function titleizeDisplayValue(value) {
-  if (!value) {
-    return "—";
-  }
-
-  return String(value)
-    .replace(/_/g, " ")
-    .replace(/\b\w/g, (char) => char.toUpperCase());
+  return titleizeDisplayValueBase(value);
 }
 
 function formatDisplayValue(value) {
-  if (value === null || value === undefined || value === "") {
-    return "—";
-  }
-
-  return value;
+  return formatDisplayValueBase(value);
 }
 
 function formatMetricValue(value) {
-  if (value === null || value === undefined || value === "") {
-    return "—";
-  }
-
-  if (typeof value === "number") {
-    return Number.isInteger(value) ? String(value) : value.toFixed(4);
-  }
-
-  return value;
+  return formatMetricValueBase(value);
 }
 
 function mapApiJobToRecentJob(job) {
@@ -531,86 +493,19 @@ async function loadRecentJobsFromApi() {
 }
 
 function eventIcon(type) {
-  const icons = {
-    created: "🆕",
-    started: "▶️",
-    round_progress: "🔄",
-    artifact_written: "📦",
-    finished: "✅",
-    failed: "❌",
-    cancelled: "⛔",
-    archived: "📌",
-    restored: "↩️",
-  };
-  return icons[type] || "📌";
+  return eventIconBase(type);
 }
 
 function formatEventMessage(ev) {
-  if (!ev) {
-    return "";
-  }
-
-  if (language.value !== "zh") {
-    return ev.message || "";
-  }
-
-  const messages = {
-    created: "任务已创建",
-    started: "任务已启动",
-    artifact_written: "实验产物已保存",
-    finished: "任务已完成",
-    failed: "任务失败",
-    cancelled: "任务已取消",
-    archived: "任务已归档",
-    restored: "任务已恢复",
-    round_progress: "训练进度已更新",
-  };
-
-  return messages[ev.type] || ev.message || "";
+  return formatEventMessageBase({ language }, ev);
 }
 
 function formatEventTime(ts) {
-  if (!ts) return "—";
-  try {
-    const d = new Date(ts);
-    return d.toLocaleString(language.value === "zh" ? "zh-CN" : "en-US");
-  } catch {
-    return ts;
-  }
+  return formatEventTimeBase({ language }, ts);
 }
 
 function jobArtifactUrl(job, key) {
-  if (!job?.job_id) {
-    return "";
-  }
-
-  const artifacts = job.artifacts || {};
-  const urlKeys = {
-    report_html: "report_html_url",
-    metrics_csv: "metrics_csv_url",
-    summary_md: "summary_md_url",
-    metrics_json: "metrics_json_url",
-    config_json: "config_json_url",
-  };
-
-  const urlKey = urlKeys[key];
-  if (urlKey && artifacts[urlKey]) {
-    return artifacts[urlKey];
-  }
-
-  if (!job.has_report) {
-    return "";
-  }
-
-  const fallbackUrls = {
-    report_html: `${API_BASE}/reports/${job.job_id}`,
-    metrics_csv: `${API_BASE}/reports/${job.job_id}/metrics.csv`,
-    summary_md: `${API_BASE}/reports/${job.job_id}/report.md`,
-    metrics_json: `${API_BASE}/reports/${job.job_id}/metrics.json`,
-    config_json: `${API_BASE}/reports/${job.job_id}/config.json`,
-  };
-
-  return fallbackUrls[key] || "";
+  return jobArtifactUrlBase(API_BASE, job, key);
 }
 
 function comparisonArtifactUrl(key) {
@@ -634,29 +529,11 @@ function comparisonArtifactUrl(key) {
 }
 
 function comparisonHistoryArtifactUrl(item, key) {
-  const artifacts = item?.artifacts || {};
-
-  if (artifacts[key]) {
-    return artifacts[key];
-  }
-
-  if (!item?.comparison_id) {
-    return "";
-  }
-
-  const baseUrl = `${API_BASE}/comparisons/${item.comparison_id}`;
-  const fallbackUrls = {
-    comparison_html_url: baseUrl,
-    comparison_csv_url: `${baseUrl}/comparison.csv`,
-    comparison_json_url: `${baseUrl}/comparison.json`,
-  };
-
-  return fallbackUrls[key] || "";
+  return comparisonHistoryArtifactUrlBase(API_BASE, item, key);
 }
 
 function formatComparisonMetric(value) {
-  const rawValue = typeof value === "object" && value !== null ? value.value : value;
-  return formatMetricValue(rawValue);
+  return formatComparisonMetricBase(value);
 }
 
 function mapComparisonHistoryItem(item) {
@@ -778,33 +655,11 @@ async function loadComparisonHistory() {
 }
 
 function formatStorageBytes(value) {
-  const bytes = Number(value || 0);
-
-  if (!Number.isFinite(bytes) || bytes <= 0) {
-    return "0 B";
-  }
-
-  const units = ["B", "KB", "MB", "GB", "TB"];
-  let size = bytes;
-  let unitIndex = 0;
-
-  while (size >= 1024 && unitIndex < units.length - 1) {
-    size /= 1024;
-    unitIndex += 1;
-  }
-
-  const digits = unitIndex === 0 ? 0 : size >= 10 ? 1 : 2;
-  return `${size.toFixed(digits)} ${units[unitIndex]}`;
+  return formatStorageBytesBase(value);
 }
 
 function hasArtifacts(job) {
-  return Boolean(
-    jobArtifactUrl(job, "report_html") ||
-      jobArtifactUrl(job, "metrics_csv") ||
-      jobArtifactUrl(job, "summary_md") ||
-      jobArtifactUrl(job, "metrics_json") ||
-      jobArtifactUrl(job, "config_json")
-  );
+  return hasArtifactsBase(job, jobArtifactUrl);
 }
 
 const selectedDetailJob = computed(() => {
