@@ -6,6 +6,7 @@
 - Polished dashboard layout, spacing, controls, tables, and card surfaces for a more consistent commercial UI without runtime behavior changes.
 - Refined dashboard spacing, density, table scroll surfaces, and KPI/action alignment without runtime behavior changes.
 - Refined the dashboard product header, jobs toolbar, and jobs table styling without runtime behavior changes.
+- Lightened the dashboard top navigation surface to reduce visual competition with main content cards.
 
 ## v1.9.4
 
