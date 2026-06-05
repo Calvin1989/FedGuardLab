@@ -6,6 +6,7 @@
 - Added Vitest unit coverage for experiment option loading, filtering, and preview formatting helpers.
 - Added Vitest unit coverage for comparison report creation, history loading, and artifact URL helpers.
 - Added Vitest unit coverage for reports cleanup and runtime monitor composables.
+- Added Vitest unit coverage for recent jobs loading, filtering, selection, archive, and cleanup behavior.
 
 ## v1.9.3
 
