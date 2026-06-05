@@ -80,31 +80,25 @@ const emit = defineEmits(["toggle-selection", "toggle-detail"]);
   border-collapse: separate;
   border-spacing: 0;
   overflow: hidden;
-  border: 1px solid rgba(148, 163, 184, 0.16);
-  border-radius: 10px;
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  border-radius: 16px;
   background: #ffffff;
   font-size: 12px;
 }
 
 .jobs-table th,
 .jobs-table td {
-  padding: 8px 12px;
-  border-bottom: 1px solid rgba(226, 232, 240, 0.72);
+  padding: 9px 12px;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.88);
   text-align: left;
   vertical-align: middle;
 }
 
 .jobs-table th {
-  position: sticky;
-  top: 0;
-  z-index: 2;
-  background: #f1f5f9;
-  color: #475569;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+  background: #f8fafc;
+  color: #334155;
+  font-size: 12px;
+  font-weight: 900;
 }
 
 .jobs-table tr:last-child td {
@@ -112,13 +106,12 @@ const emit = defineEmits(["toggle-selection", "toggle-detail"]);
 }
 
 .jobs-table input[type="checkbox"] {
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   min-height: 0;
   padding: 0;
-  border-radius: 4px;
+  border-radius: 5px;
   cursor: pointer;
-  accent-color: #2563eb;
 }
 
 @media (max-width: 1180px) {
@@ -126,40 +119,38 @@ const emit = defineEmits(["toggle-selection", "toggle-detail"]);
     display: block;
     overflow-x: auto;
     white-space: nowrap;
-    -webkit-overflow-scrolling: touch;
   }
 }
 
 /* Row */
 .job-row {
   cursor: pointer;
-  transition: background 0.12s ease;
 }
 
 .job-row:hover,
 .job-row-selected,
 .job-row.selected {
-  background: #f8fafc;
+  background: rgba(37, 99, 235, 0.04);
 }
 
 .job-row.archived {
-  opacity: 0.6;
+  opacity: 0.76;
 }
 
 .job-row.archived .job-label,
 .job-row.archived .job-id {
-  color: #94a3b8;
+  color: #64748b;
 }
 
 /* Cell content */
 .job-label {
-  color: #0f172a;
-  font-weight: 600;
+  color: #111827;
+  font-weight: 900;
 }
 
 .job-id {
-  margin-top: 1px;
-  color: #94a3b8;
+  margin-top: 2px;
+  color: #64748b;
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-size: 10px;
 }
@@ -168,20 +159,20 @@ const emit = defineEmits(["toggle-selection", "toggle-detail"]);
 .job-badges {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
+  gap: 5px;
 }
 
 .job-badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 20px;
-  padding: 2px 8px;
-  border-radius: 4px;
-  background: #f1f5f9;
-  color: #475569;
-  font-size: 10px;
-  font-weight: 600;
+  min-height: 22px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: #edf2ff;
+  color: #334155;
+  font-size: 11px;
+  font-weight: 900;
   line-height: 1;
   white-space: nowrap;
 }
@@ -192,19 +183,19 @@ const emit = defineEmits(["toggle-selection", "toggle-detail"]);
 }
 
 .job-badge.muted {
-  background: #f8fafc;
-  color: #94a3b8;
+  background: #f1f5f9;
+  color: #64748b;
 }
 
 .job-badge.archived {
-  background: #f1f5f9;
-  color: #94a3b8;
+  border-color: rgba(203, 213, 225, 0.95);
+  background: #e2e8f0;
+  color: #475569;
 }
 
 /* Select cell */
 .job-select-cell {
-  min-width: 40px;
-  width: 40px;
+  min-width: 46px;
 }
 
 .job-select-cell input[type="checkbox"] {
@@ -222,32 +213,30 @@ const emit = defineEmits(["toggle-selection", "toggle-detail"]);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 4px;
-  min-height: 28px;
-  padding: 0 10px;
-  border: 1px solid rgba(148, 163, 184, 0.2);
-  border-radius: 6px;
-  background: #ffffff;
+  gap: 6px;
+  min-height: 38px;
+  padding: 0 16px;
+  border: 1px solid rgba(96, 165, 250, 0.48);
+  border-radius: 13px;
+  background: #eff6ff;
   color: #2563eb;
-  font-size: 11px;
-  font-weight: 600;
+  font-size: 12px;
+  font-weight: 900;
   line-height: 1;
   text-decoration: none;
   white-space: nowrap;
   word-break: keep-all;
   cursor: pointer;
-  transition: background 0.12s ease, border-color 0.12s ease;
-}
-
-.report-link:hover {
-  background: #eff6ff;
-  border-color: rgba(37, 99, 235, 0.3);
+  min-height: 32px;
+  padding: 0 12px;
+  border-radius: 9px;
+  font-weight: 700;
 }
 
 .jobs-table .report-link {
-  min-height: 26px;
-  padding: 0 8px;
-  font-size: 11px;
+  min-height: 28px;
+  padding: 0 10px;
+  font-size: 12px;
 }
 
 /* Status colors */

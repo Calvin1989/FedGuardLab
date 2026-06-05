@@ -80,16 +80,12 @@ const sort = defineModel("sort", { type: String, default: "created_at_desc" });
   align-items: flex-start;
   justify-content: space-between;
   gap: 16px;
-  margin-bottom: 12px;
-  padding: 12px 14px;
-  background: #f8fafc;
-  border: 1px solid rgba(148, 163, 184, 0.12);
-  border-radius: 10px;
+  margin-bottom: 14px;
 }
 
 .section-header.actions-only {
   justify-content: flex-end;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
 }
 
 .section-header-copy {
@@ -107,49 +103,50 @@ const sort = defineModel("sort", { type: String, default: "created_at_desc" });
 .section-header h2 {
   margin: 0;
   color: #0f172a;
-  font-size: 20px;
-  letter-spacing: -0.03em;
+  font-size: 24px;
+  letter-spacing: -0.035em;
 }
 
 .section-header p {
   max-width: 720px;
-  margin: 4px 0 0;
+  margin: 6px 0 0;
   color: #64748b;
   font-size: 13px;
-  line-height: 1.5;
+  line-height: 1.55;
 }
 
 .job-filters {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 0;
+  gap: 10px;
+  margin-top: 10px;
 }
 
 .status-filter {
   display: grid;
-  gap: 3px;
-  min-width: 140px;
-  color: #475569;
-  font-size: 11px;
-  font-weight: 600;
+  gap: 5px;
+  min-width: 170px;
+  color: #172033;
+  font-size: 12px;
+  font-weight: 900;
 }
 
 .status-filter select {
-  min-height: 32px;
-  padding: 0 30px 0 10px;
-  border: 1px solid rgba(148, 163, 184, 0.24);
-  border-radius: 6px;
-  background: rgba(255, 255, 255, 0.96);
+  min-height: 34px;
+  padding: 0 34px 0 12px;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.92);
   color: #0f172a;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 800;
   outline: none;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
 }
 
 .status-filter select:focus {
   border-color: rgba(37, 99, 235, 0.48);
-  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.08);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.10);
 }
 
 .status-filter select:focus-visible {
@@ -161,10 +158,9 @@ const sort = defineModel("sort", { type: String, default: "created_at_desc" });
 :deep(.section-actions) {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 10px;
   justify-content: flex-end;
-  align-items: center;
-  flex-shrink: 0;
+  align-items: flex-end;
 }
 
 :deep(.run-button),
@@ -174,11 +170,11 @@ const sort = defineModel("sort", { type: String, default: "created_at_desc" });
   align-items: center;
   justify-content: center;
   gap: 6px;
-  min-height: 32px;
-  padding: 0 14px;
-  border-radius: 6px;
+  min-height: 36px;
+  padding: 0 16px;
+  border-radius: 10px;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 900;
   line-height: 1;
   text-decoration: none;
   white-space: nowrap;
@@ -186,6 +182,8 @@ const sort = defineModel("sort", { type: String, default: "created_at_desc" });
   cursor: pointer;
   box-shadow: none;
   transition:
+    transform 0.16s ease,
+    border-color 0.16s ease,
     background-color 0.16s ease,
     color 0.16s ease,
     box-shadow 0.16s ease;
@@ -193,19 +191,20 @@ const sort = defineModel("sort", { type: String, default: "created_at_desc" });
 
 :deep(.run-button) {
   border: 1px solid #1d4ed8;
-  background: #2563eb;
+  background: linear-gradient(135deg, #1d4ed8, #1e40af);
   color: #ffffff;
 }
 
 :deep(.run-button:disabled) {
   opacity: 0.48;
   cursor: not-allowed;
+  transform: none;
   box-shadow: none;
 }
 
 :deep(.run-button:not(:disabled):hover) {
-  background: #1d4ed8;
-  box-shadow: 0 1px 3px rgba(37, 99, 235, 0.2);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(37, 99, 235, 0.12);
 }
 
 :deep(.run-button:focus-visible),
@@ -215,20 +214,21 @@ const sort = defineModel("sort", { type: String, default: "created_at_desc" });
 }
 
 :deep(.secondary-button) {
-  border: 1px solid rgba(148, 163, 184, 0.24);
-  background: #ffffff;
-  color: #334155;
+  border: 1px solid rgba(96, 165, 250, 0.48);
+  background: #eff6ff;
+  color: #2563eb;
 }
 
 :deep(.secondary-button:disabled) {
   opacity: 0.48;
   cursor: not-allowed;
+  transform: none;
   box-shadow: none;
 }
 
 :deep(.secondary-button:not(:disabled):hover) {
-  background: #f8fafc;
-  border-color: rgba(148, 163, 184, 0.36);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(37, 99, 235, 0.12);
 }
 
 @media (max-width: 860px) {
@@ -240,8 +240,7 @@ const sort = defineModel("sort", { type: String, default: "created_at_desc" });
 
   .job-filters {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 6px;
+    grid-template-columns: 1fr;
   }
 }
 </style>
