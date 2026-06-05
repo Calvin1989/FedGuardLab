@@ -20,6 +20,7 @@ import { useI18n } from "./composables/useI18n.js";
 import { useExperimentOptions } from "./composables/useExperimentOptions.js";
 import { useReportsCleanup } from "./composables/useReportsCleanup.js";
 import { useRecentJobs } from "./composables/useRecentJobs.js";
+import { useComparison } from "./composables/useComparison.js";
 import {
   formatDisplayValue as formatDisplayValueBase,
   formatMetricValue as formatMetricValueBase,
@@ -87,9 +88,10 @@ const {
   formatDefenseDisplay,
 });
 
+let _resetComparisonResult = () => {};
+
 function resetComparisonAfterJobsChanged() {
-  comparisonUrl.value = "";
-  comparisonError.value = "";
+  _resetComparisonResult();
 }
 
 const {
@@ -141,6 +143,34 @@ const {
   eventIcon,
   onJobsCleared: resetComparisonAfterJobsChanged,
 });
+
+const {
+  comparisonStatus,
+  comparisonError,
+  comparisonUrl,
+  comparisonArtifacts,
+  comparisonInsights,
+  comparisonHistory,
+  comparisonHistoryStatus,
+  comparisonHistoryError,
+  resetComparisonResult,
+  createComparisonReport,
+  comparisonArtifactUrl,
+  comparisonHistoryItemsForDisplay,
+  loadComparisonHistory,
+} = useComparison({
+  API_BASE,
+  t,
+  withLang,
+  selectedJobIds,
+  buildComparisonTitle,
+  formatComparisonMetric: formatComparisonMetricBase,
+  formatEventTime,
+  comparisonHistoryArtifactUrl: (item, key) =>
+    comparisonHistoryArtifactUrlBase(API_BASE, item, key),
+});
+
+_resetComparisonResult = resetComparisonResult;
 
 const dashboardSections = ["run", "jobs", "comparisons", "reports"];
 
@@ -201,18 +231,8 @@ const {
   formatStorageBytes,
   formatEventTime,
   loadRecentJobs: loadRecentJobs,
-  loadComparisonHistory,
+  loadComparisonHistory: loadComparisonHistory,
 });
-
-const comparisonStatus = ref("idle");
-const comparisonError = ref("");
-const comparisonUrl = ref("");
-const comparisonArtifacts = ref({});
-const comparisonInsights = ref({});
-const comparisonHistory = ref([]);
-const comparisonHistoryStatus = ref("idle");
-const comparisonHistoryError = ref("");
-
 
 let socket = null;
 
@@ -299,50 +319,6 @@ onMounted(async () => {
   }
 });
 
-async function createComparisonReport() {
-  comparisonError.value = "";
-  comparisonUrl.value = "";
-  comparisonArtifacts.value = {};
-  comparisonInsights.value = {};
-
-  if (selectedJobIds.value.length < 2) {
-    comparisonError.value = t.value.selectAtLeastTwo;
-    return;
-  }
-
-  comparisonStatus.value = "creating";
-
-  try {
-    const response = await fetch(`${API_BASE}/comparisons`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        job_ids: selectedJobIds.value,
-        title: buildComparisonTitle(),
-      }),
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.detail || "Failed to create comparison report");
-    }
-
-    comparisonUrl.value = data.comparison_url;
-    comparisonArtifacts.value = data.artifacts || {};
-    comparisonInsights.value = data.insights || {};
-    comparisonStatus.value = "finished";
-    loadComparisonHistory().catch((error) => {
-      console.warn("Failed to refresh comparison history:", error);
-    });
-  } catch (error) {
-    comparisonError.value = error.message;
-    comparisonStatus.value = "error";
-  }
-}
-
 function eventIcon(type) {
   return eventIconBase(type);
 }
@@ -357,98 +333,6 @@ function formatEventTime(ts) {
 
 function jobArtifactUrl(job, key) {
   return jobArtifactUrlBase(API_BASE, job, key);
-}
-
-function comparisonArtifactUrl(key) {
-  const artifacts = comparisonArtifacts.value || {};
-
-  if (artifacts[key]) {
-    return artifacts[key];
-  }
-
-  if (!comparisonUrl.value) {
-    return "";
-  }
-
-  const fallbackUrls = {
-    comparison_html_url: comparisonUrl.value,
-    comparison_csv_url: `${comparisonUrl.value}/comparison.csv`,
-    comparison_json_url: `${comparisonUrl.value}/comparison.json`,
-  };
-
-  return fallbackUrls[key] || "";
-}
-
-function comparisonHistoryArtifactUrl(item, key) {
-  return comparisonHistoryArtifactUrlBase(API_BASE, item, key);
-}
-
-function formatComparisonMetric(value) {
-  return formatComparisonMetricBase(value);
-}
-
-function mapComparisonHistoryItem(item) {
-  const artifacts = item.artifacts || {};
-  return {
-    comparison_id: item.comparison_id || "",
-    title: item.title || t.value.comparisonHistoryUntitled,
-    created_at: item.created_at || "",
-    job_ids: Array.isArray(item.job_ids) ? item.job_ids : [],
-    job_count: item.job_count ?? (Array.isArray(item.job_ids) ? item.job_ids.length : 0),
-    best_accuracy: formatComparisonMetric(item.best_accuracy),
-    lowest_loss: formatComparisonMetric(item.lowest_loss),
-    lowest_asr: formatComparisonMetric(item.lowest_asr),
-    has_report: item.has_report !== false,
-    artifacts,
-  };
-}
-
-const comparisonHistoryItemsForDisplay = computed(() =>
-  comparisonHistory.value.map((item) => {
-    const htmlUrl = comparisonHistoryArtifactUrl(item, "comparison_html_url");
-    const csvUrl = comparisonHistoryArtifactUrl(item, "comparison_csv_url");
-    const jsonUrl = comparisonHistoryArtifactUrl(item, "comparison_json_url");
-
-    return {
-      comparison_id: item.comparison_id,
-      title: item.title,
-      createdAtLabel: formatEventTime(item.created_at),
-      job_count: item.job_count,
-      best_accuracy: item.best_accuracy,
-      lowest_loss: item.lowest_loss,
-      lowest_asr: item.lowest_asr,
-      htmlUrl: htmlUrl ? withLang(htmlUrl) : "",
-      csvUrl: csvUrl || "",
-      jsonUrl: jsonUrl || "",
-    };
-  })
-);
-
-async function loadComparisonHistory() {
-  comparisonHistoryStatus.value = "loading";
-  comparisonHistoryError.value = "";
-
-  try {
-    const params = new URLSearchParams();
-    params.set("limit", "10");
-    params.set("sort", "created_at_desc");
-
-    const response = await fetch(`${API_BASE}/comparisons?${params.toString()}`);
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.detail || t.value.comparisonHistoryFailed);
-    }
-
-    comparisonHistory.value = Array.isArray(data.comparisons)
-      ? data.comparisons.map(mapComparisonHistoryItem)
-      : [];
-    comparisonHistoryStatus.value = "idle";
-  } catch (error) {
-    comparisonHistoryError.value = error.message;
-    comparisonHistoryStatus.value = "error";
-    throw error;
-  }
 }
 
 function formatStorageBytes(value) {
