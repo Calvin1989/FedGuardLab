@@ -81,6 +81,10 @@ const sort = defineModel("sort", { type: String, default: "created_at_desc" });
   justify-content: space-between;
   gap: 16px;
   margin-bottom: 14px;
+  padding: 12px;
+  background: rgba(248, 250, 252, 0.84);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 14px;
 }
 
 .section-header.actions-only {
@@ -124,29 +128,28 @@ const sort = defineModel("sort", { type: String, default: "created_at_desc" });
 
 .status-filter {
   display: grid;
-  gap: 5px;
-  min-width: 170px;
-  color: #172033;
-  font-size: 12px;
-  font-weight: 900;
+  gap: 3px;
+  min-width: 150px;
+  color: #475569;
+  font-size: 11px;
+  font-weight: 600;
 }
 
 .status-filter select {
-  min-height: 34px;
-  padding: 0 34px 0 12px;
+  min-height: 32px;
+  padding: 0 30px 0 10px;
   border: 1px solid rgba(148, 163, 184, 0.28);
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.92);
+  border-radius: 8px;
+  background: #ffffff;
   color: #0f172a;
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 600;
   outline: none;
-  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
 }
 
 .status-filter select:focus {
   border-color: rgba(37, 99, 235, 0.48);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.10);
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.08);
 }
 
 .status-filter select:focus-visible {
@@ -158,9 +161,10 @@ const sort = defineModel("sort", { type: String, default: "created_at_desc" });
 :deep(.section-actions) {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 8px;
   justify-content: flex-end;
-  align-items: flex-end;
+  align-items: center;
+  flex-shrink: 0;
 }
 
 :deep(.run-button),
@@ -170,11 +174,11 @@ const sort = defineModel("sort", { type: String, default: "created_at_desc" });
   align-items: center;
   justify-content: center;
   gap: 6px;
-  min-height: 36px;
-  padding: 0 16px;
-  border-radius: 10px;
+  min-height: 32px;
+  padding: 0 14px;
+  border-radius: 8px;
   font-size: 12px;
-  font-weight: 900;
+  font-weight: 700;
   line-height: 1;
   text-decoration: none;
   white-space: nowrap;
