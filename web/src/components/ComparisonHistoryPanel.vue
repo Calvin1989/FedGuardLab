@@ -212,11 +212,11 @@ const emit = defineEmits(["refresh"]);
 /* Empty state */
 .empty-state {
   width: 100%;
-  min-height: 82px;
+  min-height: 72px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 18px;
+  padding: 14px;
   border: 1px dashed rgba(148, 163, 184, 0.34);
   border-radius: 18px;
   color: #64748b;
@@ -226,8 +226,8 @@ const emit = defineEmits(["refresh"]);
 }
 
 .empty-state.small {
-  min-height: 70px;
-  margin-top: 16px;
+  min-height: 60px;
+  margin-top: 12px;
 }
 
 /* Feedback states */
@@ -332,8 +332,8 @@ const emit = defineEmits(["refresh"]);
 }
 
 .comparison-history-refresh {
-  min-height: 34px;
-  padding: 8px 12px;
+  min-height: 32px;
+  padding: 6px 12px;
   white-space: nowrap;
 }
 
@@ -352,8 +352,8 @@ const emit = defineEmits(["refresh"]);
 
 .comparison-history-table th,
 .comparison-history-table td {
-  padding-top: 11px;
-  padding-bottom: 11px;
+  padding-top: 9px;
+  padding-bottom: 9px;
 }
 
 .comparison-history-title {
@@ -367,13 +367,13 @@ const emit = defineEmits(["refresh"]);
 
 /* Comparison history scroll container */
 .comparison-history-scroll {
-  max-height: 460px;
+  max-height: 420px;
   overflow: auto;
-  border: 1px solid rgba(226, 232, 240, 0.92);
+  border: 1px solid rgba(226, 232, 240, 0.72);
   border-radius: 16px;
   background: #ffffff;
   scrollbar-width: thin;
-  scrollbar-color: rgba(148, 163, 184, 0.32) transparent;
+  scrollbar-color: rgba(148, 163, 184, 0.20) transparent;
 }
 
 .comparison-history-scroll .comparison-history-table {

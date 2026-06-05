@@ -92,11 +92,11 @@ defineProps({
 
 .empty-state {
   width: 100%;
-  min-height: 82px;
+  min-height: 72px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 18px;
+  padding: 14px;
   border: 1px dashed rgba(148, 163, 184, 0.34);
   border-radius: 18px;
   color: #64748b;

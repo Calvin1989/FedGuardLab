@@ -88,7 +88,7 @@ const emit = defineEmits(["toggle-selection", "toggle-detail"]);
 
 .jobs-table th,
 .jobs-table td {
-  padding: 11px 12px;
+  padding: 9px 12px;
   border-bottom: 1px solid rgba(226, 232, 240, 0.88);
   text-align: left;
   vertical-align: middle;
@@ -130,7 +130,7 @@ const emit = defineEmits(["toggle-selection", "toggle-detail"]);
 .job-row:hover,
 .job-row-selected,
 .job-row.selected {
-  background: #f0f7ff;
+  background: rgba(37, 99, 235, 0.04);
 }
 
 .job-row.archived {

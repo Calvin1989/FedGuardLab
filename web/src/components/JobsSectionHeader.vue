@@ -79,8 +79,8 @@ const sort = defineModel("sort", { type: String, default: "created_at_desc" });
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 18px;
-  margin-bottom: 18px;
+  gap: 16px;
+  margin-bottom: 14px;
 }
 
 .section-header.actions-only {
@@ -119,7 +119,7 @@ const sort = defineModel("sort", { type: String, default: "created_at_desc" });
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  margin-top: 14px;
+  margin-top: 10px;
 }
 
 .status-filter {
@@ -132,7 +132,7 @@ const sort = defineModel("sort", { type: String, default: "created_at_desc" });
 }
 
 .status-filter select {
-  min-height: 36px;
+  min-height: 34px;
   padding: 0 34px 0 12px;
   border: 1px solid rgba(148, 163, 184, 0.28);
   border-radius: 12px;

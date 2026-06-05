@@ -67,8 +67,8 @@ defineProps({
   align-items: stretch;
   gap: 14px;
   width: 100%;
-  margin: 0 0 14px;
-  padding: 14px;
+  margin: 0 0 10px;
+  padding: 12px;
   border: 1px solid rgba(191, 219, 254, 0.76);
   border-radius: 18px;
   background:
@@ -109,11 +109,11 @@ defineProps({
 .history-summary-card {
   display: flex;
   min-width: 0;
-  min-height: 72px;
+  min-height: 64px;
   flex-direction: column;
   justify-content: center;
-  gap: 6px;
-  padding: 10px 12px;
+  gap: 4px;
+  padding: 8px 12px;
   border: 1px solid rgba(226, 232, 240, 0.96);
   border-radius: 14px;
   background: #ffffff;

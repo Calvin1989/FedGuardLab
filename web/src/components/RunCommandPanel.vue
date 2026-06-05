@@ -126,7 +126,7 @@ const emit = defineEmits(["start", "cancel"]);
   border-radius: 22px;
   background: rgba(255, 255, 255, 0.92);
   box-shadow: 0 18px 48px rgba(15, 23, 42, 0.07);
-  padding: 24px 26px;
+  padding: 20px 22px;
   animation: commandFadeIn 0.28s ease-out both;
 }
 
@@ -150,7 +150,7 @@ const emit = defineEmits(["start", "cancel"]);
   display: grid;
   grid-template-columns: 180px minmax(280px, 420px) auto;
   align-items: end;
-  gap: 12px;
+  gap: 10px;
 }
 
 .field-control {
@@ -267,10 +267,10 @@ const emit = defineEmits(["start", "cancel"]);
 .selected-config-summary {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  gap: 14px;
+  gap: 12px;
   align-items: center;
-  margin-top: 16px;
-  padding: 12px 14px;
+  margin-top: 12px;
+  padding: 10px 12px;
   border: 1px solid rgba(148, 163, 184, 0.22);
   border-radius: 16px;
   background: #ffffff;

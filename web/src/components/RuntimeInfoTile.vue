@@ -36,12 +36,12 @@ defineProps({
 
 .runtime-info-tile .runtime-value {
   display: flex;
-  min-height: 30px;
+  min-height: 26px;
   min-width: 0;
   align-items: center;
   margin: 0;
   color: #111827;
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 800;
   letter-spacing: -0.02em;
   line-height: 1.1;

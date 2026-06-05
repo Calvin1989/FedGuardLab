@@ -32,10 +32,10 @@ const emit = defineEmits(["select"]);
 <style scoped>
 .dashboard-section-nav {
   width: min(1180px, calc(100vw - 48px));
-  margin: 0 auto 14px;
+  margin: 0 auto 10px;
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 6px;
   align-items: center;
 }
 
@@ -49,8 +49,8 @@ const emit = defineEmits(["select"]);
   font-size: 12px;
   font-weight: 900;
   line-height: 1;
-  min-height: 34px;
-  padding: 0 14px;
+  min-height: 32px;
+  padding: 0 12px;
   transition:
     background-color 0.16s ease,
     border-color 0.16s ease,
@@ -68,7 +68,7 @@ const emit = defineEmits(["select"]);
 .dashboard-section-tab.active {
   border-color: rgba(37, 99, 235, 0.52);
   background: #eff6ff;
-  box-shadow: 0 10px 24px rgba(37, 99, 235, 0.12);
+  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.10);
   color: #1d4ed8;
 }
 
