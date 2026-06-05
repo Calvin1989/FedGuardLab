@@ -25,10 +25,7 @@ const emit = defineEmits(["refresh", "run-cleanup"]);
 <template>
   <section class="reports-cleanup-panel dashboard-info-panel">
     <div class="reports-cleanup-heading">
-      <div class="reports-cleanup-heading-copy">
-        <span class="detail-section-title">{{ copy.reportsCleanupTitle }}</span>
-        <span class="detail-section-subtitle">{{ copy.reportsCleanupHint }}</span>
-      </div>
+      <span class="detail-section-title">{{ copy.reportsCleanupTitle }}</span>
       <div class="reports-cleanup-actions">
         <button
           class="secondary-button reports-cleanup-action"
@@ -384,18 +381,12 @@ const emit = defineEmits(["refresh", "run-cleanup"]);
 /* Run and reports page layout polish */
 .reports-cleanup-heading {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 16px;
   margin-bottom: 10px;
   padding-bottom: 10px;
   border-bottom: 1px solid rgba(226, 232, 240, 0.92);
-}
-
-.reports-cleanup-heading-copy {
-  display: grid;
-  min-width: 0;
-  gap: 4px;
 }
 
 .reports-cleanup-heading .detail-section-title {
@@ -405,16 +396,6 @@ const emit = defineEmits(["refresh", "run-cleanup"]);
   font-size: 14px;
   font-weight: 900;
   line-height: 1.25;
-}
-
-.reports-cleanup-heading .detail-section-subtitle {
-  display: block;
-  max-width: 760px;
-  margin: 0;
-  color: #64748b;
-  font-size: 12px;
-  font-weight: 700;
-  line-height: 1.55;
 }
 
 .reports-cleanup-actions {
@@ -432,10 +413,11 @@ const emit = defineEmits(["refresh", "run-cleanup"]);
   min-width: 0;
   flex-wrap: wrap;
   gap: 8px;
-  padding: 8px 12px;
-  border: 1px solid rgba(191, 219, 254, 0.75);
-  border-radius: 14px;
-  background: linear-gradient(135deg, rgba(239, 246, 255, 0.72), rgba(248, 250, 252, 0.94));
+  padding: 6px 10px;
+  border: 1px solid rgba(191, 219, 254, 0.55);
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(239, 246, 255, 0.54), rgba(248, 250, 252, 0.78));
+  opacity: 0.88;
 }
 
 .reports-cleanup-mode-pill {

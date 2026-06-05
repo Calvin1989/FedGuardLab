@@ -80,25 +80,31 @@ const emit = defineEmits(["toggle-selection", "toggle-detail"]);
   border-collapse: separate;
   border-spacing: 0;
   overflow: hidden;
-  border: 1px solid rgba(148, 163, 184, 0.24);
-  border-radius: 16px;
+  border: 1px solid rgba(148, 163, 184, 0.20);
+  border-radius: 14px;
   background: #ffffff;
   font-size: 12px;
 }
 
 .jobs-table th,
 .jobs-table td {
-  padding: 9px 12px;
-  border-bottom: 1px solid rgba(226, 232, 240, 0.88);
+  padding: 7px 12px;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.80);
   text-align: left;
   vertical-align: middle;
 }
 
 .jobs-table th {
-  background: #f8fafc;
-  color: #334155;
-  font-size: 12px;
-  font-weight: 900;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: #f1f5f9;
+  color: #475569;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.24);
 }
 
 .jobs-table tr:last-child td {
@@ -106,12 +112,13 @@ const emit = defineEmits(["toggle-selection", "toggle-detail"]);
 }
 
 .jobs-table input[type="checkbox"] {
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
   min-height: 0;
   padding: 0;
-  border-radius: 5px;
+  border-radius: 4px;
   cursor: pointer;
+  accent-color: #2563eb;
 }
 
 @media (max-width: 1180px) {
@@ -125,12 +132,13 @@ const emit = defineEmits(["toggle-selection", "toggle-detail"]);
 /* Row */
 .job-row {
   cursor: pointer;
+  transition: background 0.12s ease;
 }
 
 .job-row:hover,
 .job-row-selected,
 .job-row.selected {
-  background: rgba(37, 99, 235, 0.04);
+  background: #f8fafc;
 }
 
 .job-row.archived {
@@ -144,8 +152,8 @@ const emit = defineEmits(["toggle-selection", "toggle-detail"]);
 
 /* Cell content */
 .job-label {
-  color: #111827;
-  font-weight: 900;
+  color: #0f172a;
+  font-weight: 700;
 }
 
 .job-id {
@@ -166,13 +174,13 @@ const emit = defineEmits(["toggle-selection", "toggle-detail"]);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 22px;
-  padding: 3px 9px;
-  border-radius: 999px;
+  min-height: 20px;
+  padding: 2px 8px;
+  border-radius: 6px;
   background: #edf2ff;
   color: #334155;
-  font-size: 11px;
-  font-weight: 900;
+  font-size: 10px;
+  font-weight: 600;
   line-height: 1;
   white-space: nowrap;
 }
@@ -213,30 +221,32 @@ const emit = defineEmits(["toggle-selection", "toggle-detail"]);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  min-height: 38px;
-  padding: 0 16px;
-  border: 1px solid rgba(96, 165, 250, 0.48);
-  border-radius: 13px;
+  gap: 4px;
+  min-height: 30px;
+  padding: 0 10px;
+  border: 1px solid rgba(96, 165, 250, 0.40);
+  border-radius: 8px;
   background: #eff6ff;
   color: #2563eb;
-  font-size: 12px;
-  font-weight: 900;
+  font-size: 11px;
+  font-weight: 600;
   line-height: 1;
   text-decoration: none;
   white-space: nowrap;
   word-break: keep-all;
   cursor: pointer;
-  min-height: 32px;
-  padding: 0 12px;
-  border-radius: 9px;
-  font-weight: 700;
+  transition: background 0.12s ease, border-color 0.12s ease;
+}
+
+.report-link:hover {
+  background: #dbeafe;
+  border-color: rgba(37, 99, 235, 0.50);
 }
 
 .jobs-table .report-link {
-  min-height: 28px;
-  padding: 0 10px;
-  font-size: 12px;
+  min-height: 26px;
+  padding: 0 8px;
+  font-size: 11px;
 }
 
 /* Status colors */

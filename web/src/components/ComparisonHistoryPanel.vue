@@ -39,10 +39,7 @@ const emit = defineEmits(["refresh"]);
 <template>
   <section class="comparison-history-panel dashboard-info-panel">
     <div class="detail-section-heading comparison-history-heading">
-      <div>
-        <span class="detail-section-title">{{ copy.comparisonHistoryTitle }}</span>
-        <span class="detail-section-subtitle">{{ copy.comparisonHistoryHint }}</span>
-      </div>
+      <span class="detail-section-title">{{ copy.comparisonHistoryTitle }}</span>
       <button
         class="secondary-button comparison-history-refresh"
         :disabled="status === 'loading'"
@@ -325,10 +322,10 @@ const emit = defineEmits(["refresh"]);
 /* Comparison history specific */
 .comparison-history-heading {
   flex-direction: row;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 12px;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .comparison-history-refresh {

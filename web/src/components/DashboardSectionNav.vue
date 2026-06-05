@@ -31,25 +31,24 @@ const emit = defineEmits(["select"]);
 
 <style scoped>
 .dashboard-section-nav {
-  width: min(1180px, calc(100vw - 48px));
-  margin: 0 auto 10px;
+  width: 100%;
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 4px;
   align-items: center;
 }
 
 .dashboard-section-tab {
   appearance: none;
-  border: 1px solid rgba(148, 163, 184, 0.28);
+  border: 1px solid rgba(148, 163, 184, 0.22);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.82);
-  color: #334155;
+  background: rgba(255, 255, 255, 0.6);
+  color: #475569;
   cursor: pointer;
   font-size: 12px;
-  font-weight: 900;
+  font-weight: 700;
   line-height: 1;
-  min-height: 32px;
+  min-height: 30px;
   padding: 0 12px;
   transition:
     background-color 0.16s ease,
@@ -66,10 +65,11 @@ const emit = defineEmits(["select"]);
 }
 
 .dashboard-section-tab.active {
-  border-color: rgba(37, 99, 235, 0.52);
+  border-color: rgba(37, 99, 235, 0.42);
   background: #eff6ff;
-  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.10);
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.08);
   color: #1d4ed8;
+  font-weight: 800;
 }
 
 .dashboard-section-tab:focus-visible {
@@ -78,8 +78,10 @@ const emit = defineEmits(["select"]);
 }
 
 @media (max-width: 860px) {
-  .dashboard-section-nav {
-    width: min(100%, calc(100vw - 28px));
+  .dashboard-section-tab {
+    min-height: 28px;
+    padding: 0 10px;
+    font-size: 11px;
   }
 }
 </style>
