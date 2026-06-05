@@ -2,12 +2,16 @@
 
 ## Unreleased
 
-- Fixed the selected-job reuse-config workflow and report cleanup action handling without backend or training logic changes.
-- Reduced repeated dashboard panel copy and refined comparison/report panel headers without runtime behavior changes.
-- Polished dashboard layout, spacing, controls, tables, and card surfaces for a more consistent commercial UI without runtime behavior changes.
-- Refined dashboard spacing, density, table scroll surfaces, and KPI/action alignment without runtime behavior changes.
-- Refined the dashboard product header, jobs toolbar, and jobs table styling without runtime behavior changes.
-- Lightened the dashboard top navigation surface to reduce visual competition with main content cards.
+- No unreleased changes.
+
+## v1.9.5
+
+- Polished dashboard top navigation, jobs toolbar, jobs table, and comparison/report panel layout for a more consistent UI surface.
+- Reduced repeated panel copy and refined comparison/report panel headers without runtime behavior changes.
+- Added frontend workflow to reuse experiment configuration from a selected history job.
+- Fixed the reuse-config flow: matching now runs at click time against experiment options instead of pre-evaluating in a computed property, and the button is enabled based on config candidate fields alone.
+- Fixed reports cleanup refresh callbacks calling `.catch` on synchronous functions by wrapping return values in `Promise.resolve()`.
+- No backend API behavior change, no training logic change, and no report artifact URL change.
 
 ## v1.9.4
 
