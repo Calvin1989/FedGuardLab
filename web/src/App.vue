@@ -584,7 +584,7 @@ function hasArtifacts(job) {
 /* Page layout */
 .page {
   min-height: 100vh;
-  padding: 22px 24px 64px;
+  padding: 18px 24px 56px;
   color: #101828;
   font-family:
     Inter,
@@ -616,15 +616,15 @@ function hasArtifacts(job) {
 .dashboard-shell {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 18px;
-  margin-bottom: 26px;
+  gap: 14px;
+  margin-bottom: 20px;
 }
 
 /* Comparison card */
 .comparison-card {
   position: relative;
   overflow: hidden;
-  padding: 24px 26px;
+  padding: 20px 24px;
   border: 1px solid rgba(148, 163, 184, 0.22);
   border-radius: 22px;
   background: rgba(255, 255, 255, 0.92);
@@ -695,11 +695,11 @@ function hasArtifacts(job) {
 /* Empty state */
 .empty-state {
   width: 100%;
-  min-height: 82px;
+  min-height: 72px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 18px;
+  padding: 14px;
   border: 1px dashed rgba(148, 163, 184, 0.34);
   border-radius: 18px;
   color: #64748b;
@@ -709,8 +709,8 @@ function hasArtifacts(job) {
 }
 
 .empty-state.small {
-  min-height: 70px;
-  margin-top: 16px;
+  min-height: 60px;
+  margin-top: 12px;
 }
 
 /* Section actions */
@@ -732,8 +732,8 @@ function hasArtifacts(job) {
 /* Feedback and hints */
 .comparison-feedback,
 .comparison-hint {
-  margin-top: 16px;
-  padding: 14px;
+  margin-top: 12px;
+  padding: 12px;
   border: 1px solid rgba(148, 163, 184, 0.22);
   border-radius: 18px;
   background: #ffffff;
@@ -778,7 +778,7 @@ select:focus-visible {
 /* Responsive */
 @media (max-width: 860px) {
   .page {
-    padding: 18px 14px 56px;
+    padding: 14px 14px 48px;
   }
 
   .page > *,

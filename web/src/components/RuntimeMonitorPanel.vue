@@ -106,8 +106,8 @@ defineProps({
   box-shadow: 0 18px 48px rgba(15, 23, 42, 0.07);
   display: grid;
   grid-template-columns: 1fr;
-  gap: 12px;
-  padding: 18px;
+  gap: 10px;
+  padding: 16px;
   animation: monitorFadeIn 0.28s ease-out both;
 }
 
@@ -146,8 +146,8 @@ defineProps({
 /* Root element overrides (reach child component root via scoped) */
 .runtime-item,
 .hero-metric-item {
-  min-height: 68px;
-  padding: 13px 15px;
+  min-height: 60px;
+  padding: 11px 13px;
   display: flex;
   flex-direction: column;
   justify-content: center;

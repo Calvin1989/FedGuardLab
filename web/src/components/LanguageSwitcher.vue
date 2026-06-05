@@ -40,7 +40,7 @@ const emit = defineEmits(["select"]);
   border: 1px solid rgba(148, 163, 184, 0.26);
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.9);
-  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.08);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
   backdrop-filter: blur(14px);
 }
 
@@ -76,7 +76,7 @@ const emit = defineEmits(["select"]);
 .lang-button.active {
   background: #0f172a;
   color: #ffffff;
-  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.16);
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.12);
 }
 
 .lang-button:focus-visible {

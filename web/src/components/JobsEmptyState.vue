@@ -41,12 +41,12 @@ defineProps({
 <style scoped>
 .empty-state {
   width: 100%;
-  min-height: 82px;
+  min-height: 72px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 18px;
+  padding: 14px;
   border: 1px dashed rgba(148, 163, 184, 0.34);
   border-radius: 18px;
   color: #64748b;
@@ -56,8 +56,8 @@ defineProps({
 }
 
 .empty-state.small {
-  min-height: 70px;
-  margin-top: 16px;
+  min-height: 60px;
+  margin-top: 12px;
 }
 
 .empty-state strong {
@@ -72,12 +72,12 @@ defineProps({
 
 /* Override for comparison-empty-state */
 .comparison-empty-state {
-  min-height: 112px;
+  min-height: 96px;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 6px;
-  padding: 22px 24px;
+  padding: 18px 20px;
   text-align: center;
 }
 

@@ -250,7 +250,7 @@ const emit = defineEmits(["refresh", "run-cleanup"]);
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 10px;
   align-items: center;
-  padding: 8px 10px;
+  padding: 6px 10px;
   border: 1px solid rgba(226, 232, 240, 0.9);
   border-radius: 12px;
   background: rgba(248, 250, 252, 0.82);
@@ -387,8 +387,8 @@ const emit = defineEmits(["refresh", "run-cleanup"]);
   align-items: flex-start;
   justify-content: space-between;
   gap: 16px;
-  margin-bottom: 14px;
-  padding-bottom: 14px;
+  margin-bottom: 10px;
+  padding-bottom: 10px;
   border-bottom: 1px solid rgba(226, 232, 240, 0.92);
 }
 
@@ -432,7 +432,7 @@ const emit = defineEmits(["refresh", "run-cleanup"]);
   min-width: 0;
   flex-wrap: wrap;
   gap: 8px;
-  padding: 10px 12px;
+  padding: 8px 12px;
   border: 1px solid rgba(191, 219, 254, 0.75);
   border-radius: 14px;
   background: linear-gradient(135deg, rgba(239, 246, 255, 0.72), rgba(248, 250, 252, 0.94));
@@ -482,7 +482,8 @@ const emit = defineEmits(["refresh", "run-cleanup"]);
   justify-content: center;
   gap: 2px;
   min-width: 0;
-  padding: 8px 10px;
+  min-height: 56px;
+  padding: 6px 10px;
   border: 1px solid rgba(226, 232, 240, 0.95);
   border-radius: 12px;
   background: #ffffff;
@@ -505,11 +506,11 @@ const emit = defineEmits(["refresh", "run-cleanup"]);
 
 .empty-state {
   width: 100%;
-  min-height: 82px;
+  min-height: 72px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 18px;
+  padding: 14px;
   border: 1px dashed rgba(148, 163, 184, 0.34);
   border-radius: 18px;
   color: #64748b;
@@ -519,8 +520,8 @@ const emit = defineEmits(["refresh", "run-cleanup"]);
 }
 
 .empty-state.small {
-  min-height: 70px;
-  margin-top: 16px;
+  min-height: 60px;
+  margin-top: 12px;
 }
 
 .comparison-feedback,
