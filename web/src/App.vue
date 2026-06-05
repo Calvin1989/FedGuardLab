@@ -346,13 +346,17 @@ function hasArtifacts(job) {
 
 <template>
   <main class="page">
-    <GlobalToolbar :language="language" @select-language="setLanguage" />
+    <header class="app-header">
+      <div class="app-header-inner">
+        <GlobalToolbar :language="language" @select-language="setLanguage" />
 
-    <DashboardSectionNav
-      :sections="dashboardNavigationSections"
-      :active-section="activeDashboardSection"
-      @select="setDashboardSection"
-    />
+        <DashboardSectionNav
+          :sections="dashboardNavigationSections"
+          :active-section="activeDashboardSection"
+          @select="setDashboardSection"
+        />
+      </div>
+    </header>
 
     <section v-show="activeDashboardSection === 'run'" class="dashboard-shell dashboard-shell-v7">
       <RunCommandPanel
@@ -584,7 +588,7 @@ function hasArtifacts(job) {
 /* Page layout */
 .page {
   min-height: 100vh;
-  padding: 18px 24px 56px;
+  padding: 0 0 56px;
   color: #101828;
   font-family:
     Inter,
@@ -600,12 +604,33 @@ function hasArtifacts(job) {
   font-variant-numeric: tabular-nums;
 }
 
+/* Header shell — unified topbar + nav */
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.16);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+  margin-bottom: 20px;
+}
+
+.app-header-inner {
+  width: min(1200px, calc(100vw - 48px));
+  margin: 0 auto;
+  padding: 12px 0 0;
+}
+
 .page > *,
 .dashboard-shell,
 .comparison-card {
   width: min(1200px, calc(100vw - 48px));
   margin-left: auto;
   margin-right: auto;
+  padding-left: 24px;
+  padding-right: 24px;
 }
 
 /* Dashboard shell */
@@ -625,10 +650,10 @@ function hasArtifacts(job) {
   position: relative;
   overflow: hidden;
   padding: 20px 24px;
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  border-radius: 22px;
-  background: rgba(255, 255, 255, 0.92);
-  box-shadow: 0 18px 48px rgba(15, 23, 42, 0.07);
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04), 0 8px 24px rgba(15, 23, 42, 0.04);
 }
 
 .comparison-card > * {
@@ -655,29 +680,27 @@ function hasArtifacts(job) {
   align-items: center;
   justify-content: center;
   gap: 6px;
-  min-height: 36px;
-  padding: 0 16px;
-  border-radius: 10px;
+  min-height: 32px;
+  padding: 0 14px;
+  border-radius: 6px;
   box-shadow: none;
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 600;
   line-height: 1;
   text-decoration: none;
   white-space: nowrap;
   word-break: keep-all;
   cursor: pointer;
   transition:
-    transform 0.16s ease,
-    border-color 0.16s ease,
-    background-color 0.16s ease,
-    color 0.16s ease,
-    box-shadow 0.16s ease;
+    background-color 0.12s ease,
+    border-color 0.12s ease,
+    color 0.12s ease,
+    box-shadow 0.12s ease;
 }
 
 .run-button:not(:disabled):hover,
 .secondary-button:not(:disabled):hover {
-  transform: translateY(-1px);
-  box-shadow: 0 8px 18px rgba(37, 99, 235, 0.12);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
 }
 
 .run-button:focus-visible,
@@ -687,45 +710,45 @@ function hasArtifacts(job) {
 }
 
 .secondary-button {
-  border: 1px solid rgba(96, 165, 250, 0.48);
-  background: #eff6ff;
-  color: #2563eb;
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  background: #ffffff;
+  color: #334155;
 }
 
 /* Empty state */
 .empty-state {
   width: 100%;
-  min-height: 72px;
+  min-height: 56px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 14px;
-  border: 1px dashed rgba(148, 163, 184, 0.34);
-  border-radius: 18px;
-  color: #64748b;
+  padding: 12px;
+  border: 1px dashed rgba(148, 163, 184, 0.2);
+  border-radius: 8px;
+  color: #94a3b8;
   text-align: center;
-  font-size: 13px;
-  line-height: 1.6;
+  font-size: 12px;
+  line-height: 1.5;
 }
 
 .empty-state.small {
-  min-height: 60px;
-  margin-top: 12px;
+  min-height: 48px;
+  margin-top: 8px;
 }
 
 /* Section actions */
 .section-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 8px;
   justify-content: flex-end;
-  align-items: flex-end;
+  align-items: center;
+  flex-shrink: 0;
 }
 
 .section-actions .secondary-button:disabled,
 .section-actions .run-button:disabled {
   opacity: 0.48;
-  transform: none;
   box-shadow: none;
 }
 
@@ -733,10 +756,10 @@ function hasArtifacts(job) {
 .comparison-feedback,
 .comparison-hint {
   margin-top: 12px;
-  padding: 12px;
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  border-radius: 18px;
-  background: #ffffff;
+  padding: 10px 12px;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 8px;
+  background: #f8fafc;
   box-shadow: none;
 }
 
@@ -747,7 +770,7 @@ function hasArtifacts(job) {
 
 /* Job detail card */
 .job-detail-card {
-  border-radius: 18px;
+  border-radius: 10px;
 }
 
 /* Scrollbar styling */
@@ -778,17 +801,20 @@ select:focus-visible {
 /* Responsive */
 @media (max-width: 860px) {
   .page {
-    padding: 14px 14px 48px;
+    padding: 0 0 48px;
   }
 
+  .app-header-inner,
   .page > *,
   .dashboard-shell,
   .comparison-card {
     width: min(100%, calc(100vw - 28px));
+    padding-left: 14px;
+    padding-right: 14px;
   }
 
   .comparison-card {
-    border-radius: 22px;
+    border-radius: 14px;
   }
 
   .section-actions {
@@ -798,19 +824,22 @@ select:focus-visible {
 
 /* Animation */
 .dashboard-shell,
-.comparison-card,
+.comparison-card {
+  animation: fadeIn 0.2s ease-out both;
+}
+
 .job-detail-card {
-  animation: cardFadeIn 0.28s ease-out both;
+  animation: fadeIn 0.16s ease-out both;
 }
 
 .error-feedback {
   animation: cardFadeIn 0.22s ease-out both;
 }
 
-@keyframes cardFadeIn {
+@keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateY(4px);
   }
   to {
     opacity: 1;

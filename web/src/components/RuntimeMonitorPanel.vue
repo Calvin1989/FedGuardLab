@@ -100,14 +100,13 @@ defineProps({
 .monitor-card {
   position: relative;
   overflow: hidden;
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  border-radius: 22px;
-  background: rgba(255, 255, 255, 0.92);
-  box-shadow: 0 18px 48px rgba(15, 23, 42, 0.07);
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04), 0 8px 24px rgba(15, 23, 42, 0.04);
   display: grid;
   grid-template-columns: 1fr;
-  gap: 10px;
-  padding: 16px;
+  gap: 0;
   animation: monitorFadeIn 0.28s ease-out both;
 }
 
@@ -130,6 +129,8 @@ defineProps({
 /* Layout */
 .runtime-panel {
   min-width: 0;
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.1);
 }
 
 .runtime-row {
@@ -140,25 +141,25 @@ defineProps({
     repeat(4, minmax(108px, 1fr))
     minmax(150px, 0.95fr);
   align-items: stretch;
-  gap: 10px;
+  gap: 8px;
 }
 
 /* Root element overrides (reach child component root via scoped) */
 .runtime-item,
 .hero-metric-item {
-  min-height: 60px;
-  padding: 11px 13px;
+  min-height: 52px;
+  padding: 8px 10px;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 7px;
-  border-radius: 12px;
+  gap: 4px;
+  border-radius: 8px;
   transition: background 0.16s ease;
 }
 
 .runtime-item:hover,
 .hero-metric-item:hover {
-  background: rgba(248, 250, 252, 0.72);
+  background: rgba(248, 250, 252, 0.8);
 }
 
 .runtime-item.wide strong {
@@ -171,14 +172,14 @@ defineProps({
 
 .runtime-action {
   grid-column: -2 / -1;
-  gap: 6px;
+  gap: 4px;
 }
 
 /* Error banner */
 .runtime-error {
-  margin-top: 12px;
-  padding: 10px 12px;
-  border-radius: 14px;
+  margin-top: 8px;
+  padding: 8px 10px;
+  border-radius: 8px;
   background: #fff1f2;
   color: #9f1239;
   font-size: 12px;

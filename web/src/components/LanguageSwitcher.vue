@@ -34,65 +34,62 @@ const emit = defineEmits(["select"]);
   align-items: center;
   justify-content: center;
   width: auto;
-  height: 34px;
-  padding: 3px;
-  gap: 3px;
-  border: 1px solid rgba(148, 163, 184, 0.26);
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.9);
-  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
-  backdrop-filter: blur(14px);
+  height: 30px;
+  padding: 2px;
+  gap: 2px;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 6px;
+  background: #f8fafc;
 }
 
 .lang-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 74px;
-  height: 28px;
-  min-height: 28px;
-  padding: 0 12px;
+  width: 56px;
+  height: 26px;
+  min-height: 26px;
+  padding: 0 8px;
   border: 0;
-  border-radius: 999px;
+  border-radius: 4px;
   background: transparent;
-  color: #334155;
+  color: #64748b;
   font-size: 11px;
-  font-weight: 800;
+  font-weight: 600;
   line-height: 1;
   white-space: nowrap;
   cursor: pointer;
   transition:
-    transform 0.16s ease,
-    border-color 0.16s ease,
-    background-color 0.16s ease,
-    color 0.16s ease,
-    box-shadow 0.16s ease;
+    background-color 0.12s ease,
+    color 0.12s ease;
 }
 
 .lang-button:hover {
-  color: #1d4ed8;
+  color: #334155;
+  background: rgba(148, 163, 184, 0.08);
 }
 
 .lang-button.active {
-  background: #0f172a;
-  color: #ffffff;
-  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.12);
+  background: #ffffff;
+  color: #0f172a;
+  font-weight: 700;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
 }
 
 .lang-button:focus-visible {
   outline: 2px solid rgba(37, 99, 235, 0.5);
-  outline-offset: 2px;
+  outline-offset: 1px;
 }
 
 @media (max-width: 560px) {
   .lang-switcher {
-    height: 32px;
+    height: 28px;
   }
 
   .lang-button {
-    width: 62px;
-    height: 26px;
-    min-height: 26px;
+    width: 48px;
+    height: 24px;
+    min-height: 24px;
     font-size: 10px;
   }
 }
