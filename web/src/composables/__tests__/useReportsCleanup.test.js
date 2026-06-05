@@ -340,7 +340,7 @@ describe("useReportsCleanup – preview and candidates computed", () => {
     expect(reportsCleanupPreview.value.candidates).toHaveLength(3);
   });
 
-  it("reportsCleanupPreviewCandidates returns first 5 candidates", async () => {
+  it("reportsCleanupPreviewCandidates returns first 50 candidates", async () => {
     const deps = makeDeps();
     const manyCandidates = Array.from({ length: 10 }, (_, i) => ({
       kind: "job",
@@ -367,7 +367,7 @@ describe("useReportsCleanup – preview and candidates computed", () => {
       useReportsCleanup(deps);
     await loadReportsCleanupSummary();
 
-    expect(reportsCleanupPreviewCandidates.value).toHaveLength(5);
+    expect(reportsCleanupPreviewCandidates.value).toHaveLength(10);
   });
 
   it("reportsCleanupHasCandidates is true when candidates exist", async () => {

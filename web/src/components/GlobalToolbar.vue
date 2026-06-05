@@ -16,23 +16,26 @@ const emit = defineEmits(["select-language"]);
   <div class="global-toolbar" aria-label="Global toolbar">
     <TopbarBrand />
 
-    <LanguageSwitcher :language="language" @select="emit('select-language', $event)" />
+    <div class="toolbar-actions">
+      <LanguageSwitcher :language="language" @select="emit('select-language', $event)" />
+    </div>
   </div>
 </template>
 
 <style scoped>
 .global-toolbar {
-  width: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  min-height: 32px;
+  gap: 24px;
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--color-bg-page);
+  margin-bottom: 8px;
 }
 
-@media (max-width: 860px) {
-  .global-toolbar {
-    align-items: center;
-  }
+.toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
 }
 </style>

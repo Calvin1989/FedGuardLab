@@ -162,6 +162,33 @@ export function useComparison({
     }
   }
 
+  async function clearComparisonHistory() {
+    if (!confirm(t.value.comparisonHistoryClearConfirm || "Are you sure you want to clear all comparison history?")) {
+      return;
+    }
+
+    comparisonHistoryStatus.value = "loading";
+    comparisonHistoryError.value = "";
+
+    try {
+      const response = await fetch(`${API_BASE}/comparisons/all`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        throw new Error(data.detail || "Failed to clear comparison history");
+      }
+
+      comparisonHistory.value = [];
+      comparisonHistoryStatus.value = "idle";
+      loadComparisonHistory(); // 重新加载以确认状态
+    } catch (error) {
+      comparisonHistoryError.value = error.message;
+      comparisonHistoryStatus.value = "error";
+    }
+  }
+
   return {
     comparisonStatus,
     comparisonError,
@@ -177,5 +204,6 @@ export function useComparison({
     mapComparisonHistoryItem,
     comparisonHistoryItemsForDisplay,
     loadComparisonHistory,
+    clearComparisonHistory,
   };
 }

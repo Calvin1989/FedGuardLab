@@ -64,6 +64,26 @@ defineProps({
       <span>{{ copy.jobDetailReport }}</span>
       <strong>{{ job.has_report ? copy.available : copy.notReady }}</strong>
     </div>
+
+    <div v-if="job.config && job.config.experiment" class="detail-item highlight-item">
+      <span>{{ copy.roundsLabel }}</span>
+      <strong>{{ job.config.experiment.rounds || "—" }}</strong>
+    </div>
+
+    <div v-if="job.config && job.config.federated" class="detail-item highlight-item">
+      <span>{{ copy.clientsLabel }}</span>
+      <strong>{{ job.config.federated.num_clients || "—" }}</strong>
+    </div>
+
+    <div v-if="job.config && job.config.federated" class="detail-item highlight-item">
+      <span>{{ copy.maliciousClientsLabel }}</span>
+      <strong>{{ job.config.federated.malicious_clients ?? "—" }}</strong>
+    </div>
+
+    <div v-if="job.config && job.config.training" class="detail-item highlight-item">
+      <span>{{ copy.lrLabel }}</span>
+      <strong>{{ job.config.training.learning_rate || "—" }}</strong>
+    </div>
   </div>
 </template>
 
@@ -85,6 +105,21 @@ defineProps({
   border: 1px solid rgba(226, 232, 240, 0.9);
   border-radius: 14px;
   background: #ffffff;
+}
+
+.detail-item.highlight-item {
+  background: var(--color-primary-light);
+  border-color: var(--color-primary-border);
+}
+
+.detail-item.highlight-item span {
+  color: var(--color-primary);
+}
+
+.detail-item.highlight-item strong {
+  color: var(--color-primary-dark, #1e40af);
+  font-size: 15px;
+  font-weight: 800;
 }
 
 .detail-item span {

@@ -11,6 +11,7 @@ export function useRecentJobs({
   hasArtifacts,
   formatDisplayValue,
   formatMetricValue,
+  titleizeDisplayValue,
   formatEventMessage,
   formatEventTime,
   eventIcon,
@@ -140,19 +141,20 @@ export function useRecentJobs({
       job_id: job.job_id,
       status: job.status,
       config_path: job.config_path,
+      config: job.config || {},
       experiment_name: experimentName,
       name: experimentName,
       label: experimentName,
       aggregation: formatDisplayValue(job.aggregation),
       defense: formatDisplayValue(job.defense),
-      attack: formatDisplayValue(job.attack),
+      attack: titleizeDisplayValue(job.attack || "none"),
       accuracy: formatMetricValue(job.final_accuracy),
       loss: formatMetricValue(job.final_loss),
       attack_success_rate: formatMetricValue(job.final_asr),
       asr: formatMetricValue(job.final_asr),
-      final_accuracy: formatMetricValue(job.final_accuracy),
-      final_loss: formatMetricValue(job.final_loss),
-      final_asr: formatMetricValue(job.final_asr),
+      final_accuracy: job.final_accuracy,
+      final_loss: job.final_loss,
+      final_asr: job.final_asr,
       final_metric: job.final_metric || {},
       metrics_count: job.metrics_count || 0,
       error: job.error,
@@ -259,6 +261,20 @@ export function useRecentJobs({
   const selectedRoundEvents = computed(() => {
     const events = selectedDetailJob.value?.events || [];
     return events.filter((event) => event.type === "round_progress");
+  });
+
+  const accuracyLeaderboard = computed(() => {
+    return recentJobs.value
+      .filter((j) => j.status === "finished" && j.final_accuracy !== undefined)
+      .sort((a, b) => b.final_accuracy - a.final_accuracy)
+      .slice(0, 10);
+  });
+
+  const asrLeaderboard = computed(() => {
+    return recentJobs.value
+      .filter((j) => j.status === "finished" && j.final_asr !== undefined)
+      .sort((a, b) => a.final_asr - b.final_asr)
+      .slice(0, 10);
   });
 
   const EXPORT_ARTIFACT_KEYS = [
@@ -445,6 +461,8 @@ export function useRecentJobs({
     historyActionStatus,
     canSelectJobForComparison,
     comparableJobsCount,
+    accuracyLeaderboard,
+    asrLeaderboard,
     historyArchiveFilterLabel,
     toggleJobSelection,
     loadHiddenJobIds,

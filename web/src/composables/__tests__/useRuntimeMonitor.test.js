@@ -257,8 +257,12 @@ describe("useRuntimeMonitor – startExperiment success", () => {
     await startExperiment();
 
     expect(fetchMock).toHaveBeenCalledWith(
-      "http://localhost:8000/run?config_path=configs%2Fdemo.yaml",
-      { method: "POST" }
+      "http://localhost:8000/run",
+      expect.objectContaining({
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: expect.stringContaining('"config_path":"configs/demo.yaml"'),
+      })
     );
   });
 

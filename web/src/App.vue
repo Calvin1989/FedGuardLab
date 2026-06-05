@@ -12,6 +12,7 @@ import ComparisonResultCard from "./components/ComparisonResultCard.vue";
 import ComparisonHistoryPanel from "./components/ComparisonHistoryPanel.vue";
 import ComparisonStatusFeedback from "./components/ComparisonStatusFeedback.vue";
 import JobDetailPanel from "./components/JobDetailPanel.vue";
+import LeaderboardPanel from "./components/LeaderboardPanel.vue";
 import SelectedJobsPreview from "./components/SelectedJobsPreview.vue";
 import ReportsCleanupPanel from "./components/ReportsCleanupPanel.vue";
 import RunCommandPanel from "./components/RunCommandPanel.vue";
@@ -25,6 +26,7 @@ import { useRuntimeMonitor } from "./composables/useRuntimeMonitor.js";
 import {
   formatDisplayValue as formatDisplayValueBase,
   formatMetricValue as formatMetricValueBase,
+  titleizeDisplayValue as titleizeDisplayValueBase,
   formatComparisonMetric as formatComparisonMetricBase,
   formatStorageBytes as formatStorageBytesBase,
   eventIcon as eventIconBase,
@@ -103,6 +105,8 @@ const {
   historyActionError,
   historyActionStatus,
   canSelectJobForComparison,
+  accuracyLeaderboard,
+  asrLeaderboard,
   comparableJobsCount,
   historyArchiveFilterLabel,
   toggleJobSelection,
@@ -136,6 +140,7 @@ const {
   hasArtifacts,
   formatDisplayValue: formatDisplayValueBase,
   formatMetricValue: formatMetricValueBase,
+  titleizeDisplayValue: titleizeDisplayValueBase,
   formatEventMessage,
   formatEventTime,
   eventIcon,
@@ -152,10 +157,11 @@ const {
   comparisonHistoryStatus,
   comparisonHistoryError,
   resetComparisonResult,
-  createComparisonReport,
+  createComparisonReport: createComparisonReportBase,
   comparisonArtifactUrl,
   comparisonHistoryItemsForDisplay,
   loadComparisonHistory,
+  clearComparisonHistory,
 } = useComparison({
   API_BASE,
   t,
@@ -168,9 +174,16 @@ const {
     comparisonHistoryArtifactUrlBase(API_BASE, item, key),
 });
 
+async function handleCreateComparisonReport() {
+  await createComparisonReportBase();
+  if (comparisonStatus.value === "finished") {
+    setDashboardSection("comparisons");
+  }
+}
+
 _resetComparisonResult = resetComparisonResult;
 
-const dashboardSections = ["run", "jobs", "comparisons", "reports"];
+const dashboardSections = ["run", "jobs", "comparisons", "leaderboard", "reports"];
 
 const dashboardSectionIds = new Set(dashboardSections);
 
@@ -364,6 +377,9 @@ const {
   latestMetric,
   chartData,
   chartOptions,
+  configOverrides,
+  resetConfigOverrides,
+  applyPreset,
   cancelCurrentJob,
   startExperiment,
 } = useRuntimeMonitor({
@@ -375,6 +391,37 @@ const {
   onExperimentFinished: handleExperimentFinished,
   errorMessage,
 });
+
+const mergedConfigPreview = computed(() => {
+  if (!displayConfigPreview.value) return null;
+  const overrides = configOverrides.value;
+  return {
+    ...displayConfigPreview.value,
+    rounds: overrides.experiment?.rounds ?? displayConfigPreview.value.rounds,
+    clients: overrides.federated?.num_clients ?? displayConfigPreview.value.clients,
+    malicious_clients: overrides.federated?.malicious_clients ?? displayConfigPreview.value.malicious_clients,
+    learning_rate: overrides.training?.learning_rate ?? displayConfigPreview.value.learning_rate,
+    batch_size: overrides.training?.batch_size ?? displayConfigPreview.value.batch_size,
+    local_epochs: overrides.training?.local_epochs ?? displayConfigPreview.value.local_epochs,
+    poison_fraction: overrides.attack?.poison_fraction ?? displayConfigPreview.value.poison_fraction,
+  };
+});
+
+watch(selectedConfigOption, (newVal) => {
+  if (newVal?.preview) {
+    const p = newVal.preview;
+    configOverrides.value = {
+      experiment: { rounds: p.rounds },
+      federated: { num_clients: p.clients, malicious_clients: p.malicious_clients },
+      training: {
+        learning_rate: p.learning_rate,
+        batch_size: p.batch_size,
+        local_epochs: p.local_epochs
+      },
+      attack: { poison_fraction: p.poison_fraction ?? 1.0 },
+    };
+  }
+}, { immediate: true });
 
 onMounted(async () => {
   await loadExperimentOptions();
@@ -435,7 +482,7 @@ function hasArtifacts(job) {
       />
     </header>
 
-    <section v-show="activeDashboardSection === 'run'" class="dashboard-shell dashboard-shell-v7">
+    <section v-show="activeDashboardSection === 'run'" class="dashboard-shell">
       <RunCommandPanel
         :copy="t"
         v-model:selected-category="selectedCategory"
@@ -444,11 +491,14 @@ function hasArtifacts(job) {
         :config-options="filteredExperimentOptions"
         :config-metadata="selectedConfigMetadata"
         :config-description="selectedExperimentDescription"
-        :config-preview="displayConfigPreview"
+        :config-preview="mergedConfigPreview"
         :config-label="getSelectedExperimentLabel()"
         :is-running="status === 'creating' || status === 'running'"
+        :config-overrides="configOverrides"
         @start="startExperiment"
         @cancel="cancelCurrentJob"
+        @reset-overrides="resetConfigOverrides"
+        @apply-preset="applyPreset"
       />
 
       <RuntimeMonitorPanel
@@ -466,10 +516,21 @@ function hasArtifacts(job) {
     </section>
 
     <section
-      v-if="activeDashboardSection === 'jobs' || activeDashboardSection === 'comparisons'"
-      class="comparison-card"
+      v-if="activeDashboardSection === 'jobs' || activeDashboardSection === 'comparisons' || activeDashboardSection === 'leaderboard'"
+      class="dashboard-main-card card-base"
     >
       <DashboardSectionHeading :copy="currentDashboardSectionCopy" />
+
+      <div
+        v-if="activeDashboardSection === 'leaderboard'"
+        class="dashboard-section-panel dashboard-leaderboard-panel"
+      >
+        <LeaderboardPanel
+          :copy="t"
+          :accuracy-rank="accuracyLeaderboard"
+          :asr-rank="asrLeaderboard"
+        />
+      </div>
 
       <div
         v-if="activeDashboardSection === 'jobs'"
@@ -486,7 +547,7 @@ function hasArtifacts(job) {
         <template #default>
           <div class="section-actions">
             <button
-              class="secondary-button"
+              class="btn btn-secondary"
               :disabled="!canReuseSelectedJobConfig"
               @click="reuseSelectedJobConfig"
             >
@@ -494,7 +555,7 @@ function hasArtifacts(job) {
             </button>
 
             <button
-              class="secondary-button"
+              class="btn btn-secondary"
               :disabled="selectedJobIds.length === 0"
               @click="deleteSelectedJobs"
             >
@@ -502,7 +563,7 @@ function hasArtifacts(job) {
             </button>
 
             <button
-              class="secondary-button"
+              class="btn btn-secondary"
               :disabled="recentJobs.length === 0"
               @click="clearRecentJobs"
             >
@@ -510,9 +571,9 @@ function hasArtifacts(job) {
             </button>
 
             <button
-              class="run-button"
+              class="btn btn-primary"
               :disabled="selectedJobIds.length < 2 || comparisonStatus === 'creating'"
-              @click="createComparisonReport"
+              @click="handleCreateComparisonReport"
             >
               {{ comparisonStatus === "creating" ? t.generating : t.generateReport }}
             </button>
@@ -532,6 +593,13 @@ function hasArtifacts(job) {
       <div v-if="historyActionError" class="comparison-feedback error-feedback history-action-error">
         <span>{{ historyActionError }}</span>
       </div>
+
+      <LeaderboardPanel
+        v-if="activeDashboardSection === 'leaderboard'"
+        :copy="t"
+        :accuracy-rank="accuracyLeaderboard"
+        :asr-rank="asrLeaderboard"
+      />
 
       <JobsEmptyState
         v-if="recentJobs.length === 0"
@@ -572,11 +640,21 @@ function hasArtifacts(job) {
         v-if="activeDashboardSection === 'comparisons'"
         class="dashboard-section-panel dashboard-comparisons-panel"
       >
-      <SelectedJobsPreview
-        v-if="selectedJobIds.length > 0"
-        :copy="t"
-        :selected-jobs="selectedJobsForPreview"
-      />
+      <div v-if="selectedJobIds.length > 0" class="comparison-active-selection">
+        <SelectedJobsPreview
+          :copy="t"
+          :selected-jobs="selectedJobsForPreview"
+        />
+        <div class="selection-actions-bar">
+          <button
+            class="btn btn-primary"
+            :disabled="selectedJobIds.length < 2 || comparisonStatus === 'creating'"
+            @click="handleCreateComparisonReport"
+          >
+            {{ comparisonStatus === "creating" ? t.generating : t.generateReport }}
+          </button>
+        </div>
+      </div>
 
       <ComparisonStatusFeedback
         kind="creating"
@@ -605,6 +683,7 @@ function hasArtifacts(job) {
         :error="comparisonHistoryError"
         :items="comparisonHistoryItemsForDisplay"
         @refresh="loadComparisonHistory"
+        @clear="clearComparisonHistory"
       />
 
       <ComparisonStatusFeedback
@@ -620,7 +699,7 @@ function hasArtifacts(job) {
       </div>
     </section>
 
-    <section v-if="activeDashboardSection === 'reports'" class="comparison-card">
+    <section v-if="activeDashboardSection === 'reports'" class="dashboard-main-card card-base">
       <DashboardSectionHeading :copy="currentDashboardSectionCopy" />
 
       <ReportsCleanupPanel
@@ -649,289 +728,138 @@ function hasArtifacts(job) {
 </template>
 
 <style scoped>
-/* Global resets */
-:global(*) {
-  box-sizing: border-box;
-}
-
-:global(html) {
-  min-height: 100%;
-  background:
-    radial-gradient(circle at 8% 0%, rgba(37, 99, 235, 0.08), transparent 28%),
-    radial-gradient(circle at 92% 2%, rgba(14, 165, 233, 0.09), transparent 30%),
-    linear-gradient(135deg, #f8fafc 0%, #f6f8fb 46%, #f7f5fb 100%);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
-}
-
-:global(body) {
-  margin: 0;
-  min-height: 100vh;
-}
-
 /* Page layout */
 .page {
   min-height: 100vh;
-  padding: 18px 24px 56px;
-  color: #101828;
-  font-family:
-    Inter,
-    ui-sans-serif,
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    "PingFang SC",
-    "Microsoft YaHei",
-    "Noto Sans CJK SC",
-    sans-serif;
-  font-variant-numeric: tabular-nums;
+  padding: 24px 32px 64px;
 }
 
 .page > *,
 .dashboard-shell,
 .comparison-card {
-  width: min(1200px, calc(100vw - 48px));
+  width: min(1280px, calc(100vw - 64px));
   margin-left: auto;
   margin-right: auto;
 }
 
 /* Product header shell */
 .app-header {
-  width: min(1200px, calc(100vw - 48px));
-  margin: 0 auto 10px;
+  margin: 0 auto 24px;
   display: flex;
   flex-direction: column;
-  gap: 0;
-  padding: 6px 10px;
-  border: 1px solid rgba(148, 163, 184, 0.12);
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.48);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  box-shadow: 0 1px 8px rgba(15, 23, 42, 0.025);
+  gap: 8px;
+  padding: 8px 12px;
+  border: 1px solid var(--color-border-card);
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: var(--shadow-sm);
 }
 
 /* Dashboard shell */
 .dashboard-section-panel {
-  display: contents;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 }
 
 .dashboard-shell {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 14px;
-  margin-bottom: 20px;
+  gap: 24px;
+  margin-bottom: 24px;
 }
 
-/* Comparison card */
-.comparison-card {
-  position: relative;
-  overflow: hidden;
-  padding: 20px 24px;
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  border-radius: 22px;
-  background: rgba(255, 255, 255, 0.92);
-  box-shadow: 0 18px 48px rgba(15, 23, 42, 0.07);
-}
-
-.comparison-card > * {
-  position: relative;
-  z-index: 1;
-}
-
-.comparison-card .job-detail-card {
-  margin-top: 14px;
-  padding: 16px;
-  border-radius: 16px;
-}
-
-.comparison-card .comparison-feedback,
-.comparison-card .comparison-hint {
-  margin-top: 12px;
-}
-
-/* Buttons */
-.run-button,
-.secondary-button {
-  appearance: none;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  min-height: 36px;
-  padding: 0 16px;
-  border-radius: 10px;
-  box-shadow: none;
-  font-size: 12px;
-  font-weight: 800;
-  line-height: 1;
-  text-decoration: none;
-  white-space: nowrap;
-  word-break: keep-all;
-  cursor: pointer;
-  transition:
-    transform 0.16s ease,
-    border-color 0.16s ease,
-    background-color 0.16s ease,
-    color 0.16s ease,
-    box-shadow 0.16s ease;
-}
-
-.run-button:not(:disabled):hover,
-.secondary-button:not(:disabled):hover {
-  transform: translateY(-1px);
-  box-shadow: 0 8px 18px rgba(37, 99, 235, 0.12);
-}
-
-.run-button:focus-visible,
-.secondary-button:focus-visible {
-  outline: 2px solid rgba(37, 99, 235, 0.5);
-  outline-offset: 2px;
-}
-
-.secondary-button {
-  border: 1px solid rgba(96, 165, 250, 0.48);
-  background: #eff6ff;
-  color: #2563eb;
-}
-
-/* Empty state */
-.empty-state {
-  width: 100%;
-  min-height: 72px;
+.comparison-active-selection {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 14px;
-  border: 1px dashed rgba(148, 163, 184, 0.34);
-  border-radius: 18px;
-  color: #64748b;
-  text-align: center;
-  font-size: 13px;
-  line-height: 1.6;
+  flex-direction: column;
+  gap: 16px;
 }
 
-.empty-state.small {
-  min-height: 60px;
-  margin-top: 12px;
+.selection-actions-bar {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* Main content cards */
+.dashboard-main-card {
+  padding: 32px;
+  animation: fadeIn 0.4s ease-out both;
+}
+
+.dashboard-main-card .job-detail-card {
+  margin-top: 24px;
 }
 
 /* Section actions */
 .section-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 12px;
   justify-content: flex-end;
-  align-items: flex-end;
-}
-
-.section-actions .secondary-button:disabled,
-.section-actions .run-button:disabled {
-  opacity: 0.48;
-  transform: none;
-  box-shadow: none;
+  align-items: center;
 }
 
 /* Feedback and hints */
 .comparison-feedback,
 .comparison-hint {
-  margin-top: 12px;
-  padding: 12px;
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  border-radius: 18px;
-  background: #ffffff;
-  box-shadow: none;
+  margin-top: 16px;
+  padding: 16px;
+  border-radius: var(--radius-md);
+  background: white;
+  border: 1px solid var(--color-border-card);
+  font-size: 14px;
 }
 
 .error-feedback {
-  background: #fff1f2;
-  color: #9f1239;
+  background: var(--color-danger-light);
+  border-color: var(--color-danger-border);
+  color: var(--color-danger);
 }
 
-/* Job detail card */
-.job-detail-card {
-  border-radius: 18px;
+/* Empty state */
+.empty-state {
+  width: 100%;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+  border: 2px dashed var(--color-border-card);
+  border-radius: var(--radius-lg);
+  color: var(--color-text-muted);
+  text-align: center;
+  font-size: 14px;
+  background: rgba(255, 255, 255, 0.5);
 }
 
-/* Scrollbar styling */
-:global(::-webkit-scrollbar) {
-  width: 7px;
-  height: 7px;
-}
-
-:global(::-webkit-scrollbar-track) {
-  background: transparent;
-}
-
-:global(::-webkit-scrollbar-thumb) {
-  background: rgba(148, 163, 184, 0.32);
-  border-radius: 999px;
-}
-
-:global(::-webkit-scrollbar-thumb:hover) {
-  background: rgba(100, 116, 139, 0.42);
-}
-
-/* Focus-visible for selects */
-select:focus-visible {
-  outline: 2px solid rgba(37, 99, 235, 0.4);
-  outline-offset: 1px;
+.empty-state.small {
+  min-height: 80px;
+  padding: 16px;
+  margin-top: 16px;
 }
 
 /* Responsive */
 @media (max-width: 860px) {
   .page {
-    padding: 14px 14px 48px;
+    padding: 16px;
   }
 
   .page > *,
   .dashboard-shell,
   .comparison-card,
   .app-header {
-    width: min(100%, calc(100vw - 28px));
-  }
-
-  .comparison-card {
-    border-radius: 22px;
+    width: 100%;
   }
 
   .section-actions {
-    justify-content: flex-start;
+    justify-content: stretch;
   }
-}
 
-/* Animation */
-.dashboard-shell,
-.comparison-card,
-.job-detail-card {
-  animation: cardFadeIn 0.28s ease-out both;
-}
-
-.error-feedback {
-  animation: cardFadeIn 0.22s ease-out both;
-}
-
-@keyframes cardFadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    scroll-behavior: auto !important;
-    transition-duration: 0.01ms !important;
+  .section-actions > button {
+    flex: 1;
   }
 }
 </style>

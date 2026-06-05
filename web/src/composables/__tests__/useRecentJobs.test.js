@@ -70,6 +70,9 @@ function makeDeps(overrides = {}) {
     formatMetricValue: vi.fn((value) =>
       value == null || value === "" ? "—" : String(value)
     ),
+    titleizeDisplayValue: vi.fn((value) =>
+      value == null || value === "" ? "—" : String(value)
+    ),
     formatEventMessage: vi.fn((event) => event?.message || ""),
     formatEventTime: vi.fn((value) => (value ? `formatted:${value}` : "—")),
     eventIcon: vi.fn((type) => `icon:${type}`),

@@ -19,7 +19,7 @@ const emit = defineEmits(["select"]);
       v-for="section in sections"
       :key="section.id"
       type="button"
-      class="dashboard-section-tab"
+      class="section-tab"
       :class="{ active: activeSection === section.id }"
       :aria-current="activeSection === section.id ? 'page' : undefined"
       @click="emit('select', section.id)"
@@ -31,57 +31,42 @@ const emit = defineEmits(["select"]);
 
 <style scoped>
 .dashboard-section-nav {
-  width: 100%;
   display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-  align-items: center;
+  gap: 8px;
+  padding: 4px;
+  background: rgba(241, 245, 249, 0.5);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-card);
 }
 
-.dashboard-section-tab {
+.section-tab {
   appearance: none;
-  border: 1px solid rgba(148, 163, 184, 0.14);
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.42);
-  color: #475569;
+  border: none;
+  background: transparent;
+  color: var(--color-text-secondary);
   cursor: pointer;
-  font-size: 12px;
-  font-weight: 700;
-  line-height: 1;
-  min-height: 30px;
-  padding: 0 12px;
-  transition:
-    background-color 0.16s ease,
-    border-color 0.16s ease,
-    box-shadow 0.16s ease,
-    color 0.16s ease,
-    transform 0.16s ease;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 6px 16px;
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast);
 }
 
-.dashboard-section-tab:hover {
-  border-color: rgba(59, 130, 246, 0.42);
-  color: #1d4ed8;
-  transform: translateY(-1px);
+.section-tab:hover {
+  color: var(--color-primary);
+  background: rgba(255, 255, 255, 0.5);
 }
 
-.dashboard-section-tab.active {
-  border-color: rgba(37, 99, 235, 0.36);
-  background: rgba(239, 246, 255, 0.72);
-  box-shadow: 0 1px 4px rgba(37, 99, 235, 0.06);
-  color: #1d4ed8;
-  font-weight: 800;
+.section-tab.active {
+  background: white;
+  color: var(--color-primary);
+  box-shadow: var(--shadow-sm);
 }
 
-.dashboard-section-tab:focus-visible {
-  outline: 2px solid rgba(37, 99, 235, 0.5);
-  outline-offset: 2px;
-}
-
-@media (max-width: 860px) {
-  .dashboard-section-tab {
-    min-height: 28px;
-    padding: 0 10px;
-    font-size: 11px;
+@media (max-width: 640px) {
+  .dashboard-section-nav {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 </style>

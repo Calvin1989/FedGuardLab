@@ -61,27 +61,27 @@ const emit = defineEmits(["archive"]);
 </script>
 
 <template>
-  <div class="job-detail-panel">
+  <div v-if="job" class="job-detail-panel animate-fade-in">
     <div class="job-detail-header">
       <div class="job-detail-title-stack">
         <p class="detail-section-title">{{ copy.jobDetailTitle }}</p>
-        <h2 class="detail-section-main-title">{{ job.label || job.experiment_name || job.config_path || "—" }}</h2>
+        <h2 class="text-h2">{{ job.label || job.experiment_name || job.config_path || "—" }}</h2>
         <div class="job-detail-meta">
           <span
-            class="job-detail-meta-pill"
-            :class="{ ready: isComparable }"
+            class="tag"
+            :class="isComparable ? 'tag-success' : 'tag-muted'"
           >
             {{ isComparable ? copy.comparisonReady : copy.comparisonUnavailable }}
           </span>
           <span
             v-if="job.archived"
-            class="job-detail-meta-pill archived"
+            class="tag tag-warning"
           >
             {{ copy.archivedBadge }}
           </span>
           <span
             v-if="!job.has_report"
-            class="job-detail-meta-pill"
+            class="tag tag-danger"
           >
             {{ copy.reportUnavailable }}
           </span>
@@ -90,7 +90,7 @@ const emit = defineEmits(["archive"]);
 
       <div class="job-detail-actions">
         <button
-          class="secondary-button detail-archive-button"
+          class="btn btn-outline"
           :disabled="isActionDisabled"
           :title="copy.archiveHint"
           @click="emit('archive')"
@@ -100,7 +100,7 @@ const emit = defineEmits(["archive"]);
 
         <a
           v-if="job.has_report && reportHtmlUrl"
-          class="report-link detail-report-link"
+          class="btn btn-primary"
           :href="reportHtmlUrl"
           target="_blank"
           rel="noreferrer"
@@ -117,12 +117,12 @@ const emit = defineEmits(["archive"]);
     />
 
     <div v-if="job.has_report" class="detail-exports">
-      <h3 class="detail-exports-title">{{ copy.exportsTitle }}</h3>
+      <h3 class="text-h3">{{ copy.exportsTitle }}</h3>
       <div class="detail-exports-grid">
-        <template v-for="item in exportItems" :key="item.key || item.label">
+        <template v-for="item in exportItems" :key="item.key">
           <a
             v-if="!item.disabled && item.url"
-            class="detail-export-item"
+            class="btn btn-secondary btn-sm"
             :href="item.url"
             target="_blank"
             rel="noreferrer"
@@ -130,7 +130,7 @@ const emit = defineEmits(["archive"]);
             <span class="detail-export-icon">{{ item.icon }}</span>
             <span class="detail-export-label">{{ item.label }}</span>
           </a>
-          <span v-else class="detail-export-item disabled">
+          <span v-else class="btn btn-secondary btn-sm disabled">
             <span class="detail-export-icon">{{ item.icon }}</span>
             <span class="detail-export-label">{{ item.label }}</span>
           </span>
@@ -149,248 +149,90 @@ const emit = defineEmits(["archive"]);
 <style scoped>
 .job-detail-panel {
   display: grid;
-  gap: 12px;
+  gap: 24px;
+  padding: 24px;
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-page);
+  border: 1px solid var(--color-border-card);
 }
 
 .job-detail-header {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 0;
+  gap: 24px;
 }
 
 .job-detail-title-stack {
   display: flex;
-  min-width: 0;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 3px;
+  gap: 4px;
+  min-width: 0;
 }
 
 .detail-section-title {
+  color: var(--color-primary);
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
   margin: 0;
-  color: #0f172a;
-  font-size: 14px;
-  font-weight: 900;
-  letter-spacing: -0.01em;
-  line-height: 1.2;
-  text-transform: none;
-}
-
-.detail-section-main-title {
-  margin: 0;
-  color: #111827;
-  font-size: 20px;
-  font-weight: 900;
-  line-height: 1.2;
 }
 
 .job-detail-meta {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
-  margin-top: 6px;
-}
-
-.job-detail-meta-pill {
-  display: inline-flex;
-  align-items: center;
-  min-height: 22px;
-  padding: 0 8px;
-  border: 1px solid rgba(226, 232, 240, 0.95);
-  border-radius: 999px;
-  background: #f8fafc;
-  color: #64748b;
-  font-size: 10px;
-  font-weight: 800;
-}
-
-.job-detail-meta-pill.ready {
-  border-color: rgba(187, 247, 208, 0.95);
-  background: #dcfce7;
-  color: #15803d;
-}
-
-.job-detail-meta-pill.archived {
-  border-color: rgba(203, 213, 225, 0.95);
-  background: #e2e8f0;
-  color: #475569;
+  gap: 8px;
+  margin-top: 8px;
 }
 
 .job-detail-actions {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: 8px;
-}
-
-.secondary-button {
-  appearance: none;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  min-height: 34px;
-  padding: 0 12px;
-  border: 1px solid rgba(96, 165, 250, 0.48);
-  border-radius: 10px;
-  background: #eff6ff;
-  color: #2563eb;
-  font-size: 12px;
-  font-weight: 800;
-  line-height: 1;
-  text-decoration: none;
-  white-space: nowrap;
-  word-break: keep-all;
-  cursor: pointer;
-  box-shadow: none;
-  transition:
-    transform 0.16s ease,
-    border-color 0.16s ease,
-    background-color 0.16s ease,
-    color 0.16s ease,
-    box-shadow 0.16s ease;
-}
-
-.secondary-button:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-}
-
-.secondary-button:not(:disabled):hover {
-  transform: translateY(-1px);
-  box-shadow: 0 8px 18px rgba(37, 99, 235, 0.12);
-}
-
-.secondary-button:focus-visible,
-.report-link:focus-visible,
-.detail-export-item:focus-visible {
-  outline: 2px solid rgba(37, 99, 235, 0.5);
-  outline-offset: 2px;
-}
-
-.detail-archive-button {
-  min-height: 34px;
-  padding: 0 12px;
-}
-
-.report-link {
-  appearance: none;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  min-height: 30px;
-  padding: 0 11px;
-  border: 1px solid rgba(96, 165, 250, 0.48);
-  border-radius: 10px;
-  background: #eff6ff;
-  color: #2563eb;
-  font-size: 11px;
-  font-weight: 700;
-  line-height: 1;
-  text-decoration: none;
-  white-space: nowrap;
-  cursor: pointer;
-  box-shadow: none;
-  transition:
-    transform 0.16s ease,
-    border-color 0.16s ease,
-    background-color 0.16s ease,
-    color 0.16s ease,
-    box-shadow 0.16s ease;
-}
-
-.report-link:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 8px 18px rgba(37, 99, 235, 0.12);
+  gap: 12px;
 }
 
 .detail-exports {
   display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-top: 0;
-  padding: 12px;
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  border-radius: 14px;
-  background: #f8fafc;
-}
-
-.detail-exports-title {
-  flex: 0 0 auto;
-  margin: 0 0 10px;
-  color: #0f172a;
-  font-size: 14px;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px;
+  background: white;
+  border: 1px solid var(--color-border-card);
+  border-radius: var(--radius-lg);
 }
 
 .detail-exports-grid {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  grid-template-columns: repeat(auto-fit, minmax(128px, 1fr));
+  gap: 10px;
 }
 
-.detail-export-item {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  min-height: 32px;
-  padding: 0 12px;
-  border: 1px solid rgba(96, 165, 250, 0.48);
-  border-radius: 10px;
-  background: #eff6ff;
-  color: #2563eb;
-  font-size: 12px;
-  font-weight: 700;
-  line-height: 1;
-  text-decoration: none;
-  white-space: nowrap;
-  cursor: pointer;
-  box-shadow: none;
-  transition:
-    transform 0.16s ease,
-    border-color 0.16s ease,
-    background-color 0.16s ease,
-    color 0.16s ease,
-    box-shadow 0.16s ease;
-  min-width: 0;
-}
-
-.detail-export-item:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 8px 18px rgba(37, 99, 235, 0.12);
-}
-
-.detail-export-item.disabled {
-  opacity: 0.52;
-  cursor: not-allowed;
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 13px;
 }
 
 .detail-export-icon {
-  display: inline-flex;
-  min-width: 16px;
-  justify-content: center;
-  font-size: 12px;
+  font-size: 14px;
 }
 
-.detail-export-label {
-  overflow: hidden;
-  text-overflow: ellipsis;
+.tag-muted {
+  background: var(--color-border-card);
+  color: var(--color-text-secondary);
 }
 
 @media (max-width: 720px) {
-  .job-detail-header,
-  .job-detail-actions,
-  .detail-exports {
-    align-items: stretch;
+  .job-detail-header {
     flex-direction: column;
+    gap: 16px;
   }
 
-  .detail-exports-title {
+  .job-detail-actions {
     width: 100%;
+  }
+
+  .job-detail-actions > * {
+    flex: 1;
   }
 }
 </style>

@@ -6,7 +6,7 @@ import traceback
 from typing import Any, Callable
 
 from api.jobs import JobStore
-from fedguardlab.config.loader import load_config
+from fedguardlab.config.schema import FedGuardConfig
 from fedguardlab.core.trainer import run_experiment
 
 logger = logging.getLogger(__name__)
@@ -56,7 +56,7 @@ async def run_job(
     await asyncio.sleep(0.1)
 
     try:
-        config = load_config(job.config_path)
+        config = FedGuardConfig(**job.config)
         total_rounds = config.experiment.rounds
 
         async for metric in run_experiment(config):
