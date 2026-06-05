@@ -2,11 +2,17 @@
 
 ## Unreleased
 
+- No unreleased changes.
+
+## v1.9.4
+
 - Added Vitest unit coverage for the dashboard i18n composable helpers.
 - Added Vitest unit coverage for experiment option loading, filtering, and preview formatting helpers.
 - Added Vitest unit coverage for comparison report creation, history loading, and artifact URL helpers.
 - Added Vitest unit coverage for reports cleanup and runtime monitor composables.
 - Added Vitest unit coverage for recent jobs loading, filtering, selection, archive, and cleanup behavior.
+- Expanded frontend Vitest coverage to 388 tests across dashboard composables.
+- No runtime behavior change, no API behavior change, no training logic change, no report artifact URL change, and no new dependency.
 
 ## v1.9.3
 

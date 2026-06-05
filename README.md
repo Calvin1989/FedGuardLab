@@ -1,6 +1,6 @@
 # FedGuardLab
 
-> Current maintenance release: v1.9.3 maintenance release after v1.9.2, documenting dashboard composable refactoring, Vitest frontend unit tests, and GitHub Actions frontend lockfile compatibility.
+> Current maintenance release: v1.9.4 maintenance release after v1.9.3, documenting expanded Vitest unit coverage across dashboard composables with no runtime behavior change.
 
 ![CI](https://github.com/Calvin1989/FedGuardLab/actions/workflows/ci.yml/badge.svg)
 
@@ -240,13 +240,14 @@ reports/comparisons/<comparison_id>/
 
 ## 当前版本
 
-当前维护版本：v1.9.3
+当前维护版本：v1.9.4
 
 版本状态：
 
 * `v1.9.0`：Experiment Result Management final release，完成历史实验管理、归档 / 恢复、对比历史、统一 report/artifact 入口，以及安全的 reports cleanup workflow。
 * `v1.9.1`：maintenance release，记录 GitHub Actions Node 24 compatibility workflow maintenance，并确认 Docker Smoke manual workflow 通过。
 * `v1.9.2`：maintenance release，记录 dashboard UI scoped style cleanup，移除重复和 dead App.vue scoped styles，并完成 PR #140–#151 范围内的组件 scoped style 迁移与清理。
+* `v1.9.4`：maintenance release，扩展 dashboard composables 的 Vitest 单元测试覆盖，覆盖 i18n、experiment options、comparison、reports cleanup、runtime monitor 和 recent jobs；前端测试达到 388 passed，无运行时行为变更。
 * `v1.9.3`：maintenance release，记录 dashboard frontend composable/helper 重构、Vitest 前端单元测试与 CI 接入，以及 GitHub Actions npm ci lockfile 兼容性修复；无 API 行为、训练逻辑或 report artifact URL 变更。
 
 兼容性说明：
